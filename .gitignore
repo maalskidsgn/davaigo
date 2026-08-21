@@ -1,0 +1,40 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Zugangsdaten – niemals ins Git!
+.env
+.env.local
+.env.*.local
+.env.production
+
+# Android: erzeugte Dateien und Schlüssel
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+android/app/release/
+*.keystore
+*.jks
+
+# iOS – Bauartefakte und persoenliche Xcode-Einstellungen
+ios/App/build/
+ios/App/Pods/
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcworkspace/xcuserdata/
+ios/DerivedData/
+*.xcuserstate
+
+# Signaturschluessel – NIEMALS ins Repository
+android/habloo-release.keystore
+android/keystore.properties
+
+# Hörproben fürs Casting – lokal, gehören nicht ins Repo
+stimmen-proben/
+hoerprobe.html
+route-test.html
+
+# Lesetexte liegen im Supabase-Speicher, nicht im öffentlichen Repo
+public/lesetexte/
+public/hoertexte/

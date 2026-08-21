@@ -1,0 +1,134 @@
+// Vertont alle Lektionen mit ElevenLabs und legt die MP3s in
+// public/audio/ ab – unter GENAU dem Namen, den auch die App
+// berechnet (Prüfsumme aus Stimme + gesäubertem Text).
+// (Sobald Davaigo ein eigenes Supabase-Projekt hat, kann der
+// Speicher wieder in die Cloud wandern wie bei Habloo.)
+//
+// Aufruf:
+//   node scripts/vertone.mjs           → Probelauf: zeigt nur, was fehlt
+//   node scripts/vertone.mjs --los     → erzeugt und lädt wirklich hoch
+//   node scripts/vertone.mjs --lektion cafe --los   → nur eine Lektion
+//
+// Braucht in .env.local:
+//   ELEVENLABS_API_KEY   (fehlt er, geht nur der Probelauf)
+
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { createHash } from 'crypto'
+
+for (const z of readFileSync('.env.local', 'utf8').split('\n')) {
+  const m = z.match(/^([A-Z_]+)=(.*)$/)
+  if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim()
+}
+
+const { LEKTIONEN } = await import('../src/lektionen.js')
+
+// Prüfsummen-Logik und Besetzung kommen aus dem gemeinsamen Modul –
+// so KANN das Skript gar nicht auf einen anderen Dateinamen kommen
+// als die App.
+const { STIMMEN, sprechText, stimmeImDialog, dateiName, pruefsummeQuelle, BESETZUNG_STAND } =
+  await import('../src/stimmen.js')
+
+function audioName(text, stimme) {
+  return dateiName(
+    createHash('sha256').update(pruefsummeQuelle(text, stimme)).digest('hex')
+  )
+}
+
+// Welche echte Stimme hinter welcher Rolle steckt, steht in
+// scripts/besetzung.json – nicht hier im Code. So ist ein
+// Rollenwechsel eine Datenaenderung, kein Eingriff ins Skript.
+const BESETZUNG = JSON.parse(readFileSync('scripts/besetzung.json', 'utf8'))
+
+// Erinnerung an die Regel aus src/stimmen.js: Wer die Besetzung
+// aendert, MUSS dort BESETZUNG_STAND erhoehen - sonst behaelt jede
+// Aufnahme ihren alten Dateinamen und wird nie neu erzeugt.
+console.log(`Besetzungsstand ${BESETZUNG_STAND}: ` +
+  Object.entries(BESETZUNG).filter(([k]) => !k.startsWith('_'))
+    .map(([k, v]) => `${k}=${v.wer.split(' – ')[0]}`).join(', '))
+const ELEVEN_STIMMEN = Object.fromEntries(
+  Object.entries(BESETZUNG)
+    .filter(([k]) => !k.startsWith('_'))
+    .map(([k, v]) => [k, v.id])
+)
+
+// ---- Alle zu vertonenden Schnipsel einsammeln ----
+const nurLektion = process.argv.includes('--lektion')
+  ? process.argv[process.argv.indexOf('--lektion') + 1]
+  : null
+
+const auftraege = new Map() // name -> {text, stimme}
+for (const l of LEKTIONEN) {
+  if (nurLektion && l.id !== nurLektion) continue
+  for (const it of l.items) {
+    for (const text of [it.es, it.beispielEs].filter(Boolean)) {
+      const name = audioName(text, STIMMEN.standard)
+      auftraege.set(name, { text: sprechText(text), stimme: STIMMEN.standard, lektion: l.id })
+    }
+  }
+  for (const zeile of l.dialog ?? []) {
+    const stimme = stimmeImDialog(l.dialog, zeile.sprecher)
+    const name = audioName(zeile.es, stimme)
+    auftraege.set(name, { text: sprechText(zeile.es), stimme, lektion: l.id })
+  }
+}
+
+const zeichen = [...auftraege.values()].reduce((s, a) => s + a.text.length, 0)
+console.log(`${auftraege.size} Schnipsel, ${zeichen} Zeichen` + (nurLektion ? ` (nur ${nurLektion})` : ''))
+
+// ---- Was liegt schon im Ordner? ----
+const AUDIO_ORDNER = 'public/audio'
+mkdirSync(AUDIO_ORDNER, { recursive: true })
+
+async function existiert(name) {
+  return existsSync(`${AUDIO_ORDNER}/${name}`)
+}
+
+const fehlend = []
+for (const [name, auftrag] of auftraege) {
+  if (!(await existiert(name))) fehlend.push([name, auftrag])
+}
+console.log(`${fehlend.length} davon fehlen noch`)
+
+if (!process.argv.includes('--los')) {
+  const kosten = fehlend.reduce((s, [, a]) => s + a.text.length, 0)
+  console.log(`Probelauf beendet. Mit --los würden ${kosten} Zeichen vertont.`)
+  process.exit(0)
+}
+
+// ---- Wirklich vertonen ----
+if (!process.env.ELEVENLABS_API_KEY) {
+  console.error('ELEVENLABS_API_KEY fehlt in .env.local – nur Probelauf möglich.')
+  process.exit(1)
+}
+for (const [kennung, id] of Object.entries(ELEVEN_STIMMEN)) {
+  if (!id) {
+    console.error(`Für "${kennung}" ist noch keine ElevenLabs-Voice-ID eingetragen (oben im Skript).`)
+    process.exit(1)
+  }
+}
+
+let fertig = 0
+for (const [name, { text, stimme }] of fehlend) {
+  const antwort = await fetch(
+    `https://api.elevenlabs.io/v1/text-to-speech/${ELEVEN_STIMMEN[stimme]}?output_format=mp3_44100_128`,
+    {
+      method: 'POST',
+      headers: { 'xi-api-key': process.env.ELEVENLABS_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_multilingual_v2',
+        voice_settings: { stability: 0.55, similarity_boost: 0.8 },
+      }),
+    }
+  )
+  if (!antwort.ok) {
+    console.error(`✗ ${text.slice(0, 40)} – ElevenLabs: ${antwort.status} ${await antwort.text()}`)
+    continue
+  }
+  const mp3 = Buffer.from(await antwort.arrayBuffer())
+  writeFileSync(`${AUDIO_ORDNER}/${name}`, mp3)
+  fertig++
+  console.log(`✓ [${fertig}/${fehlend.length}] ${text.slice(0, 50)}`)
+  await new Promise((f) => setTimeout(f, 350)) // ElevenLabs nicht überrennen
+}
+console.log(`Fertig: ${fertig} von ${fehlend.length} vertont.`)

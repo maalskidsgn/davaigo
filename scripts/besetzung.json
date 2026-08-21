@@ -1,0 +1,24 @@
+{
+  "_hinweis": "Welche ElevenLabs-Stimme hinter welcher Rolle steckt. Ein Wechsel hier bedeutet: alle Aufnahmen dieser Rolle neu erzeugen.",
+  "_tarif": "premade-Stimmen laufen im kostenlosen Tarif und sprechen dank eleven_multilingual_v2 auch Russisch.",
+  "ru-w1": {
+    "id": "Xb7hH8MSUJpSbSDYk0k2",
+    "wer": "Anna – Alice, Clear Engaging Educator"
+  },
+  "ru-m1": {
+    "id": "cjVigY5qzO86Huf0OWal",
+    "wer": "Tom – Eric, Smooth Trustworthy"
+  },
+  "ru-m2": {
+    "id": "JBFqnCBsd6RMkjVDRZzb",
+    "wer": "Maxim – George, Warm Storyteller"
+  },
+  "ru-w2": {
+    "id": "EXAVITQu4vr4xnSDxMaL",
+    "wer": "Olga – Sarah, Mature Reassuring"
+  },
+  "ru-w3": {
+    "id": "FGY2WhTYpPnrIDTdsKH5",
+    "wer": "Lena – Laura, Enthusiast"
+  }
+}

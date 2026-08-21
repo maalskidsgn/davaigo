@@ -1,0 +1,40 @@
+{
+  "name": "russisch-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "node pruefe-lektionen.mjs && node pruefe-bausteine.mjs && node pruefe-stationen.mjs && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "server": "node server/index.js",
+    "dev:all": "PORT=8788 node server/index.js & vite --port 5174",
+    "android:sync": "vite build && cap sync android",
+    "android:open": "cap open android",
+    "android:apk": "vite build && cap sync android && cd android && ./gradlew assembleDebug",
+    "ios:sync": "vite build && cap sync ios",
+    "ios:open": "cap open ios",
+    "pruefe": "node pruefe-lektionen.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
+    "@supabase/supabase-js": "^2.112.3",
+    "express": "^5.2.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "stripe": "^22.5.0",
+    "youtubei.js": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "oxlint": "^1.75.0",
+    "vite": "^8.2.0"
+  }
+}
