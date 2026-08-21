@@ -131,3 +131,18 @@ Ab dann gilt `git push` = neue Version ist live.
   Lerndaten liegen zwar bei Supabase, aber der Server-Zustand nicht.
 - **Schlüssel wechseln,** falls sie je öffentlich standen:
   Supabase → Settings → API Keys → Rotate.
+
+## Nebenbei: die App ohne Anmeldung anschauen
+
+Zum Durchklicken von Lektionen und Design braucht es keine Datenbank.
+Der Vorschau-Modus startet Vite mit `--mode vorschau`, wodurch
+`.env.vorschau` die Supabase-Zugangsdaten aus `.env.local` überschreibt
+– mit leeren Werten. Die App merkt das und läuft rein im Browser:
+kein Konto, keine Anmeldung, alles im localStorage.
+
+```bash
+npm run dev -- --mode vorschau --port 5175
+```
+
+Dann `http://localhost:5175` öffnen. Der Onboarding-Trichter läuft
+einmal durch, danach steht die vollständige App bereit.
