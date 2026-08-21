@@ -132,6 +132,46 @@ Ab dann gilt `git push` = neue Version ist live.
 - **Schlüssel wechseln,** falls sie je öffentlich standen:
   Supabase → Settings → API Keys → Rotate.
 
+## Der Auto-Deploy löst nicht aus (Stand 21.08.2026)
+
+**Befund.** In Coolify steht bei beiden Anwendungen `Auto Deploy` auf
+an, und ein Webhook-Geheimnis ist hinterlegt. Trotzdem passiert bei
+`git push` nichts: In Coolifys Log taucht in 30 Minuten kein einziger
+eingehender Webhook auf, und die Deploy-Warteschlange bleibt leer.
+
+**Ursache.** Coolify wartet auf einen Anruf von GitHub, aber im
+Repository ist kein Webhook eingetragen. Beim Anlegen über einen
+öffentlichen Repository-Link legt Coolify den Webhook nicht selbst an –
+das macht nur die GitHub-App-Anbindung. Der Schalter im Coolify-Menü
+sagt also nur: *„Wenn ein Webhook kommt, dann deploye"* – nicht:
+*„Richte einen Webhook ein."*
+
+### Sofort deployen
+
+Coolify öffnen (`http://2.28.31.213:8000`) → Projekt **Davaigo** → erst
+**davaigo-api**, dann **davaigo-web** → oben rechts auf **Deploy**.
+Zwei Klicks, danach ist der aktuelle Stand live.
+
+### Dauerhaft reparieren
+
+Für **jede der beiden Anwendungen** einzeln, weil jede ihr eigenes
+Geheimnis hat:
+
+1. In Coolify die Anwendung öffnen → Reiter **Webhooks** → Abschnitt
+   **Manual Git Webhooks**. Dort stehen eine URL und ein Secret für
+   GitHub. Beide kopieren.
+2. Auf GitHub: `github.com/maalskidsgn/davaigo` → **Settings** →
+   **Webhooks** → **Add webhook**.
+   - *Payload URL*: die URL aus Schritt 1
+   - *Content type*: `application/json`
+   - *Secret*: das Secret aus Schritt 1
+   - *Which events*: `Just the push event`
+3. Für die zweite Anwendung wiederholen – dann hat das Repository zwei
+   Webhooks, einen je Anwendung.
+
+Danach zeigt GitHub unter **Recent Deliveries** bei jedem Push eine
+grüne Auslieferung, und Coolify baut von allein.
+
 ## Nebenbei: die App ohne Anmeldung anschauen
 
 Zum Durchklicken von Lektionen und Design braucht es keine Datenbank.
