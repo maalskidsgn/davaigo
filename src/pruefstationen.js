@@ -98,6 +98,52 @@ export const PRUEFSTATIONEN = [
       },
     ],
   },
+  {
+    id: 'station-m4',
+    modul: 'm4',
+    titel: 'Prüfstation: Menschen & Fälle',
+    emoji: '🚩',
+    rueckblick: [
+      {
+        emoji: '🗺️',
+        titel: 'Alle sechs Fälle liegen hinter dir',
+        text: 'Nominativ (wer handelt), Genitiv (*у меня нет времени*), Dativ (*я пишу другу*), Akkusativ (*я вижу брата*), Instrumental (*с сестрой*, *работать врачом*) und Präpositiv (*в школе*). Das ist das komplette Fallsystem des Russischen – alles Weitere im Kurs baut nur noch darauf auf, es kommt nichts Neues mehr dazu.',
+      },
+      {
+        emoji: '🎒',
+        titel: 'Haben ohne „haben"',
+        text: 'Russisch kennt kein Verb für „haben" – es sagt *у меня есть брат*, wörtlich „bei mir ist ein Bruder". Und die Verneinung wechselt den Fall: *у меня нет машины*. Genau solche Stellen zeigen, dass Russisch nicht Deutsch mit anderen Wörtern ist, sondern eine eigene Logik hat.',
+      },
+      {
+        emoji: '💚',
+        titel: 'Menschen, Gefühle, Vorlieben',
+        text: 'Du stellst deine Familie vor, erklärst Beziehungen und sagst, was dir gefällt (*мне нравится*), wie alt du bist (*мне двадцать лет*) und wie es dir geht (*мне холодно*). Auffällig: Bei Gefühlen und Alter steht die Person im Dativ – der Zustand widerfährt ihr, sie „ist" ihn nicht.',
+      },
+    ],
+  },
+  {
+    id: 'station-m5',
+    modul: 'm5',
+    titel: 'Prüfstation: Einkaufen & Vergangenheit',
+    emoji: '🚩',
+    rueckblick: [
+      {
+        emoji: '⏮️',
+        titel: 'Du kannst erzählen, was war',
+        text: 'Die russische Vergangenheit ist einfacher als die Gegenwart: eine einzige Endung auf *-л*, angepasst an das Geschlecht – *я работал*, *она работала*, *мы работали*. Kein Hilfsverb, keine Umstellung bei Fragen. Damit erzählst du deinen gestrigen Tag, eine Reise oder eine Panne.',
+      },
+      {
+        emoji: '🛒',
+        titel: 'Mengen, Preise und Einkäufe',
+        text: 'Du weißt jetzt, warum es *два часа*, aber *пять часов* heißt: Nach zwei bis vier steht der Genitiv Singular, ab fünf der Genitiv Plural. Damit kaufst du ein (*килограмм яблок*), fragst nach Preisen (*сколько стоит?*) und probierst Kleidung an (*можно примерить?*).',
+      },
+      {
+        emoji: '🤒',
+        titel: 'Und du kommst beim Arzt zurecht',
+        text: 'Bei Beschwerden ist im Russischen der Körperteil das Subjekt: *у меня болит голова* – „bei mir tut der Kopf weh". Dazu *мне надо отдыхать* und *можно / нельзя* für Erlaubnis und Verbot. Genau diese Sätze braucht man, wenn eine Reise nicht nach Plan läuft.',
+      },
+    ],
+  },
 ]
 
 /** Die Station eines Moduls – oder null. */
