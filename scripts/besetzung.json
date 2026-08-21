@@ -1,24 +1,24 @@
 {
-  "_hinweis": "Welche ElevenLabs-Stimme hinter welcher Rolle steckt. Ein Wechsel hier bedeutet: alle Aufnahmen dieser Rolle neu erzeugen.",
-  "_tarif": "premade-Stimmen laufen im kostenlosen Tarif und sprechen dank eleven_multilingual_v2 auch Russisch.",
+  "_hinweis": "Welche ElevenLabs-Stimme hinter welcher Rolle steckt. Ein Wechsel hier bedeutet: BESETZUNG_STAND in src/stimmen.js erhöhen und alle Aufnahmen neu erzeugen.",
+  "_abgenommen": "Sasha und Tatiana sind von Manuel per Hörprobe ausgewählt (21.08.2026). Beide sind echte russische Muttersprachler aus der ElevenLabs-Bibliothek.",
   "ru-w1": {
-    "id": "Xb7hH8MSUJpSbSDYk0k2",
-    "wer": "Anna – Alice, Clear Engaging Educator"
+    "id": "pE8sMHXrztMIYxQiwRsK",
+    "wer": "Anna – Tatiana, warm & freundlich, Muttersprachlerin"
   },
   "ru-m1": {
-    "id": "cjVigY5qzO86Huf0OWal",
-    "wer": "Tom – Eric, Smooth Trustworthy"
+    "id": "EgulRqOz9CGLM9hI1bKF",
+    "wer": "Tom – Sasha, jung, Sankt Petersburg, Muttersprachler"
   },
   "ru-m2": {
-    "id": "JBFqnCBsd6RMkjVDRZzb",
-    "wer": "Maxim – George, Warm Storyteller"
+    "id": "cQBwjaYSTY9mh3fUvHS3",
+    "wer": "Maxim – Savely (Reserve, noch nicht abgenommen)"
   },
   "ru-w2": {
-    "id": "EXAVITQu4vr4xnSDxMaL",
-    "wer": "Olga – Sarah, Mature Reassuring"
+    "id": "7VsVlkgkPKhWAimu09u0",
+    "wer": "Olga – Lexa (Reserve, noch nicht abgenommen)"
   },
   "ru-w3": {
-    "id": "FGY2WhTYpPnrIDTdsKH5",
-    "wer": "Lena – Laura, Enthusiast"
+    "id": "siMYRfAPBhRNMuBAmejC",
+    "wer": "Lena – Irina (Reserve, noch nicht abgenommen)"
   }
 }

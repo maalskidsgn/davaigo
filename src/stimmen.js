@@ -59,8 +59,9 @@ export const BESETZUNG = {
  * kann nie eine Aufnahme laufen, die nicht zur Besetzung passt.
  *
  * 1 = Alice und Eric (premade, englischer Akzent)
+ * 2 = Tatiana und Sasha – echte russische Muttersprachler
  */
-export const BESETZUNG_STAND = 1
+export const BESETZUNG_STAND = 2
 
 /**
  * Text vor dem Vertonen säubern.
