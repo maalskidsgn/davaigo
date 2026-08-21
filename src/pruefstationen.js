@@ -144,6 +144,121 @@ export const PRUEFSTATIONEN = [
       },
     ],
   },
+  {
+    id: 'station-m6',
+    modul: 'm6',
+    titel: 'Prüfstation: Stadt & Bewegung',
+    emoji: '🚩',
+    rueckblick: [
+      {
+        emoji: '🚶',
+        titel: 'Die Bewegungsverben liegen hinter dir',
+        text: 'Das Kapitel, vor dem alle Russischlernenden Respekt haben: *идти* gegen *ходить*, *ехать* gegen *ездить*. Der Unterschied ist keine Zählerei nach einmal oder mehrmals, sondern die Perspektive – bin ich gerade unterwegs, oder beschreibe ich eine Gewohnheit? Dazu die Vorsilben *при-*, *у-*, *в-*, *вы-*, die aus einem Verb sieben machen.',
+      },
+      {
+        emoji: '🎯',
+        titel: 'Wo oder wohin – ein Fall entscheidet',
+        text: 'Dieselbe Präposition, zwei Fälle: *Я в театре* (wo? Präpositiv) gegen *Я иду в театр* (wohin? Akkusativ). Genauso *дома* und *домой*, *там* und *туда*. Russisch trennt Aufenthalt und Ziel strenger als das Deutsche – und du hörst den Unterschied jetzt.',
+      },
+      {
+        emoji: '🧳',
+        titel: 'Und du kommst durch jede Reise',
+        text: 'Nach dem Weg fragen, Fahrkarten kaufen, umsteigen, ein Zimmer buchen, ein Problem melden (*душ не работает*) – und hinterher erzählen, was passiert ist. Ganz nebenbei hast du den Verbaspekt kennengelernt: *я читал* (Verlauf) gegen *я прочитал* (Ergebnis). Modul 7 baut genau darauf auf.',
+      },
+    ],
+  },
+  {
+    id: 'station-m7',
+    modul: 'm7',
+    titel: 'Prüfstation: Aspekt & Zukunft',
+    emoji: '🚩',
+    rueckblick: [
+      {
+        emoji: '🎭',
+        titel: 'Der Verbaspekt ist geknackt',
+        text: 'Die größte Hürde des Russischen liegt hinter dir: *делать* gegen *сделать*, *читать* gegen *прочитать*. Es geht nicht um lang oder kurz, sondern um die Perspektive – Film oder Foto, Verlauf oder Ergebnis. Weil der perfektive Aspekt keine Gegenwart haben kann, sieht seine Präsensform aus wie Gegenwart und bedeutet Zukunft: *я сделаю*.',
+      },
+      {
+        emoji: '🔮',
+        titel: 'Zwei Zukünfte, eine Wahl',
+        text: 'Mit *буду* plus imperfektivem Infinitiv beschreibst du Verlauf und Gewohnheit (*буду работать весь день*). Mit der perfektiven Form nennst du das Ergebnis (*сделаю за час*). Die Zeitangabe verrät oft schon, welche Form passt: *весь день* verlangt die eine, *за час* die andere.',
+      },
+      {
+        emoji: '🙏',
+        titel: 'Bitten, wünschen, entscheiden',
+        text: 'Der Imperativ in beiden Registern (*скажи* / *скажите*), die Höflichkeitsleiter bis zu *не могли бы вы*, das Konditional mit *бы* für Wünsche, und *если* für reale wie irreale Bedingungen. Damit verhandelst du, sagst höflich ab und triffst begründete Entscheidungen.',
+      },
+    ],
+  },
+  {
+    id: 'station-m8',
+    modul: 'm8',
+    titel: 'Prüfstation: Erzählen & Meinungen',
+    emoji: '🚩',
+    rueckblick: [
+      {
+        emoji: '🔗',
+        titel: 'Aus Sätzen sind Texte geworden',
+        text: 'Vorher hast du in Hauptsätzen gesprochen, jetzt verbindest du sie: *который* in allen Fällen (*человек, с которым я говорил*), dazu *что*, *потому что*, *хотя*, *когда* und *пока*. Genau dieser Sprung – vom aneinandergereihten Satz zum zusammenhängenden Text – ist der Unterschied zwischen A2 und B1.',
+      },
+      {
+        emoji: '🗣️',
+        titel: 'Du gibst wieder, was andere sagen',
+        text: 'Die indirekte Rede funktioniert im Russischen einfacher als im Deutschen: Die Zeitform bleibt, wie sie war. *Он сказал: «Я приду»* wird zu *Он сказал, что придёт* – keine Konjunktivakrobatik. Und für indirekte Fragen hast du die Partikel *ли*: *Он спросил, приду ли я.*',
+      },
+      {
+        emoji: '💭',
+        titel: 'Und du vertrittst eine Meinung',
+        text: 'Unpersönliches (*мне кажется*, *мне нужно*), Kurzformen (*я готов*, *это важно*), die Partikeln *же*, *ведь*, *даже*, *только* für den Zwischenton – und die Wortstellung als Werkzeug, um zu betonen, worauf es dir ankommt. Damit erzählst du eine Geschichte und diskutierst sie danach.',
+      },
+    ],
+  },
+  {
+    id: 'station-m9',
+    modul: 'm9',
+    titel: 'Prüfstation: Arbeit & Medien',
+    emoji: '🚩',
+    rueckblick: [
+      {
+        emoji: '💼',
+        titel: 'Russisch im Berufsleben',
+        text: 'Werdegang, Stellenanzeige, Lebenslauf, Bewerbungsgespräch, Meeting, Verhandlung – die gesamte Kette einmal durchgespielt. Dazu die formelle E-Mail mit ihrem festen Rahmen: *Уважаемый Иван Петрович* am Anfang, *С уважением* am Ende, und dazwischen kein *привет*.',
+      },
+      {
+        emoji: '📜',
+        titel: 'Partizipien: die Sprache der Texte',
+        text: 'Die vier Formen, an denen jeder Zeitungsartikel hängt: das kurze passive (*сделано*), das vollständige passive (*построенный дом*), das aktive (*работающий человек*) und das Adverbialpartizip (*прочитав книгу*). Du sprichst sie selten – aber du liest sie jetzt, ohne zu stolpern.',
+      },
+      {
+        emoji: '🎚️',
+        titel: 'Und du triffst den Ton',
+        text: 'Register ist keine Nebensache: *Здравствуйте* oder *привет*, *не могли бы вы* oder *дай*. Dazu die *-ся*-Konstruktion fürs Unpersönliche (*здесь строится дом*), Wortfamilien zum Erschließen unbekannter Wörter und Zahlen im Geschäftskontext. Nachricht und Podcast verstehst du im Kern.',
+      },
+    ],
+  },
+  {
+    id: 'station-m10',
+    modul: 'm10',
+    titel: 'Prüfstation: Natürliches Russisch',
+    emoji: '🏁',
+    rueckblick: [
+      {
+        emoji: '🎭',
+        titel: 'Die Feinheiten sitzen',
+        text: 'Der Aspekt hat eine dritte Dimension bekommen: *Ты читал Толстого?* fragt nach Erfahrung, *Ты прочитал книгу?* nach dem Ergebnis, und *приходил* hebt auf, was *пришёл* festhält. Dazu die Rektion (*гордиться тобой*, *бояться темноты*) und Präfixfamilien, aus denen ein Stamm zehn Wörter macht.',
+      },
+      {
+        emoji: '💬',
+        titel: 'Du verstehst, wie wirklich gesprochen wird',
+        text: '*что* klingt wie „schto“, *сегодня* mit w, *здравствуйте* wird zu „sdrasste“. Dazu die Partikeln, die in keinem Lehrbuch stehen: *ну*, *вот*, *короче*, *да ладно* – und *да нет, наверное*, der Satz, der drei Antworten enthält und „eher nicht“ bedeutet.',
+      },
+      {
+        emoji: '🎓',
+        titel: '180 Lektionen liegen hinter dir',
+        text: 'Vom kyrillischen Alphabet über sechs Fälle, den Verbaspekt, die Bewegungsverben und beide Zukunftsformen bis zu Partizipien und gesprochener Sprache. Du liest längere Texte, folgst einem Podcast, schreibst einen Aufsatz und hältst einen Vortrag. Der Kurs endet hier – die Sprache nicht. Практика решает всё!',
+      },
+    ],
+  },
 ]
 
 /** Die Station eines Moduls – oder null. */

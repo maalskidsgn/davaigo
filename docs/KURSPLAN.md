@@ -16,6 +16,25 @@ Die 180 Lektionen decken die relevante Grammatik bis ungefähr B2 ab.
 Bei konsequenter Hör-, Sprech- und Wiederholungspraxis ist ein solides
 B1 bis B1+ realistisch; die letzten Module bilden die Brücke zu B2.
 
+## Umsetzungsstand
+
+**Vollständig umgesetzt (21.08.2026).** Alle 180 Lektionen liegen in
+`src/lektionen.js` – zehn Module à 18 Lektionen, zusammen 1797 Vokabeln.
+Jedes Modul schließt mit einer Prüfstation in `src/pruefstationen.js` ab.
+
+Geprüft wird der Aufbau von drei Skripten, die bei jedem Build laufen:
+
+| Skript | prüft |
+| --- | --- |
+| `pruefe-lektionen.mjs` | Nummerierung, Rückverweise, Feldformate |
+| `pruefe-stationen.mjs` | eine Station je Modul, drei Rückblick-Karten |
+| `pruefe-bausteine.mjs` | die acht Grammatik-Bausteine |
+
+Ein Hinweis zu den Feldnamen: Die Vokabelfelder heißen weiterhin `es`
+und `beispielEs` – ein Erbe des Spanischkurses. Sie tragen russischen
+Text. Das bleibt absichtlich so, damit Engine, Prüfskripte und spätere
+Übernahmen aus Habloo kompatibel bleiben.
+
 ## Gesamtstruktur
 
 | Modul | Titel | Lektionen | Niveau |
