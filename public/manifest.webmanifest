@@ -1,0 +1,19 @@
+{
+  "name": "Davaigo – Russisch lernen",
+  "short_name": "Davaigo",
+  "description": "Russisch lernen mit echten Videos, geführten Lektionen und einem Vokabeltrainer, der sich merkt, wann du wiederholen musst.",
+  "lang": "de",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f0fc",
+  "theme_color": "#7c3aed",
+  "categories": ["education"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

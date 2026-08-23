@@ -12,8 +12,18 @@
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <!-- Farbe der Browserleiste auf dem Handy -->
     <meta name="theme-color" content="#7c3aed" />
+
+    <!-- Auf dem Startbildschirm gespeichert: eigenes Fenster ohne
+         Browserleiste, und unter dem Symbol steht "Davaigo" statt des
+         langen Seitentitels. Apple braucht dafür bis heute eigene
+         Zeilen, das Manifest allein genügt auf iOS nicht. -->
+    <meta name="apple-mobile-web-app-title" content="Davaigo" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 
     <!-- Vorschau beim Teilen in Chats und sozialen Netzwerken -->
     <meta property="og:title" content="Davaigo – Russisch lernen mit echten Videos" />
