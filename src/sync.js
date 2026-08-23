@@ -8,6 +8,15 @@
  */
 
 import { db } from './supabase.js'
+import { INTERVALS_DAYS } from './srs.js'
+
+/**
+ * Der Abstand eines Eintrags in Tagen – als Maß für „wie weit ist
+ * dieses Wort?". Bei alten Einträgen ohne intervall die Stufe.
+ */
+function abstand(eintrag) {
+  return eintrag?.intervall ?? INTERVALS_DAYS[eintrag?.level ?? 0] ?? 0
+}
 
 // ---------------------------------------------------------------
 //  Umrechnung zwischen App-Format und Datenbank-Spalten
@@ -17,9 +26,19 @@ import { db } from './supabase.js'
 // Die Datenbank speichert eine Zeile pro Wort. Diese beiden Funktionen
 // rechnen zwischen den Formaten um.
 
+// Kennt die Datenbank die feinen Felder schon?
+//
+// intervall und leichtigkeit fehlten bis zum 23.08. Bis die beiden
+// Spalten in Supabase angelegt sind, würde jeder Schreibversuch mit
+// ihnen scheitern – und zwar der GANZE Abgleich, nicht nur diese zwei
+// Werte. Deshalb fällt speichereVokabeln() beim ersten "Spalte gibt es
+// nicht" auf die alte Form zurück und merkt es sich für diese Sitzung.
+// Die App läuft dann wie vorher weiter, nur ohne feine Abstände.
+let feineFelderDa = true
+
 /** Ein App-Eintrag → Datenbank-Zeile */
 function zuDatenbank(wortEs, eintrag, nutzerId) {
-  return {
+  const zeile = {
     nutzer_id: nutzerId,
     wort_es: wortEs,
     uebersetzung: eintrag.translation ?? '',
@@ -30,23 +49,36 @@ function zuDatenbank(wortEs, eintrag, nutzerId) {
     richtig: eintrag.richtig ?? 0,
     falsch: eintrag.falsch ?? 0,
   }
+  // Der eigentliche Punkt: OHNE diese beiden fällt der Abstand beim
+  // nächsten App-Start auf die grobe Leiter [0,1,3,7,14,30,90]
+  // zurück. Mit "Gut" hängt dann jedes Wort für immer bei 2,5 Tagen –
+  // 1 mal 2,5 ergibt 2,5, das rundet auf Stufe 1 ab, Stufe 1 heißt
+  // wieder 1 Tag, und das Spiel beginnt von vorn.
+  if (feineFelderDa) {
+    zeile.intervall = eintrag.intervall ?? null
+    zeile.leichtigkeit = eintrag.leichtigkeit ?? null
+  }
+  return zeile
 }
 
 /** Datenbank-Zeile → App-Eintrag (Schlüssel + Wert getrennt) */
 function zuApp(zeile) {
-  return [
-    zeile.wort_es,
-    {
-      status: zeile.kategorie ?? 'neu',
-      translation: zeile.uebersetzung,
-      level: zeile.stufe ?? 0,
-      due: zeile.faellig_am ? new Date(zeile.faellig_am).getTime() : Date.now(),
-      addedAt: new Date(zeile.erstellt_am ?? Date.now()).getTime(),
-      source: zeile.beispielsatz ?? '',
-      richtig: zeile.richtig ?? 0,
-      falsch: zeile.falsch ?? 0,
-    },
-  ]
+  const eintrag = {
+    status: zeile.kategorie ?? 'neu',
+    translation: zeile.uebersetzung,
+    level: zeile.stufe ?? 0,
+    due: zeile.faellig_am ? new Date(zeile.faellig_am).getTime() : Date.now(),
+    addedAt: new Date(zeile.erstellt_am ?? Date.now()).getTime(),
+    source: zeile.beispielsatz ?? '',
+    richtig: zeile.richtig ?? 0,
+    falsch: zeile.falsch ?? 0,
+  }
+  // Nur setzen, wenn wirklich etwas dasteht: Bei alten Zeilen sind
+  // die Spalten null. Ein null im Eintrag würde zustand() in srs.js
+  // den Rückfall auf die Stufe verbauen – undefined nicht.
+  if (zeile.intervall != null) eintrag.intervall = zeile.intervall
+  if (zeile.leichtigkeit != null) eintrag.leichtigkeit = zeile.leichtigkeit
+  return [zeile.wort_es, eintrag]
 }
 
 // ---------------------------------------------------------------
@@ -70,16 +102,46 @@ export async function ladeVokabeln(nutzerId) {
  * @param {object} vokabeln – im App-Format { wort: {…} }
  */
 export async function speichereVokabeln(nutzerId, vokabeln) {
-  const zeilen = Object.entries(vokabeln).map(([wort, eintrag]) =>
-    zuDatenbank(wort, eintrag, nutzerId)
-  )
-  if (!zeilen.length) return
+  if (!Object.keys(vokabeln).length) return
 
-  const { error } = await db
-    .from('vokabeln')
-    .upsert(zeilen, { onConflict: 'nutzer_id,wort_es' })
+  // Die Zeilen werden bei jedem Versuch neu gebaut – zuDatenbank()
+  // schaut auf feineFelderDa, und das kann sich zwischendrin ändern.
+  const schreiben = () =>
+    db
+      .from('vokabeln')
+      .upsert(
+        Object.entries(vokabeln).map(([wort, eintrag]) => zuDatenbank(wort, eintrag, nutzerId)),
+        { onConflict: 'nutzer_id,wort_es' }
+      )
+
+  let { error } = await schreiben()
+
+  // Fehlen die neuen Spalten noch, einmal ohne sie versuchen. Sonst
+  // könnte niemand mehr Vokabeln sichern, nur weil in Supabase ein
+  // ALTER TABLE aussteht.
+  if (error && fehltSpalte(error)) {
+    feineFelderDa = false
+    console.warn(
+      'Die Spalten intervall/leichtigkeit fehlen in der Tabelle vokabeln. ' +
+        'Der Abgleich läuft ohne sie weiter – die Abstände bleiben dann grob. ' +
+        'Das SQL zum Nachrüsten steht in UEBERTRAGEN-VON-HABLOO.md.'
+    )
+    ;({ error } = await schreiben())
+  }
 
   if (error) throw new Error(error.message)
+}
+
+/** Meckert PostgREST über eine Spalte, die es nicht gibt? */
+function fehltSpalte(error) {
+  if (error.code === 'PGRST204') return true
+  // Der Gürtel zum Hosenträger, falls eine andere PostgREST-Fassung
+  // denselben Fall ohne eigenen Code meldet. NICHT nach "column <name>"
+  // suchen: Die echte Meldung lautet "Could not find the 'intervall'
+  // column of 'vokabeln' in the schema cache" – dort steht der Name
+  // VOR dem Wort column.
+  const text = error.message ?? ''
+  return /intervall|leichtigkeit/i.test(text) && /column|schema/i.test(text)
 }
 
 /** Löscht eine Vokabel. */
@@ -167,7 +229,12 @@ export async function speichereFortschritt(nutzerId, lektionId) {
 /**
  * Führt lokale und gespeicherte Daten zusammen und gibt den
  * gemeinsamen Stand zurück. Bei Vokabeln, die es doppelt gibt,
- * gewinnt die weiter fortgeschrittene Karteikasten-Stufe.
+ * gewinnt der weitere Abstand.
+ *
+ * Verglichen wird der Abstand in Tagen, nicht die Stufe: Die Stufe
+ * ist nur eine grobe Einordnung, und zwei Wörter mit 1 und mit
+ * 39 Tagen liegen beide auf Stufe 1. Bei Gleichstand gewann bisher
+ * die Datenbankfassung – und mit ihr der kleinere Abstand.
  */
 export async function zusammenfuehren(nutzerId, lokal) {
   const ausDb = await ladeVokabeln(nutzerId)
@@ -175,7 +242,7 @@ export async function zusammenfuehren(nutzerId, lokal) {
 
   for (const [wort, eintrag] of Object.entries(lokal.vokabeln ?? {})) {
     const vorhanden = vereint[wort]
-    if (!vorhanden || (eintrag.level ?? 0) > (vorhanden.level ?? 0)) {
+    if (!vorhanden || abstand(eintrag) > abstand(vorhanden)) {
       vereint[wort] = eintrag
     }
   }

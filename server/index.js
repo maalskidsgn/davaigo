@@ -8,6 +8,7 @@ import { tmpdir } from 'os'
 import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import { findeRussischeInterpreten, ergaenzeSongs } from './interpreten.js'
+import { uebersetzeWort, uebersetzeZeilen } from './uebersetzen.js'
 import { loescheKonto } from './konto.js'
 import {
   starteBezahlung,
@@ -283,28 +284,24 @@ app.get('/api/transcript', async (req, res) => {
   }
 })
 
-// Übersetzt ein russisches Wort ins Deutsche über die Google-Übersetzung.
-// (Die vorher genutzte MyMemory-API lieferte teils falsche/vulgäre Einträge,
-// weil dort jeder Übersetzungen eintragen kann.)
+// Übersetzt ein russisches Wort ins Deutsche.
+//
+// Lief bis zum 23.08. über Googles Widget-Endpunkt, der inzwischen
+// mit HTTP 429 sperrt – siehe server/uebersetzen.js. Jetzt macht das
+// ein Sprachmodell, das nebenbei die Grundform findet: Wer "книгу"
+// antippt, bekommt "das Buch" statt einer Fehlanzeige.
 app.get('/api/translate', async (req, res) => {
   const word = (req.query.q || '').trim()
   if (!word) return res.status(400).json({ error: 'Kein Wort angegeben.' })
   try {
-    const r = await fetch(
-      'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=de&dt=t&q=' +
-        encodeURIComponent(word)
-    )
-    const data = await r.json()
-    // Die Antwort ist verschachtelt: data[0] enthält die Übersetzungs-Stücke
-    const translation = (data?.[0] || [])
-      .map((part) => part?.[0] || '')
-      .join('')
-      .trim()
+    const translation = await uebersetzeWort(word, 'ru-de')
     if (!translation) throw new Error('Leere Antwort')
     res.json({ translation })
   } catch (err) {
     console.error('Übersetzung fehlgeschlagen:', err.message)
-    res.status(502).json({ error: 'Übersetzung fehlgeschlagen' })
+    // Der echte Grund geht mit. Die App zeigt ihn an, statt einen
+    // Ersatztext als Bedeutung auszugeben – siehe src/App.jsx.
+    res.status(502).json({ error: err.message || 'Übersetzung fehlgeschlagen' })
   }
 })
 
@@ -359,16 +356,18 @@ app.get('/api/search', async (req, res) => {
     // Videos gefunden werden ("gesunde Ernährung" -> "здоровое питание").
     // Steht dort schon Russisches, ändert die Übersetzung praktisch nichts.
     let suchbegriff = q
+    // Ob das geklappt hat, wird weiter unten mitgeschickt. Vorher fiel
+    // die Suche hier STILL auf den deutschen Begriff zurück, während
+    // über der Trefferliste weiter "russische Videos" stand – genau
+    // deshalb blieb der Google-Ausfall wochenlang unbemerkt.
+    let uebersetzungGelang = true
     try {
-      const r = await fetch(
-        'https://translate.googleapis.com/translate_a/single?client=gtx&sl=de&tl=ru&dt=t&q=' +
-          encodeURIComponent(q)
-      )
-      const d = await r.json()
-      const russisch = (d?.[0] || []).map((teil) => teil?.[0] || '').join('').trim()
+      const russisch = await uebersetzeWort(q, 'de-ru')
       if (russisch) suchbegriff = russisch
-    } catch {
-      // Klappt die Übersetzung nicht, wird eben im Original gesucht
+      else uebersetzungGelang = false
+    } catch (fehler) {
+      console.error('Suchbegriff übersetzen:', fehler.message)
+      uebersetzungGelang = false
     }
 
     // Beim Niveau helfen zusätzliche Suchwörter: "para principiantes"
@@ -428,7 +427,17 @@ app.get('/api/search', async (req, res) => {
       }
     }
 
-    res.json({ results: brauchbar.slice(0, 10) })
+    res.json({
+      results: brauchbar.slice(0, 10),
+      suchbegriff,
+      // Nur gesetzt, wenn wirklich etwas schiefging – die App zeigt
+      // den Satz dann über der Trefferliste. Lieber zugeben, dass
+      // etwas fehlt, als deutsche Videos als russische auszugeben.
+      hinweis: uebersetzungGelang
+        ? null
+        : 'Der Suchbegriff konnte nicht ins Russische übersetzt werden – ' +
+          'die Treffer sind deshalb vielleicht nicht russisch.',
+    })
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Suche fehlgeschlagen.' })
@@ -459,41 +468,20 @@ app.post('/api/generate-vocab', async (req, res) => {
 })
 
 // Übersetzt viele Transkript-Zeilen auf einmal ins Deutsche.
-// Trick: 25 Zeilen pro Anfrage mit Zeilenumbrüchen verbinden – kommt die
-// Antwort nicht sauber zeilenweise zurück, übersetzen wir einzeln nach.
-async function uebersetzeText(text) {
-  const r = await fetch(
-    'https://translate.googleapis.com/translate_a/single?client=gtx&sl=ru&tl=de&dt=t&q=' +
-      encodeURIComponent(text)
-  )
-  const d = await r.json()
-  return (d?.[0] || []).map((p) => p?.[0] || '').join('')
-}
-
+//
+// Die Arbeit steckt in server/uebersetzen.js. Dort sieht das Modell
+// das ganze Paket auf einmal und trifft dadurch den Bezug, den eine
+// Zeile-für-Zeile-Übersetzung verfehlt.
 app.post('/api/translate-batch', async (req, res) => {
   const lines = Array.isArray(req.body.lines) ? req.body.lines.slice(0, 500) : []
   if (lines.length === 0) return res.status(400).json({ error: 'Keine Zeilen übergeben.' })
 
   try {
-    const uebersetzungen = []
-    const CHUNK = 25
-    for (let i = 0; i < lines.length; i += CHUNK) {
-      const teil = lines.slice(i, i + CHUNK)
-      const ergebnis = await uebersetzeText(teil.join('\n'))
-      const zeilen = ergebnis.split('\n')
-      if (zeilen.length === teil.length) {
-        uebersetzungen.push(...zeilen.map((z) => z.trim()))
-      } else {
-        // Notlösung: dieses Paket Zeile für Zeile übersetzen
-        for (const zeile of teil) {
-          uebersetzungen.push((await uebersetzeText(zeile)).trim())
-        }
-      }
-    }
+    const uebersetzungen = await uebersetzeZeilen(lines)
     res.json({ uebersetzungen })
   } catch (err) {
     console.error(err.message)
-    res.status(500).json({ error: 'Übersetzung fehlgeschlagen.' })
+    res.status(500).json({ error: err.message || 'Übersetzung fehlgeschlagen.' })
   }
 })
 

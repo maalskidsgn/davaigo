@@ -8639,3 +8639,37 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .diktat-kachel:hover { border-color: #c9b2f4; }
 .diktat-kachel:active { transform: translateY(3px); box-shadow: 0 0 0 var(--line); }
 .diktat-kachel.kachel-benutzt { opacity: 0.25; cursor: default; }
+
+/* Der echte Grund statt einer erfundenen Übersetzung.
+   Vorher wurde "(keine Übersetzung gefunden)" angezeigt UND als
+   Bedeutung gespeichert – das Wort hat aber eine Übersetzung, der
+   Dienst kam nur nicht dran. */
+.word-fehler {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #b3261e;
+  background: #fdeceb;
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin: 6px 0 4px;
+}
+.word-fehler small {
+  display: block;
+  margin-top: 4px;
+  color: var(--text-schwach, #6b6b6b);
+  font-size: 0.8rem;
+}
+
+/* Warnung über der Trefferliste: Der Suchbegriff konnte nicht ins
+   Russische übersetzt werden, die Treffer sind also womöglich
+   deutsch. Vorher stand darüber kommentarlos "russische Videos". */
+.suche-warnung {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #8a5a00;
+  background: #fff6e0;
+  border: 1px solid #ffe0a3;
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin: 0 0 10px;
+}

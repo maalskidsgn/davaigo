@@ -8,6 +8,7 @@ import {
   speichereFortschritt,
 } from './sync.js'
 import Login from './Login.jsx'
+import NeuesPasswort from './NeuesPasswort.jsx'
 import Onboarding from './Onboarding.jsx'
 import Willkommen from './Willkommen.jsx'
 import Logo from './Logo.jsx'
@@ -271,7 +272,7 @@ export default function App() {
   const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
 
   // ---------- Konto & Abgleich ----------
-  const { nutzer, laedt: nutzerLaedt } = useNutzer()
+  const { nutzer, laedt: nutzerLaedt, passwortNeuSetzen, passwortGesetzt } = useNutzer()
   const [loginOffen, setLoginOffen] = useState(false)
   const [loginStart, setLoginStart] = useState('anmelden') // womit der Dialog aufgeht
   const [syncStatus, setSyncStatus] = useState('') // '' | 'laeuft' | 'fertig' | Fehlertext
@@ -693,14 +694,25 @@ export default function App() {
     try {
       const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(word))
       const data = await res.json()
-      const translation = data.translation || '(keine Übersetzung gefunden)'
-      setSelected({ word, translation, loading: false })
+      // Einen Fehler NICHT in eine Übersetzung verwandeln. Bis zum
+      // 23.08. stand hier `data.translation || '(keine Übersetzung
+      // gefunden)'` – und dieser Satz wurde als Bedeutung GESPEICHERT.
+      // Wörter landeten mit einer Fehlermeldung als Lösung im Trainer
+      // und wurden dort irgendwann so abgefragt.
+      if (!res.ok || !data.translation) {
+        throw new Error(data.error || 'Der Übersetzungsdienst antwortet nicht.')
+      }
+      const translation = data.translation
+      setSelected({ word, translation, fehler: '', loading: false })
       setVocab((v) => ({
         ...v,
         [word]: { ...(v[word] || newEntry('', video?.title)), translation },
       }))
-    } catch {
-      setSelected({ word, translation: 'Übersetzung fehlgeschlagen', loading: false })
+    } catch (f) {
+      // Das Wort bleibt gemerkt – aber ohne erfundene Bedeutung. Man
+      // kann sie im Trainer selbst nachtragen, und beim nächsten
+      // Antippen wird es erneut versucht.
+      setSelected({ word, translation: '', fehler: f.message, loading: false })
     }
   }
 
@@ -799,6 +811,11 @@ export default function App() {
 
   return (
     <div className="app">
+      {/* Nach dem Klick in der Passwort-Mail: erst neues Passwort, dann App.
+          Der Link meldet den Nutzer bereits an, deshalb steht das Fenster
+          hier und nicht bei der Willkommensseite. */}
+      {passwortNeuSetzen && <NeuesPasswort onFertig={passwortGesetzt} />}
+
       {/* Feier-Einblendung beim Level-Aufstieg */}
       {levelUp && (
         <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
@@ -1109,7 +1126,16 @@ export default function App() {
                   ) : (
                     <>
                       <div className="word-es">{selected.word}</div>
-                      <div className="word-de">{selected.translation}</div>
+                      {selected.fehler ? (
+                        <div className="word-fehler">
+                          {selected.fehler}
+                          <small>
+                            Das Wort ist gemerkt – die Bedeutung kannst du im Trainer nachtragen.
+                          </small>
+                        </div>
+                      ) : (
+                        <div className="word-de">{selected.translation}</div>
+                      )}
                       <div className="word-actions">
                         <button onClick={() => setStatus(selected.word, 'lernen')}>
                           Lernen
