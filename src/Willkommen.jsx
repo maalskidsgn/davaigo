@@ -231,7 +231,7 @@ const WOERTER = [
   ['Дружба', 'Freundschaft'],
 ]
 
-export default function Willkommen({ onStarten, onAnmelden }) {
+export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
   const seite = useRef(null)
 
   // Alles mit der Klasse "lp-zeig" gleitet herein, sobald es beim
@@ -367,6 +367,15 @@ export default function Willkommen({ onStarten, onAnmelden }) {
           <div>
             <h3>{APP_NAME}</h3>
             <span>Russisch lernen mit echten Videos, einem Karteikasten mit Gedächtnis und einer KI, die mitdenkt.</span>
+          </div>
+          {/* Pflichtangaben. Sie müssen von jeder Seite aus in zwei
+              Klicks erreichbar sein – und vor allem OHNE Konto,
+              sonst stünden sie hinter der Anmeldung. */}
+          <div>
+            <h3>Rechtliches</h3>
+            <button onClick={() => onRecht('impressum')}>Impressum</button>
+            <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
+            <button onClick={() => onRecht('agb')}>AGB &amp; Widerruf</button>
           </div>
         </div>
         <p className="lp-fuss-zeile">

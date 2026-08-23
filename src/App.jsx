@@ -9,6 +9,8 @@ import {
 } from './sync.js'
 import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
+import { Impressum, Datenschutz, AGB } from './Recht.jsx'
+import { seitenaufruf } from './messung.js'
 import Onboarding from './Onboarding.jsx'
 import Willkommen from './Willkommen.jsx'
 import Logo from './Logo.jsx'
@@ -273,6 +275,32 @@ export default function App() {
 
   // ---------- Konto & Abgleich ----------
   const { nutzer, laedt: nutzerLaedt, passwortNeuSetzen, passwortGesetzt } = useNutzer()
+
+  // Welche Pflichtseite gerade offen ist – oder null.
+  //
+  // Steht bewusst hier oben und nicht bei den Ansichten: Impressum,
+  // Datenschutz und AGB müssen auch OHNE Konto erreichbar sein, und
+  // dort unten gibt es die normale Ansichtssteuerung noch gar nicht.
+  const [rechtSeite, setRechtSeite] = useState(null)
+
+  // Der Einwilligungs-Hinweis hängt neben <App/> im Baum (App steigt
+  // für Abgemeldete früh aus), kann also keine Prop bekommen.
+  // Deshalb meldet er sich über ein Fenster-Ereignis.
+  useEffect(() => {
+    const auf = (e) => setRechtSeite(e.detail)
+    window.addEventListener('recht', auf)
+    return () => window.removeEventListener('recht', auf)
+  }, [])
+
+  // Jeden Ansichtswechsel an die Messung melden.
+  //
+  // Ohne das zählte Google genau EINEN Seitenaufruf pro Sitzung:
+  // Davaigo hat keinen Router, die Adresse in der Leiste ändert sich
+  // nie. Wer zwei Stunden durch die App geht, sähe in der Statistik
+  // aus wie jemand, der sofort wieder weg ist.
+  useEffect(() => {
+    seitenaufruf(view)
+  }, [view])
   const [loginOffen, setLoginOffen] = useState(false)
   const [loginStart, setLoginStart] = useState('anmelden') // womit der Dialog aufgeht
   const [syncStatus, setSyncStatus] = useState('') // '' | 'laeuft' | 'fertig' | Fehlertext
@@ -758,6 +786,16 @@ export default function App() {
   )
 
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------
+  // Pflichtseiten zuerst: Impressum, Datenschutz und AGB müssen auch
+  // ohne Konto erreichbar sein – sonst stünden sie hinter der
+  // Anmeldung, und genau das wäre der Fehler.
+  if (rechtSeite) {
+    const zu = () => setRechtSeite(null)
+    if (rechtSeite === 'impressum') return <Impressum onZurueck={zu} />
+    if (rechtSeite === 'datenschutz') return <Datenschutz onZurueck={zu} />
+    if (rechtSeite === 'agb') return <AGB onZurueck={zu} />
+  }
+
   // "?willkommen" in der Adresse zeigt die Startseite auch ohne
   // eingerichtete Datenbank – zum Ansehen und Gestalten.
   const willkommenErzwungen = new URLSearchParams(window.location.search).has('willkommen')
@@ -784,6 +822,7 @@ export default function App() {
     return (
       <>
         <Willkommen
+          onRecht={setRechtSeite}
           onStarten={() => {
             if (onboardingFertig) { setLoginStart('registrieren'); setLoginOffen(true) }
             else setOnboardingAktiv(true)
@@ -969,6 +1008,7 @@ export default function App() {
       {view === 'mehr' && (
         <main>
           <Settings
+            onRecht={setRechtSeite}
             progress={progress}
             settings={settings}
             setSettings={setSettings}

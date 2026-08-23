@@ -52,7 +52,7 @@ function datenbank() {
  *
  * @param {string} nutzerId – die Supabase-Kennung des Nutzers
  * @param {string} email    – für die Quittung
- * @param {string} herkunft – z.B. "https://habloo.de"
+ * @param {string} herkunft – z.B. "https://davaigo.de"
  */
 export async function starteBezahlung(nutzerId, email, herkunft) {
   if (!nutzerId) throw new Error('Ohne Anmeldung geht das nicht.')

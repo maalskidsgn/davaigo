@@ -20,7 +20,7 @@ export const istApp =
 
 // Notfall-Adresse: Ohne sie stünde die App ohne Server da. Sie greift
 // nur, wenn beim Bauen vergessen wurde, VITE_API_URL zu setzen.
-const NOTFALL = 'https://xexf1rjcef6l3k5ec6oddpad.2.28.31.213.sslip.io'
+const NOTFALL = 'https://api.davaigo.de'
 
 export const API_URL = AUS_UMGEBUNG || (istApp ? NOTFALL : '')
 

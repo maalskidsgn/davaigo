@@ -10,6 +10,8 @@ import { abmelden, anzeigename } from './auth.js'
 // Preis und Status kommen aus Stripe bzw. der Datenbank – hier steht
 // bewusst keine Zahl fest verdrahtet, sonst weicht die Anzeige
 // irgendwann von dem ab, was tatsaechlich abgebucht wird.
+import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
+
 export default function Settings({
   progress,
   settings,
@@ -18,10 +20,14 @@ export default function Settings({
   nutzer,
   syncStatus,
   onLoginOeffnen,
+  onRecht,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   const [bezahlbar, setBezahlbar] = useState(false)
   const [preis, setPreis] = useState(null)
+  // Die Einwilligung zur Messung – zurücknehmen muss genauso leicht
+  // sein wie zustimmen, deshalb steht der Schalter auch hier.
+  const [messung, setMessung] = useState(() => einwilligungsStand() === 'ja')
   const [laedt, setLaedt] = useState(false)
   const [kaufFehler, setKaufFehler] = useState('')
   const [loeschLaeuft, setLoeschLaeuft] = useState(false)
@@ -443,6 +449,56 @@ export default function Settings({
           </button>
         </div>
         )}
+      </div>
+
+      {/* ---------- Messung ---------- */}
+      {messungMoeglich() && (
+        <>
+          <h2 className="settings-heading">Messung</h2>
+          <div className="settings-card">
+            <label className="settings-row">
+              <div>
+                <div className="row-title">Anonyme Reichweitenmessung</div>
+                <div className="row-hint">
+                  Zählt mit Google Analytics, wie viele Menschen Davaigo benutzen.
+                  Aus heißt: kein Skript, keine Cookies. Davaigo funktioniert genauso.
+                </div>
+              </div>
+              <span className="switch">
+                <input
+                  type="checkbox"
+                  checked={messung}
+                  onChange={(e) => {
+                    setMessung(e.target.checked)
+                    setzeEinwilligung(e.target.checked)
+                  }}
+                />
+                <span className="slider" />
+              </span>
+            </label>
+          </div>
+        </>
+      )}
+
+      {/* ---------- Rechtliches ---------- */}
+      {/* Auch hier erreichbar, nicht nur im Fuß der Startseite: Wer
+          angemeldet ist, sieht die Startseite nie wieder. */}
+      <h2 className="settings-heading">Rechtliches</h2>
+      <div className="settings-card">
+        {[
+          ['impressum', 'Impressum'],
+          ['datenschutz', 'Datenschutzerklärung'],
+          ['agb', 'AGB & Widerrufsrecht'],
+        ].map(([kennung, text]) => (
+          <div className="settings-row" key={kennung}>
+            <div>
+              <div className="row-title">{text}</div>
+            </div>
+            <button className="btn-small" onClick={() => onRecht(kennung)}>
+              Lesen
+            </button>
+          </div>
+        ))}
       </div>
 
       {/* ---------- Über ---------- */}
