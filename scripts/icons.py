@@ -27,6 +27,18 @@ GOLD_DUNKEL = (255, 179, 0)      # #ffb300
 SCHRIFT = '/System/Library/Fonts/Supplemental/Arial Black.ttf'
 KANTE = 1024  # großzügig gerechnet, danach sauber verkleinert
 
+# Die Nummer steckt im Dateinamen, und das ist Absicht.
+#
+# iOS brennt das Symbol beim Speichern auf den Startbildschirm ein und
+# merkt es sich zur ADRESSE. Bleibt die Datei "/apple-touch-icon.png"
+# heißen, lädt Safari sie nach einer Änderung nicht neu – das alte Bild
+# klebt fest, auch wenn der Server längst ein neues ausliefert.
+#
+# Deshalb: Bei jeder Änderung am Symbol diese Zahl erhöhen und die
+# neuen Namen in index.html und public/manifest.webmanifest eintragen.
+# Neue Adresse, neues Bild, kein Rätselraten.
+STAND = 2
+
 
 def verlauf(groesse, oben_links, unten_rechts, diagonal=True):
     """Ein linearer Farbverlauf als Bild."""
@@ -68,13 +80,16 @@ def symbol(groesse, anteil=0.58):
 
 if __name__ == '__main__':
     for datei, groesse, anteil in [
+        # Ohne Nummer, weil manche Dienste stur die Wurzeladresse
+        # abfragen. Verlinkt wird aber die Fassung mit Nummer.
         ('public/apple-touch-icon.png', 180, 0.58),
-        ('public/icon-192.png', 192, 0.58),
-        ('public/icon-512.png', 512, 0.58),
+        (f'public/apple-touch-icon-{STAND}.png', 180, 0.58),
+        (f'public/icon-192-{STAND}.png', 192, 0.58),
+        (f'public/icon-512-{STAND}.png', 512, 0.58),
         # Android beschneidet "maskable"-Symbole auf einen Kreis mit
         # 80 Prozent Durchmesser. Hier steht das Д deshalb kleiner,
         # damit die Füßchen nicht abgeschnitten werden.
-        ('public/icon-maskable-512.png', 512, 0.42),
+        (f'public/icon-maskable-512-{STAND}.png', 512, 0.42),
     ]:
         symbol(groesse, anteil).save(datei, optimize=True)
         print(f'{datei}  {groesse}x{groesse}')
