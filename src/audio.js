@@ -42,7 +42,18 @@ let laufend = null // das gerade spielende Audio
 
 /**
  * Spielt einen Text ab: echte Aufnahme, wenn vorhanden – sonst
- * Browser-Stimme. Gibt zurück, was gespielt wurde ('datei'|'browser').
+ * Gerätestimme.
+ *
+ * Gibt zurück, WAS gespielt wurde und WANN es vorbei ist:
+ *
+ *   { art: 'datei' | 'browser', fertig: Promise<'ende'|'fehler'|'unterbrochen'> }
+ *
+ * Das Versprechen gehört zu GENAU dieser Wiedergabe. Vorher musste
+ * sich der Aufrufer am Modul-weiten `laufend` bedienen – und das
+ * zeigt nach jedem anderen Tonaufruf woandershin. Tippte jemand
+ * während eines Dialogs auf ein 🔊, wartete der Dialog auf ein Audio,
+ * das inzwischen pausiert war: Die Blasen blieben stehen, während
+ * der angetippte Ton lief.
  *
  * @param {string} text
  * @param {object} [opt]
@@ -53,7 +64,7 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
   const name = await audioName(text, stimme)
   const url = `${ABLAGE}/${name}`
 
-  // Läuft schon etwas? Stoppen – wie bei der Browser-Stimme auch.
+  // Läuft schon etwas? Stoppen – wie bei der Gerätestimme auch.
   if (laufend) {
     laufend.pause()
     laufend = null
@@ -77,18 +88,46 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     // nach "langsam gesprochen", nicht nach Zeitlupe.
     ton.preservesPitch = true
     laufend = ton
+
+    // Die Horcher hängen VOR play(). Ein sehr kurzer Schnipsel kann
+    // sonst zu Ende sein, bevor sie stehen – dann käme das Ende nie
+    // an und der Dialog bliebe hängen.
+    const fertig = new Promise((aufloesen) => {
+      let erledigt = false
+      const melde = (grund) => {
+        if (erledigt) return
+        erledigt = true
+        aufloesen(grund)
+      }
+      ton.addEventListener('ended', () => melde('ende'), { once: true })
+      ton.addEventListener('error', () => melde('fehler'), { once: true })
+      // 'pause' heißt: jemand anderes hat den Ton übernommen.
+      //
+      // ABER: Am natürlichen Ende feuert der Browser ERST 'pause' und
+      // danach 'ended'. Ohne die Abfrage auf ton.ended gälte jede
+      // normal zu Ende gespielte Zeile als Unterbrechung – der Dialog
+      // hörte dann nach der ersten Blase auf.
+      ton.addEventListener(
+        'pause',
+        () => { if (!ton.ended) melde('unterbrochen') },
+        { once: true }
+      )
+    })
+
     try {
       await ton.play()
-      return 'datei'
+      return { art: 'datei', fertig }
     } catch {
-      // Abspielen blockiert (z.B. Autoplay-Regel) – Browser-Stimme
+      // Abspielen blockiert (auf iOS z.B. alles, was nicht direkt aus
+      // einem Fingertipp kommt). Wichtig: `laufend` wieder freigeben,
+      // sonst wartet der nächste Aufrufer auf ein Audio, das nie
+      // losläuft – genau daran hing der Dialog auf dem iPhone fest.
+      if (laufend === ton) laufend = null
     }
   }
 
-  sprich(sprechText(text))
-  return 'browser'
+  return { art: 'browser', fertig: sprich(sprechText(text)) }
 }
-
 
 /**
  * Spielt einen ganzen Dialog als Gespräch ab, Zeile für Zeile mit
@@ -96,9 +135,8 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
  *
  * @param {object} [opt]
  * @param {(index: number) => void} [opt.beiZeile] – wird gerufen,
- *   BEVOR eine Zeile erklingt. Damit kann die Anzeige mitlaufen,
- *   statt nach eigenem Takt zu blättern: Eine lange Zeile bleibt
- *   dann so lange stehen, wie sie gesprochen wird.
+ *   sobald eine Zeile WIRKLICH erklingt. Damit läuft die Anzeige mit
+ *   dem Ton statt nach eigenem Takt.
  */
 export function dialogAbspielen(dialog, { beiZeile } = {}) {
   let gestoppt = false
@@ -106,19 +144,26 @@ export function dialogAbspielen(dialog, { beiZeile } = {}) {
   const lauf = (async () => {
     for (const [index, zeile] of dialog.entries()) {
       if (gestoppt) return
-      beiZeile?.(index)
-      await spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher) })
-      // Auf das Ende der Datei bzw. der Browser-Stimme warten
-      await new Promise((fertig) => {
-        if (laufend) {
-          laufend.onended = fertig
-          laufend.onerror = fertig
-        } else {
-          // Browser-Stimme: grob nach Textlänge schätzen
-          setTimeout(fertig, 900 + zeile.es.length * 65)
-        }
+
+      const wiedergabe = await spiele(zeile.es, {
+        stimme: stimmeImDialog(dialog, zeile.sprecher),
       })
       if (gestoppt) return
+
+      // Erst jetzt die Blase zeigen: Vorher stand sie schon da,
+      // während die Datei noch gesucht wurde. Über eine Mobilfunk-
+      // verbindung sind das je Zeile schnell ein paar Zehntel, um
+      // die der Text dem Ton vorauslief.
+      beiZeile?.(index)
+
+      const grund = await wiedergabe.fertig
+      if (gestoppt) return
+
+      // Hat jemand dazwischen etwas anderes angetippt, gehört ihm
+      // der Ton. Dann still aufhören, statt gegen die neue Stimme
+      // anzureden.
+      if (grund === 'unterbrochen') return
+
       await new Promise((f) => setTimeout(f, 450)) // Atempause
     }
   })()

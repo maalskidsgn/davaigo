@@ -57,16 +57,49 @@ export function gewaehlteStimme() {
   return s ? `${s.name} (${s.lang})` : null
 }
 
+/**
+ * Liest den Text vor und sagt Bescheid, wenn er fertig ist.
+ *
+ * Das Versprechen ist der Grund für den Umbau: Der Dialog-Ablauf hat
+ * vorher nach Textlänge GESCHÄTZT, wie lange das Sprechen dauert
+ * (900 ms + 65 ms je Zeichen). Bei einer langsamen Gerätestimme lief
+ * die Anzeige dadurch dem Ton davon.
+ *
+ * @returns {Promise<'ende'|'fehler'>}
+ */
 export function sprich(text) {
-  try {
-    const u = new SpeechSynthesisUtterance(text)
-    const stimme = besteStimme()
-    if (stimme) u.voice = stimme
-    u.lang = stimme?.lang ?? 'es-ES'
-    u.rate = 0.85 // etwas langsamer, damit man gut mithört
-    speechSynthesis.cancel() // falls noch etwas anderes spricht
-    speechSynthesis.speak(u)
-  } catch {
-    // kein Ton verfügbar – halb so wild
-  }
+  return new Promise((fertig) => {
+    try {
+      const u = new SpeechSynthesisUtterance(text)
+      const stimme = besteStimme()
+      if (stimme) u.voice = stimme
+      // Ohne russische Gerätestimme ist 'ru-RU' immer noch die
+      // richtige Ansage. Hier stand bis zum 29.09. 'es-ES' – ein
+      // Rest aus dem Spanischkurs, der Kyrillisch mit spanischer
+      // Aussprache vorlesen ließ.
+      u.lang = stimme?.lang ?? 'ru-RU'
+      u.rate = 0.85 // etwas langsamer, damit man gut mithört
+
+      let erledigt = false
+      const melde = (grund) => {
+        if (erledigt) return
+        erledigt = true
+        clearTimeout(notbremse)
+        fertig(grund)
+      }
+
+      // Chrome bricht lange Texte manchmal ab, ohne 'end' zu melden.
+      // Dann käme der Dialog nie weiter – also eine Notbremse, die
+      // großzügig über der erwarteten Sprechdauer liegt.
+      const notbremse = setTimeout(() => melde('fehler'), 4000 + text.length * 160)
+
+      u.onend = () => melde('ende')
+      u.onerror = () => melde('fehler')
+
+      speechSynthesis.cancel() // falls noch etwas anderes spricht
+      speechSynthesis.speak(u)
+    } catch {
+      fertig('fehler') // kein Ton verfügbar – halb so wild
+    }
+  })
 }
