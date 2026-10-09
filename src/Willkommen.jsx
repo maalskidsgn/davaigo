@@ -372,7 +372,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
               Klicks erreichbar sein – und vor allem OHNE Konto,
               sonst stünden sie hinter der Anmeldung. */}
           <div>
-            <h3>Rechtliches</h3>
+            <h3>Mehr</h3>
+            <a href="/ratgeber/">Ratgeber</a>
             <button onClick={() => onRecht('impressum')}>Impressum</button>
             <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
             <button onClick={() => onRecht('agb')}>AGB &amp; Widerruf</button>

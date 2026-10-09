@@ -281,7 +281,12 @@ export default function App() {
   // Steht bewusst hier oben und nicht bei den Ansichten: Impressum,
   // Datenschutz und AGB müssen auch OHNE Konto erreichbar sein, und
   // dort unten gibt es die normale Ansichtssteuerung noch gar nicht.
-  const [rechtSeite, setRechtSeite] = useState(null)
+  // Aus der Adresse lesen, damit ?recht=impressum von außen
+  // verlinkbar ist – die Ratgeberseiten im Fuß tun genau das.
+  const [rechtSeite, setRechtSeite] = useState(() => {
+    const gewuenscht = new URLSearchParams(window.location.search).get('recht')
+    return ['impressum', 'datenschutz', 'agb'].includes(gewuenscht) ? gewuenscht : null
+  })
 
   // Der Einwilligungs-Hinweis hängt neben <App/> im Baum (App steigt
   // für Abgemeldete früh aus), kann also keine Prop bekommen.

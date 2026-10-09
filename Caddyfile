@@ -35,6 +35,13 @@
 	header /apple-touch-icon.png Cache-Control "public, max-age=3600"
 	header /favicon.svg Cache-Control "public, max-age=3600"
 
-	try_files {path} /index.html
+	# Ratgeberseiten und Sitemap: kurz cachen, damit Korrekturen
+	# schnell ankommen.
+	@ratgeber path /ratgeber/* /sitemap.xml /robots.txt
+	header @ratgeber Cache-Control "public, max-age=1800"
+
+	# {path}/index.html muss mit rein, sonst landet /ratgeber/foo/ bei
+	# der SPA-Regel und zeigt die App statt des Ratgebers.
+	try_files {path} {path}/index.html /index.html
 	file_server
 }
