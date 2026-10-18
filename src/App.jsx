@@ -11,6 +11,19 @@ import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB } from './Recht.jsx'
 import { seitenaufruf } from './messung.js'
+import Feed from './Feed.jsx'
+import {
+  ladeSaetzeLokal,
+  speichereSaetzeLokal,
+  ladeSaetze,
+  speichereSaetze,
+} from './saetze.js'
+import {
+  ladeTexteLokal,
+  speichereTexteLokal,
+  ladeTexte,
+  speichereTexte,
+} from './lesetexte.js'
 import Onboarding from './Onboarding.jsx'
 import Willkommen from './Willkommen.jsx'
 import Logo from './Logo.jsx'
@@ -191,6 +204,11 @@ export default function App() {
   const [error, setError] = useState('')
   const [video, setVideo] = useState(null) // { videoId, title, lines }
   const [vocab, setVocab] = useState(loadVocab)
+  // Der Satz-Karteikasten liegt getrennt von den Vokabeln: dort steht
+  // ein Wort auf der Karte, hier ein ganzer Satz.
+  const [saetze, setSaetze] = useState(ladeSaetzeLokal)
+  // Die Wissenstexte zum Lesen und Wiederlesen
+  const [texte, setTexte] = useState(ladeTexteLokal)
   const [bausteinStand, setBausteinStand] = useState(loadBausteine)
   const [selected, setSelected] = useState(null) // { word, translation, loading }
   const [cardExit, setCardExit] = useState(null) // 'lernen'|'gewusst' – Erfolgs-Animation der Wortkarte
@@ -372,6 +390,69 @@ export default function App() {
     }, 1500)
     return () => clearTimeout(timer)
   }, [vocab, nutzer, syncStatus])
+
+  // Dasselbe für die Sätze. Die Datenbank-Tabelle gibt es eventuell
+  // noch nicht – dann bleibt speichereSaetze() still wirkungslos und
+  // der Browser-Speicher ist die einzige Ablage (siehe saetze.js).
+  useEffect(() => {
+    speichereSaetzeLokal(saetze)
+
+    if (!nutzer || syncStatus === 'laeuft') return
+    const timer = setTimeout(() => {
+      speichereSaetze(nutzer.id, saetze).catch(() => {})
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [saetze, nutzer, syncStatus])
+
+  // Und dasselbe für die Lesetexte.
+  useEffect(() => {
+    speichereTexteLokal(texte)
+
+    if (!nutzer || syncStatus === 'laeuft') return
+    const timer = setTimeout(() => {
+      speichereTexte(nutzer.id, texte).catch(() => {})
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [texte, nutzer, syncStatus])
+
+  // Beim Anmelden die Sätze vom Konto holen und mit den lokalen
+  // zusammenführen – der weiter fortgeschrittene Stand gewinnt.
+  useEffect(() => {
+    if (!nutzer) return
+    let abgebrochen = false
+    ladeSaetze(nutzer.id)
+      .then((ausDb) => {
+        if (!ausDb || abgebrochen) return
+        setSaetze((lokal) => {
+          const zusammen = { ...ausDb }
+          for (const [key, e] of Object.entries(lokal)) {
+            const da = zusammen[key]
+            // Ohne Gegenstück übernehmen; sonst den neueren Termin behalten
+            if (!da || (e.due ?? 0) > (da.due ?? 0)) zusammen[key] = e
+          }
+          return zusammen
+        })
+      })
+      .catch(() => {})
+    return () => {
+      abgebrochen = true
+    }
+  }, [nutzer])
+
+  // Lesetexte vom Konto holen und zusammenführen.
+  useEffect(() => {
+    if (!nutzer) return
+    let abgebrochen = false
+    ladeTexte(nutzer.id)
+      .then((ausDb) => {
+        if (!ausDb || abgebrochen) return
+        setTexte((lokal) => ({ ...ausDb, ...lokal }))
+      })
+      .catch(() => {})
+    return () => {
+      abgebrochen = true
+    }
+  }, [nutzer])
 
   // Gespeicherte Videos ebenfalls im Browser sichern
   useEffect(() => {
@@ -791,6 +872,20 @@ export default function App() {
   )
 
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------
+  // ---------- Der Feed: Vollbild, ohne Tab-Leiste ----------
+  // Eine Karte je Bildschirm – da störte eine Menüleiste am unteren
+  // Rand beim Wischen und würde die Karte beschneiden.
+  if (view === 'feed') {
+    return (
+      <Feed
+        onZurueck={() => setView('start')}
+        onAddVocab={addVocabWords}
+        vocab={vocab}
+        addXp={addXp}
+      />
+    )
+  }
+
   // Pflichtseiten zuerst: Impressum, Datenschutz und AGB müssen auch
   // ohne Konto erreichbar sein – sonst stünden sie hinter der
   // Anmeldung, und genau das wäre der Fehler.
@@ -976,6 +1071,12 @@ export default function App() {
             bausteinStand={bausteinStand}
             setBausteinStand={setBausteinStand}
             lessonProgress={lessonProgress}
+            onNavigate={setView}
+            saetze={saetze}
+            setSaetze={setSaetze}
+            texte={texte}
+            setTexte={setTexte}
+            onAddVocab={addVocabWords}
           />
         </main>
       )}

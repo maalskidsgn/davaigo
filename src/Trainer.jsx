@@ -33,6 +33,8 @@ import {
   buchstabenMischen,
   stimmtUeberein,
 } from './uebungen.js'
+import Satztrainer from './Satztrainer.jsx'
+import Lesetexte from './Lesetexte.jsx'
 
 // Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
 //
@@ -47,8 +49,15 @@ export default function Trainer({
   bausteinStand,
   setBausteinStand,
   lessonProgress,
+  onNavigate,
+  saetze = {},
+  setSaetze,
+  texte = {},
+  setTexte,
+  onAddVocab,
 }) {
-  const [deck, setDeck] = useState('woerter') // 'woerter' | 'grammatik'
+  // 'woerter' | 'saetze' | 'lesen' | 'grammatik'
+  const [deck, setDeck] = useState('woerter')
   // Die Wortliste ist Verwaltung, nicht Lernen – sie startet
   // deshalb eingeklappt und laedt nur haeppchenweise nach.
   const [listeOffen, setListeOffen] = useState(false)
@@ -113,6 +122,17 @@ export default function Trainer({
   const faelligeGrammatik = useMemo(
     () => faelligeBausteine(bausteinStand, lessonProgress),
     [bausteinStand, lessonProgress]
+  )
+
+  // Wie viele Sätze und Texte warten? Die Zahl steht im Reiter, damit
+  // man sieht, wo etwas liegt, ohne hineinzuklicken.
+  const faelligeSaetze = useMemo(
+    () => Object.values(saetze).filter((s) => isDue(withSrsDefaults(s))).length,
+    [saetze]
+  )
+  const faelligeTexte = useMemo(
+    () => Object.values(texte).filter((x) => isDue(withSrsDefaults(x))).length,
+    [texte]
   )
 
   function startTraining(gewaehlteArt) {
@@ -219,13 +239,23 @@ export default function Trainer({
       <h1 className="trainer-titel">
         Dein{' '}
         <span className="accent">
-          {deck === 'woerter' ? 'Vokabeltrainer' : 'Grammatik-Trainer'}
+          {deck === 'woerter'
+            ? 'Vokabeltrainer'
+            : deck === 'saetze'
+              ? 'Satz-Trainer'
+              : deck === 'lesen'
+                ? 'Lesestoff'
+                : 'Grammatik-Trainer'}
         </span>
       </h1>
       <p className="intro">
         {deck === 'woerter'
           ? 'Neue Wörter sammeln und sicher behalten.'
-          : 'Grammatik wiederholen, bis sie sitzt.'}
+          : deck === 'saetze'
+            ? 'Ganze Sätze üben – nach Thema, Aspekt und Fall.'
+            : deck === 'lesen'
+              ? 'Kurze Wissenstexte lesen – und wiederlesen.'
+              : 'Grammatik wiederholen, bis sie sitzt.'}
       </p>
       <div className="deck" role="tablist">
         <button
@@ -236,6 +266,24 @@ export default function Trainer({
         >
           Vokabeln
           {trainable.length > 0 && <span className="deck-zahl">{trainable.length}</span>}
+        </button>
+        <button
+          role="tab"
+          aria-selected={deck === 'saetze'}
+          className={deck === 'saetze' ? 'deck-aktiv' : ''}
+          onClick={() => setDeck('saetze')}
+        >
+          Sätze
+          {faelligeSaetze > 0 && <span className="deck-zahl">{faelligeSaetze}</span>}
+        </button>
+        <button
+          role="tab"
+          aria-selected={deck === 'lesen'}
+          className={deck === 'lesen' ? 'deck-aktiv' : ''}
+          onClick={() => setDeck('lesen')}
+        >
+          Lesen
+          {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
         <button
           role="tab"
@@ -251,6 +299,34 @@ export default function Trainer({
       </div>
     </>
   )
+
+  // ---------- Der Satz-Karteikasten ----------
+  // Derselbe Kern wie bei den Wörtern, nur steht ein ganzer Satz auf
+  // der Karte. Deshalb keine Spiele und kein Abtippen.
+  if (deck === 'saetze') {
+    return (
+      <div className="wechsel" key="saetze">
+        <Satztrainer kopf={schalter} saetze={saetze} setSaetze={setSaetze} addXp={addXp} />
+      </div>
+    )
+  }
+
+  // ---------- Lesestoff: kurze Wissenstexte ----------
+  // Kein Abfragen, sondern Lesen – aber mit denselben Abständen.
+  if (deck === 'lesen') {
+    return (
+      <div className="wechsel" key="lesen">
+        <Lesetexte
+          kopf={schalter}
+          texte={texte}
+          setTexte={setTexte}
+          addXp={addXp}
+          onAddVocab={onAddVocab}
+          vocab={vocab}
+        />
+      </div>
+    )
+  }
 
   // ---------- Der zweite Karteikasten: Grammatik ----------
   if (deck === 'grammatik') {

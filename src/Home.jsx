@@ -4,6 +4,7 @@ import { usePremium } from './premium.js'
 import { letzteWoche } from './aktivitaet.js'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
+import { FeedTuer } from './Feed.jsx'
 
 // Die Startseite.
 //
@@ -86,7 +87,13 @@ export default function Home({
         </div>
       </section>
 
-      {/* ============ 2. DER WEG ZUM LEITFADEN ============ */}
+      {/* ============ 2. DER FEED ============ */}
+      {/* Steht VOR den übrigen Türen: Es ist der Weg mit der
+          niedrigsten Hürde. Wer keine Lust auf eine Lektion hat,
+          wischt sich hier durch – und lernt trotzdem etwas. */}
+      <FeedTuer onOeffnen={() => onNavigate('feed')} />
+
+      {/* ============ 3. DER WEG ZUM LEITFADEN ============ */}
       {/* Nur die Tuer, nicht der ganze Raum: Der Leitfaden ist lang
           und liest sich einmal – auf dem Start stuende er jeden Tag
           im Weg. */}

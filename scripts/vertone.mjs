@@ -21,6 +21,10 @@ for (const z of readFileSync('.env.local', 'utf8').split('\n')) {
 }
 
 const { LEKTIONEN } = await import('../src/lektionen.js')
+// Der Feed hat eigene Zeilen, die in keiner Lektion stehen – ohne
+// sie spräche dort die Gerätestimme, mitten zwischen echten
+// Aufnahmen. Das fällt sofort auf.
+const { HAEPPCHEN, TEXTE } = await import('../src/feed.js')
 
 // Prüfsummen-Logik und Besetzung kommen aus dem gemeinsamen Modul –
 // so KANN das Skript gar nicht auf einen anderen Dateinamen kommen
@@ -69,6 +73,24 @@ for (const l of LEKTIONEN) {
     const stimme = stimmeImDialog(l.dialog, zeile.sprecher)
     const name = audioName(zeile.es, stimme)
     auftraege.set(name, { text: sprechText(zeile.es), stimme, lektion: l.id })
+  }
+}
+
+// ---- Und die Zeilen aus dem Feed ----
+// Nur wenn nicht gerade eine einzelne Lektion vertont wird.
+if (!nurLektion) {
+  for (const h of HAEPPCHEN) {
+    for (const z of h.zeilen) {
+      const name = audioName(z.es, STIMMEN.standard)
+      auftraege.set(name, { text: sprechText(z.es), stimme: STIMMEN.standard, lektion: 'feed' })
+    }
+  }
+  for (const text of TEXTE) {
+    // Titel und Absätze – die Wörterliste steht schon in den Absätzen
+    for (const satz of [text.titelEs, ...text.absaetze.map((a) => a.es)]) {
+      const name = audioName(satz, STIMMEN.standard)
+      auftraege.set(name, { text: sprechText(satz), stimme: STIMMEN.standard, lektion: 'feed' })
+    }
   }
 }
 

@@ -9,6 +9,8 @@ import { join } from 'path'
 import Anthropic from '@anthropic-ai/sdk'
 import { findeRussischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { uebersetzeWort, uebersetzeZeilen } from './uebersetzen.js'
+import { erzeugeSatzliste, GRAMMATIK } from './saetze.js'
+import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
 import {
   starteBezahlung,
@@ -482,6 +484,47 @@ app.post('/api/translate-batch', async (req, res) => {
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: err.message || 'Übersetzung fehlgeschlagen.' })
+  }
+})
+
+// Satzliste mit KI erstellen – das Gegenstück zu /api/vokabelliste.
+//
+// Zwei Vorgaben sind möglich und lassen sich kombinieren: ein Thema
+// ("Reisen") und eine Grammatikform ("instrumental"). Ohne beides
+// schaut die KI auf die bisherigen Sätze und ergänzt passend.
+app.post('/api/saetze', async (req, res) => {
+  const thema = (req.body.thema || '').trim().slice(0, 80)
+  const grammatik = GRAMMATIK[req.body.grammatik] ? req.body.grammatik : ''
+  const bekannt = Array.isArray(req.body.bekannt) ? req.body.bekannt : []
+
+  // Ohne jede Vorgabe braucht das Modell etwas, woran es sich
+  // orientieren kann – sonst käme beliebiges Zeug zurück.
+  if (!thema && !grammatik && bekannt.length < 5) {
+    return res.status(400).json({
+      error: 'Wähle ein Thema oder eine Form – dann lege ich los.',
+    })
+  }
+
+  try {
+    res.json(await erzeugeSatzliste(thema, grammatik, bekannt))
+  } catch (err) {
+    console.error('Satzliste:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// Kurzer zweisprachiger Wissenstext zum mehrmaligen Lesen.
+app.post('/api/lesetext', async (req, res) => {
+  const gebiet = GEBIETE[req.body?.gebiet] ? req.body.gebiet : ''
+  const thema = (req.body?.thema || '').trim().slice(0, 80)
+  const stufe = ['a2', 'b1', 'b2'].includes(req.body?.stufe) ? req.body.stufe : 'b1'
+  const bekannt = Array.isArray(req.body?.bekannt) ? req.body.bekannt : []
+
+  try {
+    res.json(await erzeugeLesetext(gebiet, thema, stufe, bekannt))
+  } catch (err) {
+    console.error('Lesetext:', err.message)
+    res.status(500).json({ error: err.message })
   }
 })
 

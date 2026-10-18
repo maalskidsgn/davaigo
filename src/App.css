@@ -8815,3 +8815,536 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* ================================================================
+   Satz-Trainer, Lesestoff und Feed
+   Übernommen aus Habloo, Farben auf Violett/Gold gedreht.
+   Steht bewusst am DATEIENDE: Eine Regel in einem Media Query, der
+   weiter oben steht, würde die Grundregel überschreiben.
+   ================================================================ */
+.wortkarte-schliessen {
+  position: absolute;
+  top: 12px; right: 12px;
+  width: 30px; height: 30px;
+  border: none; border-radius: 50%;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-size: 15px; line-height: 1;
+  cursor: pointer;
+  display: grid; place-items: center;
+}
+.wortkarte-schliessen:hover { background: var(--line); color: var(--navy); }
+.leser-leiste {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+/* ============================================================
+   SATZ-TRAINER
+   Eigener Karteikasten für ganze Sätze. Die Karten sind breiter
+   und ruhiger als die Vokabelkarten: Ein Satz will gelesen
+   werden, ein Einzelwort nur erkannt.
+   ============================================================ */
+
+/* ----- Die Türen in der Übersicht (auch die Nachschlag-Tür im
+   Grammatik-Reiter nutzt diese Klasse) ----- */
+.trainer-sprechen {
+  display: grid;
+  grid-template-columns: 52px 1fr 20px;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 16px 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color .15s, transform .15s;
+}
+.trainer-sprechen:active { transform: none; box-shadow: none; }
+@media (hover: hover) {
+  .trainer-sprechen:hover { transform: scale(1.01); border-color: var(--primary); }
+}
+.trainer-sprechen-icon {
+  width: 52px; height: 52px;
+  display: grid; place-items: center;
+  background: var(--flaeche);
+  border-radius: 14px;
+  color: var(--primary);
+}
+.trainer-sprechen-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.trainer-sprechen-text h2 { margin: 0; font-size: 16.5px; font-weight: 800; color: var(--navy); }
+.trainer-sprechen-text p { margin: 0; font-size: 13.5px; color: var(--muted); }
+/* ----- Zahlenreihe: fällig / gesammelt / sitzt ----- */
+.satz-stand {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.satz-zahl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 14px 8px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.satz-zahl b { font-size: 24px; font-weight: 800; color: var(--primary); line-height: 1; }
+.satz-zahl span { font-size: 12px; color: var(--muted); font-weight: 600; }
+.uebung-los { width: 100%; margin-bottom: 4px; }
+.satz-leer { text-align: center; padding: 26px 20px; }
+.satz-leer h2 { margin: 0 0 8px; font-size: 18px; }
+.satz-leer p { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+/* ----- Die Übungskarte ----- */
+.satzkarte .flash-satz {
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--navy);
+  padding: 8px 4px 16px;
+  text-wrap: balance;
+}
+.satz-schluessel-hinweis {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.satz-schluessel-hinweis b { color: var(--primary); }
+/* Antworten beim Multiple Choice sind hier ganze Sätze –
+   deshalb untereinander und linksbündig, nicht im Raster. */
+.satz-optionen {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.satz-optionen .quiz-option {
+  text-align: left;
+  font-size: 14.5px;
+  line-height: 1.4;
+  padding: 13px 16px;
+  white-space: normal;
+}
+/* ----- Zeitform-Chips im Generator ----- */
+.zeitform-wahl { margin-bottom: 10px; }
+.zeitform-titel {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 6px;
+  letter-spacing: .02em;
+}
+/* ----- Die erzeugten Sätze zum Ankreuzen ----- */
+.satz-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    'box es'
+    '.   de'
+    '.   key';
+  gap: 2px 10px;
+  align-items: start;
+}
+.satz-item input { grid-area: box; margin-top: 3px; }
+.satz-item .satz-es { grid-area: es; }
+.satz-item .satz-de { grid-area: de; }
+.satz-item .satz-schluessel { grid-area: key; }
+.satz-es { font-weight: 700; font-size: 14.5px; line-height: 1.4; color: var(--navy); }
+.satz-de { font-size: 13.5px; color: var(--muted); line-height: 1.4; }
+.satz-schluessel {
+  justify-self: start;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: #f3ecff;
+  border-radius: 999px;
+  padding: 2px 9px;
+}
+/* ----- Die eigene Satzliste zum Aufräumen ----- */
+.satz-filter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.satz-liste { display: flex; flex-direction: column; gap: 8px; }
+.satz-zeile {
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.satz-zeile-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.satz-meta { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+.satz-weg {
+  width: 30px; height: 30px;
+  padding: 0;
+  display: grid; place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-size: 13px;
+  box-shadow: none;
+  cursor: pointer;
+}
+.satz-weg:active { transform: none; box-shadow: none; }
+.satz-weg:hover { background: var(--line); color: var(--navy); }
+/* ============================================================
+   LESESTOFF – Wissenstexte lesen und wiederlesen
+   ============================================================ */
+
+/* ----- Was heute ansteht ----- */
+.text-faellig { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.text-karte {
+  display: grid;
+  grid-template-columns: 1fr 18px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: none;
+  transition: border-color .15s, transform .15s;
+}
+.text-karte:active { transform: none; box-shadow: none; }
+@media (hover: hover) {
+  .text-karte:hover { border-color: var(--primary); transform: scale(1.01); }
+}
+.text-karte-inhalt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.text-titel { font-weight: 800; font-size: 15.5px; color: var(--navy); }
+.text-untertitel { font-size: 13.5px; color: var(--muted); }
+.text-meta { font-size: 11.5px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+/* ----- Die Liste aller Texte ----- */
+.text-liste { display: flex; flex-direction: column; gap: 8px; }
+.text-zeile {
+  display: grid;
+  grid-template-columns: 1fr 30px;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.text-zeile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+.text-zeile-text:active { transform: none; box-shadow: none; }
+.leser-leiste {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.leser-stufe {
+  justify-self: end;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+  letter-spacing: .04em;
+}
+/* ----- Wörter zum Mitnehmen ----- */
+.leser-woerter {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.leser-woerter h2 { margin: 0 0 2px; font-size: 15px; font-weight: 800; color: var(--navy); }
+.leser-woerter-hinweis { margin: 0 0 12px; font-size: 12.5px; color: var(--muted); }
+.leser-wortliste { display: flex; flex-wrap: wrap; gap: 8px; }
+/* ----- Der Merksatz ----- */
+.leser-merksatz {
+  margin-top: 22px;
+  padding: 14px 16px;
+  background: #f3ecff;
+  border-radius: 14px;
+}
+.leser-merksatz-marke {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+.leser-merksatz p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--navy); }
+/* ----- Abschluss ----- */
+/* ----- Der Sprachumschalter läuft unten mit -----
+   Beim Lesen braucht man ihn mitten im Text. Oben wäre er nach dem
+   ersten Absatz aus dem Bild – hier unten klebt er am Rand, in
+   Daumennähe, und bleibt beim Scrollen stehen. */
+.leser-schiene {
+  position: sticky;
+  /* Über der Tab-Leiste der App sitzen, nicht dahinter */
+  /* Am Rechner steht die Menüleiste oben, da genügt etwas Abstand
+     zum Fensterrand. Auf dem Handy klebt sie unten – dort weiter
+     hoch (siehe Media Query). */
+  bottom: 14px;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  margin: 18px 0 4px;
+  pointer-events: none;
+}
+.leser-schiene .leser-sprachen {
+  pointer-events: auto;
+  width: min(280px, 100%);
+  padding: 4px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 65, .12);
+}
+.leser-schiene .leser-sprache { padding: 10px 10px; font-size: 14px; }
+.leser-fertig { width: 100%; margin-top: 16px; }
+.leser-bewertung { margin-top: 16px; }
+.leser-frage {
+  margin: 0 0 10px;
+  text-align: center;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--navy);
+}
+/* Der Sprachumschalter im Leser muss ÜBER der Menüleiste bleiben.
+   Diese Regel steht bewusst GANZ hinten: Die Grundregel für
+   .leser-schiene kommt weiter oben in der Datei, und bei gleicher
+   Spezifität gewinnt die spätere – stünde das hier vorne, läge der
+   Umschalter wieder hinter der Leiste und wäre nicht antippbar. */
+@media (max-width: 720px) {
+  .leser-schiene {
+    bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+}
+/* ============================================================
+   FEED – Spanisch zum Durchwischen
+   Eine Karte füllt den Bildschirm, hochwischen bringt die
+   nächste. Das Einrasten macht CSS (scroll-snap), nicht
+   JavaScript – dadurch fühlt es sich an wie überall sonst.
+   ============================================================ */
+
+.feed-seite {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  background: var(--navy);
+}
+/* ----- Kopfzeile ----- */
+.feed-kopf {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+  padding: 10px 14px calc(10px + env(safe-area-inset-top));
+  padding-top: calc(10px + env(safe-area-inset-top));
+  color: #fff;
+  flex: none;
+}
+.feed-zurueck {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  padding: 0;
+  background: rgba(255, 255, 255, .14);
+  border: none;
+  border-radius: 12px;
+  color: #fff;
+  font-size: 18px;
+  box-shadow: none;
+  cursor: pointer;
+}
+.feed-zurueck:active { transform: none; box-shadow: none; }
+.feed-titel { text-align: center; font-weight: 800; font-size: 15px; }
+.feed-zaehler {
+  justify-self: end;
+  font-size: 12px;
+  font-weight: 700;
+  opacity: .65;
+  font-variant-numeric: tabular-nums;
+}
+/* ----- Die Bahn mit den Karten ----- */
+.feed-bahn {
+  flex: 1;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+.feed-bahn::-webkit-scrollbar { display: none; }
+.feed-karte {
+  height: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  padding: 4px 14px 18px;
+  display: flex;
+}
+.haeppchen-marke {
+  align-self: flex-start;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, .2);
+  border-radius: 999px;
+  padding: 5px 11px;
+  margin-bottom: 14px;
+}
+/* ----- Häppchen: Titel, Regel, Beispiele ----- */
+.haeppchen-titel,
+.feed-text-titel {
+  margin: 0 0 10px;
+  font-size: 27px;
+  font-weight: 800;
+  line-height: 1.16;
+  text-wrap: balance;
+}
+.haeppchen-kern {
+  margin: 0 0 22px;
+  font-size: 16.5px;
+  line-height: 1.5;
+  opacity: .93;
+}
+.haeppchen-zeilen { display: flex; flex-direction: column; gap: 9px; }
+.zeile-es { grid-area: es; font-size: 17px; font-weight: 800; }
+.zeile-de { grid-area: de; font-size: 13.5px; opacity: .8; line-height: 1.35; }
+.zeile-ton { grid-area: ton; font-size: 13px; opacity: .7; }
+.haeppchen-merke {
+  margin: 20px 0 0;
+  padding: 13px 15px;
+  background: rgba(0, 0, 0, .2);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+/* Gestaffeltes Erscheinen – das ist der "Video"-Effekt */
+@media (prefers-reduced-motion: no-preference) {
+  .ist-aktiv .haeppchen-titel,
+  .ist-aktiv .haeppchen-kern,
+  .ist-aktiv .haeppchen-zeile,
+  .ist-aktiv .haeppchen-merke,
+  .ist-aktiv .feed-text-titel,
+  .ist-aktiv .feed-hoeren,
+  .ist-aktiv .feed-absatz {
+    animation: feed-auf .5s both cubic-bezier(.2, .7, .3, 1);
+  }
+  .ist-aktiv .haeppchen-kern { animation-delay: .1s; }
+  .ist-aktiv .haeppchen-zeile { animation-delay: calc(.2s + var(--nr) * .09s); }
+  .ist-aktiv .haeppchen-merke { animation-delay: .7s; }
+  .ist-aktiv .feed-hoeren { animation-delay: .12s; }
+  .ist-aktiv .feed-absatz { animation-delay: .22s; }
+}
+.hoeren-kreis {
+  width: 30px; height: 30px;
+  display: grid; place-items: center;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 12px;
+  padding-left: 2px;
+}
+.hoeren-laeuft .hoeren-kreis { padding-left: 0; }
+.feed-text-inhalt { flex: 1; }
+.feed-absatz {
+  margin: 0 0 14px;
+  font-size: 17px;
+  line-height: 1.62;
+}
+.feed-merksatz {
+  margin: 4px 0 14px;
+  padding: 12px 15px;
+  background: rgba(0, 0, 0, .2);
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.feed-sprachen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  padding: 3px;
+  margin-top: auto;
+  background: rgba(0, 0, 0, .22);
+  border-radius: 12px;
+}
+.feed-sprachen .leser-sprache { color: rgba(255, 255, 255, .7); }
+.feed-sprachen .leser-sprache-an {
+  background: rgba(255, 255, 255, .95);
+  color: var(--navy);
+}
+/* ----- Letzte Karte ----- */
+.feed-ende { align-items: center; justify-content: center; }
+.feed-ende-inhalt { text-align: center; color: #fff; padding: 20px; }
+.feed-ende-inhalt h2 { margin: 0 0 8px; font-size: 22px; }
+.feed-ende-inhalt p { margin: 0 0 20px; opacity: .75; font-size: 14.5px; }
+/* ----- Die Tür auf der Startseite ----- */
+.feed-tuer {
+  display: grid;
+  grid-template-columns: 1fr 20px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 55%, var(--primary-press) 100%);
+  border: none;
+  border-radius: 18px;
+  text-align: left;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(255, 108, 0, .22);
+  cursor: pointer;
+}
+.feed-tuer:active { transform: none; }
+.feed-tuer-text { display: flex; flex-direction: column; gap: 3px; }
+.feed-tuer-text b { font-size: 17px; font-weight: 800; }
+.feed-tuer-text span { font-size: 13.5px; opacity: .9; line-height: 1.4; }
+/* Auf großen Bildschirmen die Karten nicht über die ganze Breite
+   ziehen – eine Feed-Karte liest sich schmal besser. */
+@media (min-width: 720px) {
+  .feed-karte { padding-left: 0; padding-right: 0; }
+  .haeppchen, .feed-text {
+    width: min(520px, 100%);
+    margin: 0 auto;
+  }
+}
+
+/* Die Formwahl im Satz-Generator.
+   Anders als bei Habloo stehen hier siebzehn Formen statt sieben
+   Zeiten – deshalb in Gruppen mit Überschrift statt in einer Reihe. */
+.grammatik-wahl { margin: 14px 0 4px; }
+.grammatik-gruppe { margin-top: 12px; }
+.grammatik-titel {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.satz-gen { margin-bottom: 18px; }
+
