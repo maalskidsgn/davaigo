@@ -93,7 +93,9 @@ details p{margin:10px 0 0}
   max-width:720px;margin:56px auto 0;padding:24px 20px 40px;
   border-top:1px solid var(--rand);font-size:.9rem;color:var(--muted);text-align:center;
 }
-.fuss a{color:var(--muted);text-decoration:none;margin:0 7px}
+/* Senkrechte Polsterung, damit die Links am Handy 44 px hoch sind.
+   Ohne sie waren es 20 px bei 17 px Lücke – zu eng für Daumen. */
+.fuss a{color:var(--muted);text-decoration:none;display:inline-block;padding:11px 7px}
 .fuss a:hover{color:var(--primary-dark)}
 .fuss-recht{margin:10px 0}
 .fuss-klein{font-size:.84rem;margin:10px 0 0}

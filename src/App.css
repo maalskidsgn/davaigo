@@ -8233,8 +8233,12 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   display: block;
   background: none;
   border: none;
-  padding: 0;
-  margin: 0 0 9px;
+  /* Senkrechte Polsterung statt Abstand: Die Zeilen sehen gleich aus,
+     aber der Knopf ist mit 44 px hoch genug für einen Daumen. Vorher
+     waren es 24 px bei 8 px Lücke – am Handy traf man regelmäßig den
+     Nachbarn. */
+  padding: 11px 0;
+  margin: 0;
   text-align: left;
   color: #fff;
   font-weight: 700;
