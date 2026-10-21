@@ -29,8 +29,13 @@ nach der ersten Veröffentlichung nie wieder ändern.
 ## Was nur du tun kannst
 
 ### 1. Entwicklerkonto
-play.google.com/console, einmalig 25 US-Dollar. Die Identitätsprüfung
-dauert ein paar Tage – das lohnt sich als Erstes anzustoßen.
+Laut Manuel bezahlt (21.10.2026). Nachsehen kann ich das nicht: Die
+Browser-Ansicht hier hat eine eigene Sitzung, in der kein
+Google-Konto angemeldet ist.
+
+Zu prüfen ist dort noch die **Identitätsprüfung** – ohne
+abgeschlossene Verifizierung lässt sich nichts veröffentlichen, und
+sie dauert mitunter Tage.
 
 ### 2. Java – erledigt
 
@@ -112,29 +117,19 @@ den Google braucht. Abtippen, nicht nachdenken.
 
 ---
 
-## Eine Entscheidung steht noch an: die Paketgröße
+## Paketgröße – entschieden und umgesetzt
 
-Das gebaute Paket ist **98 MB groß – davon 92,6 MB Tonaufnahmen**
-(4.221 Dateien). Ohne sie wären es 4 MB.
+Das Paket ist jetzt **4,1 MB** statt 98 MB. Die 4.221 Tonaufnahmen
+liegen nicht mehr im Paket, sondern werden von
+`https://davaigo.de/audio` geholt.
 
-Erlaubt ist das, aber es kostet Installationen: Über etwa 100 MB
-warnt Android beim Herunterladen über Mobilfunk, und viele brechen
-dann ab.
+Was das bedeutet: Ohne Netz spricht in der App die Gerätestimme statt
+der echten Aufnahme. Der Weg dorthin war ohnehin gebaut – fehlt eine
+Datei, fällt die App von selbst zurück.
 
-Drei Wege:
-
-| Weg | Paket | Ton ohne Netz | Aufwand |
-| --- | --- | --- | --- |
-| So lassen | 98 MB | ja | keiner |
-| Ton vom Server holen | 4 MB | nein | klein – in `src/audio.js` zeigt `ABLAGE` dann auf `https://davaigo.de/audio` |
-| Play Asset Delivery | 4 MB + Nachladung | ja, nach dem ersten Start | größer, aber der sauberste Weg |
-
-Mein Rat für die erste Fassung: **Ton vom Server holen.** Die App
-fällt ohnehin auf die Gerätestimme zurück, wenn eine Datei fehlt –
-der Weg ist also schon gebaut. Wenn Davaigo läuft und jemand nach
-Offline fragt, kann man immer noch auf Asset Delivery umstellen.
-
-Sag Bescheid, dann baue ich das um.
+Falls später jemand nach Offline-Ton fragt, ist Play Asset Delivery
+der saubere Weg: Das Paket bleibt klein, die Aufnahmen kommen beim
+ersten Start nach.
 
 ## Vorher einmal auf einem echten Gerät prüfen
 
