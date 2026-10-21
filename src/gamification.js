@@ -13,6 +13,7 @@ export const XP = {
   QUIZ_RICHTIG: 2, // richtige Antwort in einer Lektion oder einem Spiel
   LEKTION: 15, // Bonus für eine abgeschlossene Lektion
   SPIEL: 10, // Bonus für ein durchgespieltes Mini-Spiel
+  WORT_RICHTIG: 10, // Satz, Lesetext oder Feed-Karte richtig – fehlte, und undefined machte die XP zu NaN
 }
 
 // Titel für die Level (ab dem letzten bleibt man "Legende")
@@ -47,13 +48,17 @@ export function levelName(level) {
 
 export function loadProgress() {
   try {
-    return {
+    const p = {
       xp: 0,
       xpToday: 0,
       streak: 0,
       lastActive: null,
       ...JSON.parse(localStorage.getItem('fortschritt')),
     }
+    // Ein kaputter Stand (NaN wird als null gespeichert) darf nicht ewig kleben
+    if (!Number.isFinite(p.xp)) p.xp = 0
+    if (!Number.isFinite(p.xpToday)) p.xpToday = 0
+    return p
   } catch {
     return { xp: 0, xpToday: 0, streak: 0, lastActive: null }
   }
@@ -71,6 +76,7 @@ function dateString(daysAgo = 0) {
 // xpToday zählt die heute gesammelten XP (fürs Tagesziel) und startet
 // an einem neuen Tag automatisch wieder bei null.
 export function applyXp(progress, amount) {
+  if (!Number.isFinite(amount)) amount = 0
   const today = dateString(0)
   const isNewDay = progress.lastActive !== today
   let streak = progress.streak || 0
@@ -78,7 +84,7 @@ export function applyXp(progress, amount) {
     streak = progress.lastActive === dateString(1) ? streak + 1 : 1
   }
   return {
-    xp: (progress.xp || 0) + amount,
+    xp: (Number.isFinite(progress.xp) ? progress.xp : 0) + amount,
     xpToday: (isNewDay ? 0 : progress.xpToday || 0) + amount,
     streak,
     lastActive: today,
