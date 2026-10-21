@@ -54,24 +54,26 @@ Das baut mit `--mode app` (damit `VITE_API_URL` auf
 `/api` im eigenen Paket) und schiebt alles nach `android/`. Danach in
 Android Studio: **Build → Generate Signed Bundle** → `.aab`.
 
-### 5. Datenschutzerklärung – hier ist noch etwas zu tun
+### 5. Datenschutzerklärung – erledigt
 
-**Das ist der Punkt, an dem Einreichungen am häufigsten scheitern.**
+Die Adresse für die Play Console lautet:
 
-Google verlangt eine öffentlich erreichbare Adresse. Wir haben
-`https://davaigo.de/?recht=datenschutz` – die Seite zeigt die
-Erklärung, **aber nur mit JavaScript**. Nachgemessen: ohne JavaScript
-kommen 43 Zeichen zurück, und das Wort „Datenschutz" ist nicht
-darunter. Googles automatische Prüfung lädt oft ohne JavaScript.
+```
+https://davaigo.de/datenschutz/
+```
 
-Zwei Wege:
+Das ist fertiges HTML, ohne JavaScript lesbar – 1.080 Wörter kommen
+auch dann zurück, wenn kein Skript läuft. Vorher waren es 43 Zeichen,
+in denen das Wort „Datenschutz" nicht einmal vorkam.
 
-- **Erst einreichen, dann sehen.** Viele Prüfer öffnen die Adresse im
-  Browser, dort funktioniert sie einwandfrei. Kommt eine Ablehnung,
-  ist sie in einem Tag behoben.
-- **Vorher absichern.** Ich baue eine statische Seite unter
-  `/datenschutz/`, wie die Ratgeberseiten – fertiges HTML, ohne
-  JavaScript lesbar. Sag Bescheid, dann mache ich das.
+Der Text wird nicht doppelt gepflegt: `scripts/baue-recht.mjs` lässt
+React die Komponenten aus `src/Recht.jsx` einmal beim Bauen zu HTML
+rendern. Ändert sich die Erklärung in der App, ändert sich die Seite
+beim nächsten Build mit. Auch das Aussehen kommt aus `src/App.css`
+statt aus einer zweiten Kopie.
+
+Unter `/impressum/` und `/agb/` liegen die beiden anderen
+Pflichtseiten genauso.
 
 ### 6. Inhaltsfreigabe ausfüllen
 Altersfreigabe (Fragebogen), Zielgruppe, Werbung (**keine**),

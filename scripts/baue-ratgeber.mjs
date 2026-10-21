@@ -105,9 +105,9 @@ ${kopfzeile}
 <footer class="fuss">
   <p><a href="/">Davaigo – Russisch lernen</a> · <a href="/ratgeber/">Alle Ratgeber</a></p>
   <p class="fuss-recht">
-    <a href="/?recht=impressum">Impressum</a>
-    <a href="/?recht=datenschutz">Datenschutz</a>
-    <a href="/?recht=agb">AGB &amp; Widerruf</a>
+    <a href="/impressum/">Impressum</a>
+    <a href="/datenschutz/">Datenschutz</a>
+    <a href="/agb/">AGB &amp; Widerruf</a>
   </p>
   <p class="fuss-klein">Сделано с любовью – mit Liebe gemacht 💜</p>
 </footer>
@@ -233,6 +233,11 @@ const adressen = [
   { loc: SEITE.basis + '/', prio: '1.0' },
   { loc: SEITE.basis + '/ratgeber/', prio: '0.8' },
   ...BEITRAEGE.map((b) => ({ loc: SEITE.basis + '/ratgeber/' + b.slug + '/', prio: '0.7' })),
+  // Die Pflichtseiten (scripts/baue-recht.mjs). Niedrige Gewichtung –
+  // sie sollen auffindbar sein, aber nicht um Rang kämpfen.
+  { loc: SEITE.basis + '/impressum/', prio: '0.3' },
+  { loc: SEITE.basis + '/datenschutz/', prio: '0.3' },
+  { loc: SEITE.basis + '/agb/', prio: '0.3' },
 ]
 await writeFile(
   new URL('../sitemap.xml', ZIEL),
