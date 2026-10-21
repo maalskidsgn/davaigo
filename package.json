@@ -16,7 +16,7 @@
     "ios:sync": "vite build && cap sync ios",
     "ios:open": "cap open ios",
     "pruefe": "node pruefe-lektionen.mjs",
-    "build:app": "npm run build -- --mode app && npx cap sync"
+    "build:app": "npm run build -- --mode app && rm -rf dist/audio && npx cap sync"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.117.1",

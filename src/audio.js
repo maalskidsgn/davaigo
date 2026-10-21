@@ -11,6 +11,7 @@
 // ein Audio laufen, das nicht zum Text passt.
 
 import { sprich } from './sprich.js'
+import { istApp } from './api.js'
 import {
   STIMMEN,
   sprechText,
@@ -21,9 +22,20 @@ import {
 
 export { STIMMEN, sprechText, stimmeImDialog }
 
-// Wo die fertigen Aufnahmen liegen: im eigenen public-Ordner.
-// (Später, mit eigenem Supabase-Projekt, wieder eine Cloud-Adresse.)
-const ABLAGE = '/audio'
+// Wo die fertigen Aufnahmen liegen.
+//
+// Im Browser im eigenen Ordner – gleiche Herkunft, nichts weiter zu
+// bedenken.
+//
+// In der Store-App dagegen vom Server. Der Grund ist die Paketgröße:
+// 4.221 Aufnahmen sind 92 MB, das Paket wäre damit 98 MB statt 4 MB
+// groß. Über etwa 100 MB warnt Android beim Herunterladen über
+// Mobilfunk, und viele brechen dann ab.
+//
+// Der Preis dafür: Ohne Netz spricht die Gerätestimme. Der Weg
+// dorthin ist in spiele() ohnehin schon gebaut – fehlt eine Datei,
+// fällt die App von selbst zurück.
+const ABLAGE = istApp ? 'https://davaigo.de/audio' : '/audio'
 
 /** Prüfsumme aus Text + Stimme – ergibt den Dateinamen. */
 export async function audioName(text, stimme = STIMMEN.standard) {
