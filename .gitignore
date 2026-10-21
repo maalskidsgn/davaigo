@@ -27,7 +27,7 @@ ios/DerivedData/
 *.xcuserstate
 
 # Signaturschluessel – NIEMALS ins Repository
-android/habloo-release.keystore
+android/davaigo-release.keystore
 android/keystore.properties
 
 # Hörproben fürs Casting – lokal, gehören nicht ins Repo
@@ -38,3 +38,8 @@ route-test.html
 # Lesetexte liegen im Supabase-Speicher, nicht im öffentlichen Repo
 public/lesetexte/
 public/hoertexte/
+
+# Der Signaturschlüssel gehört NIE ins Git – geht er verloren, lässt
+# sich die App im Store nie wieder aktualisieren. Passwortmanager.
+*.jks
+android/*.keystore

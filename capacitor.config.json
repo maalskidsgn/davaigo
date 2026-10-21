@@ -1,9 +1,9 @@
 {
-  "appId": "de.habloo.app",
-  "appName": "Habloo",
+  "appId": "de.davaigo.app",
+  "appName": "Davaigo",
   "webDir": "dist",
   "android": {
-    "backgroundColor": "#faf7f1"
+    "backgroundColor": "#f5f0fc"
   },
   "server": {
     "androidScheme": "https"
@@ -11,12 +11,12 @@
   "plugins": {
     "SplashScreen": {
       "launchAutoHide": true,
-      "backgroundColor": "#faf7f1",
+      "backgroundColor": "#f5f0fc",
       "showSpinner": false
     }
   },
   "ios": {
-    "backgroundColor": "#faf7f1",
+    "backgroundColor": "#f5f0fc",
     "limitsNavigationsToAppBoundDomains": false,
     "contentInset": "always"
   }

@@ -93,3 +93,55 @@ if __name__ == '__main__':
     ]:
         symbol(groesse, anteil).save(datei, optimize=True)
         print(f'{datei}  {groesse}x{groesse}')
+
+
+def android():
+    """Die Symbole für das Android-Paket.
+
+    Android will zweierlei: die alten quadratischen Symbole (mipmap)
+    und ein "adaptives" Symbol, bei dem Vorder- und Hintergrund
+    getrennt liegen. Der Startbildschirm des Geräts schneidet daraus
+    je nach Hersteller einen Kreis, ein Quadrat oder eine Blume.
+
+    Deshalb steht das Д im Vordergrundbild klein: Android beschneidet
+    bis zu einem Viertel am Rand, und was dann noch übrig ist, muss
+    das Zeichen sein. Der Hintergrund ist eine einzelne Farbe – ein
+    Verlauf würde an der Schnittkante kippen.
+    """
+    import pathlib
+    from PIL import Image
+
+    res = pathlib.Path('android/app/src/main/res')
+    if not res.exists():
+        print('Kein Android-Projekt – übersprungen. (npx cap add android)')
+        return
+
+    groessen = {'mdpi': 48, 'hdpi': 72, 'xhdpi': 96, 'xxhdpi': 144, 'xxxhdpi': 192}
+    for ordner, px in groessen.items():
+        fertig = symbol(px, 0.58)
+        fertig.save(res / f'mipmap-{ordner}/ic_launcher.png', optimize=True)
+        fertig.save(res / f'mipmap-{ordner}/ic_launcher_round.png', optimize=True)
+
+        vorder = Image.new('RGBA', (px, px), (0, 0, 0, 0))
+        gold = verlauf(px, GOLD_HELL, GOLD_DUNKEL, diagonal=False).convert('RGBA')
+        vorder.paste(gold, (0, 0), zeichen_maske(px, 0.38))
+        vorder.save(res / f'mipmap-{ordner}/ic_launcher_foreground.png', optimize=True)
+
+    (res / 'values/ic_launcher_background.xml').write_text(
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<resources>\n'
+        '    <color name="ic_launcher_background">#7C3AED</color>\n'
+        '</resources>\n'
+    )
+
+    # Die mitgelieferten Vektor-Vorlagen würden die PNGs überstimmen.
+    for rest in ('drawable-v24/ic_launcher_foreground.xml', 'drawable/ic_launcher_background.xml'):
+        datei = res / rest
+        if datei.exists():
+            datei.unlink()
+
+    print(f'Android: {len(groessen) * 3} Symbole + Hintergrundfarbe geschrieben')
+
+
+if __name__ == '__main__':
+    android()

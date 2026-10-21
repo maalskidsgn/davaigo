@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Davaigo</string>
+    <string name="title_activity_main">Davaigo</string>
+    <string name="package_name">de.davaigo.app</string>
+    <string name="custom_url_scheme">de.davaigo.app</string>
+</resources>
