@@ -20,7 +20,12 @@ import { createClient } from '@supabase/supabase-js'
 // passenden Webhook-Endpunkte – teilen sich mehrere Apps ein
 // Stripe-Konto, bekaeme Habloo auch Davaigos Abos gemeldet und
 // wuerde an einer unbekannten Nutzer-Kennung scheitern.
-const APP_KENNUNG = process.env.APP_KENNUNG || 'habloo'
+// Welche App die Zahlung ausgelöst hat. Stand hier bis zum
+// 21.10.2026 auf 'habloo' – ein Rest aus der Vorlage. Teilen sich
+// beide Apps ein Stripe-Konto, wären Davaigo-Zahlungen damit als
+// Habloo verbucht worden und der Webhook hätte sie dem falschen
+// Konto gutgeschrieben.
+const APP_KENNUNG = process.env.APP_KENNUNG || 'davaigo'
 
 let stripe = null
 export function stripeBereit() {
@@ -47,37 +52,67 @@ function datenbank() {
 }
 
 /**
- * Legt einen Bezahlvorgang an und gibt die Adresse zurück, auf die
- * der Browser weitergeleitet wird.
+ * Legt einen Bezahlvorgang an.
+ *
+ * Zwei Spielarten derselben Checkout-Sitzung:
+ *
+ *   'elements' – das Bezahlformular läuft IN der App, auf davaigo.de,
+ *                im Davaigo-Design. Stripe liefert nur das Kartenfeld
+ *                zu (ein abgeschirmtes iframe, damit wir die
+ *                Kartennummer nie zu sehen bekommen). Zurück kommt
+ *                ein client_secret, mit dem der Browser weitermacht.
+ *
+ *   'hosted'   – der alte Weg: Weiterleitung auf checkout.stripe.com.
+ *                Bleibt als Rückfall, falls das Formular in der App
+ *                einmal klemmt.
+ *
+ * Für die Verbuchung macht das keinen Unterschied: Es ist dieselbe
+ * Checkout-Sitzung, und der Webhook meldet dasselbe Ereignis.
  *
  * @param {string} nutzerId – die Supabase-Kennung des Nutzers
  * @param {string} email    – für die Quittung
  * @param {string} herkunft – z.B. "https://davaigo.de"
+ * @param {string} art      – 'elements' (Standard) oder 'hosted'
  */
-export async function starteBezahlung(nutzerId, email, herkunft) {
+export async function starteBezahlung(nutzerId, email, herkunft, art = 'elements') {
   if (!nutzerId) throw new Error('Ohne Anmeldung geht das nicht.')
   if (!process.env.STRIPE_PREIS_ID) {
     throw new Error('Auf dem Server fehlt STRIPE_PREIS_ID.')
   }
 
-  const sitzung = await client().checkout.sessions.create({
+  const gemeinsam = {
     mode: 'subscription',
     line_items: [{ price: process.env.STRIPE_PREIS_ID, quantity: 1 }],
     customer_email: email || undefined,
 
-    // Die Nutzer-Kennung reisen mit und kommen in der Meldung
+    // Die Nutzer-Kennung reist mit und kommt in der Meldung
     // zurück – so wissen wir später, wem die Zahlung gehört.
     client_reference_id: nutzerId,
     subscription_data: { metadata: { nutzer_id: nutzerId, app: APP_KENNUNG } },
     metadata: { nutzer_id: nutzerId, app: APP_KENNUNG },
 
-    success_url: `${herkunft}/?bezahlt=ja`,
-    cancel_url: `${herkunft}/?bezahlt=abgebrochen`,
-
     allow_promotion_codes: true,
+  }
+
+  if (art === 'hosted') {
+    const sitzung = await client().checkout.sessions.create({
+      ...gemeinsam,
+      success_url: `${herkunft}/?bezahlt=ja`,
+      cancel_url: `${herkunft}/?bezahlt=abgebrochen`,
+    })
+    return { art: 'hosted', url: sitzung.url }
+  }
+
+  // Beim Formular in der App gibt es kein cancel_url – abbrechen
+  // heißt hier einfach: Fenster zu. Nur die Rückkehradresse nach
+  // einer Bank-Bestätigung (3-D Secure) muss Stripe kennen.
+  const sitzung = await client().checkout.sessions.create({
+    ...gemeinsam,
+    ui_mode: 'elements',
+    return_url: `${herkunft}/?bezahlt=ja&sitzung={CHECKOUT_SESSION_ID}`,
   })
 
-  return sitzung.url
+  return { art: 'elements', clientSecret: sitzung.client_secret }
 }
 
 /**

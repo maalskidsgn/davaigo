@@ -10,6 +10,7 @@ import {
 import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB } from './Recht.jsx'
+import Bezahlen from './Bezahlen.jsx'
 import { seitenaufruf } from './messung.js'
 import Feed from './Feed.jsx'
 import {
@@ -301,6 +302,11 @@ export default function App() {
   // dort unten gibt es die normale Ansichtssteuerung noch gar nicht.
   // Aus der Adresse lesen, damit ?recht=impressum von außen
   // verlinkbar ist – die Ratgeberseiten im Fuß tun genau das.
+  // Die Kassenseite – eigene Vollbildseite unter /kasse
+  const [kasseOffen, setKasseOffen] = useState(
+    () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse'
+  )
+
   const [rechtSeite, setRechtSeite] = useState(() => {
     const gewuenscht = new URLSearchParams(window.location.search).get('recht')
     return ['impressum', 'datenschutz', 'agb'].includes(gewuenscht) ? gewuenscht : null
@@ -886,6 +892,18 @@ export default function App() {
     )
   }
 
+  // ---------- Die Kasse: eine eigene Seite, keine Karte in den
+  // Einstellungen. Wer bezahlt, soll sehen, was er kauft – und keine
+  // Tab-Leiste danebenhaben, die zum Wegklicken einlädt.
+  if (kasseOffen) {
+    return (
+      <Bezahlen
+        onAbbrechen={() => setKasseOffen(false)}
+        onFertig={() => setKasseOffen(false)}
+      />
+    )
+  }
+
   // Pflichtseiten zuerst: Impressum, Datenschutz und AGB müssen auch
   // ohne Konto erreichbar sein – sonst stünden sie hinter der
   // Anmeldung, und genau das wäre der Fehler.
@@ -1115,6 +1133,7 @@ export default function App() {
         <main>
           <Settings
             onRecht={setRechtSeite}
+            onKasse={() => setKasseOffen(true)}
             progress={progress}
             settings={settings}
             setSettings={setSettings}

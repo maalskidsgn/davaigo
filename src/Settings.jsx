@@ -21,6 +21,7 @@ export default function Settings({
   syncStatus,
   onLoginOeffnen,
   onRecht,
+  onKasse,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   const [bezahlbar, setBezahlbar] = useState(false)
@@ -30,6 +31,7 @@ export default function Settings({
   const [messung, setMessung] = useState(() => einwilligungsStand() === 'ja')
   const [laedt, setLaedt] = useState(false)
   const [kaufFehler, setKaufFehler] = useState('')
+  const [kasseInApp, setKasseInApp] = useState(false) // Formular in der App möglich?
   const [loeschLaeuft, setLoeschLaeuft] = useState(false)
 
   // Steht die Bezahlung bereit, und was kostet es?
@@ -39,6 +41,10 @@ export default function Settings({
       .then((d) => {
         setBezahlbar(Boolean(d.bereit))
         setPreis(d.preis ?? null)
+        // Ohne öffentlichen Schlüssel kann das Formular in der App
+        // nicht laufen – dann bleibt es beim alten Weg über Stripe,
+        // statt den Nutzer in eine Fehlermeldung laufen zu lassen.
+        setKasseInApp(Boolean(d.schluessel))
       })
       .catch(() => setBezahlbar(false))
   }, [])
@@ -55,8 +61,14 @@ export default function Settings({
 
   const gueltigBis = bis ? bis.toLocaleDateString('de-DE') : ''
 
+  // Das Bezahlformular läuft jetzt IN der App (Bezahlen.jsx) statt
+  // auf einer Stripe-Seite. Fehlt dem Server der öffentliche
+  // Schlüssel, geht es wie früher zu Stripe – besser als nichts.
   async function kaufen() {
-    setLaedt(true); setKaufFehler('')
+    setKaufFehler('')
+    if (kasseInApp) return onKasse?.()
+
+    setLaedt(true)
     try { await zurKasse() } catch (f) { setKaufFehler(f.message); setLaedt(false) }
   }
 
