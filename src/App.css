@@ -9352,3 +9352,71 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 }
 .satz-gen { margin-bottom: 18px; }
 
+/* ---- Nachtrag: Regeln, die beim Übernehmen aus Habloo fehlten ----
+   Ohne .zeit-chip stand "A2" direkt an "kurze Sätze", die Chips
+   wurden dadurch sehr breit und liefen aus dem Bild. Ohne
+   .vorschlag-chip-aktiv gab ein gewählter Chip keine Rückmeldung. */
+.vorschlag-chip-aktiv {
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #fff !important;
+}
+.zeit-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  line-height: 1.25;
+}
+.zeit-chip small {
+  font-size: 10.5px;
+  font-weight: 600;
+  opacity: .62;
+}
+.leser-pfeil {
+  width: 40px; height: 40px;
+  display: grid; place-items: center;
+  padding: 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--navy);
+  font-size: 17px;
+  box-shadow: none;
+  cursor: pointer;
+}
+.leser-pfeil:active { transform: none; box-shadow: none; }
+.leser-wort {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 8px 13px;
+  background: var(--flaeche);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.leser-wort:active { transform: none; box-shadow: none; }
+.leser-wort b { font-size: 14px; font-weight: 800; color: var(--navy); }
+.leser-wort span { font-size: 12.5px; color: var(--muted); }
+.leser-wort i { font-style: normal; color: var(--success); font-weight: 800; }
+.leser-wort:hover:not(:disabled) { border-color: var(--primary); background: #f3ecff; }
+.leser-wort-da { opacity: .6; cursor: default; }
+.zeile-klingt { background: rgba(255, 255, 255, .3); }
+
+/* Die Startknöpfe der beiden neuen Karteikästen. */
+.satz-start,
+.text-start {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Chips dürfen nie breiter werden als ihre Reihe – sonst schiebt ein
+   einzelner Chip die ganze Seite auf und es entsteht seitliches
+   Scrollen. Genau das war am Handy bei "Körper & Gesundheit" und
+   "A2 kurze Sätze" zu sehen. */
+.wort-vorschlaege { max-width: 100%; }
+.vorschlag-chip { max-width: 100%; }
+

@@ -42,6 +42,13 @@ import Lesetexte from './Lesetexte.jsx'
 // Abstände – nur der Inhalt einer Karte ist ein anderer. Deshalb
 // steht die Grammatik hier drin und nicht in einem eigenen Tab
 // unten: Es ist derselbe Karteikasten, nicht ein zweiter Bereich.
+// Der Grammatik-Reiter ist vorerst ausgeblendet (Manuel, 21.10.2026).
+// Ein Schalter statt gelöschtem Code: Der Karteikasten dahinter ist
+// fertig und soll wiederkommen, sobald die Bausteine überarbeitet
+// sind. Auf false bleibt der Reiter weg; das Deck startet dann nie
+// auf 'grammatik'.
+const GRAMMATIK_ZEIGEN = false
+
 export default function Trainer({
   vocab,
   setVocab,
@@ -285,17 +292,19 @@ export default function Trainer({
           Lesen
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
-        <button
-          role="tab"
-          aria-selected={deck === 'grammatik'}
-          className={deck === 'grammatik' ? 'deck-aktiv' : ''}
-          onClick={() => setDeck('grammatik')}
-        >
-          Grammatik
-          {faelligeGrammatik.length > 0 && (
-            <span className="deck-zahl">{faelligeGrammatik.length}</span>
-          )}
-        </button>
+        {GRAMMATIK_ZEIGEN && (
+          <button
+            role="tab"
+            aria-selected={deck === 'grammatik'}
+            className={deck === 'grammatik' ? 'deck-aktiv' : ''}
+            onClick={() => setDeck('grammatik')}
+          >
+            Grammatik
+            {faelligeGrammatik.length > 0 && (
+              <span className="deck-zahl">{faelligeGrammatik.length}</span>
+            )}
+          </button>
+        )}
       </div>
     </>
   )
@@ -329,7 +338,7 @@ export default function Trainer({
   }
 
   // ---------- Der zweite Karteikasten: Grammatik ----------
-  if (deck === 'grammatik') {
+  if (deck === 'grammatik' && GRAMMATIK_ZEIGEN) {
     return (
       // Derselbe Trick wie drueben: eigener Schluessel, eigene
       // Einblendung. Ohne die Huelle traegt nur das Vokabel-Deck die
