@@ -32,16 +32,45 @@ nach der ersten Veröffentlichung nie wieder ändern.
 play.google.com/console, einmalig 25 US-Dollar. Die Identitätsprüfung
 dauert ein paar Tage – das lohnt sich als Erstes anzustoßen.
 
-### 2. Java installieren
-Auf dem Rechner fehlt eine Java-Laufzeit, deshalb lässt sich das Paket
-hier nicht bauen. Am einfachsten über Android Studio, das bringt ein
-passendes JDK mit.
+### 2. Java – erledigt
+
+`openjdk@21` ist über Homebrew installiert, nur nicht im
+Standardpfad (Homebrew legt es „keg-only" ab). Zum Bauen:
+
+```bash
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home
+export ANDROID_HOME=~/Library/Android/sdk
+```
+
+Das Paket baut damit durch – einmal probiert, Gradle läuft sauber
+(nur die üblichen Hinweise zu ungeprüften Vorgängen).
 
 ### 3. Signaturschlüssel erzeugen und sichern
-Google unterschreibt die App zwar selbst (Play App Signing), aber den
-Upload-Schlüssel brauchst du – **und wenn er verloren geht, kannst du
-nie wieder ein Update hochladen.** Gehört in einen Passwortmanager,
-nicht in dieses Projekt.
+
+Die Verdrahtung steht schon: `android/app/build.gradle` liest
+`android/keystore.properties`, und beide Dateien sind gitignored.
+Fehlt die Datei, baut Gradle unsigniert durch statt abzubrechen.
+
+**Den Schlüssel musst du selbst erzeugen** – er ist ein Geheimnis und
+gehört nicht in einen Chatverlauf. Ein Befehl, der nach einem
+Passwort fragt:
+
+```bash
+cd ~/projekte/russisch-app/android && $JAVA_HOME/bin/keytool -genkeypair -v -keystore davaigo-release.keystore -alias davaigo -keyalg RSA -keysize 2048 -validity 10000
+```
+
+Danach `android/keystore.properties` anlegen:
+
+```
+storeFile=davaigo-release.keystore
+storePassword=<dein Passwort>
+keyAlias=davaigo
+keyPassword=<dein Passwort>
+```
+
+**Die Schlüsseldatei und das Passwort gehören in den
+Passwortmanager.** Gehen sie verloren, kannst du die App im Store nie
+wieder aktualisieren – es gibt keinen Weg zurück.
 
 ### 4. Das Paket bauen
 
@@ -75,11 +104,37 @@ statt aus einer zweiten Kopie.
 Unter `/impressum/` und `/agb/` liegen die beiden anderen
 Pflichtseiten genauso.
 
-### 6. Inhaltsfreigabe ausfüllen
-Altersfreigabe (Fragebogen), Zielgruppe, Werbung (**keine**),
-Datensicherheit (Antworten stehen in `datensicherheit.md`).
+### 6. Inhaltsfreigabe ausfüllen – vorbereitet
+
+Alle Antworten stehen in `store/inhaltsfreigabe.md`: Fragebogen zur
+Altersfreigabe, Zielgruppe, Werbung, Abrechnung und der Testzugang,
+den Google braucht. Abtippen, nicht nachdenken.
 
 ---
+
+## Eine Entscheidung steht noch an: die Paketgröße
+
+Das gebaute Paket ist **98 MB groß – davon 92,6 MB Tonaufnahmen**
+(4.221 Dateien). Ohne sie wären es 4 MB.
+
+Erlaubt ist das, aber es kostet Installationen: Über etwa 100 MB
+warnt Android beim Herunterladen über Mobilfunk, und viele brechen
+dann ab.
+
+Drei Wege:
+
+| Weg | Paket | Ton ohne Netz | Aufwand |
+| --- | --- | --- | --- |
+| So lassen | 98 MB | ja | keiner |
+| Ton vom Server holen | 4 MB | nein | klein – in `src/audio.js` zeigt `ABLAGE` dann auf `https://davaigo.de/audio` |
+| Play Asset Delivery | 4 MB + Nachladung | ja, nach dem ersten Start | größer, aber der sauberste Weg |
+
+Mein Rat für die erste Fassung: **Ton vom Server holen.** Die App
+fällt ohnehin auf die Gerätestimme zurück, wenn eine Datei fehlt –
+der Weg ist also schon gebaut. Wenn Davaigo läuft und jemand nach
+Offline fragt, kann man immer noch auf Asset Delivery umstellen.
+
+Sag Bescheid, dann baue ich das um.
 
 ## Vorher einmal auf einem echten Gerät prüfen
 
