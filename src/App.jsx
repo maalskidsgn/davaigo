@@ -25,7 +25,6 @@ import {
   ladeTexte,
   speichereTexte,
 } from './lesetexte.js'
-import Onboarding from './Onboarding.jsx'
 import Willkommen from './Willkommen.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
@@ -234,60 +233,6 @@ export default function App() {
   const [categoryInput, setCategoryInput] = useState('')
   const [progress, setProgress] = useState(loadProgress) // XP, Streak, letzter Lerntag
   const [settings, setSettings] = useState(loadSettings) // Tagesziel, Erinnerungen …
-  // Onboarding: die drei Einstiegs-Fragen für Neulinge.
-  // "onboardingFertig" merkt sich dauerhaft, dass sie beantwortet sind.
-  const [onboardingAktiv, setOnboardingAktiv] = useState(false)
-  const [onboardingFertig, setOnboardingFertig] = useState(() =>
-    Boolean(localStorage.getItem('onboarding'))
-  )
-  function schliesseOnboarding(antworten, paket) {
-    localStorage.setItem(
-      'onboarding',
-      JSON.stringify({ ...antworten, erledigtAm: new Date().toISOString() })
-    )
-    // Das gewählte Tagesziel gilt ab sofort
-    if (antworten.ziel) setSettings((s) => ({ ...s, tagesziel: antworten.ziel }))
-    // Die 50 Startpaket-Wörter wandern in den Trainer
-    if (paket?.woerter?.length) {
-      setVocab((v) => {
-        const copy = { ...v }
-        for (const w of paket.woerter) {
-          const key = cleanWord(w.wort)
-          if (!key || copy[key]) continue
-          copy[key] = { ...newEntry(w.uebersetzung, 'Dein Startpaket'), beispiel: w.beispiel }
-        }
-        return copy
-      })
-    }
-    // Erstes Video und erster Song landen in der Bibliothek
-    const neueMedien = []
-    if (paket?.video) {
-      neueMedien.push({
-        videoId: paket.video.videoId,
-        title: paket.video.title,
-        category: 'Startpaket',
-        art: 'video',
-        addedAt: Date.now(),
-      })
-    }
-    if (paket?.song) {
-      neueMedien.push({
-        videoId: paket.song.videoId,
-        title: paket.song.title,
-        category: 'Musik',
-        art: 'musik',
-        addedAt: Date.now(),
-      })
-    }
-    if (neueMedien.length) {
-      setSavedVideos((list) => [
-        ...list.filter((v) => !neueMedien.some((n) => n.videoId === v.videoId)),
-        ...neueMedien,
-      ])
-    }
-    setOnboardingFertig(true)
-    setOnboardingAktiv(false)
-  }
   const [lessonProgress, setLessonProgress] = useState(loadLessonProgress) // welche Lektionen geschafft sind
   const [levelUp, setLevelUp] = useState(null) // welches Level gerade erreicht wurde
   const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
@@ -922,28 +867,13 @@ export default function App() {
     // damit die Willkommensseite nicht kurz aufblitzt
     if (nutzerLaedt) return <div className="app app-laedt" />
 
-    // Neulinge klicken sich erst durch die drei Fragen, dann kommt das Konto
-    if (onboardingAktiv) {
-      return (
-        <Onboarding
-          kontoNoetig
-          onAbbrechen={() => setOnboardingAktiv(false)}
-          onFertig={(antworten, paket) => {
-            schliesseOnboarding(antworten, paket)
-            setLoginStart('registrieren')
-            setLoginOffen(true)
-          }}
-        />
-      )
-    }
-
     return (
       <>
         <Willkommen
           onRecht={setRechtSeite}
           onStarten={() => {
-            if (onboardingFertig) { setLoginStart('registrieren'); setLoginOffen(true) }
-            else setOnboardingAktiv(true)
+            setLoginStart('registrieren')
+            setLoginOffen(true)
           }}
           onAnmelden={() => { setLoginStart('anmelden'); setLoginOffen(true) }}
         />
@@ -960,11 +890,6 @@ export default function App() {
     )
   }
 
-  // Ohne eingerichtete Datenbank gibt es (noch) keine Konten – dann
-  // kommt das Onboarding direkt vor dem allerersten App-Start.
-  if (!supabaseBereit && !onboardingFertig) {
-    return <Onboarding onFertig={schliesseOnboarding} />
-  }
 
   return (
     <div className="app">
