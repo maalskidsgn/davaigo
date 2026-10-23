@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
@@ -252,12 +254,12 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
    * zeigen. Dasselbe Verhalten wie im Chat und im Ebook-Leser –
    * wer es dort einmal gelernt hat, kennt es hier wieder.
    */
-  async function wortAntippen(rohesWort) {
+  async function wortAntippen(rohesWort, umfeld) {
     const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
@@ -292,7 +294,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
         <span
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
-          onClick={() => wortAntippen(teil)}
+          onClick={() => wortAntippen(teil, absatz)}
         >
           {teil}
         </span>
@@ -409,7 +411,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
       )}
 
       {/* ---------- Angetipptes Wort ---------- */}
-      {wort && (
+      {wort && createPortal(
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <button
@@ -417,7 +419,9 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
               aria-label="Schließen"
               onClick={() => setWort(null)}
             >
-              ✕
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+              </svg>
             </button>
             <div className="wortkarte-wort">
               {wort.text}
@@ -445,7 +449,8 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
