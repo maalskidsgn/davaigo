@@ -11,6 +11,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { merkeGelernt } from './lernkurve.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
 import { faelligeBausteine } from './bausteine.js'
@@ -182,6 +183,7 @@ export default function Trainer({
     setTimeout(() => {
       const word = queue[0]
       const gewusst = bewertung !== 'nochmal'
+      merkeGelernt('woerter') // für die Lernkurve: jede beantwortete Karte
 
       setVocab((v) => ({ ...v, [word]: review(withSrsDefaults(v[word]), bewertung) }))
       setResult((r) => ({
@@ -289,7 +291,7 @@ export default function Trainer({
           className={deck === 'lesen' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('lesen')}
         >
-          Lesen
+          Texte
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
         {GRAMMATIK_ZEIGEN && (
@@ -568,47 +570,11 @@ export default function Trainer({
             </button>
           ))}
         </div>
-      </div>
-    )
-  }
 
-  // ---------- Übersichts-Ansicht ----------
-  return (
-    <div className="trainer">
-      {schalter}
-      {/* Der Schluessel laesst React den Block neu aufbauen, sobald
-          das Deck wechselt – erst dadurch laeuft die Einblend-
-          Animation ueberhaupt los. */}
-      <div className="wechsel" key="woerter">
-
-      {/* ============ 1. WIEDERHOLEN ============ */}
-      {/* Das Wichtigste zuerst: was heute dran ist */}
-      <section className="bereich bereich-wiederholen">
-        <div className="wiederholen-zahl">
-          <b>{trainable.length}</b>
-          <span>{trainable.length === 1 ? 'Wort wartet' : 'Wörter warten'}</span>
-        </div>
-        <div className="wiederholen-text">
-          <h2>Heute wiederholen</h2>
-          <p>
-            {trainable.length > 0
-              ? 'Diese Wörter drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
-              : 'Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.'}
-          </p>
-        </div>
-        <button
-          className="btn wiederholen-los"
-          onClick={() => setArtWahl(true)}
-          disabled={entries.length === 0}
-        >
-          {trainable.length > 0 ? 'Üben' : 'Nichts fällig'}
-        </button>
-      </section>
-
-      {/* ============ 2. SPIELEN ============ */}
-      <section className="bereich">
+      {/* Die vier Spiele als spielerische Alternative zur Abfrage */}
+      <section className="bereich bereich-spiele">
         <div className="bereich-kopf">
-          <h2>Spielerisch üben</h2>
+          <h2>Oder lieber spielen?</h2>
           <p>
             {spielbar
               ? 'Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
@@ -646,6 +612,43 @@ export default function Trainer({
           </button>
         </div>
       </section>
+      </div>
+    )
+  }
+
+  // ---------- Übersichts-Ansicht ----------
+  return (
+    <div className="trainer">
+      {schalter}
+      {/* Der Schluessel laesst React den Block neu aufbauen, sobald
+          das Deck wechselt – erst dadurch laeuft die Einblend-
+          Animation ueberhaupt los. */}
+      <div className="wechsel" key="woerter">
+
+      {/* ============ 1. WIEDERHOLEN ============ */}
+      {/* Das Wichtigste zuerst: was heute dran ist */}
+      <section className="bereich bereich-wiederholen">
+        <div className="wiederholen-zahl">
+          <b>{trainable.length}</b>
+          <span>{trainable.length === 1 ? 'Wort wartet' : 'Wörter warten'}</span>
+        </div>
+        <div className="wiederholen-text">
+          <h2>Heute wiederholen</h2>
+          <p>
+            {trainable.length > 0
+              ? 'Diese Wörter drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
+              : 'Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.'}
+          </p>
+        </div>
+        <button
+          className="btn wiederholen-los"
+          onClick={() => setArtWahl(true)}
+          disabled={entries.length === 0}
+        >
+          {trainable.length > 0 ? 'Üben' : 'Nichts fällig'}
+        </button>
+      </section>
+
 
       {/* ============ 3. NEUE WÖRTER ============ */}
       <section className="bereich">

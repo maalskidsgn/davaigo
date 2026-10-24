@@ -4,7 +4,7 @@ import { usePremium } from './premium.js'
 import { letzteWoche } from './aktivitaet.js'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
-import { FeedTuer } from './Feed.jsx'
+import Lernkurve from './Lernkurve.jsx'
 
 // Die Startseite.
 //
@@ -87,27 +87,6 @@ export default function Home({
         </div>
       </section>
 
-      {/* ============ 2. DER FEED ============ */}
-      {/* Steht VOR den übrigen Türen: Es ist der Weg mit der
-          niedrigsten Hürde. Wer keine Lust auf eine Lektion hat,
-          wischt sich hier durch – und lernt trotzdem etwas. */}
-      <FeedTuer onOeffnen={() => onNavigate('feed')} />
-
-      {/* ============ 3. DER WEG ZUM LEITFADEN ============ */}
-      {/* Nur die Tuer, nicht der ganze Raum: Der Leitfaden ist lang
-          und liest sich einmal – auf dem Start stuende er jeden Tag
-          im Weg. */}
-      <button className="start-karte leitfaden-tuer" onClick={() => onNavigate('leitfaden')}>
-        <span className="leitfaden-text">
-          <span className="start-marke">Neu hier?</span>
-          <h2>So nutzt du Davaigo</h2>
-          <p>Deine Reise durch die App – und was wir uns dabei gedacht haben.</p>
-        </span>
-        <span className="leitfaden-pfeil" aria-hidden="true">
-          <IconPfeil groesse={18} />
-        </span>
-      </button>
-
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
         <h2 className="start-abschnitt">Dein Lernfortschritt</h2>
@@ -149,6 +128,9 @@ export default function Home({
             <span>Lektionen</span>
           </div>
         </div>
+
+        {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
+        <Lernkurve />
       </section>
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}

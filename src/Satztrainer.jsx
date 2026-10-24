@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe } from './icons.jsx'
 
@@ -94,6 +95,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     if (exiting) return
     const key = queue[0]
     const richtig = bewertung !== 'nochmal'
+    merkeGelernt('saetze') // für die Lernkurve
 
     setExiting(richtig ? 'richtig' : 'falsch')
 
@@ -380,30 +382,31 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         </div>
       ) : (
         <>
-          <div className="satz-stand">
-            <div className="satz-zahl">
+          {/* Gleicher Aufbau wie "Heute wiederholen" im Wort-Trainer */}
+          <section className="bereich bereich-wiederholen">
+            <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
-              <span>fällig</span>
+              <span>{faellig.length === 1 ? 'Satz wartet' : 'Sätze warten'}</span>
             </div>
-            <div className="satz-zahl">
-              <b>{entries.length}</b>
-              <span>gesammelt</span>
+            <div className="wiederholen-text">
+              <h2>Heute wiederholen</h2>
+              <p>
+                {faellig.length > 0
+                  ? 'Diese Sätze drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
+                  : 'Alles erledigt. Neue Sätze erzeugst du unten mit der KI.'}
+              </p>
+              <p className="wiederholen-stand">
+                {entries.length} gesammelt · {gewusst.length} sitzen
+              </p>
             </div>
-            <div className="satz-zahl">
-              <b>{gewusst.length}</b>
-              <span>sitzt</span>
-            </div>
-          </div>
-
-          <button
-            className="btn uebung-los"
-            disabled={faellig.length === 0}
-            onClick={() => setArtWahl(true)}
-          >
-            {faellig.length > 0
-              ? `${Math.min(RUNDE, faellig.length)} Sätze wiederholen`
-              : 'Nichts fällig – später wieder'}
-          </button>
+            <button
+              className="btn wiederholen-los"
+              disabled={faellig.length === 0}
+              onClick={() => setArtWahl(true)}
+            >
+              {faellig.length > 0 ? 'Üben' : 'Nichts fällig'}
+            </button>
+          </section>
         </>
       )}
 

@@ -136,6 +136,35 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
   )
 }
 
+/**
+ * Die Vokabeln der laufenden Runde, unter dem Spielfeld – mit
+ * Beispielsatz, wo einer gespeichert ist. Kein KI-Aufruf: die Sätze
+ * kommen aus dem Listengenerator und den Lektionen mit.
+ */
+function RundenWoerter({ woerter, gefunden }) {
+  if (!woerter?.length) return null
+  return (
+    <div className="runden-woerter">
+      <p className="runden-woerter-titel">Die Wörter dieser Runde</p>
+      <ul>
+        {woerter.map((w) => (
+          <li
+            key={w.es}
+            className={'spielwort' + (gefunden?.includes(w.es) ? ' spielwort-gefunden' : '')}
+          >
+            <div className="spielwort-kopf">
+              <b>{w.es}</b>
+              <span>{w.de}</span>
+              {gefunden?.includes(w.es) && <i className="spielwort-haken" aria-hidden="true">✓</i>}
+            </div>
+            {w.beispiel && <p className="spielwort-satz">{w.beispiel}</p>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 /* ---------- Spiel 1: Memory ---------- */
 // Karten liegen verdeckt. Decke zwei auf – gehören Wort und
 // Übersetzung zusammen, bleiben sie offen liegen.
@@ -174,10 +203,9 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       setGefunden(alle)
       setOffen([])
       belohne(XP.QUIZ_RICHTIG, 'Treffer!')
-      if (alle.length === paare.length) {
-        belohne(XP.SPIEL, 'Geschafft!')
-        setFertig(true)
-      }
+      // Das letzte Paar NICHT sofort wegblenden: Erst soll man es in
+      // Ruhe lesen können – weiter geht es über den Knopf unten.
+      if (alle.length === paare.length) belohne(XP.SPIEL, 'Geschafft!')
     } else {
       // kein Paar: kurz zeigen, dann wieder zudecken
       setSperre(true)
@@ -226,6 +254,12 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
           )
         })}
       </div>
+      {gefunden.length === anzahl && (
+        <button className="btn memory-weiter" onClick={() => setFertig(true)}>
+          Alle gefunden – weiter
+        </button>
+      )}
+      <RundenWoerter woerter={paare} gefunden={gefunden.map((i) => paare[i].es)} />
     </>
   )
 }
