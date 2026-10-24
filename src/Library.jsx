@@ -42,11 +42,17 @@ const SICHTBAR_GEMERKT = 4
 // eine Zeile holt ihn zurueck.
 const HOERTEXTE_ZEIGEN = false
 
+// Songs und Ebooks vorerst raus (24.10., wie bei Habloo): Hier geht es
+// nur um Videos. Die Bereiche bleiben fertig im Code – die Schalter
+// holen sie zurück.
+const SONGS_ZEIGEN = false
+const EBOOKS_ZEIGEN = false
+
 const BEREICHE = [
   { wert: 'videos', label: 'Videos' },
-  { wert: 'songs', label: 'Songs' },
+  ...(SONGS_ZEIGEN ? [{ wert: 'songs', label: 'Songs' }] : []),
   ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: 'Hörtexte' }] : []),
-  { wert: 'ebooks', label: 'Ebooks' },
+  ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: 'Ebooks' }] : []),
 ]
 
 const KATEGORIEN = [
@@ -119,7 +125,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // Kommt der Nutzer von Spotify zurueck, gehoert er direkt zu den Songs –
   // dort wird der Code eingeloest und die Auswertung gestartet.
   const [bereich, setBereich] = useState(() =>
-    new URLSearchParams(window.location.search).get('code') ? 'songs' : 'videos'
+    SONGS_ZEIGEN && new URLSearchParams(window.location.search).get('code') ? 'songs' : 'videos'
   ) // 'videos', 'songs' oder 'ebooks'
   const [buecher, setBuecher] = useState(ladeBuecher)
   const [buchTitel, setBuchTitel] = useState('')
