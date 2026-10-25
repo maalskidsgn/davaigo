@@ -179,19 +179,16 @@ export default function SatzGenerator({ saetze, setSaetze }) {
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        {/* Schritt 1: Thema – ein Tipp erzeugt sofort */}
+        {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
         <p className="sg-schritt"><span>1</span> Thema wählen</p>
         <div className="sg-themen">
           {THEMEN.map((t) => (
             <button
               key={t}
               type="button"
-              className="sg-thema"
+              className={'sg-thema' + (thema === t ? ' ist-aktiv' : '')}
               disabled={laden}
-              onClick={(e) => {
-                setThema(t)
-                generieren(e, t)
-              }}
+              onClick={() => setThema(thema === t ? '' : t)}
             >
               {t}
             </button>

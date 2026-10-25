@@ -10142,3 +10142,11 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .btn-zurueck:active { transform: scale(0.97); box-shadow: 0 1px 3px rgba(0, 0, 65, 0.08); }
 .btn-zurueck:focus-visible { outline: 3px solid rgba(124, 58, 237, 0.35); outline-offset: 2px; }
 
+
+/* Auswahl statt Sofort-Erzeugen: gewähltes Thema + helle Reiter */
+.sg-thema.ist-aktiv { border-color: var(--primary); background: #f3ecff; color: var(--primary-dark); box-shadow: inset 0 0 0 1px var(--primary); }
+.sg-reiter button { background: var(--flaeche); border-radius: 14px; color: var(--navy); }
+.sg-reiter button.ist-aktiv {
+  background: #f3ecff; border-color: var(--primary); color: var(--primary-dark);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
