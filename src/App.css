@@ -10102,3 +10102,43 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   margin: 0; padding: 12px 14px; border-radius: 14px;
   background: var(--flaeche); color: var(--muted); font-size: .88rem;
 }
+
+/* ---------- Einheitlicher Zurueck-Knopf ----------
+   Helle Pille mit orangem Pfeilkreis, linksbuendig. Ersetzt die
+   frueheren Varianten (btn-plain, recht-zurueck, kassen-zurueck). */
+.btn-zurueck {
+  display: flex;
+  width: fit-content;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  justify-self: start;
+  margin: 0 auto 14px 0;
+  padding: 6px 16px 6px 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 65, 0.06);
+  color: var(--navy);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+}
+.btn-zurueck .zurueck-pfeil {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #f1e9ff;
+  color: var(--primary);
+  transition: transform 0.15s ease;
+}
+.btn-zurueck:hover { background: #faf7ff; filter: none; }
+.btn-zurueck:hover .zurueck-pfeil { transform: translateX(-2px); }
+.btn-zurueck:active { transform: scale(0.97); box-shadow: 0 1px 3px rgba(0, 0, 65, 0.08); }
+.btn-zurueck:focus-visible { outline: 3px solid rgba(124, 58, 237, 0.35); outline-offset: 2px; }
+
