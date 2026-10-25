@@ -1,10 +1,11 @@
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
-import { letzteWoche, jahresRaster, erstesJahr } from './aktivitaet.js'
+import { letzteWoche, jahresRaster, erstesJahr, summeWiederholungen } from './aktivitaet.js'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
 import Lernkurve from './Lernkurve.jsx'
+import Meilensteine from './Meilensteine.jsx'
 
 // Die Startseite.
 //
@@ -147,6 +148,20 @@ export default function Home({
         {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
         <Lernkurve />
       </section>
+
+      {/* Meilensteine: Abzeichen zum Teilen */}
+      <Meilensteine
+        app="Davaigo"
+        adresse="davaigo.de"
+        werte={{
+          woerter: counts.woerter ?? 0,
+          texte: counts.texte ?? 0,
+          saetze: counts.saetze ?? 0,
+          lektionen: lektionenFertig,
+          streak: progress.streak ?? 0,
+          wiederholungen: summeWiederholungen(),
+        }}
+      />
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}
     </div>

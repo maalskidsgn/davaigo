@@ -997,6 +997,8 @@ export default function App() {
             counts={{
               faellig,
               woerter: Object.keys(vocab).length,
+              texte: Object.values(texte).reduce((n, t) => n + (t.gelesen ?? 0), 0),
+              saetze: Object.keys(saetze).length,
               videos: savedVideos.length,
             }}
             nextLesson={naechsteLektion(lessonProgress)}
