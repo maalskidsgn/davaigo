@@ -547,7 +547,8 @@ app.post('/api/vokabelliste', async (req, res) => {
   }
 
   try {
-    const ergebnis = await erzeugeVokabelliste(thema, bekannt, anzahl)
+    const wortart = ['verben', 'adjektive', 'nomen'].includes(req.body.wortart) ? req.body.wortart : 'alle'
+    const ergebnis = await erzeugeVokabelliste(thema, bekannt, anzahl, wortart)
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)

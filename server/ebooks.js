@@ -235,7 +235,14 @@ function ohneBekannte(vorschlaege, bekannt) {
  * @param {string}   thema   – z. B. "Restaurant"
  * @param {string[]} bekannt – Wörter, die die Person schon gesammelt hat
  */
-export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10) {
+// Optional nur eine Wortart – russische Grundformen, keine Artikel.
+const WORTART_REGEL = {
+  verben: 'Wähle AUSSCHLIESSLICH Verben, im Infinitiv (z. B. "читать"); wenn sinnvoll das Aspektpaar.',
+  adjektive: 'Wähle AUSSCHLIESSLICH Adjektive in der männlichen Grundform (z. B. "быстрый").',
+  nomen: 'Wähle AUSSCHLIESSLICH Nomen (Substantive) im Nominativ Singular.',
+}
+
+export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wortart = 'alle') {
   // Zwischen 5 und 50 Wörtern – das Onboarding bestellt z.B. 50.
   anzahl = Math.max(5, Math.min(50, Number(anzahl) || 10))
   const schluessel = process.env.OPENAI_API_KEY
@@ -253,6 +260,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10) {
       'man im Alltag ständig braucht? Wähle ein zusammenhängendes Thema statt ' +
       'wahlloser Einzelwörter.' + bekanntesAlsHinweis(bekannt)
     : `Thema: ${thema}` + bekanntesAlsHinweis(bekannt)
+  const auftragMitWortart = WORTART_REGEL[wortart] ? auftrag + '\n' + WORTART_REGEL[wortart] : auftrag
 
   // Immer genau `anzahl` Wörter. Das Modell schlägt bewusst mehr vor,
   // weil danach alles rausfliegt, was die Person schon kennt – vorher
@@ -272,7 +280,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10) {
         ].join(', ')}`
       : ''
 
-    const ergebnis = await frageListe(schluessel, auftrag + nachschlag, fehlen + 8)
+    const ergebnis = await frageListe(schluessel, auftragMitWortart + nachschlag, fehlen + 8)
     if (!begruendung) begruendung = ergebnis.begruendung ?? ''
     if (!gefundenesThema) gefundenesThema = ergebnis.thema ?? ''
 

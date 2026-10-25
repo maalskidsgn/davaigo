@@ -518,40 +518,36 @@ function TextGenerator({ texte, setTexte, onFertig }) {
       </div>
 
       <form className="wort-form" onSubmit={erzeugen}>
-        <div className="wort-vorschlaege">
+        {/* Schritt 1: Gebiet – nur auswählen, erzeugt wird unten */}
+        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <div className="sg-themen sg-zwei">
           {GEBIETE.map(([wert, name]) => (
             <button
               key={wert}
               type="button"
-              className="vorschlag-chip"
+              className={'sg-thema' + (gebiet === wert ? ' ist-aktiv' : '')}
               disabled={laden}
-              onClick={(e) => {
-                setGebiet(wert)
-                erzeugen(e, wert)
-              }}
+              onClick={() => setGebiet(gebiet === wert ? '' : wert)}
             >
               {name}
             </button>
           ))}
         </div>
 
-        <div className="grammatik-wahl">
-          <span className="grammatik-titel">Schwierigkeit</span>
-          <div className="wort-vorschlaege">
-            {STUFEN.map(([wert, name, hilfe]) => (
-              <button
-                key={wert}
-                type="button"
-                className={
-                  'vorschlag-chip zeit-chip' + (stufe === wert ? ' vorschlag-chip-aktiv' : '')
-                }
-                onClick={() => setStufe(wert)}
-              >
-                {name}
-                <small>{hilfe}</small>
-              </button>
-            ))}
-          </div>
+        {/* Schritt 2: Schwierigkeit */}
+        <p className="sg-schritt"><span>2</span> Schwierigkeit</p>
+        <div className="sg-formen sg-drei">
+          {STUFEN.map(([wert, name, hilfe]) => (
+            <button
+              key={wert}
+              type="button"
+              className={'sg-form' + (stufe === wert ? ' ist-aktiv' : '')}
+              onClick={() => setStufe(wert)}
+            >
+              <b>{name}</b>
+              <span>{hilfe}</span>
+            </button>
+          ))}
         </div>
 
         <div className="gen-feld">
@@ -559,7 +555,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
             type="text"
             value={thema}
             onChange={(e) => setThema(e.target.value)}
-            placeholder="Eigenes Thema, z. B. Vulkane …"
+            placeholder="… oder eigenes Thema, z. B. Vulkane"
             disabled={laden}
           />
           <button
