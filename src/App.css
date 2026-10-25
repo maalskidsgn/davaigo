@@ -9824,3 +9824,11 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 }
 .streak-label { margin-top: 4px; font-weight: 800; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .streak-an svg { animation: none; } }
+
+/* Wiederholen- und Weiterlernen-Karte: schlicht weiß statt Verlauf */
+.bereich.bereich-wiederholen,
+.weiterlernen {
+  background: #fff;
+  border: 1px solid #ece4fb;
+  box-shadow: 0 4px 16px rgba(60, 20, 120, .05);
+}
