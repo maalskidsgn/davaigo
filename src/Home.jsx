@@ -1,7 +1,7 @@
 import { MODULE, lektionenVon } from './lektionen.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
-import { letzteWoche } from './aktivitaet.js'
+import { letzteWoche, kalenderRaster, jahresRaster, erstesJahr } from './aktivitaet.js'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
 import Lernkurve from './Lernkurve.jsx'
@@ -140,6 +140,9 @@ export default function Home({
             </li>
           ))}
         </ol>
+
+        {/* Der Kalender: ein Haken an jedem Tag, an dem etwas gelernt wurde */}
+        <Kalender />
 
         {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
         <Lernkurve />
@@ -402,3 +405,187 @@ export function Leitfaden({ onNavigate, onZurueck }) {
     </div>
   )
 }
+
+/**
+ * Kalender der letzten Wochen. Kreuz = an diesem Tag gelernt; antippen
+ * zeigt die Aufschlüsselung in Lektionen und Wiederholungen.
+ */
+function Kalender() {
+  const [ansicht, setAnsicht] = useState('wochen') // 'wochen' | 'jahr'
+  const [gewaehlt, setGewaehlt] = useState(null)
+  const diesesJahr = new Date().getFullYear()
+  const [jahr, setJahr] = useState(diesesJahr)
+
+  const zellen = ansicht === 'wochen' ? kalenderRaster(6) : null
+  const monate = ansicht === 'jahr' ? jahresRaster(jahr) : null
+  const wochentage = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+
+  const aktiveTage =
+    ansicht === 'wochen'
+      ? zellen.filter((z) => z.gesamt > 0).length
+      : monate.reduce((summe, m) => summe + m.aktiv, 0)
+
+  function wechsle(neu) {
+    setAnsicht(neu)
+    setGewaehlt(null)
+    setJahr(diesesJahr)
+  }
+
+  return (
+    <div className="kalender">
+      <div className="kal-kopf">
+        <p className="start-abschnitt-sub kal-titel">
+          Kalender · {aktiveTage} {aktiveTage === 1 ? 'aktiver Tag' : 'aktive Tage'}
+        </p>
+        <div className="kal-umschalter" role="tablist">
+          <button
+            type="button"
+            className={ansicht === 'wochen' ? 'ist-aktiv' : ''}
+            onClick={() => wechsle('wochen')}
+          >
+            6 Wochen
+          </button>
+          <button
+            type="button"
+            className={ansicht === 'jahr' ? 'ist-aktiv' : ''}
+            onClick={() => wechsle('jahr')}
+          >
+            Jahr
+          </button>
+        </div>
+      </div>
+
+      {ansicht === 'wochen' && (
+        <>
+          <div className="kal-wochentage">
+            {wochentage.map((t) => (
+              <span key={t}>{t}</span>
+            ))}
+          </div>
+
+          <div className="kal-gitter">
+            {zellen.map((z) => (
+              <button
+                key={z.schluessel}
+                type="button"
+                disabled={z.zukunft}
+                className={
+                  'kal-tag' +
+                  (z.gesamt > 0 ? ' kal-aktiv' : '') +
+                  (z.istHeute ? ' kal-heute' : '') +
+                  (z.zukunft ? ' kal-zukunft' : '') +
+                  (gewaehlt?.schluessel === z.schluessel ? ' kal-gewaehlt' : '')
+                }
+                onClick={() => setGewaehlt(z)}
+              >
+                <span className="kal-zahl">{z.tag}</span>
+                {z.gesamt > 0 && (
+                  <svg className="kal-haken" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {ansicht === 'jahr' && (
+        <>
+          <div className="kal-jahr-nav">
+            <button
+              type="button"
+              aria-label="Vorheriges Jahr"
+              disabled={jahr <= Math.min(erstesJahr(), diesesJahr)}
+              onClick={() => { setJahr(jahr - 1); setGewaehlt(null) }}
+            >
+              ‹
+            </button>
+            <b>{jahr}</b>
+            <button
+              type="button"
+              aria-label="Nächstes Jahr"
+              disabled={jahr >= diesesJahr}
+              onClick={() => { setJahr(jahr + 1); setGewaehlt(null) }}
+            >
+              ›
+            </button>
+          </div>
+
+          <div className="kal-jahr">
+            {monate.map((m) => (
+              <div key={m.name} className="kal-monat">
+                <p className="kal-monat-name">
+                  {m.name}
+                  {m.aktiv > 0 && <span>{m.aktiv}</span>}
+                </p>
+                <div className="kal-mini">
+                  {Array.from({ length: m.versatz }, (_, i) => (
+                    <span key={'l' + i} />
+                  ))}
+                  {m.tage.map((t) => (
+                    <button
+                      key={t.schluessel}
+                      type="button"
+                      disabled={t.zukunft}
+                      aria-label={kalDatum(t.schluessel)}
+                      className={
+                        'kal-punkt' +
+                        (t.gesamt > 0 ? ' kal-aktiv' : '') +
+                        (t.istHeute ? ' kal-heute' : '') +
+                        (t.zukunft ? ' kal-zukunft' : '') +
+                        (gewaehlt?.schluessel === t.schluessel ? ' kal-gewaehlt' : '')
+                      }
+                      onClick={() => setGewaehlt(t)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {gewaehlt && (
+        <div className={'kal-detail' + (gewaehlt.gesamt > 0 ? ' kal-detail-aktiv' : '')}>
+          <p className="kal-detail-datum">{kalDatum(gewaehlt.schluessel)}</p>
+          {gewaehlt.gesamt === 0 ? (
+            <p className="kal-detail-leer">An diesem Tag wurde nichts gelernt.</p>
+          ) : (
+            <div className="kal-detail-werte">
+              {gewaehlt.wiederholungen > 0 && (
+                <div className="kal-wert kal-wert-wdh">
+                  <b>{gewaehlt.wiederholungen}</b>
+                  <span>{gewaehlt.wiederholungen === 1 ? 'Wiederholung' : 'Wiederholungen'}</span>
+                </div>
+              )}
+              {gewaehlt.lektionen > 0 && (
+                <div className="kal-wert kal-wert-lek">
+                  <b>{gewaehlt.lektionen}</b>
+                  <span>{gewaehlt.lektionen === 1 ? 'Lektion' : 'Lektionen'}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** "2026-08-24" → "Mo, 24. Aug." */
+function kalDatum(schluessel) {
+  const [j, m, t] = schluessel.split('-').map(Number)
+  const d = new Date(j, m - 1, t)
+  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+/** Aufschlüsselung eines Tages als Text, z. B. "1 Lektion, 2 Wiederholungen". */
+function kalTeile(z) {
+  const teile = []
+  if (z.lektionen > 0) teile.push(z.lektionen + (z.lektionen === 1 ? ' Lektion' : ' Lektionen'))
+  if (z.wiederholungen > 0)
+    teile.push(z.wiederholungen + (z.wiederholungen === 1 ? ' Wiederholung' : ' Wiederholungen'))
+  return teile.join(', ')
+}
+

@@ -80,7 +80,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
     const id = runde.baustein.id
     setStand((s) => ({ ...s, [id]: review(withSrsDefaults(s[id] ?? {}), bewertung) }))
     addXp(XP.RUNDE)
-    merkeEinheit() // zählt im Wochendiagramm wie eine Trainingsrunde
+    merkeEinheit('wiederholung') // zählt im Wochendiagramm wie eine Trainingsrunde
     setSchritt(runde.aufgaben.length) // schaltet auf die Abschlussseite
   }
 
