@@ -15,8 +15,8 @@ export default function ListGenerator({ vocab, setVocab }) {
   const [fehler, setFehler] = useState('')
   const [liste, setListe] = useState(null) // Vorschläge mit Häkchen
   const [erfolg, setErfolg] = useState(false)
-  const { premium } = usePremium()
-  const [uebrig, setUebrig] = useState(() => verbleibend())
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend(premium))
   // Unter fuenf gesammelten Woertern kann die KI nichts erkennen –
   // dann bleibt der KI-Gen-Knopf gesperrt.
   const zuWenige = Object.keys(vocab).length < 5
@@ -91,6 +91,7 @@ export default function ListGenerator({ vocab, setVocab }) {
 
   // Kostenloses Kontingent aufgebraucht: Premium-Hinweis statt Formular
   if (uebrig <= 0 && !liste) {
+    if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="list-gen">
         <div className="plan-card plan-premium premium-teaser">
