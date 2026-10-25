@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
@@ -452,6 +452,10 @@ function TextGenerator({ texte, setTexte, onFertig }) {
   const [fehler, setFehler] = useState('')
   const { premium } = usePremium()
   const [uebrig, setUebrig] = useState(() => verbleibend())
+  // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
+  useEffect(() => {
+    setUebrig(verbleibend(premium))
+  }, [premium])
 
   const bekannt = Object.values(texte).map((t) => t.titelDe ?? '')
 

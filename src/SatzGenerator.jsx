@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { API_URL } from './api.js'
 import { neuerSatz, satzSchluessel } from './saetze.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
@@ -86,6 +86,10 @@ export default function SatzGenerator({ saetze, setSaetze }) {
   const [erfolg, setErfolg] = useState(0) // wie viele gerade übernommen wurden
   const { premium } = usePremium()
   const [uebrig, setUebrig] = useState(() => verbleibend())
+  // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
+  useEffect(() => {
+    setUebrig(verbleibend(premium))
+  }, [premium])
 
   const bekannt = Object.values(saetze).map((s) => s.anzeige ?? '')
 
