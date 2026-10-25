@@ -77,6 +77,7 @@ const ALLE_FORMEN = [['', 'Gemischt', 'alles durcheinander'], ...GRUPPEN.flatMap
  */
 export default function SatzGenerator({ saetze, setSaetze }) {
   const [thema, setThema] = useState('')
+  const [offeneGruppe, setOffeneGruppe] = useState('')
   const [grammatik, setGrammatik] = useState('')
   const [liste, setListe] = useState(null)
   const [fertig, setFertig] = useState({ thema: '', grammatik: '', hinweis: '' })
@@ -178,13 +179,14 @@ export default function SatzGenerator({ saetze, setSaetze }) {
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        {/* Themen: ein Tipp erzeugt sofort */}
-        <div className="wort-vorschlaege">
+        {/* Schritt 1: Thema – ein Tipp erzeugt sofort */}
+        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <div className="sg-themen">
           {THEMEN.map((t) => (
             <button
               key={t}
               type="button"
-              className="vorschlag-chip"
+              className="sg-thema"
               disabled={laden}
               onClick={(e) => {
                 setThema(t)
@@ -196,42 +198,51 @@ export default function SatzGenerator({ saetze, setSaetze }) {
           ))}
         </div>
 
-        {/* Form: bleibt gewählt, gilt für die nächste Generierung */}
-        <div className="grammatik-wahl">
+        {/* Schritt 2: Grammatik – erst Bereich, dann Form */}
+        <p className="sg-schritt"><span>2</span> Grammatik <small>optional</small></p>
+        <div className="sg-reiter" role="tablist">
           <button
             type="button"
-            className={
-              'vorschlag-chip zeit-chip' + (grammatik === '' ? ' vorschlag-chip-aktiv' : '')
-            }
-            onClick={() => setGrammatik('')}
+            className={offeneGruppe === '' ? 'ist-aktiv' : ''}
+            onClick={() => {
+              setOffeneGruppe('')
+              setGrammatik('')
+            }}
           >
             Gemischt
-            <small>alles durcheinander</small>
           </button>
-
-          {GRUPPEN.map((gruppe) => (
-            <div key={gruppe.titel} className="grammatik-gruppe">
-              <span className="grammatik-titel">{gruppe.titel}</span>
-              <div className="wort-vorschlaege">
-                {gruppe.formen.map(([wert, name, hilfe]) => (
-                  <button
-                    key={wert}
-                    type="button"
-                    className={
-                      'vorschlag-chip zeit-chip' +
-                      (grammatik === wert ? ' vorschlag-chip-aktiv' : '')
-                    }
-                    onClick={() => setGrammatik(wert)}
-                    title={hilfe}
-                  >
-                    {name}
-                    <small>{hilfe}</small>
-                  </button>
-                ))}
-              </div>
-            </div>
+          {GRUPPEN.map((g) => (
+            <button
+              key={g.titel}
+              type="button"
+              className={
+                (offeneGruppe === g.titel ? 'ist-aktiv' : '') +
+                (g.formen.some(([w]) => w === grammatik) ? ' hat-wahl' : '')
+              }
+              onClick={() => setOffeneGruppe(g.titel)}
+            >
+              {g.titel}
+            </button>
           ))}
         </div>
+
+        {offeneGruppe === '' ? (
+          <p className="sg-gemischt">Alle Formen durcheinander – gut zum Wiederholen.</p>
+        ) : (
+          <div className="sg-formen">
+            {GRUPPEN.find((g) => g.titel === offeneGruppe).formen.map(([wert, name, hilfe]) => (
+              <button
+                key={wert}
+                type="button"
+                className={'sg-form' + (grammatik === wert ? ' ist-aktiv' : '')}
+                onClick={() => setGrammatik(grammatik === wert ? '' : wert)}
+              >
+                <b>{name}</b>
+                <span>{hilfe}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="gen-feld">
           <input
