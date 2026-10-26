@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
 import Lernkurve from './Lernkurve.jsx'
 import Meilensteine from './Meilensteine.jsx'
+import InstallKnopf from './InstallKnopf.jsx'
 
 // Die Startseite.
 //
@@ -46,6 +47,9 @@ export default function Home({
         Привет<span className="accent">!</span>
       </h1>
       <p className="intro">Bereit für deinen nächsten Schritt?</p>
+
+      {/* Nur im Browser: App auf den Startbildschirm holen */}
+      <InstallKnopf app="Davaigo" />
 
       {/* ============ 1. WEITERLERNEN ============ */}
       <section className="start-karte start-lektion">
