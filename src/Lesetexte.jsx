@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect } from 'react'
+import PremiumWerbung from './PremiumWerbung.jsx'
 import { createPortal } from 'react-dom'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
@@ -493,15 +494,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
     if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="list-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} kostenlosen Generierungen sind für heute
-            aufgebraucht – unbegrenzte Texte kommen mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Texte" />
       </div>
     )
   }

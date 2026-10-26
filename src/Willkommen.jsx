@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
 
@@ -323,7 +324,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       </section>
 
       {/* ---------- Premium ---------- */}
-      <section className="lp-premium lp-zeig">
+      {!istApp && (
+<section className="lp-premium lp-zeig">
         <div className="lp-premium-karte">
           <span className="lp-premium-funke" aria-hidden="true">✦</span>
           <p className="lp-premium-ueber">Power up mit</p>
@@ -337,6 +339,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           </button>
         </div>
       </section>
+      )}
 
       {/* ---------- Großer Schluss ---------- */}
       <section className="lp-schluss lp-zeig">
@@ -362,7 +365,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
             <h3>Konto</h3>
             <button onClick={onStarten}>Kostenlos starten</button>
             <button onClick={onAnmelden}>Anmelden</button>
-            <button onClick={onStarten}>Premium</button>
+            {!istApp && <button onClick={onStarten}>Premium</button>}
           </div>
           <div>
             <h3>{APP_NAME}</h3>

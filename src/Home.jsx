@@ -1,4 +1,5 @@
 import { MODULE, lektionenVon } from './lektionen.js'
+import { istApp } from './api.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
 import { letzteWoche, jahresRaster, erstesJahr, summeWiederholungen } from './aktivitaet.js'
@@ -276,7 +277,7 @@ function Gruppenstunde({ onNavigate }) {
           </button>
         )}
 
-        {!premium && (
+        {!premium && !istApp && (
           <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
             Mit Premium teilnehmen <IconPfeil groesse={16} />
           </button>
