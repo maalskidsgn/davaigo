@@ -1136,7 +1136,10 @@ export default function App() {
               faellig,
               woerter: Object.keys(vocab).length,
               videos: savedVideos.length,
-              texte: Object.keys(texte).length,
+              // Gelesene Texte, nicht angelegte: Die Meilenstein-Reihe
+              // heisst "Texte gelesen", und ein Text, der nur herumliegt,
+              // hat niemandem etwas beigebracht.
+              texte: Object.values(texte).reduce((n, t) => n + (t.gelesen ?? 0), 0),
               saetze: Object.keys(saetze).length,
             }}
             nextLesson={naechsteLektion(lessonProgress)}

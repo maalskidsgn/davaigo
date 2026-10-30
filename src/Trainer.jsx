@@ -611,7 +611,7 @@ export default function Trainer({
           <h2>Spielerisch üben</h2>
           <p>
             {spielbar
-              ? 'Alle vier Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
+              ? 'Alle Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
               : 'Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.'}
           </p>
         </div>
@@ -643,6 +643,29 @@ export default function Trainer({
             </span>
             <span className="spiel-name">Wortfang</span>
             <span className="spiel-hinweis">Richtige antippen</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('blitz')} disabled={!spielbar}>
+            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="34" height="34">
+                <path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" />
+              </svg>
+            </span>
+            <span className="spiel-name">Blitzrunde</span>
+            <span className="spiel-hinweis">60 Sekunden: passt oder nicht?</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('galgen')} disabled={!spielbar}>
+            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
+              <b>д_м_</b>
+            </span>
+            <span className="spiel-name">Galgenmännchen</span>
+            <span className="spiel-hinweis">Wort Buchstabe für Buchstabe raten</span>
+          </button>
+          <button className="spiel-karte" onClick={() => setSpiel('salat')} disabled={!spielbar}>
+            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
+              <b>м о д</b>
+            </span>
+            <span className="spiel-name">Buchstabensalat</span>
+            <span className="spiel-hinweis">Buchstaben ordnen</span>
           </button>
         </div>
       </section>
