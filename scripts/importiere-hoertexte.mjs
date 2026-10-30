@@ -1,3 +1,14 @@
+// NICHT FÜR DAVAIGO. Dieses Skript holt SPANISCHE Podcast-Folgen.
+//
+// Es stammt aus Habloo und zieht von spanisch-lernen.com. Liesse man
+// es hier laufen, laegen spanische Hörtexte in Davaigos Datenbank.
+// Ein russisches Gegenstück gibt es nicht – die Seite hat keines.
+//
+// Stehen bleibt es, weil der schwierige Teil wiederverwendbar ist:
+// das Herausfinden des Fließtextes aus einer WordPress-Seite, deren
+// Reiter wechselnde Kennungen tragen. Wer eine russische Quelle
+// findet, baut darauf auf und löscht die Sperre unten.
+//
 // Holt die Podcast-Folgen von spanisch-lernen.com – Text, deutsche
 // Fassung, markierte Vokabeln und die MP3.
 //
@@ -17,6 +28,18 @@ import { writeFileSync, mkdirSync, readFileSync, readdirSync } from 'fs'
 
 const ZIEL = 'public/hoertexte'
 const QUELLE = 'https://spanisch-lernen.com/wp-json/wp/v2/podcast'
+
+// Die Sperre. Ohne sie waere ein versehentliches
+// "node scripts/importiere-hoertexte.mjs" genug, um spanische Texte
+// in Davaigos Datenbank zu schreiben.
+if (!process.argv.includes('--ja-ich-will-spanisch')) {
+  console.error(
+    'Abgebrochen: Dieses Skript holt SPANISCHE Hoertexte von ' +
+      'spanisch-lernen.com.\nDavaigo ist eine Russisch-App - das gehoert ' +
+      'hier nicht hinein.\nSiehe den Kommentar am Dateianfang.'
+  )
+  process.exit(1)
+}
 const ALLE = process.argv.includes('--alle')
 
 function nurText(html) {

@@ -22,6 +22,24 @@ import { writeFileSync, mkdirSync, existsSync } from 'fs'
 
 const ZIEL = 'public/lesetexte'
 const QUELLE = 'https://spanisch-lernen.com/wp-json/wp/v2/spanische-texte'
+
+// Dieselbe Sperre wie in importiere-hoertexte.mjs, aus demselben
+// Grund: Die Quelle ist spanisch-lernen.com. Ein versehentliches
+// "node scripts/importiere-lesetexte.mjs" wuerde spanische Lesetexte
+// in Davaigos Datenbank schreiben.
+//
+// Das Gerippe bleibt stehen, weil der schwierige Teil - den
+// Fliesstext aus einer WordPress-Seite mit wechselnden Kennungen
+// herauszuloesen - wiederverwendbar ist. Wer eine russische Quelle
+// findet, baut darauf auf und nimmt diese Sperre heraus.
+if (!process.argv.includes('--ja-ich-will-spanisch')) {
+  console.error(
+    'Abgebrochen: Dieses Skript holt SPANISCHE Lesetexte von ' +
+      'spanisch-lernen.com.\nDavaigo ist eine Russisch-App - das gehoert ' +
+      'hier nicht hinein.'
+  )
+  process.exit(1)
+}
 const ALLE = process.argv.includes('--alle')
 
 /** HTML-Entitaeten und Tags aus einem Textstueck entfernen. */

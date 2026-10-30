@@ -2,7 +2,7 @@
 /**
  * Füllt die Video-Bibliothek mit Themen-Videos.
  *
- * Idee: Man lernt Spanisch nebenbei, während man etwas Interessantes
+ * Idee: Man lernt Russisch nebenbei, während man etwas Interessantes
  * schaut – Gesundheit, Sport, Ernährung, Produktivität, Stoizismus.
  *
  * Das Skript sucht pro Kategorie, prüft jeden Treffer auf
@@ -36,60 +36,60 @@ const KATEGORIEN = [
     name: 'gesundheit',
     ziel: 5,
     suchen: [
-      'beneficios de dejar el alcohol salud',
-      'como mejorar tu salud habitos español',
-      'dormir mejor consejos científicos español',
-      'salud mental consejos psicólogo español',
+      'польза отказа от алкоголя здоровье',
+      'как улучшить здоровье привычки',
+      'как лучше спать советы учёных',
+      'психическое здоровье советы психолога',
     ],
   },
   {
     name: 'sport',
     ziel: 5,
     suchen: [
-      'beneficios del ejercicio para el cerebro español',
-      'como empezar a correr principiantes español',
-      'entrenamiento fuerza explicado español',
-      'deporte y salud mental español',
+      'польза спорта для мозга',
+      'как начать бегать для начинающих',
+      'силовая тренировка объяснение',
+      'спорт и психическое здоровье',
     ],
   },
   {
     name: 'ernaehrung',
     ziel: 5,
     suchen: [
-      'alimentación saludable explicado español',
-      'que comer para tener energía español',
-      'azúcar efectos en el cuerpo español',
-      'ayuno intermitente explicado español',
+      'здоровое питание объяснение',
+      'что есть чтобы было больше энергии',
+      'сахар влияние на организм',
+      'интервальное голодание объяснение',
     ],
   },
   {
     name: 'produktivitaet',
     ziel: 5,
     suchen: [
-      'productividad hábitos español',
-      'como organizar tu día productivo español',
-      'dejar de procrastinar consejos español',
-      'gestión del tiempo método español',
+      'продуктивность привычки',
+      'как организовать свой день',
+      'как перестать прокрастинировать советы',
+      'управление временем метод',
     ],
   },
   {
     name: 'stoizismus',
     ziel: 5,
     suchen: [
-      'estoicismo para principiantes español',
-      'marco aurelio meditaciones lecciones español',
-      'filosofía estoica vida diaria español',
-      'séneca sobre la brevedad de la vida español',
+      'стоицизм для начинающих',
+      'марк аврелий размышления уроки',
+      'стоическая философия в повседневной жизни',
+      'сенека о краткости жизни',
     ],
   },
   {
     name: 'psychologie',
     ziel: 5,
     suchen: [
-      'como crear buenos hábitos psicología español',
-      'inteligencia emocional explicado español',
-      'motivación y disciplina psicología español',
-      'aprender más rápido técnicas español',
+      'как формировать хорошие привычки психология',
+      'эмоциональный интеллект объяснение',
+      'мотивация и дисциплина психология',
+      'как учиться быстрее техники',
     ],
   },
 ]

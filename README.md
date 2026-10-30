@@ -1,6 +1,6 @@
-# ¡Vamigo! – Spanisch lernen mit YouTube
+# Davaigo – Russisch lernen mit YouTube
 
-Eine Spanisch-Lern-App im Stil von LingQ, Babbel und Duolingo – gebaut mit React.
+Eine Russisch-Lern-App im Stil von LingQ, Babbel und Duolingo – gebaut mit React.
 Lerne mit echten YouTube-Videos, geführten Lektionen, einem Spaced-Repetition-Vokabeltrainer
 und Gamification (XP, Level, Streaks).
 
@@ -8,7 +8,7 @@ und Gamification (XP, Level, Streaks).
 
 ## Features
 
-- 📺 **Videos**: YouTube-Link einfügen oder Videos entdecken → spanisches Transkript
+- 📺 **Videos**: YouTube-Link einfügen oder Videos entdecken → russisches Transkript
   läuft als Karaoke mit, Wörter anklicken für Übersetzung, ganzes Transkript per
   Klick auf Deutsch. Nicht-einbettbare Videos werden automatisch ausgefiltert
 - 🎓 **Lektionen**: Sprach-Reise in Modulen – Einleitung, neue Wörter mit Ton (🔊),

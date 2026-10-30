@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 /**
- * Füllt die Habloo-Video-Bibliothek in Supabase.
+ * Füllt die Davaigo-Video-Bibliothek in Supabase.
  *
  * Läuft auf Manuels Mac (dort funktioniert yt-dlp), NICHT auf dem Server.
- * Holt zu jedem Video die Metadaten + das spanische Transkript und legt
+ * Holt zu jedem Video die Metadaten + das russische Transkript und legt
  * beides in der Tabelle "videos" ab. Von dort lesen später alle Nutzer.
  *
  * Aufruf:  node scripts/bibliothek-fuellen.js
@@ -18,6 +18,10 @@ import { join } from 'node:path'
 import { readdir, rm, mkdtemp } from 'node:fs/promises'
 
 const ausfuehren = promisify(execFile)
+
+// Mit leerer Liste gaebe es nichts zu tun – lieber einmal deutlich
+// sagen, warum, als stumm durchlaufen.
+
 
 // ---------------------------------------------------------------
 // Zugangsdaten aus .env.local lesen
@@ -43,21 +47,19 @@ const ueberschreiben = process.argv.includes('--neu')
 // Bewusst nach Niveau sortiert: A1 = ganz langsam, B1 = normales Tempo.
 // Neue Videos einfach unten anhängen und Skript erneut laufen lassen.
 const AUSWAHL = [
-  // A1 – ganz langsam gesprochen, für den Anfang
-  { id: 'QkbiqHmFnXQ', niveau: 'A1', kategorie: 'geschichten' }, // Start With This Story
-  { id: '5EIlaOWF5fw', niveau: 'A1', kategorie: 'alltag' },      // Survive a Long Flight
-  { id: 'Hbu8HvhYj98', niveau: 'A1', kategorie: 'grundlagen' },  // Basic Conversation Practice
-  { id: 'DAp_v7EH9AA', niveau: 'A1', kategorie: 'grundlagen' },  // 70 Basic Phrases
-
-  // A2 – Straßeninterviews, natürliches Tempo
-  { id: 'SCS1dJ35lig', niveau: 'A2', kategorie: 'gespraech' },   // What are you doing today?
-  { id: '-J9IL3Evx5c', niveau: 'A2', kategorie: 'kultur' },      // Typical Spanish City Centre
-  { id: 'Irhfx_Zj9sQ', niveau: 'A2', kategorie: 'grundlagen' },  // Talk About Yourself
-
-  // B1 – längere Gespräche
-  { id: 'mECAxJYzj0Y', niveau: 'B1', kategorie: 'gespraech' },   // Most Important Thing in Life
-  { id: '5FYGP2Jd1XA', niveau: 'B1', kategorie: 'kultur' },      // Languages in Barcelona
-  { id: 'nks_p67MAns', niveau: 'B1', kategorie: 'podcast' },     // Cómo aprender español
+  // LEER, UND DAS MIT ABSICHT.
+  //
+  // Hier standen bis zum 30.10.2026 zehn SPANISCHE Video-Kennungen
+  // aus Habloo. Waere das Skript gelaufen, haetten zehn spanische
+  // Videos in Davaigos Bibliothek gelegen.
+  //
+  // Nicht durch russische ersetzt, weil ausgedachte YouTube-Kennungen
+  // auf irgendetwas zeigen – oder auf nichts. Wer die Bibliothek von
+  // Hand fuellen will, traegt hier echte Kennungen ein:
+  //   { id: 'AbCdEfGhIjK', niveau: 'A1', kategorie: 'alltag' },
+  //
+  // Der bequemere Weg ist scripts/bibliothek-themen.js: Das SUCHT
+  // russische Videos, statt eine Liste zu pflegen.
 ]
 
 // ---------------------------------------------------------------
@@ -120,7 +122,7 @@ async function holeTranskript(youtubeId) {
   try {
     await ausfuehren('yt-dlp', [
       '--write-sub', '--write-auto-sub',
-      '--sub-lang', 'es,es-ES,es-419,es-MX',
+      '--sub-lang', 'ru,ru-RU',
       '--sub-format', 'json3',
       '--skip-download',
       '--no-warnings',

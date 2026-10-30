@@ -4,9 +4,13 @@
  *
  * Aufbau wie bei Blinkist: Einführung → Kapitel → Schluss, jede
  * Überschrift eine Kernaussage. Alles zweisprachig; in der App
- * schaltet man unten zwischen Spanisch und Deutsch um.
+ * schaltet man unten zwischen Russisch und Deutsch um.
  *
- * Aufruf:  node scripts/beispiel-ebooks.js
+ * Aufruf:  node scripts/beispiel-ebooks.js --anlegen
+ *
+ * Das --anlegen ist Absicht. Ohne das Wort passiert nichts: Die
+ * Datei nur zum Nachsehen zu oeffnen oder sie versehentlich
+ * auszufuehren soll keine Buecher in die Datenbank schreiben.
  */
 
 import { readFileSync } from 'node:fs'
@@ -17,77 +21,89 @@ for (const zeile of readFileSync(new URL('../.env.local', import.meta.url), 'utf
   if (t) env[t[1]] = t[2].trim()
 }
 
+if (!process.argv.includes('--anlegen')) {
+  console.error('Nichts getan. Zum Anlegen: node scripts/beispiel-ebooks.js --anlegen')
+  process.exit(1)
+}
+
 const URL_BASIS = env.SUPABASE_URL
 const KEY = env.SUPABASE_SERVICE_KEY
-
 // ---------------------------------------------------------------
 //  Buch 1 – A1: Kleine Gewohnheiten
 // ---------------------------------------------------------------
+//
+// Auf Russisch NEU GESCHRIEBEN, nicht aus Habloo übersetzt. Ein
+// A1-Text muss in der Zielsprache gedacht sein: Was im Spanischen
+// ein leichter Satz ist, braucht im Russischen womöglich einen Fall,
+// den ein Anfänger noch gar nicht kennt.
+//
+// Deshalb hier nur Präsens, kurze Sätze, Grundwortschatz – und an
+// Fällen fast nur Nominativ und Akkusativ.
 const BUCH_A1 = {
-  titel: 'Pequeños hábitos, gran vida',
+  titel: 'Маленькие привычки, большая жизнь',
   titel_de: 'Kleine Gewohnheiten, großes Leben',
-  untertitel_es: 'Cómo los pasos pequeños cambian tu día a día',
+  untertitel_es: 'Как маленькие шаги меняют твой день',
   untertitel_de: 'Wie kleine Schritte deinen Alltag verändern',
-  autor: 'Habloo',
+  autor: 'Davaigo',
   thema: 'Gewohnheiten',
   niveau: 'A1',
   kapitel: [
     {
-      label_es: 'Introducción', label_de: 'Einführung',
-      titel_es: 'Lo que hay aquí para ti: el poder de lo pequeño',
+      label_es: 'Введение', label_de: 'Einführung',
+      titel_es: 'Что здесь для тебя: сила маленького',
       titel_de: 'Was drin ist für dich: die Kraft des Kleinen',
       text_es:
-        'Muchas personas quieren cambiar su vida. Quieren hacer más deporte, comer mejor o aprender español. Pero los planes grandes son difíciles.\n\n' +
-        'Este libro tiene una idea simple: no necesitas planes grandes. Necesitas hábitos pequeños. Un hábito es una cosa que haces todos los días, casi sin pensar.',
+        'Многие люди хотят изменить свою жизнь. Они хотят больше спорта, хотят есть лучше или учить русский язык. Но большие планы — это трудно.\n\n' +
+        'В этой книге простая идея: тебе не нужны большие планы. Тебе нужны маленькие привычки. Привычка — это то, что ты делаешь каждый день, почти без мыслей.',
       text_de:
-        'Viele Menschen wollen ihr Leben verändern. Sie wollen mehr Sport machen, besser essen oder Spanisch lernen. Aber große Pläne sind schwer.\n\n' +
+        'Viele Menschen wollen ihr Leben verändern. Sie wollen mehr Sport, besser essen oder Russisch lernen. Aber große Pläne sind schwer.\n\n' +
         'Dieses Buch hat eine einfache Idee: Du brauchst keine großen Pläne. Du brauchst kleine Gewohnheiten. Eine Gewohnheit ist etwas, das du jeden Tag tust – fast ohne nachzudenken.',
     },
     {
-      label_es: 'Capítulo 1', label_de: 'Kapitel 1',
-      titel_es: 'Empieza tan pequeño que no puedas decir no',
+      label_es: 'Глава 1', label_de: 'Kapitel 1',
+      titel_es: 'Начинай так мало, чтобы нельзя было сказать нет',
       titel_de: 'Fang so klein an, dass du nicht Nein sagen kannst',
       text_es:
-        '¿Quieres leer más? Lee una página cada noche. ¿Quieres hacer deporte? Haz dos minutos cada mañana. Parece poco, pero no importa.\n\n' +
-        'Lo importante es el ritmo, no el tamaño. Cuando algo es muy fácil, lo haces todos los días. Y después de unas semanas, dos minutos son diez minutos.',
+        'Хочешь больше читать? Читай одну страницу каждый вечер. Хочешь заниматься спортом? Делай две минуты каждое утро.\n\n' +
+        'Важен ритм, а не размер. Когда дело очень лёгкое, ты делаешь его каждый день. А каждый день — это много.',
       text_de:
-        'Du willst mehr lesen? Lies jeden Abend eine Seite. Du willst Sport machen? Mach jeden Morgen zwei Minuten. Das klingt nach wenig – aber das macht nichts.\n\n' +
-        'Wichtig ist der Rhythmus, nicht die Größe. Wenn etwas sehr leicht ist, machst du es jeden Tag. Und nach ein paar Wochen werden aus zwei Minuten zehn.',
+        'Du willst mehr lesen? Lies jeden Abend eine Seite. Du willst Sport machen? Mach jeden Morgen zwei Minuten.\n\n' +
+        'Wichtig ist der Rhythmus, nicht die Größe. Wenn eine Sache sehr leicht ist, machst du sie jeden Tag. Und jeden Tag – das ist viel.',
     },
     {
-      label_es: 'Capítulo 2', label_de: 'Kapitel 2',
-      titel_es: 'Une el hábito nuevo a una cosa que ya haces',
+      label_es: 'Глава 2', label_de: 'Kapitel 2',
+      titel_es: 'Свяжи новую привычку с тем, что ты уже делаешь',
       titel_de: 'Verbinde die neue Gewohnheit mit etwas, das du schon tust',
       text_es:
-        'Tu día ya tiene una estructura: te levantas, haces café, comes. Usa esta estructura.\n\n' +
-        'La fórmula es: después de X, hago Y. Después del café, estudio cinco palabras de español. Después de la cena, salgo a caminar. Así el hábito nuevo tiene un lugar fijo en tu día.',
+        'Твой день уже имеет структуру: ты встаёшь, делаешь кофе, ешь. Используй эту структуру.\n\n' +
+        'Формула простая: после X я делаю Y. После кофе я учу пять русских слов. После ужина я читаю одну страницу.',
       text_de:
         'Dein Tag hat schon eine Struktur: Du stehst auf, machst Kaffee, isst. Nutze diese Struktur.\n\n' +
-        'Die Formel lautet: Nach X mache ich Y. Nach dem Kaffee lerne ich fünf spanische Wörter. Nach dem Abendessen gehe ich spazieren. So bekommt die neue Gewohnheit einen festen Platz in deinem Tag.',
+        'Die Formel ist einfach: nach X mache ich Y. Nach dem Kaffee lerne ich fünf russische Wörter. Nach dem Abendessen lese ich eine Seite.',
     },
     {
-      label_es: 'Conclusión', label_de: 'Fazit',
-      titel_es: 'El resumen: pequeño + cada día = grande',
-      titel_de: 'Das Fazit: klein + jeden Tag = groß',
+      label_es: 'Итог', label_de: 'Fazit',
+      titel_es: 'Итог: мало плюс каждый день — это много',
+      titel_de: 'Das Fazit: klein plus jeden Tag = groß',
       text_es:
-        'No necesitas motivación grande. Necesitas pasos pequeños y un lugar fijo en tu día.\n\n' +
-        'Empieza hoy: elige un hábito mini. Una página, dos minutos, cinco palabras. En un año, esto es un libro entero, muchas horas de deporte y mil palabras nuevas de español.',
+        'Тебе не нужна большая мотивация. Тебе нужны маленькие шаги и место в твоём дне.\n\n' +
+        'Начни сегодня: выбери одну маленькую привычку. Одна страница, две минуты, пять слов. Через год это будет много.',
       text_de:
-        'Du brauchst keine große Motivation. Du brauchst kleine Schritte und einen festen Platz in deinem Tag.\n\n' +
-        'Fang heute an: Wähle eine Mini-Gewohnheit. Eine Seite, zwei Minuten, fünf Wörter. In einem Jahr ist das ein ganzes Buch, viele Stunden Sport – und tausend neue spanische Wörter.',
+        'Du brauchst keine große Motivation. Du brauchst kleine Schritte und einen Platz in deinem Tag.\n\n' +
+        'Fang heute an: Wähl eine kleine Gewohnheit. Eine Seite, zwei Minuten, fünf Wörter. In einem Jahr ist das viel.',
     },
   ],
   vokabeln: [
-    { es: 'el hábito', de: 'die Gewohnheit' },
-    { es: 'cambiar', de: 'verändern' },
-    { es: 'fácil', de: 'leicht' },
-    { es: 'todos los días', de: 'jeden Tag' },
-    { es: 'empezar', de: 'anfangen' },
-    { es: 'la página', de: 'die Seite' },
-    { es: 'después de', de: 'nach' },
-    { es: 'elegir', de: 'auswählen' },
-    { es: 'el paso', de: 'der Schritt' },
-    { es: 'el lugar', de: 'der Ort / Platz' },
+    { es: 'привычка', de: 'die Gewohnheit' },
+    { es: 'менять', de: 'verändern' },
+    { es: 'лёгкий', de: 'leicht' },
+    { es: 'каждый день', de: 'jeden Tag' },
+    { es: 'начинать', de: 'anfangen' },
+    { es: 'страница', de: 'die Seite' },
+    { es: 'после', de: 'nach' },
+    { es: 'выбирать', de: 'auswählen' },
+    { es: 'шаг', de: 'der Schritt' },
+    { es: 'место', de: 'der Ort / Platz' },
   ],
 }
 
@@ -95,81 +111,81 @@ const BUCH_A1 = {
 //  Buch 2 – A2: Ikigai
 // ---------------------------------------------------------------
 const BUCH_A2 = {
-  titel: 'Ikigai: los secretos de Japón para una vida larga y feliz',
+  titel: 'Икигай: японские секреты долгой и счастливой жизни',
   titel_de: 'Ikigai: Japans Geheimnisse für ein langes, glückliches Leben',
-  untertitel_es: 'Por qué los japoneses encuentran sentido en las cosas pequeñas',
+  untertitel_es: 'Почему японцы находят смысл в маленьких вещах',
   untertitel_de: 'Warum die Japaner Sinn in den kleinen Dingen finden',
   autor: 'Ken Mogi',
   thema: 'Ikigai',
   niveau: 'A2',
   kapitel: [
     {
-      label_es: 'Introducción', label_de: 'Einführung',
-      titel_es: '¿De qué trata «Ikigai»?',
+      label_es: 'Введение', label_de: 'Einführung',
+      titel_es: 'О чём книга «Икигай»?',
       titel_de: 'Worum geht es in „Ikigai"?',
       text_es:
-        'Ken Mogi explica en «Ikigai» un principio central de la vida japonesa: ikigai significa, más o menos, «una razón para levantarse por la mañana».\n\n' +
-        'No es necesario tener un trabajo espectacular o mucho dinero. El ikigai puede ser algo pequeño: cuidar un jardín, preparar un buen té o ver el mar cada día.',
+        'Кэн Моги объясняет в книге «Икигай» главный принцип японской жизни. Икигай значит примерно «причина вставать утром».\n\n' +
+        'Для этого не нужна блестящая работа и не нужны большие деньги. Икигай может быть чем-то маленьким: ухаживать за садом, готовить хороший чай или каждый день видеть море.',
       text_de:
-        'Ken Mogi erklärt in „Ikigai" ein zentrales Prinzip des japanischen Lebens: Ikigai bedeutet ungefähr „ein Grund, morgens aufzustehen".\n\n' +
-        'Man braucht dafür keinen spektakulären Job und kein großes Geld. Das Ikigai kann etwas Kleines sein: einen Garten pflegen, einen guten Tee zubereiten oder jeden Tag das Meer sehen.',
+        'Ken Mogi erklärt in „Ikigai" ein zentrales Prinzip des japanischen Lebens. Ikigai bedeutet ungefähr „ein Grund, morgens aufzustehen".\n\n' +
+        'Man braucht dafür keinen glänzenden Job und kein großes Geld. Das Ikigai kann etwas Kleines sein: einen Garten pflegen, einen guten Tee zubereiten oder jeden Tag das Meer sehen.',
     },
     {
-      label_es: 'Capítulo 1', label_de: 'Kapitel 1',
-      titel_es: 'Empezar pequeño es un arte japonés',
+      label_es: 'Глава 1', label_de: 'Kapitel 1',
+      titel_es: 'Начинать с малого — японское искусство',
       titel_de: 'Klein anzufangen ist eine japanische Kunst',
       text_es:
-        'El primer pilar del ikigai es empezar pequeño. Los maestros japoneses del sushi practican durante años solo el arroz. No es aburrido para ellos: es el camino.\n\n' +
-        'Mogi dice: cuando haces una cosa pequeña con mucho cuidado, encuentras alegría en ella. La perfección no es la meta; la atención sí.',
+        'Первая опора икигая — начинать с малого. Японские мастера суши учатся годами, прежде чем им разрешают готовить рис.\n\n' +
+        'Моги говорит: когда ты делаешь маленькое дело очень внимательно, ты находишь в нём радость. Совершенство здесь не цель, а побочный результат.',
       text_de:
-        'Die erste Säule des Ikigai heißt: klein anfangen. Japanische Sushi-Meister üben jahrelang nur den Reis. Für sie ist das nicht langweilig – es ist der Weg.\n\n' +
-        'Mogi sagt: Wenn du eine kleine Sache mit großer Sorgfalt machst, findest du Freude darin. Nicht die Perfektion ist das Ziel, sondern die Aufmerksamkeit.',
+        'Die erste Säule des Ikigai ist, klein anzufangen. Japanische Sushi-Meister lernen jahrelang, bevor sie den Reis zubereiten dürfen.\n\n' +
+        'Mogi sagt: Wenn du eine kleine Sache sehr sorgfältig machst, findest du Freude darin. Perfektion ist dabei nicht das Ziel, sondern ein Nebenergebnis.',
     },
     {
-      label_es: 'Capítulo 2', label_de: 'Kapitel 2',
-      titel_es: 'Liberarse del propio yo quita presión',
-      titel_de: 'Sich vom eigenen Ich zu lösen nimmt Druck weg',
+      label_es: 'Глава 2', label_de: 'Kapitel 2',
+      titel_es: 'Отпустить себя — значит снять давление',
+      titel_de: 'Sich selbst loszulassen nimmt den Druck',
       text_es:
-        'El segundo pilar es liberarse del yo. En Japón, muchas personas no trabajan para ser famosas. Trabajan porque el trabajo mismo tiene valor.\n\n' +
-        'Cuando no piensas todo el tiempo en ti mismo, en tu imagen o en tu éxito, la vida se vuelve más ligera. Puedes concentrarte en el momento presente.',
+        'Вторая опора — отпустить своё «я». В Японии многие работают не для того, чтобы стать известными. Они работают, потому что дело само важно.\n\n' +
+        'Когда ты не думаешь всё время о себе, о своём образе и своём успехе, жизнь становится легче. Ты просто делаешь то, что делаешь.',
       text_de:
-        'Die zweite Säule heißt: sich vom Ich lösen. In Japan arbeiten viele Menschen nicht, um berühmt zu werden. Sie arbeiten, weil die Arbeit selbst einen Wert hat.\n\n' +
-        'Wer nicht ständig an sich selbst denkt, an sein Bild oder seinen Erfolg, für den wird das Leben leichter. Man kann sich auf den Moment konzentrieren.',
+        'Die zweite Säule ist, das eigene Ich loszulassen. In Japan arbeiten viele nicht, um berühmt zu werden. Sie arbeiten, weil die Sache selbst wichtig ist.\n\n' +
+        'Wenn du nicht ständig an dich denkst, an dein Bild und deinen Erfolg, wird das Leben leichter. Du machst einfach, was du machst.',
     },
     {
-      label_es: 'Capítulo 3', label_de: 'Kapitel 3',
-      titel_es: 'La armonía con otros hace la vida sostenible',
+      label_es: 'Глава 3', label_de: 'Kapitel 3',
+      titel_es: 'Гармония с другими делает жизнь прочной',
       titel_de: 'Harmonie mit anderen macht das Leben tragfähig',
       text_es:
-        'El tercer pilar es la armonía. En la isla de Okinawa, donde viven muchas personas de más de cien años, todos forman parte de un grupo: el moai.\n\n' +
-        'Un moai es un círculo de amigos para toda la vida. Sus miembros se ayudan, comen juntos y celebran juntos. Esta conexión, dice Mogi, es una de las razones de la larga vida.',
+        'Третья опора — гармония. На острове Окинава, где живёт особенно много людей старше ста лет, каждый принадлежит к группе: это моаи.\n\n' +
+        'Моаи — это круг друзей на всю жизнь. Его члены помогают друг другу, едят вместе и празднуют вместе. Эта связь, говорит Моги, одна из причин долгой жизни.',
       text_de:
         'Die dritte Säule ist die Harmonie. Auf der Insel Okinawa, wo besonders viele über Hundertjährige leben, gehört jeder zu einer Gruppe: dem Moai.\n\n' +
         'Ein Moai ist ein Freundeskreis fürs Leben. Seine Mitglieder helfen sich, essen zusammen und feiern zusammen. Diese Verbundenheit, sagt Mogi, ist einer der Gründe für das lange Leben.',
     },
     {
-      label_es: 'Conclusión', label_de: 'Fazit',
-      titel_es: 'El ikigai no se busca, se cultiva',
+      label_es: 'Итог', label_de: 'Fazit',
+      titel_es: 'Икигай не ищут — его выращивают',
       titel_de: 'Das Ikigai sucht man nicht – man pflegt es',
       text_es:
-        'El mensaje final de Mogi: no tienes que viajar lejos para encontrar tu ikigai. Ya está en tu vida, en las cosas pequeñas que amas.\n\n' +
-        'Pregúntate: ¿qué me da alegría por la mañana? Puede ser el café, un paseo, una conversación. Cultiva estas cosas cada día, y tu vida tendrá sentido: ese es el ikigai.',
+        'Последняя мысль Моги: тебе не надо ехать далеко, чтобы найти свой икигай. Он уже есть в твоей жизни — в маленьких вещах, которые ты любишь.\n\n' +
+        'Спроси себя: что радует меня утром? Это может быть кофе, прогулка, разговор. Расти эти вещи каждый день, и твоя жизнь получит смысл. Это и есть икигай.',
       text_de:
         'Mogis Botschaft am Ende: Du musst nicht weit reisen, um dein Ikigai zu finden. Es ist schon in deinem Leben – in den kleinen Dingen, die du liebst.\n\n' +
         'Frag dich: Was macht mir morgens Freude? Das kann der Kaffee sein, ein Spaziergang, ein Gespräch. Pflege diese Dinge jeden Tag, und dein Leben bekommt Sinn – genau das ist Ikigai.',
     },
   ],
   vokabeln: [
-    { es: 'la razón', de: 'der Grund' },
-    { es: 'levantarse', de: 'aufstehen' },
-    { es: 'cuidar', de: 'pflegen, sich kümmern um' },
-    { es: 'el pilar', de: 'die Säule' },
-    { es: 'la alegría', de: 'die Freude' },
-    { es: 'la meta', de: 'das Ziel' },
-    { es: 'el éxito', de: 'der Erfolg' },
-    { es: 'ligero', de: 'leicht' },
-    { es: 'la armonía', de: 'die Harmonie' },
-    { es: 'el sentido', de: 'der Sinn' },
+    { es: 'причина', de: 'der Grund' },
+    { es: 'вставать', de: 'aufstehen' },
+    { es: 'ухаживать', de: 'pflegen, sich kümmern um' },
+    { es: 'опора', de: 'die Säule, die Stütze' },
+    { es: 'радость', de: 'die Freude' },
+    { es: 'цель', de: 'das Ziel' },
+    { es: 'успех', de: 'der Erfolg' },
+    { es: 'лёгкий', de: 'leicht' },
+    { es: 'гармония', de: 'die Harmonie' },
+    { es: 'смысл', de: 'der Sinn' },
   ],
 }
 
