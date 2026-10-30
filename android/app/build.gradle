@@ -30,7 +30,11 @@ android {
     signingConfigs {
         release {
             if (keystoreDatei.exists()) {
-                storeFile file(keystoreProps['storeFile'])
+                // rootProject.file, nicht file(): In einem Modul-Skript
+                // zeigt file('x') nach android/app/. Die Schluesseldatei
+                // liegt aber in android/ – genau da, wo auch
+                // keystore.properties steht.
+                storeFile rootProject.file(keystoreProps['storeFile'])
                 storePassword keystoreProps['storePassword']
                 keyAlias keystoreProps['keyAlias']
                 keyPassword keystoreProps['keyPassword']

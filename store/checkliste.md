@@ -19,11 +19,11 @@ Stand 30.10.2026 (Android seit 21.10., iOS neu dazu).
 | Datensicherheits-Formular | `store/datensicherheit.md` |
 | iOS-Projekt | `ios/`, Paketkennung `de.davaigo.app`, Team 2S6262ZCFW |
 | iOS-Symbol und Startbild | aus `scripts/icons.py`, ohne Alpha-Kanal |
+| Signaturschlüssel | erzeugt, Paket wird signiert – **sichern!** (Punkt 3) |
 
 Beide Pakete bauen durch. Nachgeprüft am 30.10.2026:
 
-- Android: `app-release.aab`, **4,1 MB**, unsigniert (der Schlüssel
-  fehlt noch, siehe unten).
+- Android: `app-release.aab`, **4,1 MB**, signiert.
 - iOS: `xcodebuild` läuft sauber durch, einschließlich
   `-validate-for-store`. Im Simulator startet die App und zeigt die
   Startseite.
@@ -60,32 +60,50 @@ export ANDROID_HOME=~/Library/Android/sdk
 Das Paket baut damit durch – einmal probiert, Gradle läuft sauber
 (nur die üblichen Hinweise zu ungeprüften Vorgängen).
 
-### 3. Signaturschlüssel erzeugen und sichern
+### 3. Signaturschlüssel – erledigt, aber du musst ihn sichern
 
-Die Verdrahtung steht schon: `android/app/build.gradle` liest
-`android/keystore.properties`, und beide Dateien sind gitignored.
-Fehlt die Datei, baut Gradle unsigniert durch statt abzubrechen.
-
-**Den Schlüssel musst du selbst erzeugen** – er ist ein Geheimnis und
-gehört nicht in einen Chatverlauf. Ein Befehl, der nach einem
-Passwort fragt:
-
-```bash
-cd ~/projekte/russisch-app/android && $JAVA_HOME/bin/keytool -genkeypair -v -keystore davaigo-release.keystore -alias davaigo -keyalg RSA -keysize 2048 -validity 10000
-```
-
-Danach `android/keystore.properties` anlegen:
+Der Schlüssel ist am 30.10.2026 erzeugt worden und liegt hier:
 
 ```
-storeFile=davaigo-release.keystore
-storePassword=<dein Passwort>
-keyAlias=davaigo
-keyPassword=<dein Passwort>
+android/davaigo-release.keystore     die Schlüsseldatei
+android/keystore.properties          Alias und Passwort im Klartext
 ```
 
-**Die Schlüsseldatei und das Passwort gehören in den
-Passwortmanager.** Gehen sie verloren, kannst du die App im Store nie
-wieder aktualisieren – es gibt keinen Weg zurück.
+Beide Dateien sind gitignored (nachgeprüft mit `git check-ignore`)
+und stehen auf `chmod 600`. Das Passwort hat 40 Zeichen und ist
+zufällig erzeugt – es steht **nirgends sonst**, auch in keinem
+Chatverlauf. Nachlesen kannst du es in `keystore.properties`.
+
+Nachgeprüft: `./gradlew bundleRelease` erzeugt jetzt ein **signiertes**
+Paket – `META-INF/DAVAIGO.RSA` liegt darin.
+
+| | |
+| --- | --- |
+| Alias | `davaigo` |
+| Verfahren | RSA 4096, SHA384withRSA |
+| Gültig bis | 17.03.2054 |
+| SHA-256 | `0B:79:14:BC:42:73:38:DE:C8:59:B6:14:18:EF:90:DE:60:49:2A:96:D5:46:FF:28:DE:3D:2C:00:8C:A4:94:49` |
+
+**Jetzt bist du dran, und das ist wirklich wichtig:**
+
+1. `android/keystore.properties` öffnen, das Passwort in deinen
+   Passwortmanager übertragen.
+2. `android/davaigo-release.keystore` als Datei dazulegen – die
+   meisten Passwortmanager können Anhänge. Sonst ein verschlüsseltes
+   Backup an einem zweiten Ort.
+
+**Warum das kein Papierkram ist:** Beide Dateien liegen nur auf
+diesem Rechner und in keinem Repository. Festplatte kaputt, Rechner
+weg, Ordner versehentlich gelöscht – und du kannst Davaigo im Play
+Store **nie wieder aktualisieren**. Google nimmt keine App an, die
+mit einem anderen Schlüssel signiert ist, und es gibt keinen Weg
+zurück. Die einzige Rettung wäre dann eine neue App unter neuem
+Paketnamen, ohne Bewertungen und ohne die bisherigen Installationen.
+
+Falls du bei Google **Play App Signing** einschaltest (empfohlen und
+bei neuen Apps ohnehin Pflicht), verwaltet Google den eigentlichen
+Verteilungsschlüssel. Dieser hier bleibt trotzdem nötig: Er ist der
+Upload-Schlüssel, mit dem du beweist, dass du der Absender bist.
 
 ### 4. Das Paket bauen
 
