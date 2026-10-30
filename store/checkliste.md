@@ -1,6 +1,6 @@
-# Veröffentlichung im Play Store – was fertig ist und was fehlt
+# Veröffentlichung in den Stores – was fertig ist und was fehlt
 
-Stand 21.10.2026.
+Stand 30.10.2026 (Android seit 21.10., iOS neu dazu).
 
 ---
 
@@ -17,6 +17,16 @@ Stand 21.10.2026.
 | Screenshots | vier Stück, 786×1704, in `store/screenshots/` |
 | Texte | `store/eintrag.md` |
 | Datensicherheits-Formular | `store/datensicherheit.md` |
+| iOS-Projekt | `ios/`, Paketkennung `de.davaigo.app`, Team 2S6262ZCFW |
+| iOS-Symbol und Startbild | aus `scripts/icons.py`, ohne Alpha-Kanal |
+
+Beide Pakete bauen durch. Nachgeprüft am 30.10.2026:
+
+- Android: `app-release.aab`, **4,1 MB**, unsigniert (der Schlüssel
+  fehlt noch, siehe unten).
+- iOS: `xcodebuild` läuft sauber durch, einschließlich
+  `-validate-for-store`. Im Simulator startet die App und zeigt die
+  Startseite.
 
 **Der wichtigste Fund:** Die Capacitor-Konfiguration war eine
 wortwörtliche Kopie von Habloo – Paketname `de.habloo.app`, App-Name
@@ -137,11 +147,51 @@ Die Screenshots sind im Browser bei 393×852 entstanden. Das sieht aus
 wie ein Telefon, ist aber keines. Vor dem Hochladen gehört die App
 einmal auf ein echtes Android-Gerät – besonders diese Punkte:
 
-- Spielt der Ton? Die 4.178 Aufnahmen liegen im Paket, nicht im Netz.
+- Spielt der Ton? Die Aufnahmen liegen NICHT im Paket, sondern
+  unter https://davaigo.de/audio – ohne Netz spricht die
+  Gerätestimme.
 - Läuft die Anmeldung? Der Bestätigungslink führt nach davaigo.de,
   nicht in die App zurück.
 - Laufen die YouTube-Videos im eingebetteten Abspieler?
 - Kommt die App nach dem Minimieren an derselben Stelle zurück?
+
+---
+
+## iOS – was noch fehlt
+
+Das Projekt steht unter `ios/` und baut durch. Was nur über Xcode
+und App Store Connect geht:
+
+1. **App in App Store Connect anlegen** – mit der Kennung
+   `de.davaigo.app`. Die gibt es dort noch nicht; Habloo läuft unter
+   `de.habloo.app` und bleibt davon unberührt.
+2. **Archivieren und hochladen:** in Xcode `ios/App/App.xcodeproj`
+   öffnen, Gerät auf „Any iOS Device", dann **Product → Archive** →
+   **Distribute App**. Das Entwicklerteam steht schon im Projekt.
+3. **Datenschutz-Angaben** in App Store Connect: dieselben Antworten
+   wie bei Google, siehe `datensicherheit.md`.
+4. **Melden und Blockieren** erwähnen, falls gefragt wird. Apples
+   Richtlinie 1.2 verlangt das, seit es Benutzernamen und
+   Profilbilder gibt – eingebaut ist es (siehe
+   `inhaltsfreigabe.md`).
+
+Anders als bei Android ist auf iOS **kein eigener Signaturschlüssel**
+nötig: Das übernimmt Xcode über das Entwicklerkonto.
+
+```bash
+cd ~/projekte/russisch-app && npm run build:app && npx cap open ios
+```
+
+---
+
+## Die Angaben zur Interaktion haben sich geändert
+
+Mit Rangliste, Freunden und Duellen sehen Nutzer erstmals Inhalte
+anderer Nutzer. Im Fragebogen zur Inhaltseinstufung stehen deshalb
+zwei Antworten jetzt auf **Ja** statt Nein, und es gibt eine Melde-
+und Blockierfunktion. Die Begründungen stehen in
+`store/inhaltsfreigabe.md` – falsche Angaben dort sind einer der
+häufigsten Gründe für eine nachträgliche Sperre.
 
 ---
 

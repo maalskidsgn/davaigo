@@ -143,5 +143,54 @@ def android():
     print(f'Android: {len(groessen) * 3} Symbole + Hintergrundfarbe geschrieben')
 
 
+def ios():
+    """Symbol und Startbild für das iOS-Paket.
+
+    iOS will seit Xcode 14 nur noch EIN Symbol in 1024x1024 – die
+    kleineren Größen rechnet es selbst aus. Das Symbol darf dabei
+    keine Transparenz haben; ein App-Symbol mit Alpha-Kanal lehnt
+    App Store Connect beim Hochladen ab.
+
+    Das Startbild ist quadratisch (2732x2732) und wird auf jedem
+    Gerät mittig beschnitten. Deshalb steht das Д klein in der Mitte
+    auf ruhigem Grund – ein Verlauf über die ganze Fläche sähe auf
+    einem schmalen Telefon anders aus als auf einem iPad.
+    """
+    import pathlib
+    from PIL import Image
+
+    ordner = pathlib.Path('ios/App/App/Assets.xcassets')
+    if not ordner.exists():
+        print('Kein iOS-Projekt – übersprungen. (npx cap add ios)')
+        return
+
+    # convert('RGB') nimmt den Alpha-Kanal weg – siehe oben.
+    symbol(1024, 0.58).convert('RGB').save(
+        ordner / 'AppIcon.appiconset/AppIcon-512@2x.png', optimize=True
+    )
+
+    # Startbild: Davaigos Seitengrund (#f5f0fc) wie in capacitor.config.json,
+    # damit beim Übergang zur App nichts aufblitzt.
+    kante = 2732
+    start = Image.new('RGB', (kante, kante), (245, 240, 252))
+    zeichen = symbol(round(kante * 0.22), 0.58)
+    ecke = (kante - zeichen.width) // 2
+    # Runde Ecken wie auf dem Startbildschirm – hier malen wir sie
+    # selbst, weil iOS ein Startbild nicht zurechtschneidet.
+    maske = Image.new('L', zeichen.size, 0)
+    from PIL import ImageDraw
+    ImageDraw.Draw(maske).rounded_rectangle(
+        [0, 0, zeichen.width - 1, zeichen.height - 1],
+        radius=round(zeichen.width * 0.23), fill=255
+    )
+    start.paste(zeichen, (ecke, ecke), maske)
+
+    for name in ('splash-2732x2732.png', 'splash-2732x2732-1.png', 'splash-2732x2732-2.png'):
+        start.save(ordner / 'Splash.imageset' / name, optimize=True)
+
+    print('iOS: App-Symbol 1024x1024 und drei Startbilder geschrieben')
+
+
 if __name__ == '__main__':
     android()
+    ios()

@@ -6,7 +6,8 @@ App erhebt und weitergibt. Falsche Angaben sind der häufigste Grund
 für eine spätere Sperre – deshalb steht hier nur, was der Code
 wirklich tut.
 
-Jede Zeile ist am 21.10.2026 aus dem Quelltext erhoben, nicht
+Jede Zeile ist am 21.10.2026 aus dem Quelltext erhoben und am
+30.10.2026 um Rangliste, Freunde und Profilbild ergänzt – nicht
 geschätzt. Nachprüfen lässt sich das so:
 
 ```bash
@@ -34,6 +35,20 @@ grep -rhoE "https://[a-z0-9.-]+\.[a-z]{2,}" src/ server/ | sort -u
 | --- | --- | --- | --- | --- |
 | E-Mail-Adresse | ja | nein | ja | Konto und Anmeldung |
 | Name | ja | nein | **nein** | Anzeigename, freiwillig |
+| Benutzername | ja | nein | **nein** | Rangliste und Freunde, freiwillig |
+| Fotos | ja | nein | **nein** | Profilbild, freiwillig |
+
+**Benutzername und Profilbild sind seit dem 30.10.2026 dabei.** Beide
+sind freiwillig und beide sind für andere angemeldete Nutzer sichtbar
+– darum geht es ja, sie stehen in der Rangliste. „Geteilt" im Sinne
+von Google heißt trotzdem nein: Sie gehen an keinen Dritten für
+dessen eigene Zwecke, sondern bleiben in Davaigo.
+
+Das Profilbild liegt in einem Supabase-Speicher, der öffentlich
+lesbar ist (sonst bräuchte jede Zeile der Rangliste eine eigene
+signierte Adresse). Schreiben darf jeder nur in den Ordner mit seiner
+eigenen Kennung. Wer das Bild entfernt, löscht die Datei wirklich –
+beim Wechseln wird die alte gleich mit weggeräumt.
 
 Beides liegt bei Supabase, unserem Anbieter für Konten und Datenbank.
 „Geteilt" im Sinne von Google heißt: an einen Dritten für dessen
@@ -72,8 +87,12 @@ unser Server bekommen sie zu sehen.
 Diese Punkte im Formular bleiben leer, und das stimmt auch:
 
 - Standort (weder genau noch ungefähr)
-- Kontakte, Kalender, Fotos, Dateien
-- Nachrichten jeder Art
+- Kontakte, Kalender, Dateien
+- Zugriff auf die Fotomediathek. Ein Profilbild wählt man über den
+  Dateidialog des Systems aus; die App bekommt genau dieses eine
+  Bild und sieht die Mediathek nie.
+- Nachrichten jeder Art. Es gibt keinen Chat – siehe
+  `inhaltsfreigabe.md`.
 - Gesundheits- und Fitnessdaten
 - Geräte- oder Werbe-IDs
 - Absturzberichte und Leistungsdiagnose

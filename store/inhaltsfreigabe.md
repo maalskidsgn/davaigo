@@ -65,14 +65,32 @@ Danach kommt ein Fragebogen. Die Antworten für Davaigo:
 | Drogen, Alkohol, Tabak | Nein |
 | Glücksspiel oder Simulation davon | Nein |
 | Angsteinflößende Inhalte | Nein |
-| Nutzer können miteinander kommunizieren | **Nein** |
-| Nutzer können Inhalte teilen | **Nein** |
+| Nutzer können miteinander kommunizieren | **Ja** – eingeschränkt |
+| Nutzer können Inhalte teilen | **Ja** – Benutzername und Profilbild |
 | Standort wird geteilt | Nein |
 | Käufe digitaler Güter in der App | **Nein** (siehe unten) |
 
-Zu „miteinander kommunizieren": Davaigo hat keinen Chat, keine
-Kommentare, keine Profile anderer Nutzer. Was erzeugt wird, sieht nur
-die Person selbst.
+**Diese beiden Antworten haben sich am 30.10.2026 geändert** – mit der
+Rangliste, den Freunden und den Duellen sehen Nutzer erstmals Inhalte
+anderer Nutzer. Eine falsche Angabe hier ist einer der häufigsten
+Gründe für eine nachträgliche Sperre, deshalb lieber zu genau:
+
+- **Kommunizieren:** Es gibt **keinen Chat**, keine Kommentare, keine
+  Nachrichten und kein Freitextfeld, das bei jemand anderem landet.
+  Was es gibt: eine Freundschaftsanfrage (Knopfdruck, kein Text), die
+  Rangliste und ein rundenbasiertes Duell, in dem beide dieselben
+  Vokabelfragen beantworten. Mehr geht nicht aneinander.
+- **Teilen:** Wer einen Benutzernamen wählt, steht damit in der
+  Rangliste; wer ein Profilbild hochlädt, zeigt es dort. Beides ist
+  freiwillig – ohne Benutzername lernt man ganz normal weiter und
+  taucht nirgends auf.
+
+**Moderation** ist eingebaut, weil Apple (Richtlinie 1.2) und Google
+sie verlangen, sobald das zutrifft: Jedes Profil lässt sich melden
+und blockieren. Wer blockiert ist, verschwindet in beide Richtungen
+aus Rangliste, Suche und Duellen; Meldungen landen in der Datenbank
+und zusätzlich per Mail. Wird danach gefragt: **ja, es gibt eine
+Melde- und eine Blockierfunktion.**
 
 **Zu erwarten ist: USK 0 / PEGI 3.**
 
