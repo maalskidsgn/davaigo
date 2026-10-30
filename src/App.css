@@ -11879,3 +11879,59 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .quiz-option.satzpaar-de:disabled:not(.option-richtig) { opacity: .75; }
 /* ---------- Satz bauen ---------- */
 .satz-vorgabe { font-size: 1.05rem; }
+
+/* ================================================================
+   DAS FRAGEZEICHEN, DAS SEINEN BEREICH ERKLÄRT
+   ================================================================ */
+.wieder-info {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: none;
+  cursor: pointer;
+}
+.wieder-info:hover { border-color: var(--primary); color: var(--primary-dark); }
+/* Die Erklärung spannt sich über die ganze Karte – sie steht unter
+   allem anderen, nicht neben der Zahl. */
+.wieder-erklaerung {
+  flex-basis: 100%;
+  grid-column: 1 / -1;
+  /* Die Erklaerung steht im Markup direkt hinter dem Fragezeichen –
+     also weit oben. In der Karte gehoert sie ans Ende, unter alles
+     andere. In einem Flex-Container erledigt das "order". */
+  order: 99;
+  margin-top: 14px;
+  padding: 15px 16px;
+  border-radius: 15px;
+  background: var(--flaeche);
+}
+.wieder-erklaerung h3 {
+  margin: 0 0 9px;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--navy);
+}
+.wieder-erklaerung p {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.wieder-erklaerung p:last-child { margin-bottom: 0; }
+.wieder-erklaerung b { color: var(--navy); font-weight: 900; }
+.spotify-box .wieder-info { top: 0; right: 0; }
+.spotify-box .wieder-erklaerung { order: 0; }

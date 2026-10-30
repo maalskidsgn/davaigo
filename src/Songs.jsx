@@ -15,6 +15,7 @@ import {
 } from './spotify.js'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
+import InfoKnopf from './InfoKnopf.jsx'
 
 // Ein paar Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt
 const STILE = [
@@ -364,6 +365,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
               Wir lesen ausschließlich deine gespeicherten Titel und Playlists.
               Nichts wird abgespielt, geändert oder geteilt.
             </p>
+            <InfoKnopf thema="spotify" />
             <button className="btn spotify-los" onClick={starteAnmeldung}>
               Mit Spotify verbinden
             </button>
