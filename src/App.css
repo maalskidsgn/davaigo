@@ -11935,3 +11935,124 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .wieder-erklaerung b { color: var(--navy); font-weight: 900; }
 .spotify-box .wieder-info { top: 0; right: 0; }
 .spotify-box .wieder-erklaerung { order: 0; }
+
+/* ================================================================
+   SPRECHEN MIT DASCHA – der KI-Tutor als Chat
+   Die Korrektur steht in Davaigos Gold statt in Habloos Orange:
+   Sie ist ein freundlicher Hinweis, kein Fehler – deshalb warm
+   und nicht rot.
+   ================================================================ */
+/* Der Schalter fuer die deutsche Zeile. Bewusst unscheinbar: Er ist
+   eine Einstellung, kein Aufruf zum Klicken. */
+.lul-schalter {
+  margin: 16px 0 4px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 14px;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+}
+.lul-schalter:hover { color: var(--navy); border-color: var(--muted); }
+/* ---------- Sprechen: der KI-Tutor als Chat ----------
+   Eine Chat-Ansicht in einer Lern-App. Zwei Dinge sind bewusst:
+   Die spanische Zeile ist die Hauptsache (groesser, dunkler), die
+   deutsche darunter Hilfe (kleiner, gedaempft). Und die Blasen sind
+   ruhig – kein Messenger-Bunt, das vom Lesen ablenkt. */
+.gespraech { padding-bottom: 90px; }
+.gespr-tuer { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; cursor: pointer; }
+.gespr-kopf {
+  display: flex; gap: 12px; align-items: flex-start;
+  margin-bottom: 14px; color: var(--primary);
+}
+.gespr-kopf h1 { margin: 0; }
+.gespr-unter { margin: 4px 0 0; color: var(--muted); font-size: .92rem; max-width: 34rem; }
+.gespr-schalter { margin: 0 0 12px; }
+.gespr-verlauf { display: flex; flex-direction: column; gap: 12px; }
+.gespr-blase {
+  max-width: 82%;
+  padding: 11px 15px;
+  border-radius: 18px;
+  line-height: 1.5;
+}
+/* Der Nutzer rechts, in Markenfarbe. */
+.gespr-ich {
+  align-self: flex-end;
+  background: var(--primary);
+  color: #fff;
+  border-bottom-right-radius: 5px;
+}
+/* Der Tutor links, ruhige Flaeche. */
+.gespr-tutor {
+  align-self: flex-start;
+  background: var(--flaeche);
+  color: var(--navy);
+  border-bottom-left-radius: 5px;
+}
+.gespr-es { margin: 0; font-size: 1.02rem; }
+.gespr-ich .gespr-es { font-weight: 600; }
+.gespr-de {
+  margin: 6px 0 0;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: .88rem;
+}
+.gespr-korrektur {
+  margin: 8px 0 0;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: #fff7e0;
+  color: #7a5a00;
+  font-size: .85rem;
+}
+/* Leerer Start */
+.gespr-start { margin-top: 8px; }
+.gespr-start-titel { font-weight: 700; margin: 0 0 10px; }
+.gespr-einstiege { display: flex; flex-wrap: wrap; gap: 8px; }
+.gespr-chip {
+  background: var(--card); border: 1.5px solid var(--line);
+  border-radius: 999px; padding: 9px 15px;
+  font: inherit; font-size: .9rem; font-weight: 600; color: var(--navy);
+  cursor: pointer;
+}
+.gespr-chip:hover { border-color: var(--primary); color: var(--primary); }
+/* Tippt-Anzeige */
+.gespr-tippt { display: flex; gap: 5px; align-items: center; }
+.gespr-tippt span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--muted); opacity: .5;
+  animation: gespr-blink 1.2s infinite both;
+}
+.gespr-tippt span:nth-child(2) { animation-delay: .2s; }
+.gespr-tippt span:nth-child(3) { animation-delay: .4s; }
+.gespr-fehler { color: var(--red); font-size: .9rem; margin: 4px 2px; }
+/* Eingabe – klebt unten */
+.gespr-eingabe {
+  position: sticky; bottom: 12px;
+  display: flex; gap: 8px; align-items: center;
+  margin-top: 16px;
+  background: var(--bg);
+  padding-top: 8px;
+}
+.gespr-eingabe input {
+  flex: 1; min-width: 0;
+  border: 1.5px solid var(--line); border-radius: 999px;
+  padding: 12px 18px; font: inherit; font-size: 1rem;
+  background: var(--card); color: var(--navy);
+}
+.gespr-eingabe input:focus { outline: none; border-color: var(--primary); }
+.gespr-senden {
+  flex: 0 0 auto;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: none; background: var(--primary); color: #fff;
+  display: grid; place-items: center; cursor: pointer;
+}
+.gespr-senden:disabled { opacity: .4; cursor: default; }
+.gespr-rest { text-align: center; font-size: .8rem; color: var(--muted); margin: 4px 0; }
+.gespr-start-zwei { margin-top: 22px; }
+/* Situationen dezenter als die Themen – sie sind die zweite Wahl. */
+.gespr-chip-situation { background: var(--flaeche); border-color: transparent; }

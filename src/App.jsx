@@ -67,6 +67,7 @@ import { gleicheGeraetedatenAb } from './geraeteSync.js'
 import { gleicheVideosAb, ladeGeloeschteLokal, speichereGeloeschteLokal } from './videoSync.js'
 import { ladeBenutzername } from './rangliste.js'
 import { baueBrueckenPlayer } from './ytBruecke.js'
+import Gespraech from './Gespraech.jsx'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -1267,6 +1268,19 @@ export default function App() {
             lessonProgress={lessonProgress}
             addXp={addXp}
             onLessonComplete={lektionGeschafft}
+          />
+        </main>
+      )}
+
+      {/* Sprechen: der KI-Tutor als Chat. Erreichbar ueber den
+          Reiter im Trainer (dort noch ausgeblendet) – die Ansicht
+          steht hier, damit sie den ganzen Bildschirm bekommt. */}
+      {view === 'gespraech' && (
+        <main>
+          <Gespraech
+            onZurueck={() => setView('start')}
+            onAddVocab={addVocabWords}
+            vocab={vocab}
           />
         </main>
       )}

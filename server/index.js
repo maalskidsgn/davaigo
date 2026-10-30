@@ -13,6 +13,13 @@ import { erzeugeSatzliste, GRAMMATIK } from './saetze.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
 import {
+  antworte,
+  istPremium,
+  tutorNutzungHeute,
+  zaehleTutorNutzung,
+  GESPRAECHE_PRO_TAG,
+} from './gespraech.js'
+import {
   starteBezahlung,
   verwaltungsLink,
   pruefeMeldung,
@@ -782,6 +789,60 @@ app.post('/api/konto/loeschen', async (req, res) => {
     res.json(ergebnis)
   } catch (fehler) {
     res.status(500).json({ error: fehler.message })
+  }
+})
+
+
+// ============================================================
+//  Sprechen mit Dascha – der KI-Tutor
+// ============================================================
+
+app.post('/api/gespraech', async (req, res) => {
+  const verlauf = Array.isArray(req.body.verlauf) ? req.body.verlauf : null
+  if (!verlauf || verlauf.length === 0) {
+    return res.status(400).json({ error: 'Kein Gespraechsverlauf uebergeben.' })
+  }
+  // Der letzte Zug MUSS vom Nutzer sein – sonst antwortet der Tutor
+  // auf sich selbst.
+  if (verlauf[verlauf.length - 1].rolle !== 'ich') {
+    return res.status(400).json({ error: 'Zuletzt ist der Nutzer dran.' })
+  }
+
+  try {
+    // Anmeldung ist Pflicht – nur so laesst sich das Tageslimit pro
+    // Konto fuehren.
+    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+
+    // Das Limit gilt nur fuer Gratis-Nutzer. Erst pruefen, dann
+    // antworten: Ein Aufruf, der ohnehin abgelehnt wird, soll kein
+    // OpenAI-Geld kosten.
+    const premium = await istPremium(nutzer.id)
+    if (!premium) {
+      const heute = await tutorNutzungHeute(nutzer.id)
+      if (heute >= GESPRAECHE_PRO_TAG) {
+        return res.status(402).json({
+          error: 'limit',
+          nachricht:
+            `Du hast heute ${GESPRAECHE_PRO_TAG} Nachrichten geschrieben. ` +
+            'Morgen geht es weiter – oder unbegrenzt mit Premium.',
+        })
+      }
+    }
+
+    const niveau = (req.body.niveau || 'Anfaenger').toString().slice(0, 40)
+    const antwortObj = await antworte(verlauf, niveau)
+
+    // Erst nach erfolgreicher Antwort verbuchen.
+    let frei = null
+    if (!premium) {
+      const genutzt = await zaehleTutorNutzung(nutzer.id)
+      frei = Math.max(0, GESPRAECHE_PRO_TAG - genutzt)
+    }
+    res.json({ ...antwortObj, frei })
+  } catch (err) {
+    console.error('Gespraech:', err.message)
+    res.status(500).json({ error: 'Der Tutor antwortet gerade nicht. Bitte spaeter erneut.' })
   }
 })
 

@@ -13,6 +13,7 @@ import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import InfoKnopf from './InfoKnopf.jsx'
+import Gespraech from './Gespraech.jsx'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
 import { faelligeBausteine } from './bausteine.js'
@@ -50,6 +51,12 @@ import Lesetexte from './Lesetexte.jsx'
 // sind. Auf false bleibt der Reiter weg; das Deck startet dann nie
 // auf 'grammatik'.
 const GRAMMATIK_ZEIGEN = false
+
+// "Sprechen mit Dascha" als vierter Reiter. Steht wie bei Habloo auf
+// false: Der Bereich ist fertig, aber Manuel entscheidet, wann er
+// sichtbar wird – ein KI-Tutor kostet pro Nachricht Geld. Diese eine
+// Zeile holt ihn hervor.
+const KI_TRAINER_ZEIGEN = false
 
 export default function Trainer({
   vocab,
@@ -256,7 +263,9 @@ export default function Trainer({
               ? 'Satz-Trainer'
               : deck === 'lesen'
                 ? 'Lesestoff'
-                : 'Grammatik-Trainer'}
+                : deck === 'ki'
+                  ? 'Gespräch'
+                  : 'Grammatik-Trainer'}
         </span>
       </h1>
       <p className="intro">
@@ -266,7 +275,9 @@ export default function Trainer({
             ? 'Ganze Sätze üben – nach Thema, Aspekt und Fall.'
             : deck === 'lesen'
               ? 'Kurze Wissenstexte lesen – und wiederlesen.'
-              : 'Grammatik wiederholen, bis sie sitzt.'}
+              : deck === 'ki'
+                ? 'Mit Dascha reden – sie antwortet einfach und übersetzt mit.'
+                : 'Grammatik wiederholen, bis sie sitzt.'}
       </p>
       <div className="deck" role="tablist">
         <button
@@ -309,6 +320,16 @@ export default function Trainer({
             )}
           </button>
         )}
+        {KI_TRAINER_ZEIGEN && (
+          <button
+            role="tab"
+            aria-selected={deck === 'ki'}
+            className={deck === 'ki' ? 'deck-aktiv' : ''}
+            onClick={() => setDeck('ki')}
+          >
+            Sprechen
+          </button>
+        )}
       </div>
     </>
   )
@@ -337,6 +358,17 @@ export default function Trainer({
           onAddVocab={onAddVocab}
           vocab={vocab}
         />
+      </div>
+    )
+  }
+
+  // ---------- Der KI-Sprach-Tutor ----------
+  // Zeigt denselben Chat wie die eigene Sprechen-Seite, nur mit der
+  // Reiter-Leiste oben statt einem Zurueck-Knopf.
+  if (deck === 'ki' && KI_TRAINER_ZEIGEN) {
+    return (
+      <div className="wechsel" key="ki">
+        <Gespraech kopf={schalter} onAddVocab={onAddVocab} vocab={vocab} />
       </div>
     )
   }
