@@ -7,6 +7,7 @@ import { abmelden, anzeigename } from './auth.js'
 import { BenutzernameFeld } from './Rangliste.jsx'
 import Blockierte from './Blockierte.jsx'
 import Freunde from './Freunde.jsx'
+import DuellKasten from './Duell.jsx'
 import { ladeBenutzername } from './rangliste.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
@@ -26,6 +27,7 @@ export default function Settings({
   onLoginOeffnen,
   onRecht,
   onKasse,
+  addXp,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   const [bezahlbar, setBezahlbar] = useState(false)
@@ -293,6 +295,18 @@ export default function Settings({
           <h2 className="settings-heading">Freunde</h2>
           <div className="settings-card">
             <Freunde />
+          </div>
+
+          {/* ---------- Duell ----------
+              Direkt unter den Freunden: Gegen wen man spielt, steht
+              eine Kachel weiter oben. */}
+          <h2 className="settings-heading">Duell</h2>
+          <div className="settings-card">
+            <p className="settings-hint">
+              Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr
+              trifft, gewinnt.
+            </p>
+            <DuellKasten addXp={addXp} />
           </div>
         </>
       )}

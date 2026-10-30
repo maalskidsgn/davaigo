@@ -1204,6 +1204,7 @@ export default function App() {
           <Settings
             onRecht={setRechtSeite}
             onKasse={() => setKasseOffen(true)}
+            addXp={addXp}
             progress={progress}
             settings={settings}
             setSettings={setSettings}
