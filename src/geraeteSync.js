@@ -25,6 +25,7 @@ export const SCHLUESSEL = [
   'spotify_interpreten', // gewählte Künstler bei Songs
   'bausteinVarianten',
   'blitz-rekord', // Bestwert der Blitzrunde
+  'tonVonSelbst', // Schalter: Wörter von selbst vorlesen
 ]
 
 // Diese Werte hält die App im React-Zustand – sie muss sie nach einem

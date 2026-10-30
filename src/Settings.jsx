@@ -4,6 +4,7 @@ import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.j
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
+import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
 import { BenutzernameFeld } from './Rangliste.jsx'
 import Blockierte from './Blockierte.jsx'
 import Freunde from './Freunde.jsx'
@@ -39,6 +40,7 @@ export default function Settings({
     if (!nutzer?.id) return setRanglisteDa(false)
     ladeBenutzername(nutzer.id).then((n) => setRanglisteDa(n !== undefined))
   }, [nutzer])
+  const [autoTon, setAutoTon] = useState(tonVonSelbst)
   const [bezahlbar, setBezahlbar] = useState(false)
   const [preis, setPreis] = useState(null)
   // Die Einwilligung zur Messung – zurücknehmen muss genauso leicht
@@ -430,6 +432,31 @@ export default function Settings({
       </div>
 
       {/* ---------- Benachrichtigungen ---------- */}
+      {/* ---------- Ton ---------- */}
+      <h2 className="settings-heading">Ton</h2>
+      <div className="settings-card">
+        <label className="settings-row">
+          <div>
+            <div className="row-title">Wörter von selbst vorlesen</div>
+            <div className="row-hint">
+              Spielt die Aufnahme, sobald ein neues Wort erscheint – ohne
+              tippen. Aus, wenn du unterwegs oder im Büro lernst.
+            </div>
+          </div>
+          <span className="switch">
+            <input
+              type="checkbox"
+              checked={autoTon}
+              onChange={(e) => {
+                setAutoTon(e.target.checked)
+                setzeTonVonSelbst(e.target.checked)
+              }}
+            />
+            <span className="slider" />
+          </span>
+        </label>
+      </div>
+
       <h2 className="settings-heading">Benachrichtigungen</h2>
       <div className="settings-card">
         <label className="settings-row">

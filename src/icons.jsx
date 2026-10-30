@@ -29,6 +29,13 @@ function Icon({ kinder, groesse = 20, ...rest }) {
 }
 
 /* Lernen / Lektionen */
+export const IconLautsprecher = (p) => (
+  <Icon {...p} kinder={<>
+    <path d="M11 5.5 6.5 9.5H3.5v5h3l4.5 4z" />
+    <path d="M15 9.8a3.2 3.2 0 0 1 0 4.4M17.8 7.2a7 7 0 0 1 0 9.6" />
+  </>} />
+)
+
 export const IconLektion = (p) => (
   <Icon {...p} kinder={<>
     <path d="M22 9 12 5 2 9l10 4 10-4z" />

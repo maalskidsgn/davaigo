@@ -12,6 +12,7 @@
 
 import { sprich } from './sprich.js'
 import { istApp } from './api.js'
+import { LEKTIONEN } from './lektionen.js'
 import {
   STIMMEN,
   sprechText,
@@ -36,6 +37,136 @@ export { STIMMEN, sprechText, stimmeImDialog }
 // dorthin ist in spiele() ohnehin schon gebaut – fehlt eine Datei,
 // fällt die App von selbst zurück.
 const ABLAGE = istApp ? 'https://davaigo.de/audio' : '/audio'
+
+// ---- Von selbst abspielen -------------------------------------
+//
+// Beim Aufdecken einer Karte hört man das Wort sofort. Das ist die
+// halbe Miete beim Aussprechenlernen: Wer erst tippen muss, liest
+// das Wort meist schon falsch, bevor er die richtige Form gehört
+// hat – und im Russischen entscheidet die Betonung über den halben
+// Vokal.
+//
+// Der Schalter ist trotzdem nötig. Wer im Zug oder im Büro lernt,
+// will nicht, dass es aus dem Nichts spricht.
+const AUTO_SPEICHER = 'tonVonSelbst'
+
+/** Soll die Aufnahme von selbst starten? Standard: ja. */
+export function tonVonSelbst() {
+  try {
+    return localStorage.getItem(AUTO_SPEICHER) !== 'aus'
+  } catch {
+    return true
+  }
+}
+
+export function setzeTonVonSelbst(an) {
+  try {
+    localStorage.setItem(AUTO_SPEICHER, an ? 'an' : 'aus')
+  } catch {
+    // dann gilt es eben nur für diese Sitzung
+  }
+}
+
+// Was zuletzt von selbst lief – gegen das doppelte Abspielen.
+let zuletzt = { text: null, zeit: 0 }
+
+/**
+ * Von selbst abspielen – aber denselben Text nicht zweimal.
+ *
+ * React hängt Bauteile in der Entwicklung absichtlich zweimal ein,
+ * um Effekte ohne Aufräumen zu entlarven. Ohne diese Sperre spricht
+ * die Karte das Wort deshalb doppelt – und ein Fehler in der
+ * Abhängigkeitsliste täte in der fertigen App dasselbe.
+ *
+ * Gesperrt wird nur eineinhalb Sekunden. Taucht dasselbe Wort später
+ * in einer Übung wieder auf, spricht es ganz normal.
+ */
+export function spieleVonSelbst(text, einstellungen) {
+  if (!tonVonSelbst()) return
+  const jetzt = Date.now()
+  if (zuletzt.text === text && jetzt - zuletzt.zeit < 1500) return
+  zuletzt = { text, zeit: jetzt }
+  return spiele(text, einstellungen)
+}
+
+// ---- Was der Kurs selbst mitbringt ----------------------------
+//
+// Jeder Text des Kurses ist vertont – nachgemessen am 30.10.2026:
+// 4.178 eindeutige Texte, 4.178 vorhandene Aufnahmen, keine Lücke.
+// Für die muss niemand beim Server nachfragen: Es steht in
+// lektionen.js, und die Datei liegt ohnehin in der App.
+//
+// Für Davaigo wiegt das schwerer als für eine App, die ihre
+// Aufnahmen mitbringt: Seit das Paket von 98 MB auf 4 MB geschrumpft
+// ist, liegen die Dateien auf davaigo.de. Jede HEAD-Abfrage wäre
+// eine echte Netzrunde, nur um zu erfahren, was hier ohnehin
+// feststeht.
+//
+// Verglichen werden Texte, nicht Prüfsummen: Ein Set aufzubauen
+// kostet nichts, 4.178 SHA-256-Summen im Browser auszurechnen schon.
+let vertonteTexte = null
+
+function tonSchluessel(text, stimme) {
+  return `${stimme}|${sprechText(text)}`
+}
+
+function verzeichnis() {
+  if (vertonteTexte) return vertonteTexte
+  vertonteTexte = new Set()
+  for (const l of LEKTIONEN) {
+    for (const i of l.items ?? []) {
+      if (i.es) vertonteTexte.add(tonSchluessel(i.es, STIMMEN.standard))
+      if (i.beispielEs) vertonteTexte.add(tonSchluessel(i.beispielEs, STIMMEN.standard))
+    }
+    for (const z of l.dialog ?? []) {
+      if (z.es) vertonteTexte.add(tonSchluessel(z.es, stimmeImDialog(l.dialog, z.sprecher)))
+    }
+  }
+  return vertonteTexte
+}
+
+/**
+ * Steht fest, dass es diese Aufnahme gibt? Ohne Netz, ohne Warten.
+ *
+ * Nur für Kursinhalte wahr. Wörter aus eigenen Listen, Videos und
+ * E-Books kann niemand vorher vertonen – dort bleibt es beim
+ * Nachfragen.
+ *
+ * WICHTIG: Wer einen Lektionstext ändert, ändert die Prüfsumme und
+ * damit den Dateinamen. Diese Auskunft wäre dann falsch, bis das
+ * Vertonungsskript nachgelaufen ist. Vor einer Veröffentlichung
+ * gehört es gelaufen.
+ */
+export function sicherVertont(text, stimme = STIMMEN.standard) {
+  return verzeichnis().has(tonSchluessel(text, stimme))
+}
+
+/**
+ * Gibt es zu diesem Text eine echte Aufnahme?
+ *
+ * Damit kann die Oberfläche den Lautsprecher weglassen, statt eine
+ * Blechstimme anzubieten. In einer Sprach-App ist keine Stimme
+ * besser als eine schlechte: Wer "Здравствуйте" von der
+ * Browser-Stimme hört, lernt eine Betonung, die es nicht gibt.
+ *
+ * WICHTIG: Ein Netzfehler wird NICHT als "gibt es nicht" gemerkt.
+ * Sonst bliebe der Knopf die ganze Sitzung weg, nur weil eine
+ * Abfrage einmal gezuckt hat.
+ */
+export async function gibtEsAufnahme(text, stimme = STIMMEN.standard) {
+  // Kursinhalt: Antwort steht fest, kein Netz nötig.
+  if (sicherVertont(text, stimme)) return true
+
+  const name = await audioName(text, stimme)
+  if (bekannt.has(name)) return bekannt.get(name)
+  try {
+    const antwort = await fetch(`${ABLAGE}/${name}`, { method: 'HEAD' })
+    bekannt.set(name, antwort.ok)
+    return antwort.ok
+  } catch {
+    return false // nur für dieses Mal – nicht merken
+  }
+}
 
 /** Prüfsumme aus Text + Stimme – ergibt den Dateinamen. */
 export async function audioName(text, stimme = STIMMEN.standard) {
@@ -82,7 +213,11 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     laufend = null
   }
 
-  let vorhanden = bekannt.get(name)
+  // Kursinhalt? Dann steht die Antwort fest, und wir sparen uns die
+  // Nachfrage. Das wiegt hier schwer: Seit die Aufnahmen auf
+  // davaigo.de liegen statt im Paket, wäre jedes HEAD eine echte
+  // Netzrunde – bei jedem Wort, das jemand antippt.
+  let vorhanden = sicherVertont(text, stimme) ? true : bekannt.get(name)
   if (vorhanden === undefined) {
     try {
       const antwort = await fetch(url, { method: 'HEAD' })

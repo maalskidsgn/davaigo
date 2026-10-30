@@ -18,6 +18,7 @@ import { merkeGelernt } from './lernkurve.js'
 import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
 import { IconLandkarte, IconListe } from './icons.jsx'
+import HoerKnopf from './HoerKnopf.jsx'
 import {
   stationVon,
   stationOffen,
@@ -410,26 +411,18 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             <p className="lesson-hint">📖 Neues Wort</p>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
-              <button
-                className="speak-btn"
-                onClick={() => spiele(schritt.item.es)}
-                title="Anhören"
-              >
-                🔊
-              </button>
+              {/* vonSelbst: Das Wort erklingt, sobald die Karte da
+                  ist. Wer es erst liest und dann hört, hat sich die
+                  Aussprache schon zurechtgelegt – und die hält sich.
+                  Abschaltbar in den Einstellungen. */}
+              <HoerKnopf text={schritt.item.es} vonSelbst />
             </div>
             <div className="flash-translation">{schritt.item.de}</div>
             {schritt.item.beispielEs && (
               <div className="example-box">
                 <div className="example-es">
                   {hebeHervor(schritt.item.beispielEs, schritt.item.es)}
-                  <button
-                    className="speak-btn speak-btn-mini"
-                    onClick={() => spiele(schritt.item.beispielEs)}
-                    title="Satz anhören"
-                  >
-                    🔊
-                  </button>
+                  <HoerKnopf text={schritt.item.beispielEs} titel="Satz anhören" klein />
                 </div>
                 <div className="example-de">{schritt.item.beispielDe}</div>
               </div>
@@ -463,13 +456,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             {schritt.richtung === 'es-de' ? (
               <div className="word-row">
                 <div className="flash-word">{schritt.item.es}</div>
-                <button
-                  className="speak-btn"
-                  onClick={() => spiele(schritt.item.es)}
-                  title="Anhören"
-                >
-                  🔊
-                </button>
+                <HoerKnopf text={schritt.item.es} />
               </div>
             ) : (
               <div className="flash-word">{schritt.item.de}</div>
@@ -492,13 +479,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             </p>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
-              <button
-                className="speak-btn"
-                onClick={() => spiele(schritt.item.es)}
-                title="Anhören"
-              >
-                🔊
-              </button>
+              <HoerKnopf text={schritt.item.es} />
             </div>
             <QuizOptionen
               runde={index}
