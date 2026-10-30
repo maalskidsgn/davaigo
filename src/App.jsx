@@ -478,9 +478,47 @@ export default function App() {
   }, [levelUp])
 
   // XP gutschreiben (pflegt automatisch auch die Tagesserie)
-  function addXp(amount) {
+  // Eine kurze Einblendung, wenn XP dazukommen – sonst merkt
+  // niemand, dass Videogucken oder ein neues Wort etwas bringt.
+  const [xpMeldung, setXpMeldung] = useState(null)
+
+  function addXp(amount, text) {
     setProgress((p) => applyXp(p, amount))
+    if (text && amount > 0) setXpMeldung({ punkte: amount, text, key: Date.now() + Math.random() })
   }
+
+  // Videogucken lohnt sich: je volle Minute Wiedergabe gibt es XP.
+  // Gezählt wird nur, solange das Video WIRKLICH läuft – Pause und
+  // Spulen zählen nicht, angefangene Sekunden bleiben für die
+  // nächste Minute stehen.
+  const videoSekunden = useRef(0)
+  useEffect(() => {
+    if (!laeuft || view !== 'lesen') return
+    const takt = setInterval(() => {
+      // Bei jedem Takt neu prüfen: Lese-Ansicht offen, Seite
+      // sichtbar, Player meldet wirklich "spielt". Ohne das zählten
+      // die Minuten im Hintergrund weiter, wenn jemand mitten im
+      // Video auf einen anderen Reiter wechselt.
+      let spielt = false
+      try {
+        const spieler = playerRef.current
+        spielt = spieler?.getIframe?.()?.isConnected && spieler.getPlayerState?.() === 1
+      } catch { /* Player schon abgebaut */ }
+      if (!spielt || document.hidden) return
+
+      videoSekunden.current += 1
+      if (videoSekunden.current >= 60) {
+        videoSekunden.current -= 60
+        addXp(XP.VIDEO_MINUTE, 'Video-Minute')
+      }
+    }, 1000)
+    return () => clearInterval(takt)
+  }, [laeuft, view])
+
+  // Beim Verlassen der Lese-Ansicht gilt das Video als angehalten
+  useEffect(() => {
+    if (view !== 'lesen') setLaeuft(false)
+  }, [view])
 
   // Wenn ein Video geladen wurde: YouTube-Player erstellen
   useEffect(() => {
@@ -718,6 +756,14 @@ export default function App() {
 
   // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen
   function addVocabWords(woerter) {
+    // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
+    const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
+    if (neu.size) {
+      addXp(
+        XP.WORT_NEU * neu.size,
+        neu.size === 1 ? 'Wort hinzugefügt' : neu.size + ' Wörter hinzugefügt'
+      )
+    }
     setVocab((v) => {
       const copy = { ...v }
       for (const w of woerter) {
@@ -755,8 +801,8 @@ export default function App() {
 
     // Wort merken, falls es noch nicht bekannt ist – mit dem Videotitel als Quelle,
     // damit man im Trainer sieht, aus welchem Video/Song das Wort stammt.
-    // Für jedes neue Wort gibt es XP!
-    if (!vocab[word]) addXp(XP.WORT_NEU)
+    // XP gibt es erst, wenn man das Wort mit "Lernen" wirklich aufnimmt
+    // (sonst kassiert man still beim Antippen und sieht nur "+2").
     setVocab((v) => (v[word] ? v : { ...v, [word]: newEntry('', video?.title) }))
 
     try {
@@ -793,7 +839,8 @@ export default function App() {
     let earned = 0
     if (entry && entry.status !== status) {
       setVocab((v) => ({ ...v, [word]: { ...v[word], status } }))
-      earned = status === 'gewusst' ? XP.SCHON_GEWUSST : XP.SAMMELN
+      earned =
+        status === 'gewusst' ? XP.SCHON_GEWUSST : entry.status === 'neu' ? XP.WORT_NEU : XP.SAMMELN
       addXp(earned)
     }
     setCardExit({ status, earned })
@@ -925,6 +972,12 @@ export default function App() {
           Der Link meldet den Nutzer bereits an, deshalb steht das Fenster
           hier und nicht bei der Willkommensseite. */}
       {passwortNeuSetzen && <NeuesPasswort onFertig={passwortGesetzt} />}
+
+      {xpMeldung && (
+        <span key={xpMeldung.key} className="spiel-xp" onAnimationEnd={() => setXpMeldung(null)}>
+          +{xpMeldung.punkte} XP · {xpMeldung.text}
+        </span>
+      )}
 
       {/* Meldung, wenn ein Abzeichen dazugekommen ist */}
       <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />

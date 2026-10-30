@@ -8844,6 +8844,15 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   font-weight: 700;
   color: var(--navy);
 }
+/* Die Belohnung steht über den Knöpfen, damit man sie vor dem
+   Klicken sieht und nicht erst danach erfährt. */
+.leser-lohn {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
 /* Der Sprachumschalter im Leser muss ÜBER der Menüleiste bleiben.
    Diese Regel steht bewusst GANZ hinten: Die Grundregel für
    .leser-schiene kommt weiter oben in der Datei, und bei gleicher
