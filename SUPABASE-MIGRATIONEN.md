@@ -68,3 +68,33 @@ auf der Startseite, sobald man angemeldet ist.
 Woche, Monat und Jahr beginnen am Tag der Einrichtung bei null – wer
 wann gelernt hat, wurde vorher nicht mitgeschrieben. Die Gesamtliste
 ist davon unberührt, sie liest weiter `statistik.xp`.
+
+## Offener Punkt: der Mailversand
+
+Die SMTP-Zugangsdaten in `.env.local` werden von All-Inkl
+**abgelehnt** – am 30.10.2026 geprüft, auf Port 587 und 465:
+
+```
+535 5.7.8 Error: authentication failed
+```
+
+Betroffen sind die Mail zur Freundschaftsanfrage und die
+Meldungs-Mail. Beide scheitern still: `schicke()` fängt den Fehler
+ab, die Anfrage selbst steht trotzdem in der Datenbank. Niemand
+bekommt also einen Fehler zu sehen – aber auch keine Mail.
+
+**Vermutlich betrifft es mehr.** Wenn Supabase dieselben Daten für
+die Anmeldebestätigung und „Passwort vergessen" benutzt, kommen
+auch die nicht an – und dann kann sich niemand neu registrieren.
+Das wäre der dringendere Fall.
+
+Zu prüfen im KAS von All-Inkl:
+
+1. Gibt es das Postfach `lernen@davaigo.de` noch, und stimmt das
+   Passwort?
+2. Verlangt All-Inkl für dieses Postfach einen anderen
+   SMTP-Benutzernamen als die Mailadresse (bei KAS üblich: eine
+   Kennung wie `m01234567`)?
+
+Danach `SMTP_USER` und `SMTP_PASS` in `.env.local` berichtigen – und
+dieselben Werte in Coolify, denn im Betrieb kommen sie von dort.

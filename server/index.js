@@ -12,6 +12,7 @@ import { uebersetzeWort, uebersetzeZeilen } from './uebersetzen.js'
 import { erzeugeSatzliste, GRAMMATIK } from './saetze.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
+import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
 import {
   antworte,
   istPremium,
@@ -843,6 +844,108 @@ app.post('/api/gespraech', async (req, res) => {
   } catch (err) {
     console.error('Gespraech:', err.message)
     res.status(500).json({ error: 'Der Tutor antwortet gerade nicht. Bitte spaeter erneut.' })
+  }
+})
+
+
+// ============================================================
+//  Mails rund um Freunde und Meldungen
+// ============================================================
+
+// "X moechte mit dir lernen." Die Adresse des Empfaengers holt der
+// Server selbst - sie kommt nie in den Browser.
+app.post('/api/freunde/melden', async (req, res) => {
+  try {
+    if (!mailBereit()) return res.json({ gesendet: false, grund: 'kein-smtp' })
+
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
+    if (!nutzer) return res.status(401).json({ error: 'Nicht angemeldet.' })
+
+    const kopf = {
+      apikey: process.env.SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+    }
+    const basis = `${process.env.SUPABASE_URL}/rest/v1`
+
+    // Gibt es die offene Anfrage wirklich, und ist sie von diesem Nutzer?
+    // Ohne diese Pruefung koennte jemand ueber den Endpunkt beliebige
+    // Leute anschreiben lassen.
+    const a = await fetch(
+      `${basis}/freunde?select=an&von=eq.${nutzer.id}&status=eq.offen&order=erstellt_am.desc&limit=1`,
+      { headers: kopf }
+    )
+    const anfrage = (await a.json())[0]
+    if (!anfrage) return res.json({ gesendet: false, grund: 'keine-anfrage' })
+
+    // Name des Anfragenden – der steht in der Mail
+    const p = await fetch(`${basis}/profile?select=benutzername&id=eq.${nutzer.id}`, {
+      headers: kopf,
+    })
+    const von = (await p.json())[0]?.benutzername || 'Jemand'
+
+    // Adresse des Empfaengers – nur hier, nie im Browser
+    const u = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users/${anfrage.an}`, {
+      headers: kopf,
+    })
+    const ziel = (await u.json())?.email
+    if (!ziel) return res.json({ gesendet: false, grund: 'keine-adresse' })
+
+    const adresse = (req.body?.herkunft || 'https://davaigo.de').replace(/\/$/, '')
+    const ok = await schicke({ an: ziel, ...freundschaftsanfrage({ von, adresse }) })
+    res.json({ gesendet: ok })
+  } catch (fehler) {
+    console.error('Freundesmail:', fehler.message)
+    res.json({ gesendet: false })
+  }
+})
+
+// Eine Meldung steht in der Tabelle "meldungen" – und geht
+// zusaetzlich per Mail raus. Eine Meldung, die niemand liest, waere
+// keine.
+app.post('/api/meldung', async (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
+    if (!nutzer) return res.status(401).json({ error: 'Nicht angemeldet.' })
+
+    const { wen, grund, bemerkung } = req.body || {}
+    if (!wen || !grund) return res.status(400).json({ error: 'Unvollstaendig.' })
+
+    if (!mailBereit()) return res.json({ gesendet: false, grund: 'kein-smtp' })
+
+    const kopf = {
+      apikey: process.env.SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_KEY}`,
+    }
+    const p = await fetch(
+      `${process.env.SUPABASE_URL}/rest/v1/profile?select=benutzername&id=eq.${nutzer.id}`,
+      { headers: kopf }
+    )
+    const melder = (await p.json())[0]?.benutzername || nutzer.email || 'unbekannt'
+
+    const GRUND_TEXT = {
+      bild: 'Anstoessiges Profilbild',
+      name: 'Anstoessiger Benutzername',
+      belaestigung: 'Belaestigung',
+      spam: 'Spam oder Werbung',
+      anderes: 'Etwas anderes',
+    }
+
+    const ok = await schicke({
+      an: process.env.MELDUNGEN_AN || 'lernen@davaigo.de',
+      betreff: `Meldung: ${String(wen).slice(0, 40)} (${GRUND_TEXT[grund] || grund})`,
+      text:
+        `${melder} hat ${wen} gemeldet.\n\n` +
+        `Grund: ${GRUND_TEXT[grund] || grund}\n` +
+        (bemerkung ? `Bemerkung: ${String(bemerkung).slice(0, 500)}\n` : '') +
+        `\nDie Meldung steht in der Tabelle "meldungen" (Stand: offen).\n` +
+        `Profil ansehen: https://davaigo.de\n`,
+    })
+    res.json({ gesendet: ok })
+  } catch (fehler) {
+    console.error('Meldung:', fehler.message)
+    res.json({ gesendet: false })
   }
 })
 
