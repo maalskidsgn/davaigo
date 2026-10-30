@@ -1,4 +1,4 @@
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
 import { holeVideoMitTranskript, supabaseBereit } from './supabase.js'
 import { useNutzer } from './auth.js'
 import {
@@ -62,6 +62,7 @@ import { hakeAb } from './tagesplan.js'
 import './App.css'
 import { zeigeMichAn, verschwinde } from './praesenz.js'
 import { ladeBenutzername } from './rangliste.js'
+import { baueBrueckenPlayer } from './ytBruecke.js'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -554,29 +555,53 @@ export default function App() {
   useEffect(() => {
     if (!video) return
     let cancelled = false
+
+    // Was beim Start passieren soll – für beide Wege gleich
+    const ereignisse = {
+      // Damit der Pause-Knopf immer das richtige Symbol zeigt –
+      // auch wenn direkt im Player geklickt wird (1 = läuft)
+      onStateChange: (e) => setLaeuft(e.data === 1),
+      onReady: (e) => {
+        setLaeuft(false)
+        setTempo(1)
+        // Dort weitermachen, wo man aufgehoert hat. Nur wenn man
+        // wirklich mittendrin war: Die ersten 10 Sekunden lohnen
+        // sich nicht, und ab 95 % faengt man lieber neu an.
+        const { prozent, sekunden } = standVon(video.videoId)
+        if (sekunden > 10 && prozent < 95) {
+          e.target.seekTo(sekunden, true)
+          setWeiterAb(sekunden)
+          setTimeout(() => setWeiterAb(null), 4000)
+        }
+      },
+    }
+
+    // In der App über die Seite auf davaigo.de, im Browser direkt.
+    //
+    // YouTube weist seit Juli 2025 jede Einbettung ohne gültigen
+    // Referer ab ("Fehler 153"). Eine App lädt ihre Oberfläche
+    // lokal, hat also keinen – deshalb dort der Umweg über eine
+    // Seite, die wirklich auf davaigo.de liegt. Im Browser stimmt
+    // der Referer ohnehin, da bleibt der direkte Weg.
+    if (istApp) {
+      playerRef.current = baueBrueckenPlayer('yt-player', {
+        videoId: video.videoId,
+        events: ereignisse,
+      })
+      return () => {
+        cancelled = true
+        playerRef.current?.destroy?.()
+        playerRef.current = null
+        setActiveLine(-1)
+      }
+    }
+
     loadYouTubeApi().then((YT) => {
       if (cancelled) return
       playerRef.current = new YT.Player('yt-player', {
         videoId: video.videoId,
         playerVars: { rel: 0 },
-        events: {
-          // Damit der Pause-Knopf immer das richtige Symbol zeigt –
-          // auch wenn direkt im Player geklickt wird (1 = läuft)
-          onStateChange: (e) => setLaeuft(e.data === 1),
-          onReady: (e) => {
-            setLaeuft(false)
-            setTempo(1)
-            // Dort weitermachen, wo man aufgehoert hat. Nur wenn man
-            // wirklich mittendrin war: Die ersten 10 Sekunden lohnen
-            // sich nicht, und ab 95 % faengt man lieber neu an.
-            const { prozent, sekunden } = standVon(video.videoId)
-            if (sekunden > 10 && prozent < 95) {
-              e.target.seekTo(sekunden, true)
-              setWeiterAb(sekunden)
-              setTimeout(() => setWeiterAb(null), 4000)
-            }
-          },
-        },
+        events: ereignisse,
       })
     })
     return () => {
