@@ -58,12 +58,31 @@ mit `whsec_`). Auge-Symbol anklicken, dann kopieren.
 Der Webhook heißt `charismatic-jubilee` – den Namen vergibt Stripe
 selbst, er lässt sich umbenennen.
 
-### 3. Beides eintragen, an ZWEI Stellen
+### 3. Der öffentliche Schlüssel
+
+Steht auf derselben Seite wie der geheime, in der Zeile
+„Veröffentlichbarer Schlüssel" (beginnt mit `pk_live_`). Nimm dort
+den Kopier-Knopf und tippe ihn nicht ab – die Schlüssel sind rund
+hundert Zeichen lang, und ein falsches Zeichen fällt erst beim
+ersten Kaufversuch auf.
+
+Dieser Schlüssel ist kein Geheimnis: Er landet ohnehin im Quelltext
+der Webseite. Er kommt trotzdem vom Server und nicht aus dem Build,
+damit derselbe Build zu Test- und Echtbetrieb passt.
+
+Ohne ihn bricht `src/Bezahlen.jsx` den Bezahlvorgang ab mit
+„Auf dem Server fehlt der öffentliche Stripe-Schlüssel".
+`/api/bezahlung/status` meldet dann `"schluessel": null`, während
+`"bereit"` schon `true` ist – die Kasse sieht also fertig aus und
+ist es nicht.
+
+### 4. Alles eintragen, an ZWEI Stellen
 
 In `.env.local` (fürs Entwickeln):
 
 ```
 STRIPE_SECRET_KEY=sk_live_…
+STRIPE_PUBLIC_KEY=pk_live_…
 STRIPE_WEBHOOK_SECRET=whsec_…
 ```
 
