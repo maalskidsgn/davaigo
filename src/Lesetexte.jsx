@@ -299,7 +299,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
         <button className="leser-pfeil" onClick={onZurueck} aria-label="Zurück">
           ←
         </button>
-        <span className="leser-kopf-titel">{sprache === 'es' ? 'Español' : 'Deutsch'}</span>
+        <span className="leser-kopf-titel">{sprache === 'es' ? 'Русский' : 'Deutsch'}</span>
         <span className="leser-stufe">{(text.stufe ?? 'b1').toUpperCase()}</span>
       </div>
 
@@ -351,7 +351,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
       <div className="leser-schiene">
         <div className="leser-sprachen" role="tablist">
           {[
-            ['es', 'Español'],
+            ['es', 'Русский'],
             ['de', 'Deutsch'],
           ].map(([wert, name]) => (
             <button

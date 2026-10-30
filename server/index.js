@@ -681,9 +681,10 @@ app.post('/api/buch', async (req, res) => {
         {
           role: 'user',
           content:
-            `Erstelle eine Blinkist-artige Zusammenfassung des Buches "${titel}" für deutschsprachige Spanisch-Anfänger (Niveau A2): ` +
-            '5 bis 7 kurze Absätze in EINFACHEM Spanisch (kurze Sätze, Grundwortschatz), jeder Absatz mit deutscher Übersetzung. ' +
-            'Dazu 8 nützliche spanische Vokabeln aus der Zusammenfassung mit deutscher Übersetzung. ' +
+            `Erstelle eine Blinkist-artige Zusammenfassung des Buches "${titel}" für deutschsprachige Russisch-Anfänger (Niveau A2): ` +
+            '5 bis 7 kurze Absätze in EINFACHEM Russisch (kurze Sätze, Grundwortschatz), jeder Absatz mit deutscher Übersetzung. ' +
+            'Schreibe ausschließlich in kyrillischer Schrift, niemals in Umschrift, und setze keine Betonungszeichen. ' +
+            'Dazu 8 nützliche russische Vokabeln aus der Zusammenfassung mit deutscher Übersetzung. ' +
             'Kennst du das Buch nicht sicher, sage das im ersten Absatz ehrlich und fasse zusammen, wofür der Titel bekannt ist.',
         },
       ],

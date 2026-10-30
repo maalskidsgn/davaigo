@@ -348,7 +348,7 @@ const STATIONEN = [
   },
   {
     titel: 'Grammatik in kleinen Bausteinen',
-    text: 'Ser oder estar, Indefinido oder Imperfekt: 55 Regeln, jede mit fünf Aufgaben. Jeden Tag ist eine andere dran – im selben Karteikasten wie die Vokabeln. Zwei Minuten, und die Regel bleibt.',
+    text: 'Das schwache o, Ohne der/die/das, из und в: acht Regeln, jede mit fünf Aufgaben. Jeden Tag ist eine andere dran – im selben Karteikasten wie die Vokabeln. Zwei Minuten, und die Regel bleibt.',
     ziel: 'trainer',
     link: 'Zu den Bausteinen',
   },

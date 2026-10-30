@@ -343,7 +343,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
 
       <div className="feed-sprachen" role="tablist">
         {[
-          ['es', 'Español'],
+          ['es', 'Русский'],
           ['de', 'Deutsch'],
         ].map(([wert, name]) => (
           <button

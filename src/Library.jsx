@@ -72,13 +72,13 @@ const KATEGORIEN = [
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
 // damit regelmäßig frische Videos auftauchen
 const EMPFEHLUNGS_SUCHEN = [
-  'spanish for beginners comprehensible input',
-  'easy spanish street interviews',
-  'slow spanish stories for beginners',
-  'español con juan learn spanish',
-  'dreaming spanish superbeginner',
-  'spanish listening practice beginner',
-  'easy spanish conversation basics',
+  'russian comprehensible input for beginners',
+  'easy russian street interviews',
+  'slow russian stories for beginners',
+  'russian progress podcast',
+  'learn russian with subtitles beginner',
+  'russian listening practice beginner',
+  'easy russian conversation basics',
 ]
 
 // Gespeicherte Empfehlungen aus dem Browser-Speicher laden
@@ -91,13 +91,17 @@ function ladeEmpfehlungsCache() {
 }
 
 // Fertige Suchvorschläge zum Entdecken neuer Russisch-Videos
+// Die Anfragen stehen teils auf Russisch, teils auf Englisch – und
+// das ist Absicht. YouTube findet russische Inhalte am besten über
+// russische Begriffe; Lernmaterial FÜR Anfänger ist dagegen meist
+// englisch betitelt ("learn russian", "comprehensible input").
 const VORSCHLAEGE = [
-  { label: '🎵 Musik', query: 'canciones en español con letra' },
-  { label: '🐣 Für Anfänger', query: 'spanish for beginners comprehensible input' },
-  { label: '🎙️ Podcasts', query: 'podcast en español para estudiantes' },
-  { label: '📰 Langsame Nachrichten', query: 'noticias en español lento para estudiantes' },
-  { label: '🍳 Kochen', query: 'receta cocina española fácil' },
-  { label: '✈️ Reisen', query: 'viajar por españa vlog' },
+  { label: '🎵 Musik', query: 'русские песни с текстом' },
+  { label: '🐣 Für Anfänger', query: 'russian comprehensible input for beginners' },
+  { label: '🎙️ Podcasts', query: 'подкаст на русском для изучающих' },
+  { label: '📰 Langsame Nachrichten', query: 'новости на русском медленно для изучающих' },
+  { label: '🍳 Kochen', query: 'простой рецепт на русском' },
+  { label: '✈️ Reisen', query: 'путешествие по России влог' },
 ]
 
 function formatDuration(sec) {
