@@ -30,6 +30,15 @@ export default function Settings({
   addXp,
 }) {
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
+  // Steht die Rangliste in der Datenbank schon? undefined heisst nein
+  // (oder noch nicht geladen). Solange zeigen wir Freunde und Duell
+  // gar nicht erst – leere Kaesten, deren Knoepfe mit einer
+  // Fehlermeldung antworten, sind schlimmer als keine Kaesten.
+  const [ranglisteDa, setRanglisteDa] = useState(false)
+  useEffect(() => {
+    if (!nutzer?.id) return setRanglisteDa(false)
+    ladeBenutzername(nutzer.id).then((n) => setRanglisteDa(n !== undefined))
+  }, [nutzer])
   const [bezahlbar, setBezahlbar] = useState(false)
   const [preis, setPreis] = useState(null)
   // Die Einwilligung zur Messung – zurücknehmen muss genauso leicht
@@ -290,7 +299,7 @@ export default function Settings({
           Konto, und ein sechster Reiter unten würde die Leiste
           unübersichtlich machen. Ohne Konto gibt es nichts zu
           zeigen – ohne Benutzername erst recht nicht. */}
-      {supabaseBereit && nutzer && (
+      {supabaseBereit && nutzer && ranglisteDa && (
         <>
           <h2 className="settings-heading">Freunde</h2>
           <div className="settings-card">
