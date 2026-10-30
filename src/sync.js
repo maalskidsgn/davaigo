@@ -194,6 +194,13 @@ export async function speichereStatistik(nutzerId, stats) {
   const verlauf = vereineVerlauf(lokalerVerlauf(), alt?.ki_nutzung?.verlauf)
   uebernimmVerlauf(verlauf)
 
+  // Die Zahlenspalten normal, den Verlauf getrennt.
+  //
+  // Warum nicht beides in einem upsert: In ki_nutzung legen auch
+  // geraeteSync.js und videoSync.js etwas ab. Schrieben wir die
+  // ganze Spalte, würden wir deren Stand von vor unserem Lesen
+  // zurückschreiben – und was sie inzwischen geändert haben, wäre
+  // weg. ki_nutzung_setzen() ändert nur den einen Schlüssel.
   const { error } = await db.from('statistik').upsert(
     {
       nutzer_id: nutzerId,
@@ -202,11 +209,11 @@ export async function speichereStatistik(nutzerId, stats) {
       serie: stats.streak ?? 0,
       letzter_tag: stats.lastDay ?? null,
       xp_heute: stats.xpToday ?? 0,
-      ki_nutzung: { ...(alt?.ki_nutzung ?? {}), verlauf },
       aktualisiert_am: new Date().toISOString(),
     },
     { onConflict: 'nutzer_id' }
   )
+  await db.rpc('ki_nutzung_setzen', { schluessel: 'verlauf', wert: verlauf })
 
   if (error) throw new Error(error.message)
 

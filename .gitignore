@@ -43,3 +43,4 @@ public/hoertexte/
 # sich die App im Store nie wieder aktualisieren. Passwortmanager.
 *.jks
 android/*.keystore
+COOLIFY-NACHTRAGEN.txt

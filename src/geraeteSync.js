@@ -26,6 +26,8 @@ export const SCHLUESSEL = [
   'bausteinVarianten',
   'blitz-rekord', // Bestwert der Blitzrunde
   'tonVonSelbst', // Schalter: Wörter von selbst vorlesen
+  'gespraechNiveau', // Selbsteinschätzung im Tutor-Gespräch
+  'gespraechDeutsch', // ob die deutsche Zeile mitläuft
 ]
 
 // Diese Werte hält die App im React-Zustand – sie muss sie nach einem
@@ -127,7 +129,7 @@ async function abgleich(nutzerId) {
   if (hochladen) {
     const { error: f } = await db
       .from('statistik')
-      .upsert({ nutzer_id: nutzerId, ki_nutzung: { ...ki, geraete: neu } }, { onConflict: 'nutzer_id' })
+      .rpc('ki_nutzung_setzen', { schluessel: 'geraete', wert: neu })
     if (f) throw new Error(f.message)
   }
   try {

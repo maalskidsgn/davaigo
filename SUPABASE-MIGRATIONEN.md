@@ -28,6 +28,7 @@ vorigen aufbaut.
 | 8 | `supabase-moderation-filter.sql` | Blockierte auch serverseitig aus den Listen nehmen |
 | 9 | `supabase-tutor.sql` | Tageskontingent fuer das Gespraech mit Dascha |
 | 10 | `supabase-nutzung.sql` | Tageskontingent fuer alle KI-Abrufe |
+| 11 | `supabase-ki-nutzung.sql` | Schreibt Teile von ki_nutzung einzeln – gegen Datenverlust |
 
 ## Warum die Reihenfolge wichtig ist
 

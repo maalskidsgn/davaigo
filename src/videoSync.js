@@ -58,17 +58,18 @@ export async function gleicheVideosAb(nutzerId, lokal) {
     videos: alt.gemerkte_videos,
     geloescht: alt.videos_geloescht,
   })
-  const { error } = await db.from('statistik').upsert(
-    {
-      nutzer_id: nutzerId,
-      ki_nutzung: {
-        ...alt,
-        gemerkte_videos: vereint.videos,
-        videos_geloescht: vereint.geloescht,
-      },
-    },
-    { onConflict: 'nutzer_id' }
-  )
+  // Beide Schlüssel einzeln, nicht die ganze Spalte: Dort legen auch
+  // sync.js (verlauf) und geraeteSync.js (geraete) etwas ab, und wer
+  // alles zurückschreibt, verliert deren Änderungen seit dem Lesen.
+  const { error } = await db.rpc('ki_nutzung_setzen', {
+    schluessel: 'gemerkte_videos',
+    wert: vereint.videos,
+  })
   if (error) throw new Error(error.message)
+  const { error: f2 } = await db.rpc('ki_nutzung_setzen', {
+    schluessel: 'videos_geloescht',
+    wert: vereint.geloescht,
+  })
+  if (f2) throw new Error(f2.message)
   return vereint
 }
