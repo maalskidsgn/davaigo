@@ -57,14 +57,21 @@ const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
 //  Testphase: alles für alle offen
 // ---------------------------------------------------------------
 //
-// Solange die App im geschlossenen Test läuft, soll niemand an
-// einer Premium-Schranke hängen bleiben – die Tester sollen ja
-// gerade alles ausprobieren. Bezahlen lässt sich ohnehin noch
-// nicht echt: Stripe steht auf Testmodus, es kommt kein Geld an.
+// ACHTUNG, DAS HAT FOLGEN ÜBER DEN TUTOR HINAUS.
 //
-// Zum Zurückdrehen: diesen Schalter auf false setzen. Dann gilt
-// wieder das Abo aus der Datenbank, der Code darunter ist
-// unverändert geblieben.
+// Steht der Schalter auf true, gilt JEDER als Premium – und damit
+// greift auch das Tageskontingent der KI-Endpunkte nicht (siehe
+// kiTuersteher in server/index.js). Die Anmeldepflicht bleibt, das
+// Limit fällt weg.
+//
+// Aus Habloo übernommen, wo er für den geschlossenen Test gesetzt
+// wurde: Tester sollen alles ausprobieren können, und Stripe stand
+// dort auf Testmodus.
+//
+// Für Davaigo gehört er auf false, sobald echtes Geld fließt –
+// sonst zahlt niemand, und jeder darf unbegrenzt die KI nutzen.
+// Der Code darunter bleibt unverändert und liest dann wieder das
+// Abo aus der Datenbank.
 const TESTPHASE_ALLES_FREI = true
 
 export async function istPremium(nutzerId) {
