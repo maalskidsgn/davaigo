@@ -1,13 +1,16 @@
-import { useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
-import { IconKarten, IconAuswahl, IconListe } from './icons.jsx'
+import { IconKarten, IconAuswahl, IconListe, IconGemischt, IconSchreiben, IconLektion } from './icons.jsx'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
+
+/** Satzpaare: so viele Paare auf einmal – mehr wird auf dem Handy unübersichtlich */
+const PAARE = 6
 
 // Nur zwei Übungsarten – Schreiben und Gemischt gibt es hier
 // bewusst nicht: Einen ganzen Satz fehlerfrei abzutippen ist
@@ -25,6 +28,24 @@ const ARTEN = [
     icon: IconAuswahl,
     text: 'Vier Übersetzungen – welche passt?',
   },
+  {
+    id: 'bauen',
+    titel: 'Satz bauen',
+    icon: IconSchreiben,
+    text: 'Deutscher Satz oben – die russischen Wörter in die richtige Reihenfolge tippen',
+  },
+  {
+    id: 'luecke',
+    titel: 'Lückensatz',
+    icon: IconLektion,
+    text: 'Ein Wort fehlt – welches gehört in die Lücke?',
+  },
+  {
+    id: 'paare',
+    titel: 'Satzpaare',
+    icon: IconGemischt,
+    text: `${PAARE} Sätze und ihre Übersetzungen richtig verbinden`,
+  },
 ]
 
 /** Vier falsche Übersetzungen dazumischen. */
@@ -38,8 +59,8 @@ function baueAuswahl(richtig, alle, anzahl = 4) {
  * Der Satz-Karteikasten.
  *
  * Derselbe Spaced-Repetition-Kern wie beim Vokabeltrainer (srs.js) –
- * nur steht auf der Karte ein ganzer Satz. Deshalb keine Spiele:
- * Memory oder Wortpaare brauchen kurze Begriffe, Sätze nicht.
+ * nur steht auf der Karte ein ganzer Satz. Memory passt dafür nicht;
+ * statt Wortpaaren gibt es Satzpaare mit 6 Sätzen untereinander (SatzPaare).
  */
 export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
@@ -78,6 +99,19 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
 
   /** Eine Runde starten – die am längsten fälligen zuerst. */
   function starten(gewaehlteArt) {
+    if (gewaehlteArt === 'paare') {
+      // Fällige zuerst, mit den übrigen auf sechs auffüllen
+      const mitText = entries.filter((e) => e.translation)
+      const sortiert = [
+        ...mitText.filter(isDue).sort((a, b) => (a.due ?? 0) - (b.due ?? 0)),
+        ...mitText.filter((e) => !isDue(e)).sort(() => Math.random() - 0.5),
+      ]
+      setArt('paare')
+      setQueue(sortiert.slice(0, PAARE).map((e) => e.key))
+      setResult({ richtig: 0, falsch: 0 })
+      setArtWahl(false)
+      return
+    }
     const liste = [...faellig].sort((a, b) => (a.due ?? 0) - (b.due ?? 0)).slice(0, RUNDE)
     setArt(gewaehlteArt)
     setQueue(liste.map((e) => e.key))
@@ -117,8 +151,6 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
       }
     })
 
-    merkeGelernt('saetze') // für die Lernkurve
-
     if (richtig) {
       addXp?.(XP.SATZ_RICHTIG)
       setXpPopup({ amount: XP.SATZ_RICHTIG, key: Date.now() })
@@ -135,6 +167,10 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
       setRevealed(false)
       setGewaehlt(null)
       setQueue((q) => {
+        // Wer "Runde abbrechen" drückt, während diese Verzögerung
+        // noch läuft, setzt queue auf null – und q.slice() warf
+        // dann einen Fehler, der die ganze App weiß werden ließ.
+        if (!q) return q
         const rest = q.slice(1)
         // Nicht gewusst? Hinten wieder einreihen, dann kommt der
         // Satz in derselben Runde noch einmal.
@@ -143,6 +179,29 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         return rest
       })
     }, 320)
+  }
+
+  /** Satzpaare: ein Satz verbunden – beim ersten Versuch "gut", sonst "schwer". */
+  function paarGeloest(key, ersterVersuch) {
+    merkeGelernt('saetze')
+    setSaetze((alt) => {
+      const eintrag = withSrsDefaults(alt[key] ?? {})
+      return {
+        ...alt,
+        [key]: {
+          ...review(eintrag, ersterVersuch ? 'gut' : 'schwer'),
+          anzeige: eintrag.anzeige,
+          schluessel: eintrag.schluessel,
+          thema: eintrag.thema,
+          grammatik: eintrag.grammatik,
+          richtig: (eintrag.richtig ?? 0) + 1,
+          falsch: eintrag.falsch ?? 0,
+        },
+      }
+    })
+    addXp?.(XP.SATZ_RICHTIG)
+    setXpPopup({ amount: XP.SATZ_RICHTIG, key: Date.now() })
+    setTimeout(() => setXpPopup(null), 900)
   }
 
   /** Einen Satz aus dem Kasten werfen. */
@@ -204,6 +263,27 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             ))}
           </div>
         )}
+      </div>
+    )
+  }
+
+  // ---------- Satzpaare ----------
+  if (queue !== null && art === 'paare') {
+    return (
+      <div className="trainer training-stage">
+        {xpPopup && (
+          <span key={xpPopup.key} className="xp-popup">
+            +{xpPopup.amount} XP
+          </span>
+        )}
+        <SatzPaare
+          paare={queue
+            .filter((k) => saetze[k])
+            .map((k) => ({ key: k, es: saetze[k].anzeige ?? k, de: saetze[k].translation }))}
+          onGeloest={paarGeloest}
+          onFertig={() => merkeEinheit('wiederholung')}
+          onClose={() => setQueue(null)}
+        />
       </div>
     )
   }
@@ -314,6 +394,40 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           </div>
         )}
 
+        {/* ---------- Satz bauen ---------- */}
+        {art === 'bauen' && (
+          <div
+            className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
+            key={key + queue.length}
+          >
+            <p className="lesson-hint">Bau den Satz auf Russisch</p>
+            <div className="flash-satz satz-vorgabe">{loesung}</div>
+            <SatzBauen
+              key={key + queue.length}
+              satz={satz}
+              onFertig={(richtig) => antworten(richtig ? 'gut' : 'nochmal')}
+            />
+          </div>
+        )}
+
+        {/* ---------- Lückensatz ---------- */}
+        {art === 'luecke' && (
+          <div
+            className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
+            key={key + queue.length}
+          >
+            <p className="lesson-hint">Welches Wort fehlt?</p>
+            <Lueckensatz
+              key={key + queue.length}
+              satz={satz}
+              schluessel={current.schluessel}
+              uebersetzung={current.translation}
+              alle={entries}
+              onFertig={(richtig) => antworten(richtig ? 'gut' : 'nochmal')}
+            />
+          </div>
+        )}
+
         <button className="btn-plain" onClick={() => setQueue(null)}>
           Runde abbrechen
         </button>
@@ -341,7 +455,9 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             const Icon = a.icon
             // Multiple Choice braucht falsche Antworten zum Danebenlegen.
             // Mit weniger als vier Sätzen gibt es die nicht.
-            const gesperrt = a.id === 'auswahl' && entries.length < 4
+            const gesperrt =
+              ((a.id === 'auswahl' || a.id === 'luecke') && entries.length < 4) ||
+              (a.id === 'paare' && entries.filter((e) => e.translation).length < 3)
             return (
               <button
                 key={a.id}
@@ -357,7 +473,9 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                   <span className="art-titel">{a.titel}</span>
                   <span className="art-beschreibung">{a.text}</span>
                   {gesperrt && (
-                    <span className="art-hinweis">Ab vier gesammelten Sätzen</span>
+                    <span className="art-hinweis">
+                      {a.id === 'paare' ? 'Ab drei gesammelten Sätzen' : 'Ab vier gesammelten Sätzen'}
+                    </span>
                   )}
                 </span>
                 <span className="art-pfeil" aria-hidden="true">›</span>
@@ -401,12 +519,13 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 {entries.length} gesammelt · {gewusst.length} sitzen
               </p>
             </div>
+            {/* Nichts fällig? Satzpaare gehen trotzdem – mit den übrigen Sätzen */}
             <button
               className="btn wiederholen-los"
-              disabled={faellig.length === 0}
-              onClick={() => setArtWahl(true)}
+              disabled={faellig.length === 0 && entries.filter((e) => e.translation).length < 3}
+              onClick={() => (faellig.length > 0 ? setArtWahl(true) : starten('paare'))}
             >
-              {faellig.length > 0 ? 'Üben' : 'Nichts fällig'}
+              {faellig.length > 0 ? 'Üben' : entries.filter((e) => e.translation).length >= 3 ? 'Satzpaare' : 'Nichts fällig'}
             </button>
           </section>
         </>
@@ -462,5 +581,324 @@ function SatzAuswahl({ loesung, alle, gewaehlt, onWahl }) {
         )
       })}
     </div>
+  )
+}
+
+/**
+ * Satzpaare: oben die russischen Sätze, darunter die Übersetzungen in
+ * anderer Reihenfolge. Erst einen Satz antippen, dann seine Übersetzung.
+ * Untereinander statt nebeneinander – zwei Spalten mit ganzen Sätzen
+ * werden auf dem Handy zu schmal.
+ */
+function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
+  // Die Reihenfolge leitet sich aus den Daten ab (wie bei den Wortpaaren),
+  // damit sie bei einem Abgleich im Hintergrund nicht durcheinandergerät
+  const unten = [...paare].sort((a, b) => a.de.localeCompare(b.de, 'de'))
+  const [wahl, setWahl] = useState(null)
+  const [geloest, setGeloest] = useState([])
+  const [daneben, setDaneben] = useState([]) // Sätze mit Fehlversuch
+  const [fehler, setFehler] = useState(null)
+
+  const fertig = paare.length > 0 && geloest.length === paare.length
+
+  function klickUnten(p) {
+    if (!wahl || geloest.includes(p.key)) return
+    if (p.key === wahl) {
+      setGeloest((g) => [...g, p.key])
+      onGeloest(p.key, !daneben.includes(p.key))
+      setWahl(null)
+      if (geloest.length + 1 === paare.length) onFertig()
+    } else {
+      setFehler(p.key)
+      setDaneben((d) => (d.includes(wahl) ? d : [...d, wahl]))
+      setTimeout(() => {
+        setFehler(null)
+        setWahl(null)
+      }, 600)
+    }
+  }
+
+  if (fertig) {
+    return (
+      <div className="flashcard done">
+        <div className="confetti-burst" aria-hidden="true">
+          {Array.from({ length: 14 }, (_, i) => (
+            <span key={i} className="confetti" style={{ '--i': i }} />
+          ))}
+        </div>
+        <h2>Alle {paare.length} Satzpaare verbunden! 🎉</h2>
+        <p>
+          {paare.length - daneben.length}× auf Anhieb · {daneben.length}× mit zweitem Versuch
+        </p>
+        <button onClick={onClose}>Fertig</button>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <div className="lern-fortschritt">
+        <div className="lern-balken">
+          <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
+        </div>
+        <p className="training-progress">
+          {geloest.length}/{paare.length} verbunden – erst den Satz, dann die Übersetzung
+        </p>
+      </div>
+      <div className="satzpaare">
+        <div className="satzpaare-gruppe">
+          {paare.map((p) => (
+            <button
+              key={p.key}
+              className={
+                'quiz-option satzpaar' +
+                (geloest.includes(p.key) ? ' option-richtig' : '') +
+                (wahl === p.key ? ' pair-gewaehlt' : '')
+              }
+              disabled={geloest.includes(p.key)}
+              onClick={() => setWahl(p.key)}
+            >
+              {p.es}
+            </button>
+          ))}
+        </div>
+        <div className="satzpaare-trenner" aria-hidden="true" />
+        <div className="satzpaare-gruppe">
+          {unten.map((p) => (
+            <button
+              key={p.key}
+              className={
+                'quiz-option satzpaar satzpaar-de' +
+                (geloest.includes(p.key) ? ' option-richtig' : '') +
+                (fehler === p.key ? ' option-falsch' : '')
+              }
+              disabled={geloest.includes(p.key) || !wahl}
+              onClick={() => klickUnten(p)}
+            >
+              {p.de}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button className="btn-plain" onClick={onClose}>
+        Runde abbrechen
+      </button>
+    </>
+  )
+}
+
+// ---------------------------------------------------------------
+//  Satz bauen + Lückensatz
+// ---------------------------------------------------------------
+
+/** Wort ohne Satzzeichen, klein – zum Vergleichen */
+const glatt = (w) => w.toLocaleLowerCase('es').replace(/[¿?¡!.,;:«»"“”()…]/g, '')
+
+/** Satz in Wörter zerlegen; Satzzeichen hängen nicht an den Kacheln */
+function woerterVon(satz) {
+  return satz
+    .split(/\s+/)
+    .map((w) => w.replace(/^[¿¡«"“(]+|[?!.,;:»"”)…]+$/g, ''))
+    .filter(Boolean)
+}
+
+function mische(liste) {
+  const a = [...liste]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+/**
+ * Satz bauen: Wörter als Kacheln, in der richtigen Reihenfolge antippen.
+ * Angetippte Kacheln wandern nach oben; dort antippen legt sie zurück.
+ * Sind alle verbaut, wird geprüft – ohne Groß/Klein und Satzzeichen.
+ */
+function SatzBauen({ satz, onFertig }) {
+  const woerter = woerterVon(satz)
+  // Kacheln über ihre Position merken – gleiche Wörter kommen öfter vor
+  const [kacheln] = useState(() => {
+    let m = mische(woerter.map((w, i) => ({ w, i })))
+    // Nicht zufällig schon richtig sortiert anbieten
+    if (m.length > 1 && m.every((k, i) => k.i === i)) m = [...m.slice(1), m[0]]
+    return m
+  })
+  const [gelegt, setGelegt] = useState([]) // Positionen in kacheln
+  const [ergebnis, setErgebnis] = useState(null) // null | 'richtig' | 'falsch'
+  const [korrigiert, setKorrigiert] = useState(false) // Kacheln stehen nach Fehler richtig
+  const knoepfe = useRef({}) // Kachel-Elemente in der Zeile, für die Schiebe-Animation
+  const vorher = useRef(null) // Positionen vor dem Umsortieren
+
+  // Falscher Satz: Die Kacheln gleiten an ihren richtigen Platz (FLIP –
+  // alte Position merken, neu sortieren, Versatz per transform zurückrollen).
+  useLayoutEffect(() => {
+    const alt = vorher.current
+    if (!alt) return
+    vorher.current = null
+    for (const [n, el] of Object.entries(knoepfe.current)) {
+      if (!el || !alt[n]) continue
+      const neu = el.getBoundingClientRect()
+      const dx = alt[n].left - neu.left
+      const dy = alt[n].top - neu.top
+      if (!dx && !dy) continue
+      el.style.transition = 'none'
+      el.style.transform = `translate(${dx}px, ${dy}px)`
+      el.getBoundingClientRect() // Neuberechnung erzwingen
+      el.style.transition = 'transform .6s cubic-bezier(.3,.8,.3,1)'
+      el.style.transform = ''
+    }
+  }, [gelegt])
+
+  function korrigiere(neu) {
+    const pos = {}
+    for (const [n, el] of Object.entries(knoepfe.current)) if (el) pos[n] = el.getBoundingClientRect()
+    vorher.current = pos
+    // Ursprüngliche Reihenfolge – gleiche Wörter sind austauschbar
+    setGelegt([...neu].sort((a, b) => kacheln[a].i - kacheln[b].i))
+    setKorrigiert(true)
+  }
+
+  function lege(idx) {
+    if (ergebnis || gelegt.includes(idx)) return
+    const neu = [...gelegt, idx]
+    setGelegt(neu)
+    if (neu.length === kacheln.length) {
+      const gebaut = neu.map((n) => glatt(kacheln[n].w)).join(' ')
+      const ziel = woerter.map(glatt).join(' ')
+      const ok = gebaut === ziel
+      setErgebnis(ok ? 'richtig' : 'falsch')
+      if (ok) setTimeout(() => onFertig(true), 900)
+      else {
+        // Erst kurz zeigen, was falsch steht, dann an den richtigen Platz schieben
+        setTimeout(() => korrigiere(neu), 900)
+        setTimeout(() => onFertig(false), 3600)
+      }
+    }
+  }
+
+  return (
+    <div className="satzbau">
+      <div className={'satzbau-zeile' + (ergebnis ? ' satzbau-' + (korrigiert ? 'korrigiert' : ergebnis) : '')}>
+        {gelegt.length === 0 && <span className="satzbau-platzhalter">Tippe die Wörter in der richtigen Reihenfolge</span>}
+        {gelegt.map((n, pos) => (
+          <button
+            key={n}
+            ref={(el) => { knoepfe.current[n] = el }}
+            className={
+              'satzbau-kachel gelegt' +
+              (ergebnis === 'falsch' && !korrigiert
+                ? glatt(kacheln[n].w) === glatt(woerter[pos]) ? ' platz-richtig' : ' platz-falsch'
+                : '') +
+              (korrigiert ? ' platz-korrigiert' : '')
+            }
+            disabled={Boolean(ergebnis)}
+            onClick={() => setGelegt((g) => g.filter((x) => x !== n))}
+          >
+            {kacheln[n].w}
+          </button>
+        ))}
+      </div>
+      {korrigiert && (
+        <p className="satzbau-loesung">
+          Richtig wäre: <b>{satz}</b>
+        </p>
+      )}
+      <div className="satzbau-vorrat">
+        {kacheln.map((k, n) => (
+          <button
+            key={n}
+            className={'satzbau-kachel' + (gelegt.includes(n) ? ' verbaut' : '')}
+            disabled={gelegt.includes(n) || Boolean(ergebnis)}
+            onClick={() => lege(n)}
+          >
+            {k.w}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Welches Wort fehlt? Ausgeblendet wird das Schlüsselwort, das die KI
+ * beim Erzeugen mitliefert (meist das Wort in der geübten Form).
+ * Fehlt es oder steht es nicht wörtlich im Satz, das längste Wort.
+ */
+function baueLuecke(satz, schluessel) {
+  const tief = satz.toLocaleLowerCase('es')
+  const s = (schluessel || '').trim()
+  let start = s ? tief.indexOf(s.toLocaleLowerCase('es')) : -1
+  let laenge = s.length
+  // Nur ganze Wörter – "es" darf nicht mitten in "estamos" treffen
+  const istWortgrenze = (i) => i < 0 || i >= satz.length || !/[\p{L}]/u.test(satz[i])
+  if (start >= 0 && !(istWortgrenze(start - 1) && istWortgrenze(start + laenge))) start = -1
+  if (start < 0) {
+    const w = woerterVon(satz).sort((a, b) => b.length - a.length)[0] || satz
+    start = satz.indexOf(w)
+    laenge = w.length
+  }
+  return {
+    vorher: satz.slice(0, start),
+    wort: satz.slice(start, start + laenge),
+    nachher: satz.slice(start + laenge),
+  }
+}
+
+function Lueckensatz({ satz, schluessel, uebersetzung, alle, onFertig }) {
+  const [luecke] = useState(() => baueLuecke(satz, schluessel))
+  const [optionen] = useState(() => {
+    const richtig = glatt(luecke.wort)
+    // Falsche Antworten: zuerst die Schlüsselwörter anderer Sätze (meist
+    // auch Verbformen – das macht es knifflig), dann sonstige längere Wörter
+    const kandidaten = [
+      ...mische(alle.map((e) => (e.schluessel || '').trim()).filter(Boolean)),
+      ...mische(alle.flatMap((e) => woerterVon(e.satz)).filter((w) => w.length >= 4)),
+    ]
+    const falsch = []
+    for (const k of kandidaten) {
+      const g = glatt(k)
+      if (!g || g === richtig || falsch.some((f) => glatt(f) === g)) continue
+      falsch.push(luecke.wort === luecke.wort.toLowerCase() ? k.toLocaleLowerCase('es') : k)
+      if (falsch.length === 3) break
+    }
+    return mische([luecke.wort, ...falsch])
+  })
+  const [gewaehlt, setGewaehlt] = useState(null)
+
+  function waehle(o) {
+    if (gewaehlt) return
+    setGewaehlt(o)
+    const ok = glatt(o) === glatt(luecke.wort)
+    setTimeout(() => onFertig(ok), ok ? 800 : 1800)
+  }
+
+  return (
+    <>
+      <div className="flash-satz luecken-satz">
+        {luecke.vorher}
+        <span className={'luecke' + (gewaehlt ? (glatt(gewaehlt) === glatt(luecke.wort) ? ' luecke-richtig' : ' luecke-falsch') : '')}>
+          {gewaehlt ? luecke.wort : '\u00a0'.repeat(Math.max(4, luecke.wort.length))}
+        </span>
+        {luecke.nachher}
+      </div>
+      {uebersetzung && <p className="luecken-hilfe">{uebersetzung}</p>}
+      <div className="quiz-options satz-optionen luecken-optionen">
+        {optionen.map((o) => {
+          let klasse = 'quiz-option'
+          if (gewaehlt) {
+            if (glatt(o) === glatt(luecke.wort)) klasse += ' option-richtig'
+            else if (o === gewaehlt) klasse += ' option-falsch'
+            else klasse += ' option-inaktiv'
+          }
+          return (
+            <button key={o} className={klasse} disabled={Boolean(gewaehlt)} onClick={() => waehle(o)}>
+              {o}
+            </button>
+          )
+        })}
+      </div>
+    </>
   )
 }
