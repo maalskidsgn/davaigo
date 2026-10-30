@@ -31,3 +31,27 @@ if (istApp && !AUS_UMGEBUNG) {
       'hinterlegte Notfall-Adresse. Für Veröffentlichungen bitte setzen.'
   )
 }
+
+/**
+ * Die Kopfzeilen für einen Aufruf, der Geld kostet.
+ *
+ * Seit dem 30.10.2026 verlangen die KI-Endpunkte eine Anmeldung und
+ * zählen ein Tageskontingent mit. Vorher standen sie offen: Der
+ * Zähler lag allein im Browser (src/limits.js), und ein Zähler in
+ * localStorage ist keine Grenze, sondern eine Bitte.
+ *
+ * Gibt es gerade keine Sitzung, kommen nur die Standard-Kopfzeilen
+ * zurück – der Server antwortet dann mit 401, und das ist richtig so.
+ */
+export async function kiKopf() {
+  const basis = { 'Content-Type': 'application/json' }
+  try {
+    const { db, supabaseBereit } = await import('./supabase.js')
+    if (!supabaseBereit) return basis
+    const { data } = await db.auth.getSession()
+    const token = data?.session?.access_token
+    return token ? { ...basis, Authorization: 'Bearer ' + token } : basis
+  } catch {
+    return basis
+  }
+}

@@ -10,7 +10,7 @@ Neue erst nach diesen acht Schritten.
 `rojsuzwhqcopdbpapwou` → links **SQL Editor** → **New query** →
 Dateiinhalt einfügen → **Run**.
 
-Schritt 9 haengt an keinem der anderen und kann auch zuerst laufen.
+Die Schritte 9 und 10 haengen an keinem der anderen und koennen auch zuerst laufen.
 
 Jede Datei ist mehrfach ausführbar. Zweimal laufen zu lassen schadet
 also nicht – aber **die Reihenfolge zählt**, weil jede Datei auf der
@@ -27,6 +27,7 @@ vorigen aufbaut.
 | 7 | `supabase-moderation.sql` | Melden und Blockieren |
 | 8 | `supabase-moderation-filter.sql` | Blockierte auch serverseitig aus den Listen nehmen |
 | 9 | `supabase-tutor.sql` | Tageskontingent fuer das Gespraech mit Dascha |
+| 10 | `supabase-nutzung.sql` | Tageskontingent fuer alle KI-Abrufe |
 
 ## Warum die Reihenfolge wichtig ist
 

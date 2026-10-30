@@ -1,4 +1,4 @@
-import { API_URL } from './api.js'
+import { API_URL, kiKopf } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
@@ -34,14 +34,14 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
     try {
       const res = await fetch(API_URL + '/api/generate-vocab', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await kiKopf(),
         body: JSON.stringify({
           text: video.lines.map((l) => l.text).join('\n'),
           exclude: Object.keys(vocab),
         }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) throw new Error(data.nachricht || data.error)
       setSuggestions(data.vokabeln.map((v) => ({ ...v, checked: true })))
       zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
       setUebrig(verbleibend(premium))

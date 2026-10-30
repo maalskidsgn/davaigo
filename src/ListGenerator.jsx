@@ -1,4 +1,4 @@
-import { API_URL, istApp } from './api.js'
+import { API_URL, istApp, kiKopf } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
@@ -47,7 +47,7 @@ export default function ListGenerator({ vocab, setVocab }) {
     try {
       const res = await fetch(API_URL + '/api/vokabelliste', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await kiKopf(),
         // Die schon gesammelten Wörter mitschicken: so kommen keine
         // Dopplungen zurück und die Liste passt zum eigenen Stand.
         body: JSON.stringify({
@@ -57,7 +57,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) throw new Error(data.nachricht || data.error)
       setListe(data.vokabeln.map((v) => ({ ...v, checked: true })))
       setBegruendung(data.begruendung || '')
       setFertigThema(data.thema || gefragt)

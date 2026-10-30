@@ -1,4 +1,4 @@
-import { API_URL } from './api.js'
+import { API_URL, kiKopf } from './api.js'
 import { holeBibliothek, supabaseBereit, zaehleSongs } from './supabase.js'
 import VideoSuche from './VideoSuche.jsx'
 import Songs from './Songs.jsx'
@@ -210,11 +210,11 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     try {
       const res = await fetch(API_URL + '/api/buch', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await kiKopf(),
         body: JSON.stringify({ titel: buchTitel.trim() }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      if (!res.ok) throw new Error(data.nachricht || data.error)
       const buch = { ...data, id: Date.now(), erstellt: Date.now() }
       const neu = [buch, ...buecher]
       setBuecher(neu)

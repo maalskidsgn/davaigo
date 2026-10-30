@@ -6,7 +6,7 @@ import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } fro
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
-import { API_URL } from './api.js'
+import { API_URL, kiKopf } from './api.js'
 import { neuerText, textSchluessel } from './lesetexte.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
 import { usePremium } from './premium.js'
@@ -475,11 +475,11 @@ function TextGenerator({ texte, setTexte, onFertig }) {
     try {
       const res = await fetch(API_URL + '/api/lesetext', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await kiKopf(),
         body: JSON.stringify({ gebiet: g, thema: thema.trim(), stufe, bekannt }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Das hat nicht geklappt.')
+      if (!res.ok) throw new Error(daten.nachricht || daten.error || 'Das hat nicht geklappt.')
 
       const id = textSchluessel()
       setTexte((alt) => ({ ...alt, [id]: neuerText(daten) }))

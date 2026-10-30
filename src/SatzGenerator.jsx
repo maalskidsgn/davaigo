@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import PremiumWerbung from './PremiumWerbung.jsx'
-import { API_URL } from './api.js'
+import { API_URL, kiKopf } from './api.js'
 import { neuerSatz, satzSchluessel } from './saetze.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
 import { usePremium } from './premium.js'
@@ -108,11 +108,11 @@ export default function SatzGenerator({ saetze, setSaetze }) {
     try {
       const res = await fetch(API_URL + '/api/saetze', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await kiKopf(),
         body: JSON.stringify({ thema: gefragt, grammatik, bekannt }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Das hat nicht geklappt.')
+      if (!res.ok) throw new Error(daten.nachricht || daten.error || 'Das hat nicht geklappt.')
 
       setListe(daten.saetze.map((s) => ({ ...s, checked: true })))
       setFertig({

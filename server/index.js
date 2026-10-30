@@ -13,6 +13,7 @@ import { erzeugeSatzliste, GRAMMATIK } from './saetze.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
+import { KI_PRO_TAG, nutzungHeute, zaehleNutzung, naechsteAuffuellung } from './kontingent.js'
 import {
   antworte,
   istPremium,
@@ -471,8 +472,12 @@ app.post('/api/generate-vocab', async (req, res) => {
   const bekannt = Array.isArray(req.body.exclude) ? req.body.exclude : []
   if (!text.trim()) return res.status(400).json({ error: 'Kein Text übergeben.' })
 
+  const tuerV = await kiTuersteher(req, res, 'ki')
+  if (!tuerV) return
+
   try {
     const vokabeln = await erzeugeVideoVokabeln(text, bekannt)
+    await zaehleNutzung(tuerV.nutzer.id, 'ki')
     res.json({ quelle: 'ki', vokabeln })
   } catch (err) {
     console.error('Video-Vokabeln:', err.message)
@@ -516,8 +521,13 @@ app.post('/api/saetze', async (req, res) => {
     })
   }
 
+  const tuerS = await kiTuersteher(req, res, 'ki')
+  if (!tuerS) return
+
   try {
-    res.json(await erzeugeSatzliste(thema, grammatik, bekannt))
+    const liste = await erzeugeSatzliste(thema, grammatik, bekannt)
+    await zaehleNutzung(tuerS.nutzer.id, 'ki')
+    res.json(liste)
   } catch (err) {
     console.error('Satzliste:', err.message)
     res.status(500).json({ error: err.message })
@@ -525,14 +535,57 @@ app.post('/api/saetze', async (req, res) => {
 })
 
 // Kurzer zweisprachiger Wissenstext zum mehrmaligen Lesen.
+
+/**
+ * Türsteher für alles, was KI-Geld kostet.
+ *
+ * Bis zum 30.10.2026 standen /api/vokabelliste und /api/lesetext
+ * offen: keine Anmeldung, keine Grenze. Der Zähler lag allein in
+ * src/limits.js, also im Browser – Konsole auf, localStorage
+ * geleert, und das Kontingent war zurück. Wer die Adresse kannte,
+ * konnte beliebig viele OpenAI-Anfragen auf unsere Rechnung
+ * auslösen.
+ *
+ * @returns {Promise<{nutzer}|null>} null heißt: Es wurde schon
+ *   geantwortet, der Aufrufer soll aufhören.
+ */
+async function kiTuersteher(req, res, art) {
+  const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
+  if (!nutzer) {
+    res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+    return null
+  }
+  // Premium kennt keine Grenze.
+  if (await istPremium(nutzer.id)) return { nutzer }
+
+  const heute = await nutzungHeute(nutzer.id, art)
+  if (heute >= KI_PRO_TAG) {
+    res.status(402).json({
+      error: 'limit',
+      nachricht:
+        `Du hast heute ${KI_PRO_TAG} Mal die KI genutzt. ` +
+        `Neues Kontingent gibt es ${naechsteAuffuellung()} – oder sofort mit Premium.`,
+    })
+    return null
+  }
+  return { nutzer }
+}
+
 app.post('/api/lesetext', async (req, res) => {
   const gebiet = GEBIETE[req.body?.gebiet] ? req.body.gebiet : ''
   const thema = (req.body?.thema || '').trim().slice(0, 600)
   const stufe = ['a2', 'b1', 'b2'].includes(req.body?.stufe) ? req.body.stufe : 'b1'
   const bekannt = Array.isArray(req.body?.bekannt) ? req.body.bekannt : []
 
+  const tuer = await kiTuersteher(req, res, 'ki')
+  if (!tuer) return
+
   try {
-    res.json(await erzeugeLesetext(gebiet, thema, stufe, bekannt))
+    const text = await erzeugeLesetext(gebiet, thema, stufe, bekannt)
+    // Erst nach Erfolg verbuchen – ein Fehlversuch soll nicht aufs
+    // Kontingent gehen.
+    await zaehleNutzung(tuer.nutzer.id, 'ki')
+    res.json(text)
   } catch (err) {
     console.error('Lesetext:', err.message)
     res.status(500).json({ error: err.message })
@@ -555,9 +608,13 @@ app.post('/api/vokabelliste', async (req, res) => {
     })
   }
 
+  const tuer = await kiTuersteher(req, res, 'ki')
+  if (!tuer) return
+
   try {
     const wortart = ['verben', 'adjektive', 'nomen'].includes(req.body.wortart) ? req.body.wortart : 'alle'
     const ergebnis = await erzeugeVokabelliste(thema, bekannt, anzahl, wortart)
+    await zaehleNutzung(tuer.nutzer.id, 'ki')
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
@@ -571,6 +628,11 @@ app.post('/api/buch', async (req, res) => {
   const titel = (req.body.titel || '').trim().slice(0, 120)
   if (!titel) return res.status(400).json({ error: 'Kein Buchtitel angegeben.' })
   if (!anthropic) return res.status(402).json({ error: 'premium' })
+
+  // Buchzusammenfassungen laufen ueber Anthropic und sind von allem
+  // hier das Teuerste. Ohne Anmeldung geht gar nichts.
+  const tuerB = await kiTuersteher(req, res, 'ki')
+  if (!tuerB) return
 
   try {
     const response = await anthropic.messages.create({
