@@ -61,6 +61,7 @@ import {
 import { hakeAb } from './tagesplan.js'
 import './App.css'
 import { zeigeMichAn, verschwinde } from './praesenz.js'
+import { merkeGelernt } from './lernkurve.js'
 import { ladeBenutzername } from './rangliste.js'
 import { baueBrueckenPlayer } from './ytBruecke.js'
 
@@ -541,6 +542,7 @@ export default function App() {
       if (videoSekunden.current >= 60) {
         videoSekunden.current -= 60
         addXp(XP.VIDEO_MINUTE, 'Video-Minute')
+        merkeGelernt('video') // für die Lernkurve
       }
     }, 1000)
     return () => clearInterval(takt)

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
 import { FeedTuer } from './Feed.jsx'
 import Meilensteine from './Meilensteine.jsx'
+import Lernkurve from './Lernkurve.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
 import { summeWiederholungen } from './aktivitaet.js'
 
@@ -161,6 +162,11 @@ export default function Home({
           </div>
         </div>
       </section>
+
+      {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich.
+          Hier werden die Video-Minuten sichtbar – XP allein sagen
+          nicht, WOMIT man sie verdient hat. */}
+      <Lernkurve />
 
       {/* ============ 4. DIE MEILENSTEINE ============ */}
       {/* Abzeichen in sechs Stufen – jede gibt XP und meldet sich,

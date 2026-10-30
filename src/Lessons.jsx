@@ -14,6 +14,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { merkeGelernt } from './lernkurve.js'
 import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
 import { IconLandkarte, IconListe } from './icons.jsx'
@@ -265,6 +266,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       addXp(XP.LEKTION)
       hakeAb('lektion') // Schritt im Tagesplan erledigt
       merkeEinheit() // zaehlt im Wochendiagramm
+      merkeGelernt('lektionen')
       onLessonComplete(lektion)
       setFertig(true)
       return

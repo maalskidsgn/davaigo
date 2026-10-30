@@ -11,6 +11,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { merkeGelernt } from './lernkurve.js'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import Bausteine from './Bausteine.jsx'
 import { faelligeBausteine } from './bausteine.js'
@@ -192,6 +193,7 @@ export default function Trainer({
       const nextQueue = gewusst ? queue.slice(1) : [...queue.slice(1), word]
       // XP: fürs Antworten – und Bonus, wenn damit die Runde geschafft ist
       let earned = gewusst ? XP.RICHTIG : XP.FALSCH
+      merkeGelernt('woerter') // für die Lernkurve: jede beantwortete Karte
       if (nextQueue.length === 0) {
         earned += XP.RUNDE
         hakeAb('wiederholen') // Schritt im Tagesplan erledigt

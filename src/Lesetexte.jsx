@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
+import { merkeGelernt } from './lernkurve.js'
 import { API_URL } from './api.js'
 import { neuerText, textSchluessel } from './lesetexte.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
@@ -85,6 +86,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
     })
     addXp?.(XP.TEXT_RICHTIG)
     merkeEinheit('wiederholung')
+    merkeGelernt('texte')
     setOffenerText(null)
   }
 
