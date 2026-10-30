@@ -4,16 +4,23 @@
 
 // Wie viele XP es für welche Aktion gibt
 export const XP = {
-  WORT_NEU: 2, // ein neues Wort im Text angeklickt / in den Trainer aufgenommen
+  WORT_NEU: 20, // ein neues Wort in den Trainer aufgenommen (je Wort nur einmal)
   SAMMELN: 2, // ein Wort bewusst auf "Lernen" gesetzt
   SCHON_GEWUSST: 5, // ein Wort direkt als "Gewusst" markiert
-  RICHTIG: 10, // Karte im Training gewusst
+  RICHTIG: 10, // eine Vokabel im Training gewusst
   FALSCH: 2, // Karte nicht gewusst (Üben zählt trotzdem!)
   RUNDE: 20, // Bonus für eine komplett geschaffte Trainingsrunde
   QUIZ_RICHTIG: 2, // richtige Antwort in einer Lektion oder einem Spiel
-  LEKTION: 15, // Bonus für eine abgeschlossene Lektion
+  LEKTION: 30, // eine ganze Lektion geschafft – die längste Einheit
   SPIEL: 10, // Bonus für ein durchgespieltes Mini-Spiel
-  WORT_RICHTIG: 10, // Satz, Lesetext oder Feed-Karte richtig – fehlte, und undefined machte die XP zu NaN
+  SATZ_RICHTIG: 15, // ein Satz im Satz-Trainer gewusst
+  TEXT_RICHTIG: 20, // ein Lesetext durchgearbeitet
+  FEED_RICHTIG: 10, // eine Karte im Feed – kurz wie eine Vokabel
+  VIDEO_MINUTE: 10, // je volle Minute, die ein Video wirklich läuft
+
+  // Alter Name, den es überall gab: zeigt jetzt auf den Satzwert.
+  // Bleibt stehen, damit nichts bricht, was ihn noch benutzt.
+  WORT_RICHTIG: 15,
 }
 
 // Titel für die Level (ab dem letzten bleibt man "Legende")

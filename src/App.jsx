@@ -11,6 +11,9 @@ import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB } from './Recht.jsx'
 import Bezahlen from './Bezahlen.jsx'
+import MeilensteinMeldung from './MeilensteinMeldung.jsx'
+import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './meilensteine.js'
+import { summeWiederholungen } from './aktivitaet.js'
 import { seitenaufruf } from './messung.js'
 import Feed from './Feed.jsx'
 import {
@@ -806,6 +809,31 @@ export default function App() {
   }
 
   const gelernt = Object.values(vocab).filter((v) => v.status === 'gewusst').length
+
+  // ---------- Meilensteine ----------
+  // Nach jeder Änderung an den Zählern nachsehen, ob eine Stufe
+  // dazugekommen ist. Beim allerersten Mal wird nur gleichgesetzt,
+  // ohne XP – sonst regnet es beim Update XP für alte Arbeit.
+  const [neueAbzeichen, setNeueAbzeichen] = useState([])
+  useEffect(() => {
+    const werte = {
+      woerter: Object.keys(vocab).length,
+      texte: Object.values(texte).reduce((n, x) => n + (x.gelesen ?? 0), 0),
+      saetze: Object.keys(saetze).length,
+      lektionen: Object.keys(lessonProgress).filter(
+        (id) => lessonProgress[id]?.fertig && !id.startsWith('station-')
+      ).length,
+      streak: progress.streak ?? 0,
+      wiederholungen: summeWiederholungen(),
+    }
+    if (meilensteineGleichsetzen(werte)) return
+    const neu = neueMeilensteine(werte)
+    if (neu.length) {
+      addXp(MEILENSTEIN_XP * neu.length)
+      setNeueAbzeichen(neu)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vocab, texte, saetze, lessonProgress, progress.streak])
   // Wie viele Vokabeln sind gerade zum Üben fällig? (für das rote Punkt-Badge im Tab)
   const faellig = Object.values(vocab).filter((v) => isDue(withSrsDefaults(v))).length
 
@@ -897,6 +925,9 @@ export default function App() {
           Der Link meldet den Nutzer bereits an, deshalb steht das Fenster
           hier und nicht bei der Willkommensseite. */}
       {passwortNeuSetzen && <NeuesPasswort onFertig={passwortGesetzt} />}
+
+      {/* Meldung, wenn ein Abzeichen dazugekommen ist */}
+      <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
 
       {/* Feier-Einblendung beim Level-Aufstieg */}
       {levelUp && (

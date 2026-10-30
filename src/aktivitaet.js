@@ -45,3 +45,11 @@ export function letzteWoche() {
   }
   return tage
 }
+
+/** Alle gespeicherten Wiederholungen zusammen – fuer die Meilensteine. */
+export function summeWiederholungen() {
+  return Object.values(lade()).reduce(
+    (summe, e) => summe + (typeof e === 'number' ? e : e?.w ?? 0),
+    0
+  )
+}
