@@ -11356,7 +11356,17 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   display: inline-flex;
   line-height: 0;
 }
-.ist-da {
+/* NUR in den Bildfeldern, nicht global.
+   Die Klasse "ist-da" gibt es im Projekt zweimal: hier als grüner
+   Punkt für "gerade online", und in Meilensteine.jsx als Marke für
+   eine erreichte Medaille. Stand diese Regel global, wurde jede
+   verdiente Medaille zu einem 11px großen grünen Punkt – und weil
+   sie absolut positioniert ist, rutschte er an den Kartenrand.
+   Umbenennen ginge auch, aber die Meilensteine kommen so aus der
+   anderen Sitzung; die Regel zu verengen ist der kleinere Eingriff. */
+.fr-bildfeld .ist-da,
+.du-bildfeld .ist-da,
+.du-gegner .ist-da {
   position: absolute;
   /* Am Kreis sitzt der Punkt knapp aussen, am abgerundeten Quadrat
      der Freundesliste etwas weiter innen – sonst schwebt er frei. */
@@ -11370,8 +11380,8 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   animation: da-puls 2.4s ease-in-out infinite;
 }
 /* Auf der getönten Zeile "du bist dran" passt der weisse Ring nicht */
-.du-ist-ich_dran .ist-da { box-shadow: 0 0 0 2.5px #f7f2fe; }
-.du-gegner .ist-da { box-shadow: 0 0 0 2.5px var(--card); }
+.du-ist-ich_dran .du-bildfeld .ist-da { box-shadow: 0 0 0 2.5px #f7f2fe; }
+.du-gegner .du-bildfeld .ist-da { box-shadow: 0 0 0 2.5px var(--card); }
 .fr-bildfeld .ist-da { right: 1px; bottom: 1px; }
 
 /* ================================================================

@@ -79,7 +79,7 @@ findet der Server alles selbst.
 ## Danach prüfen
 
 ```bash
-curl -s https://api.davaigo.de/api/bezahlung/stand | head -c 400
+curl -s https://api.davaigo.de/api/bezahlung/status | head -c 400
 ```
 
 Kommen dort drei Preise zurück, steht die Kasse. Vorher antwortet
