@@ -9535,3 +9535,1056 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .feed-text .lese-wort-lernen { background: rgba(255, 255, 255, .28); }
 
 .feed-text .lese-wort-gewusst { text-decoration: underline; text-decoration-style: dotted; }
+
+/* ================================================================
+   RANGLISTE, PODEST UND BENUTZERNAME
+   Von Habloo übernommen, Orange-Abstufung in Violett übersetzt:
+   Platz 1 die Hausfarbe, 2 und 3 heller davon statt Gold-Silber-
+   Bronze. Steht am Dateiende, weil keine dieser Klassen vorher
+   vorkommt – es gibt also nichts zu überschreiben.
+   ================================================================ */
+/* ===================================================================
+   Rangliste + Benutzername (28.10.2026)
+   =================================================================== */
+.rang-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.rang-pokal { font-size: 2rem; line-height: 1; }
+.rang-titel { margin: 0; }
+.rang-unter { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
+.rang-leer { margin: 4px 0 0; color: var(--muted); }
+.rang-liste { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+/* Eine Zeile: Platz · Initiale · Name mit Balken · XP.
+   Kompakt gehalten – zehn Zeilen sollen auf den Schirm passen,
+   ohne dass man scrollt. */
+.rang-zeile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 8px 12px 8px 8px;
+  border-radius: 14px;
+  background: transparent;
+  transition: background 0.18s;
+}
+/* Alle Zeilen gleich ruhig – Streifen machten die Liste unruhig.
+   Hervorgehoben wird nur, was hervorgehoben gehört: die ersten
+   drei Plätze über die Initiale, die eigene Zeile über die Fläche. */
+.rang-zeile + .rang-zeile { border-top: 1px solid var(--line); border-radius: 0; }
+.rang-zeile:last-child { border-radius: 0 0 14px 14px; }
+.rang-zeile:first-child { border-radius: 14px 14px 0 0; }
+.rang-ich + .rang-zeile, .rang-zeile.rang-ich { border-top-color: transparent; }
+/* Platzziffer: schmal und ruhig, die Farbe macht den Unterschied */
+.rang-platz {
+  width: 22px;
+  flex: none;
+  text-align: center;
+  font-weight: 900;
+  font-size: 14px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+/* Die Initiale ersetzt die Medaillen-Emojis: auf jedem Gerät gleich,
+   und sie macht die Liste persönlicher. */
+.rang-initial {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 16px;
+  line-height: 1;
+}
+/* Gold, Silber, Bronze – als Farbe des Feldes, nicht als Bildchen */
+.rang-p1 .rang-initial { background: var(--primary); color: #fff; }
+.rang-p2 .rang-initial { background: #a678f2; color: #fff; }
+.rang-p3 .rang-initial { background: #d5c4fa; color: #4c1d95; }
+.rang-p1 .rang-platz { color: var(--primary); }
+.rang-p2 .rang-platz { color: #8b5cf6; }
+.rang-p3 .rang-platz { color: #a78bfa; }
+.rang-name {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--navy);
+}
+.rang-name small {
+  flex: none;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 100px;
+  background: rgba(124, 58, 237, 0.16);
+  color: var(--primary);
+}
+.rang-ich .rang-name small { background: var(--primary); color: #fff; }
+/* Der Balken zeigt den Abstand zur Spitze – ohne Zahlenvergleich */
+.rang-balken {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(36, 19, 56, 0.08);
+  overflow: hidden;
+}
+.rang-balken-fuell {
+  display: block;
+  height: 100%;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0.55;
+}
+.rang-xp {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--navy);
+  font-size: 15px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rang-xp small { font-size: 10.5px; font-weight: 800; color: var(--muted); }
+/* Die eigene Zeile: dunkel, damit man sie beim Scrollen sofort findet */
+.rang-ich {
+  background: var(--primary) !important;
+  color: #fff;
+}
+.rang-ich .rang-platz { color: rgba(255, 255, 255, 0.75); }
+.rang-ich .rang-name { color: #fff; }
+.rang-ich .rang-name small { background: #fff; color: var(--primary); }
+.rang-ich .rang-xp { color: #fff; }
+.rang-ich .rang-xp small { color: rgba(255, 255, 255, 0.72); }
+.rang-ich .rang-balken { background: rgba(255, 255, 255, 0.28); }
+.rang-ich .rang-balken-fuell { background: #fff; opacity: 1; }
+/* Auf orangem Grund braucht die Initiale eine helle Fläche,
+   sonst verschwindet sie darin. */
+.rang-ich .rang-initial {
+  background: #fff !important;
+  color: var(--primary) !important;
+}
+.rang-luecke { text-align: center; color: var(--muted); letter-spacing: 3px; line-height: 1; }
+.rang-mitmachen { margin-top: 14px; padding-top: 14px; border-top: 1.5px dashed var(--line); }
+.rang-mitmachen p { margin: 0 0 10px; font-size: 14.5px; }
+.name-form { margin: 0; }
+.name-zeile {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 4px 4px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+.name-zeile:focus-within { border-color: var(--primary); }
+.name-at { color: var(--muted); font-weight: 800; }
+.name-zeile input {
+  flex: 1; min-width: 0;
+  border: 0; outline: 0; background: transparent;
+  font: inherit; font-size: 16px; font-weight: 700; color: var(--navy);
+}
+.name-knopf { margin: 0; padding: 9px 16px; white-space: nowrap; width: auto; }
+.name-hinweis { margin: 6px 2px 0; font-size: 13px; }
+.name-gut { color: var(--success); }
+.name-schlecht { color: var(--red); }
+.name-wahl .name-form { width: 100%; margin-top: 8px; text-align: left; }
+/* ---------- Rangliste: Zeitraum wählen ----------
+   Drei Knöpfe in einer Schiene, der aktive dunkel. Bewusst ruhig:
+   Die Liste darunter ist der Inhalt, nicht die Umschaltung. */
+.rang-zeitraum {
+  position: relative;
+  display: flex;
+  gap: 0;
+  margin: 14px 0 16px;
+  padding: 5px;
+  background: var(--flaeche, #f5f2fa);
+  border-radius: 14px;
+}
+/* Die dunkle Fläche liegt hinter den Knöpfen und gleitet zum
+   gewählten – vorher sprang die Farbe von einem zum anderen. */
+.rang-zr-pille {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  /* Breite kommt aus der Komponente, sie hängt an der Anzahl */
+  width: calc((100% - 10px) / 4);
+  height: calc(100% - 10px);
+  border-radius: 10px;
+  background: var(--primary);
+  transition: transform 0.42s cubic-bezier(0.22, 1, 0.3, 1);
+  pointer-events: none;
+}
+.rang-zr {
+  position: relative;      /* über der gleitenden Pille */
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  padding: 10px 4px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.87rem;
+  font-weight: 800;
+  color: var(--muted, #756a85);
+  cursor: pointer;
+  /* Die Schrift wechselt etwas später als die Pille ankommt –
+     sonst wirkt die Farbe der Bewegung voraus. */
+  transition: color 0.28s ease 0.08s;
+}
+.rang-zr:hover { background: none; filter: none; }
+.rang-zr.ist-aktiv { color: #fff; }
+.rang-zr:active { transform: none; box-shadow: none; }
+/* Rangliste: Hinweis, solange ein Zeitraum noch keine Daten hat */
+.rang-leer { margin: 4px 0 0; color: var(--muted); }
+.rang-leer p { margin: 0; }
+.rang-leer b { color: var(--navy); }
+.rang-leer-klein { margin-top: 6px !important; font-size: 13.5px; line-height: 1.45; }
+/* ---------- Rangliste: weicher Wechsel zwischen den Zeiträumen ----------
+   Beim Umschalten bleibt die alte Liste stehen und sinkt leicht ab,
+   die neue steigt gestaffelt auf. Früher verschwand die Karte kurz
+   ganz – das sprang. */
+.rang-liste {
+  transition: opacity 0.26s ease, transform 0.26s ease;
+}
+.rang-liste.ist-wechsel {
+  opacity: 0.25;
+  transform: translateY(5px);
+  pointer-events: none;
+}
+.rang-liste:not(.ist-wechsel) .rang-zeile {
+  animation: rang-rein 0.42s cubic-bezier(0.22, 1, 0.3, 1) backwards;
+  /* je Zeile 35 ms später – die Liste rollt von oben herein */
+  animation-delay: calc(var(--nr, 0) * 35ms);
+}
+/* Der Balken wächst mit, statt sofort dazustehen */
+.rang-balken-fuell { transition: width 0.55s cubic-bezier(0.22, 1, 0.3, 1); }
+/* Wo schon ein Zeichen daneben steht (Rangliste, Streak), wäre der
+   Strich zu viel. */
+.rang-kopf .start-abschnitt::before,
+.streak-kopf .start-abschnitt::before { display: none; }
+/* ---------- Rangliste: Kopf im Profil-Stil ---------- */
+/* Gezeichneter Pokal statt Emoji: sieht überall gleich aus */
+.rang-zeichen {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--primary);
+}
+.rang-zeichen svg { width: 22px; height: 22px; display: block; }
+.rang-titel {
+  flex: 1;
+  margin: 0;
+  font-size: 1.22rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+/* Der eigene Platz als Pille rechts */
+.rang-meiner {
+  flex: none;
+  padding: 6px 14px;
+  border-radius: 100px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+/* ===================================================================
+   RANGLISTE MIT PODEST (28.10.2026)
+   Die ersten drei stehen auf Säulen – Gold in der Mitte, höher und
+   größer. Das gibt der Spitze Gewicht und weckt eher den Ehrgeiz,
+   dort hinzuwollen, als eine reine Liste.
+   =================================================================== */
+
+.rang-inhalt { transition: opacity 0.26s ease, transform 0.26s ease; }
+.rang-inhalt.ist-wechsel {
+  opacity: 0.25;
+  transform: translateY(5px);
+  pointer-events: none;
+}
+.rang-podest {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1fr;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.rang-saeule { text-align: center; min-width: 0; }
+.rs-bild {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 7px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 900;
+  line-height: 1;
+}
+/* Die Abstufung macht den Rang sichtbar: Platz 1 trägt das volle
+   Markenorange, danach wird es Stufe für Stufe weicher. */
+.rang-erster .rs-bild {
+  width: 66px;
+  height: 66px;
+  border-radius: 22px;
+  font-size: 27px;
+  background: var(--primary);
+}
+.rang-zweiter .rs-bild { background: #a678f2; }
+.rang-dritter .rs-bild { background: #d5c4fa; color: #4c1d95; }
+.rs-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rs-name small {
+  display: inline-block;
+  margin-left: 5px;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: var(--primary);
+  color: #fff;
+  vertical-align: 1px;
+}
+.rs-xp {
+  display: block;
+  margin-top: 1px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+/* Der Block darunter trägt die Platzziffer – unterschiedlich hoch,
+   damit das Podest auch ohne Zahlen lesbar ist. */
+.rs-block {
+  display: grid;
+  place-items: center;
+  margin-top: 8px;
+  border-radius: 12px 12px 0 0;
+  font-size: 19px;
+  font-weight: 900;
+  color: #fff;
+}
+.rang-erster .rs-block { height: 60px; background: var(--primary); }
+.rang-zweiter .rs-block { height: 42px; background: #9d6ff0; }
+/* Auf dem hellsten Block trägt Weiß zu wenig – dort dunkles Braun */
+.rang-dritter .rs-block { height: 32px; background: #ddd0fb; color: #4c1d95; }
+/* Die Liste darunter: schlank, ohne Balken – die Abstände zeigt
+   jetzt das Podest. */
+.rang-liste { border-top: 1px solid var(--line); }
+.rang-zeile { padding: 11px 4px; gap: 12px; border-radius: 0; }
+.rang-zeile + .rang-zeile { border-top: 1px solid var(--line); }
+.rang-zeile:first-child, .rang-zeile:last-child { border-radius: 0; }
+.rang-initial { width: 32px; height: 32px; border-radius: 11px; font-size: 14px; }
+.rang-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14.5px;
+}
+.rang-xp { font-size: 14.5px; }
+/* Die eigene Zeile hebt sich als Fläche ab */
+.rang-zeile.rang-ich {
+  border-radius: 14px;
+  border-top-color: transparent;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin: 4px 0;
+}
+.rang-ich + .rang-zeile { border-top-color: transparent; }
+/* ---------- Puls auf dem Podest ----------
+   Die drei Besten atmen leicht – Platz 1 am deutlichsten, danach
+   immer ruhiger. Der Puls liegt auf dem Bild, nicht auf der ganzen
+   Säule: So bleibt das Layout ruhig und nur das Zeichen lebt.
+   Die Takte sind unterschiedlich lang, damit die drei nicht im
+   Gleichschritt pochen – das wirkte wie ein Fehler. */
+.rang-saeule .rs-bild {
+  animation: rs-puls 2.6s ease-in-out infinite;
+  will-change: transform;
+}
+.rang-erster .rs-bild {
+  animation-duration: 2.2s;
+  --puls: 1.055;
+  --schein: rgba(124, 58, 237, 0.45);
+}
+.rang-zweiter .rs-bild {
+  animation-duration: 2.9s;
+  animation-delay: 0.35s;
+  --puls: 1.032;
+  --schein: rgba(166, 120, 242, 0.34);
+}
+.rang-dritter .rs-bild {
+  animation-duration: 3.4s;
+  animation-delay: 0.7s;
+  --puls: 1.018;
+  --schein: rgba(213, 196, 250, 0.28);
+}
+/* ---------- Rangliste: Zeilen und Säulen sind Knöpfe ----------
+   Sie öffnen das Profil der Person. Damit sie trotzdem aussehen wie
+   vorher, müssen die Knopf-Grundstile der App zurückgenommen
+   werden. */
+.rang-eintrag { display: block; }
+.rang-eintrag + .rang-eintrag .rang-zeile { border-top: 1px solid var(--line); }
+.rang-liste .rang-zeile {
+  width: 100%;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  font-family: inherit;
+  /* Knöpfe erben die Textfarbe nicht – ohne das standen die Namen
+     in der Button-Farbe der App und waren kaum zu lesen. */
+  color: var(--navy);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+.rang-liste .rang-zeile:hover { background: rgba(124, 58, 237, 0.06); filter: none; }
+.rang-liste .rang-zeile:active { transform: none; box-shadow: none; }
+.rang-liste .rang-zeile.rang-ich:hover { background: var(--primary); }
+button.rang-saeule {
+  border: 0;
+  background: none;
+  color: var(--navy);
+  box-shadow: none;
+  padding: 6px 2px;
+  border-radius: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+button.rang-saeule:hover { background: rgba(124, 58, 237, 0.07); filter: none; }
+button.rang-saeule:active { transform: none; box-shadow: none; }
+/* ---------- Profilbild ----------
+   Bilder sind quadratisch zugeschnitten und füllen ihr Feld ganz
+   aus. Ohne object-fit würde ein Hochformat verzerrt. */
+.rs-bild.hat-bild,
+.rang-initial.hat-bild,
+.ps-bild.hat-bild,
+.pf-bild img {
+  object-fit: cover;
+  display: block;
+}
+.rang-initial.hat-bild { width: 32px; height: 32px; border-radius: 11px; }
+.rs-bild.hat-bild { width: 54px; height: 54px; }
+.rang-erster .rs-bild.hat-bild { width: 66px; height: 66px; border-radius: 22px; }
+/* ---------- Rangliste: Alle oder nur Freunde ---------- */
+.rang-kreis {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.rang-kr {
+  border: 1.5px solid var(--line);
+  background: none;
+  box-shadow: none;
+  padding: 7px 16px;
+  border-radius: 100px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s, border-color 0.16s;
+}
+.rang-kr:hover { background: rgba(124, 58, 237, 0.07); filter: none; }
+.rang-kr.ist-aktiv {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+.rang-kr:active { transform: none; box-shadow: none; }
+/* ---------- Rangliste: Freunde einladen ----------
+   Sitzt unter der Freundesliste, wo auffällt, dass sie kurz ist.
+   Bewusst eine eigene getönte Fläche statt noch einer weissen Karte:
+   Sie gehört zur Rangliste, ist aber kein Platz in ihr. */
+.rang-einladen {
+  margin-top: 16px;
+  padding: 18px 18px 16px;
+  border-radius: 16px;
+  background: var(--flaeche);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+.rang-ein-titel {
+  margin: 0 0 4px;
+  font-weight: 800;
+  font-size: 15.5px;
+  color: var(--navy);
+}
+.rang-ein-text {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.rang-ein-knopf {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--primary);
+  box-shadow: 0 3px 0 var(--primary-press);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 14.5px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.rang-ein-knopf:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 var(--primary-press);
+}
+.rang-ein-knopf svg { width: 18px; height: 18px; flex: none; }
+/* Der Link zum Mitlesen - klein, damit er den Knopf nicht verdrängt */
+.rang-ein-adresse {
+  margin: 11px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  word-break: break-all;
+}
+.rang-ein-fehler {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  color: var(--red-press);
+}
+/* Hinweis nach eingelöster Einladung – nur beim ersten Besuch zu sehen */
+.rang-eingeloest {
+  margin: 14px 0 0;
+  padding: 11px 14px;
+  border-radius: 13px;
+  background: #f3ecfe;
+  border: 1px solid #ddd0fb;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--navy);
+}
+
+/* ================================================================
+   PROFILSCHAU, MELDEN UND BLOCKIERTE
+   Von Habloo übernommen. Rot bleibt Rot (Melden ist überall rot),
+   die braun-orangen Zwischentöne sind violett geworden.
+   ================================================================ */
+/* ---------- Das Profil einer anderen Person ---------- */
+.ps-schicht {
+  position: fixed;
+  inset: 0;
+  z-index: 290;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(36, 19, 56, 0.5);
+  backdrop-filter: blur(3px);
+  animation: ps-auf 0.22s ease;
+}
+.ps-karte {
+  position: relative;
+  width: 100%;
+  max-width: 330px;
+  padding: 32px 24px 24px;
+  border-radius: 26px;
+  background: var(--card);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(36, 19, 56, 0.28);
+  animation: ps-karte-auf 0.34s cubic-bezier(0.22, 1, 0.3, 1);
+}
+.ps-zu {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--flaeche);
+  box-shadow: none;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.16s, color 0.16s;
+}
+.ps-zu svg { width: 15px; height: 15px; display: block; }
+.ps-zu:hover { background: rgba(124, 58, 237, 0.12); color: var(--primary); filter: none; }
+.ps-zu:active { transform: none; box-shadow: none; }
+.ps-laedt { margin: 30px 0; color: var(--muted); font-weight: 600; }
+.ps-bild {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 14px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 36px;
+  font-weight: 900;
+  line-height: 1;
+}
+.ps-level {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 7px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 900;
+  border: 3px solid var(--card);
+}
+.ps-name {
+  margin: 0;
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+  word-break: break-word;
+}
+.ps-rang { margin: 3px 0 0; font-size: 0.9rem; font-weight: 700; color: var(--muted); }
+.ps-platz {
+  display: inline-block;
+  margin: 14px 0 20px;
+  padding: 7px 18px;
+  border-radius: 100px;
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--primary);
+  font-size: 0.92rem;
+  font-weight: 900;
+}
+.ps-zahlen {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  margin: 0;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.ps-zahlen > div {
+  display: grid;
+  gap: 2px;
+  padding: 14px 8px;
+  background: var(--card);
+}
+.ps-zahlen dd {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.ps-zahlen dt {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.ps-seit {
+  margin: 18px 0 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.ps-seit small {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0.8;
+}
+/* Profilschau: Rahmen trägt jetzt die Level-Marke, nicht das Bild */
+.ps-rahmen {
+  position: relative;
+  display: block;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 14px;
+}
+.ps-rahmen .ps-bild {
+  width: 84px;
+  height: 84px;
+  margin: 0;
+  border-radius: 28px;
+}
+/* ================================================================
+   Melden und Blockieren
+   ================================================================ */
+
+/* ---------- Der Hinweis im fremden Profil ---------- */
+.ps-mehr {
+  margin-top: 18px;
+  padding: 8px;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  color: #9a90a8;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.ps-schutz {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+.ps-schutz-knopf {
+  padding: 9px 18px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--card);
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--red-press);
+  cursor: pointer;
+}
+.ps-schutz-knopf:hover { background: #ffeceb; border-color: var(--red); }
+/* ---------- Der Melde-Dialog ---------- */
+.md-schicht {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background: rgba(36, 19, 56, 0.5);
+  animation: md-auf 0.2s ease;
+}
+.md-karte {
+  width: 100%;
+  max-width: 420px;
+  padding: 26px 24px 22px;
+  border-radius: 22px;
+  background: var(--card);
+  box-shadow: 0 18px 50px rgba(36, 19, 56, 0.28);
+  text-align: center;
+  animation: md-rein 0.28s cubic-bezier(0.22, 1, 0.3, 1);
+}
+.md-titel {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--navy);
+}
+.md-text {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.md-gruende { display: grid; gap: 8px; margin-bottom: 14px; }
+.md-grund {
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 13px;
+  background: var(--card);
+  font: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--navy);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.14s ease, background 0.14s ease;
+}
+.md-grund:hover:not(:disabled) { border-color: #cbb2f7; }
+.md-grund.ist-aktiv { border-color: var(--primary); background: #f7f2fe; }
+.md-feld {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid var(--line);
+  border-radius: 13px;
+  background: var(--card);
+  font: inherit;
+  font-size: 16px; /* unter 16px zoomt iOS beim Antippen hinein */
+  color: var(--navy);
+  resize: none;
+}
+.md-feld:focus { outline: none; border-color: var(--primary); }
+.md-hinweis {
+  margin: 14px 0 18px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #9a90a8;
+}
+.md-fehler { margin: 12px 0 0; font-size: 13px; color: var(--red-press); }
+.md-knoepfe { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+.md-senden { flex: 1; }
+.md-senden:disabled { opacity: 0.5; }
+/* Die Bestaetigung nach dem Melden */
+.md-haken {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #e2f7ea;
+  color: #1f7a45;
+}
+.md-haken svg { width: 30px; height: 30px; }
+.md-knopf { width: 100%; margin-top: 4px; }
+/* ---------- Die Liste der Blockierten im Profil ---------- */
+.bl-liste { display: grid; gap: 8px; }
+.bl-zeile {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--card);
+}
+.bl-bild {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-weight: 800;
+  font-size: 14px;
+  object-fit: cover;
+}
+.bl-name { flex: 1; min-width: 0; font-size: 14.5px; color: var(--navy); }
+.bl-frei { flex: none; }
+
+/* ================================================================
+   MEILENSTEINE UND IHRE MELDUNG
+   Nachgezogen: Die Bausteine kamen in einer früheren Etappe,
+   das Aussehen fehlte noch – die Karte stand unformatiert da.
+   ================================================================ */
+/* ---------- Meilensteine ---------- */
+.ms-kopf { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.ms-kopf .start-abschnitt { margin: 0; }
+.ms-zaehler {
+  padding: 4px 10px; border-radius: 999px;
+  background: var(--flaeche); color: var(--navy); font-weight: 800; font-size: .85rem;
+}
+.ms-liste { display: grid; gap: 16px; }
+.ms-kategorie { padding-bottom: 14px; border-bottom: 1px solid var(--line, #eee); }
+.ms-kategorie:last-child { border-bottom: none; padding-bottom: 0; }
+.ms-zeile { display: flex; align-items: center; gap: 12px; }
+.ms-symbol {
+  flex: none; display: grid; place-items: center;
+  width: 44px; height: 44px; border-radius: 14px;
+  background: var(--flaeche); font-size: 22px;
+}
+.ms-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.ms-info b { color: var(--navy); font-size: .95rem; }
+.ms-info > span:not(.ms-balken) { color: var(--muted); font-size: .8rem; }
+.ms-balken { display: block; height: 6px; margin-top: 5px; border-radius: 99px; background: var(--flaeche); overflow: hidden; }
+.ms-balken span { display: block; height: 100%; border-radius: 99px; background: var(--primary); transition: width .4s ease; }
+.ms-abzeichen { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 10px; }
+.ms-medaille {
+  position: relative; aspect-ratio: 1; padding: 0; border: none;
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  background: #ebe7f4; box-shadow: none;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+}
+.ms-medaille:disabled { cursor: default; opacity: .55; }
+.ms-medaille.ist-da { animation: ms-glanz 2.8s ease-in-out infinite; }
+.ms-medaille.ist-da:active { transform: scale(.92); }
+.ms-medaille-symbol { font-size: 18px; line-height: 1; }
+.ms-medaille-zahl { font-size: .62rem; font-weight: 900; color: var(--navy); line-height: 1.3; }
+.ms-medaille.ist-da .ms-medaille-zahl { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.ms-schicht {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center; padding: 24px;
+  background: rgba(20, 10, 40, .45); backdrop-filter: blur(4px);
+  animation: kal-ein .2s ease;
+}
+.ms-dialog {
+  width: 100%; max-width: 340px; padding: 28px 22px 18px;
+  border-radius: 26px; background: var(--card); text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+.ms-gross {
+  width: 132px; height: 132px; margin: 0 auto 14px;
+  display: grid; place-items: center;
+  clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  animation: ms-pop .45s cubic-bezier(.2, 1.6, .4, 1);
+}
+.ms-gross span { font-size: 60px; }
+.ms-stufe { margin: 0; font-size: .75rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); }
+.ms-ziel { margin: 4px 0 6px; font-size: 1.5rem; color: var(--navy); }
+.ms-lob { margin: 0 0 18px; color: var(--muted); font-size: .9rem; }
+.ms-teilen { width: 100%; }
+.ms-zu { margin-top: 6px; width: 100%; }
+.ms-meldung { margin: 8px 0 0; font-size: .82rem; color: var(--muted); }
+/* ---------- Meilensteine im Marken-Look (überschreibt) ---------- */
+.ms-symbol {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, #fff);
+}
+.ms-medaille {
+  clip-path: none;
+  border-radius: 28%;
+  background: var(--flaeche);
+  color: color-mix(in srgb, var(--muted) 70%, #fff);
+  gap: 2px;
+}
+.ms-medaille:disabled { opacity: 1; }
+.ms-medaille .ms-medaille-zahl { color: var(--muted); }
+.ms-medaille.ist-da { color: #fff; animation: none; box-shadow: 0 3px 0 var(--primary-press, var(--primary-dark)); }
+.ms-medaille.ist-da .ms-medaille-zahl { color: #fff; text-shadow: none; }
+.ms-medaille-symbol { display: grid; place-items: center; }
+.ms-stufe-0 { background: color-mix(in srgb, var(--primary) 38%, #fff); }
+.ms-stufe-1 { background: color-mix(in srgb, var(--primary) 55%, #fff); }
+.ms-stufe-2 { background: color-mix(in srgb, var(--primary) 72%, #fff); }
+.ms-stufe-3 { background: color-mix(in srgb, var(--primary) 88%, #fff); }
+.ms-stufe-4 { background: linear-gradient(150deg, var(--primary), var(--primary-dark)); }
+.ms-stufe-5 {
+  background: linear-gradient(150deg, var(--primary), var(--primary-dark));
+  box-shadow: 0 0 0 2px #fff, 0 0 0 4px #ffc800 !important;
+}
+.ms-gross { clip-path: none; border-radius: 30%; color: #fff; }
+.ms-balken span { background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 60%, #fff), var(--primary)); }
+/* ---------- Meilenstein erreicht ----------
+   Eigenes Präfix msm-, weil die Abzeichen-Liste (Meilensteine.jsx)
+   schon ms-abzeichen, ms-schicht und ms-stufe benutzt. Ohne das
+   wurden die kleinen Abzeichen dort als 88px-Kacheln mit Puls
+   gezeichnet.
+   Legt sich über die Seite, weil ein Abzeichen ein Moment sein soll.
+   Ein Hinweis am Rand würde untergehen – gerade bei jemandem, der
+   mitten im Lernen ist. */
+.msm-schicht {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(36, 19, 56, 0.55);
+  backdrop-filter: blur(3px);
+  animation: msm-schicht-auf 0.25s ease;
+}
+.msm-karte {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 340px;
+  padding: 34px 26px 26px;
+  border-radius: 28px;
+  background: var(--card);
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(36, 19, 56, 0.3);
+  animation: msm-karte-auf 0.42s cubic-bezier(0.22, 1, 0.3, 1);
+}
+/* Das Abzeichen: dieselbe Form wie Profilbild und Pokal */
+.msm-abzeichen {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 16px;
+  border-radius: 28px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  color: #fff;
+  font-size: 38px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.4);
+  animation: msm-puls 1.8s ease-in-out infinite;
+}
+.msm-stufe {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+.msm-titel {
+  margin: 4px 0 6px;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--navy);
+}
+.msm-text {
+  margin: 0 0 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.msm-xp {
+  display: inline-block;
+  margin-bottom: 22px;
+  padding: 9px 20px;
+  border-radius: 100px;
+  background: rgba(124, 58, 237, 0.12);
+  color: var(--primary);
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+.msm-knopf { width: 100%; }
+/* Schnipsel fallen einmal durchs Bild – kein Dauerregen */
+.msm-konfetti { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.msm-schnipsel {
+  position: absolute;
+  top: -12px;
+  left: calc(var(--n) * 7.5%);
+  width: 7px;
+  height: 11px;
+  border-radius: 2px;
+  background: var(--primary);
+  opacity: 0;
+  animation: msm-fallen 1.5s cubic-bezier(0.3, 0.7, 0.4, 1) forwards;
+  animation-delay: calc(var(--n) * 55ms);
+}
+.msm-schnipsel:nth-child(3n) { background: #c4a8f5; }
+.msm-schnipsel:nth-child(3n + 1) { background: var(--navy); }
+
+/* Benutzername in den Einstellungen. Die .pf-kasten-Regeln bleiben
+   weg: Davaigo hat diesen Kasten nicht, der Name steht direkt im
+   Konto-Bereich. */
+.name-einstellung { margin: 14px 0; }
+.name-einstellung h3 { margin: 0 0 4px; font-size: 15px; color: var(--navy); }

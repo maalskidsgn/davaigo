@@ -5,6 +5,9 @@ import { letzteWoche } from './aktivitaet.js'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
 import { FeedTuer } from './Feed.jsx'
+import Meilensteine from './Meilensteine.jsx'
+import { RanglistenKarte } from './Rangliste.jsx'
+import { summeWiederholungen } from './aktivitaet.js'
 
 // Die Startseite.
 //
@@ -23,6 +26,7 @@ export default function Home({
   nextLesson,
   lessonProgress = {},
   onNavigate,
+  nutzerId,
 }) {
   const modul = nextLesson
     ? MODULE.find((m) => nextLesson.kursNr >= m.von && nextLesson.kursNr <= m.bis)
@@ -93,6 +97,13 @@ export default function Home({
           wischt sich hier durch – und lernt trotzdem etwas. */}
       <FeedTuer onOeffnen={() => onNavigate('feed')} />
 
+      {/* ============ 2b. DIE RANGLISTE ============ */}
+      {/* Steht weit oben, aber nicht an erster Stelle: Weiterlernen
+          bleibt die Antwort auf "Was mache ich jetzt?", der Vergleich
+          kommt gleich danach. Ohne Konto und ohne die Migration in
+          der Datenbank blendet sich die Karte selbst aus. */}
+      {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} />}
+
       {/* ============ 3. DER WEG ZUM LEITFADEN ============ */}
       {/* Nur die Tuer, nicht der ganze Raum: Der Leitfaden ist lang
           und liest sich einmal – auf dem Start stuende er jeden Tag
@@ -150,6 +161,23 @@ export default function Home({
           </div>
         </div>
       </section>
+
+      {/* ============ 4. DIE MEILENSTEINE ============ */}
+      {/* Abzeichen in sechs Stufen – jede gibt XP und meldet sich,
+          wenn sie fällt. Steht unter der Woche: Die Woche sagt, was
+          gerade läuft, die Abzeichen sagen, was schon erreicht ist. */}
+      <Meilensteine
+        app="Davaigo"
+        adresse="davaigo.de"
+        werte={{
+          woerter: counts.woerter ?? 0,
+          texte: counts.texte ?? 0,
+          saetze: counts.saetze ?? 0,
+          lektionen: lektionenFertig,
+          streak: progress.streak ?? 0,
+          wiederholungen: summeWiederholungen(),
+        }}
+      />
 
       {PRAXIS_ZEIGEN && <Gruppenstunde onNavigate={onNavigate} />}
     </div>

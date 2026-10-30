@@ -1,5 +1,5 @@
 -- ============================================================
---  HABLOO – Satz-Karteikasten
+--  DAVAIGO – Satz-Karteikasten
 --  Einspielen: Supabase-Dashboard → SQL Editor → einfügen → "Run"
 --  Kann gefahrlos mehrfach ausgeführt werden.
 -- ============================================================

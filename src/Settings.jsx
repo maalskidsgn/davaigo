@@ -4,6 +4,9 @@ import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.j
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
+import { BenutzernameFeld } from './Rangliste.jsx'
+import Blockierte from './Blockierte.jsx'
+import { ladeBenutzername } from './rangliste.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
@@ -255,6 +258,11 @@ export default function Settings({
                 Dein Fortschritt wird automatisch gesichert und steht auf allen
                 Geräten zur Verfügung.
               </p>
+              <BenutzernameEinstellung nutzerId={nutzer.id} />
+
+              {/* Zeigt sich nur, wenn wirklich jemand blockiert ist */}
+              <Blockierte />
+
               <button className="btn-outline" onClick={abmeldenKlick}>
                 Abmelden
               </button>
@@ -515,6 +523,36 @@ export default function Settings({
 
       {/* ---------- Über ---------- */}
       <p className="about-note">Mit Herz entwickelt von Klarwerk Digital</p>
+    </div>
+  )
+}
+
+/**
+ * Benutzername für die Rangliste ansehen und ändern.
+ *
+ * Gibt null zurück, solange die Rangliste nicht verfügbar ist –
+ * also auch dann, wenn die Migration in der Datenbank noch fehlt.
+ * Ein Feld, das beim Speichern scheitert, wäre schlimmer als keins.
+ */
+function BenutzernameEinstellung({ nutzerId }) {
+  const [name, setName] = useState(undefined)
+  useEffect(() => {
+    ladeBenutzername(nutzerId).then(setName)
+  }, [nutzerId])
+  if (name === undefined) return null
+  return (
+    <div className="name-einstellung">
+      <h3>Benutzername</h3>
+      <p className="settings-hint">
+        So erscheinst du in der Rangliste auf der Startseite. Jeden Namen gibt es nur einmal.
+      </p>
+      <BenutzernameFeld
+        key={name ?? ''}
+        nutzerId={nutzerId}
+        start={name ?? ''}
+        knopf={name ? 'Ändern' : 'Speichern'}
+        onGespeichert={setName}
+      />
     </div>
   )
 }

@@ -1,5 +1,5 @@
 -- ============================================================
---  HABLOO – Datenbank-Schema für Supabase (PostgreSQL)
+--  DAVAIGO – Datenbank-Schema für Supabase (PostgreSQL)
 --  Einspielen: Supabase-Dashboard → SQL Editor → einfügen → "Run"
 --  Kann gefahrlos mehrfach ausgeführt werden.
 -- ============================================================

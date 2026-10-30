@@ -1,5 +1,5 @@
 -- ============================================================
---  HABLOO – Bilinguale E-Books
+--  DAVAIGO – Bilinguale E-Books
 --  Einspielen: Supabase-Dashboard → SQL Editor → "Run"
 -- ============================================================
 

@@ -1,5 +1,5 @@
 -- ============================================================
---  HABLOO – Lesetexte (Wissenstexte zum Wiederlesen)
+--  DAVAIGO – Lesetexte (Wissenstexte zum Wiederlesen)
 --  Einspielen: Supabase-Dashboard → SQL Editor → einfügen → "Run"
 --  Kann gefahrlos mehrfach ausgeführt werden.
 -- ============================================================

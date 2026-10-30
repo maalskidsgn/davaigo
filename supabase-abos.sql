@@ -1,5 +1,5 @@
 -- ============================================================
---  HABLOO – Abo-Tabelle für Stripe erweitern
+--  DAVAIGO – Abo-Tabelle für Stripe erweitern
 --  Einspielen: Supabase-Dashboard → SQL Editor → einfügen → "Run"
 --  Kann gefahrlos mehrfach ausgeführt werden.
 -- ============================================================

@@ -9,6 +9,8 @@
 
 import { db } from './supabase.js'
 import { INTERVALS_DAYS } from './srs.js'
+import { heute } from './datum.js'
+import { merkeTagesXp } from './rangliste.js'
 
 /**
  * Der Abstand eines Eintrags in Tagen – als Maß für „wie weit ist
@@ -193,6 +195,16 @@ export async function speichereStatistik(nutzerId, stats) {
   )
 
   if (error) throw new Error(error.message)
+
+  // Den Tagesstand getrennt festhalten – daraus entstehen die
+  // Wochen-, Monats- und Jahresrangliste. Bewusst nach dem Speichern
+  // und ohne await: Klappt es nicht, ist nur die Rangliste
+  // unvollständig, der Fortschritt steht trotzdem.
+  //
+  // lastDay ist in der Praxis oft leer (die Spalte letzter_tag steht
+  // bei allen auf NULL) – dann zählt der heutige Tag, denn xp_heute
+  // bezieht sich genau darauf.
+  merkeTagesXp(stats.lastDay || heute(), stats.xpToday ?? 0)
 }
 
 // ---------------------------------------------------------------

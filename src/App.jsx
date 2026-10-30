@@ -1081,10 +1081,13 @@ export default function App() {
               faellig,
               woerter: Object.keys(vocab).length,
               videos: savedVideos.length,
+              texte: Object.keys(texte).length,
+              saetze: Object.keys(saetze).length,
             }}
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
             onNavigate={setView}
+            nutzerId={nutzer?.id}
           />
         </main>
       )}
