@@ -19,6 +19,7 @@ import {
   verarbeiteMeldung,
   stripeBereit,
   holePreis,
+  holePreise,
 } from './bezahlung.js'
 import {
   holeTranskript as holeUeberDienst,
@@ -296,7 +297,9 @@ app.get('/api/translate', async (req, res) => {
   const word = (req.query.q || '').trim()
   if (!word) return res.status(400).json({ error: 'Kein Wort angegeben.' })
   try {
-    const translation = await uebersetzeWort(word, 'ru-de')
+    // Der Satz drumherum (optional) – damit mehrdeutige Wörter passend übersetzt werden
+    const satz = String(req.query.satz || '').trim().slice(0, 300)
+    const translation = await uebersetzeWort(word, 'ru-de', satz)
     if (!translation) throw new Error('Leere Antwort')
     res.json({ translation })
   } catch (err) {
@@ -516,7 +519,7 @@ app.post('/api/saetze', async (req, res) => {
 // Kurzer zweisprachiger Wissenstext zum mehrmaligen Lesen.
 app.post('/api/lesetext', async (req, res) => {
   const gebiet = GEBIETE[req.body?.gebiet] ? req.body.gebiet : ''
-  const thema = (req.body?.thema || '').trim().slice(0, 80)
+  const thema = (req.body?.thema || '').trim().slice(0, 600)
   const stufe = ['a2', 'b1', 'b2'].includes(req.body?.stufe) ? req.body.stufe : 'b1'
   const bekannt = Array.isArray(req.body?.bekannt) ? req.body.bekannt : []
 
@@ -545,7 +548,8 @@ app.post('/api/vokabelliste', async (req, res) => {
   }
 
   try {
-    const ergebnis = await erzeugeVokabelliste(thema, bekannt, anzahl)
+    const wortart = ['verben', 'adjektive', 'nomen'].includes(req.body.wortart) ? req.body.wortart : 'alle'
+    const ergebnis = await erzeugeVokabelliste(thema, bekannt, anzahl, wortart)
     res.json(ergebnis)
   } catch (err) {
     console.error('Vokabelliste:', err.message)
@@ -724,7 +728,8 @@ app.get('/api/bezahlung/status', async (req, res) => {
     schluessel: process.env.STRIPE_PUBLIC_KEY || null,
   }
   try {
-    res.json({ ...antwort, preis: await holePreis() })
+    const preise = await holePreise()
+    res.json({ ...antwort, preis: preise.monat ?? null, preise })
   } catch (fehler) {
     // Bezahlen geht, nur der Preis liess sich nicht laden
     res.json({ ...antwort, preis: null, hinweis: fehler.message })
@@ -743,7 +748,8 @@ app.post('/api/bezahlung/start', async (req, res) => {
     const herkunft = req.body?.herkunft || 'https://davaigo.de'
     // 'elements' = Formular in der App (Standard), 'hosted' = Stripe-Seite
     const art = req.body?.art === 'hosted' ? 'hosted' : 'elements'
-    res.json(await starteBezahlung(nutzer.id, nutzer.email, herkunft, art))
+    const tarif = ['monat', 'jahr', 'lifetime'].includes(req.body?.tarif) ? req.body.tarif : 'monat'
+    res.json(await starteBezahlung(nutzer.id, nutzer.email, herkunft, art, tarif))
   } catch (fehler) {
     res.status(500).json({ error: fehler.message })
   }

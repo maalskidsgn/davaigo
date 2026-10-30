@@ -26,9 +26,9 @@ function Symbol({ k, groesse = 22 }) {
 function markenFarben() {
   const css = getComputedStyle(document.documentElement)
   return {
-    marke: css.getPropertyValue('--primary').trim() || '#7c3aed',
-    dunkel: css.getPropertyValue('--primary-dark').trim() || '#6d28d9',
-    schrift: css.getPropertyValue('--navy').trim() || '#241338',
+    marke: css.getPropertyValue('--primary').trim() || '#ff6c00',
+    dunkel: css.getPropertyValue('--primary-dark').trim() || '#c24f00',
+    schrift: css.getPropertyValue('--navy').trim() || '#1d1330',
   }
 }
 
@@ -36,7 +36,7 @@ export const KATEGORIEN = [
   { id: 'woerter', pfad: 'M4 19.5V6a2 2 0 0 1 2-2h11v13H6a2 2 0 0 0-2 2.5zM6 17h13v3H6M9 8h5', symbol: '📚', titel: 'Wortschatz', einheit: ['Wort', 'Wörter'], ziele: [10, 50, 100, 250, 500, 1000] },
   { id: 'texte', pfad: 'M12 6.5C10 5 7 4.5 3 5v13c4-.5 7 0 9 1.5 2-1.5 5-2 9-1.5V5c-4-.5-7 0-9 1.5zM12 6.5V19', symbol: '📖', titel: 'Leseratte', einheit: ['Text gelesen', 'Texte gelesen'], ziele: [1, 10, 25, 50, 100, 250] },
   { id: 'saetze', pfad: 'M4 5h16v11H9l-5 4V5zM8 9h8M8 12h5', symbol: '💬', titel: 'Satzbauer', einheit: ['Satz', 'Sätze'], ziele: [10, 50, 100, 250, 500, 1000] },
-  { id: 'lektionen', pfad: 'M2 9l10-5 10 5-10 5L2 9zM6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6', symbol: '🎓', titel: 'Lernweg', einheit: ['Lektion', 'Lektionen'], ziele: [1, 10, 25, 50, 100, 150] },
+  { id: 'lektionen', pfad: 'M2 9l10-5 10 5-10 5L2 9zM6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6', symbol: '🎓', titel: 'Lernweg', einheit: ['Lektion', 'Lektionen'], ziele: [1, 10, 25, 50, 100, 180] },
   { id: 'streak', pfad: 'M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.3 1.5 1 2.5 2 3 0-3 0-5.5 1-8.5z', symbol: '🔥', titel: 'Dranbleiben', einheit: ['Tag in Folge', 'Tage in Folge'], ziele: [3, 7, 14, 30, 100, 365] },
   { id: 'wiederholungen', pfad: 'M4 12a8 8 0 0 1 14-5.3M20 4v4h-4M20 12a8 8 0 0 1-14 5.3M4 20v-4h4', symbol: '🧠', titel: 'Gedächtnis', einheit: ['Wiederholung', 'Wiederholungen'], ziele: [10, 100, 250, 500, 1000, 5000] },
 ]
@@ -150,8 +150,8 @@ async function teilen(daten) {
 
 /**
  * @param {object} werte – { woerter, texte, saetze, lektionen, streak, wiederholungen }
- * @param {string} app – "Davaigo" / "Davaigo"
- * @param {string} adresse – "davaigo.de"
+ * @param {string} app – "Habloo" / "Davaigo"
+ * @param {string} adresse – "habloo.de"
  */
 export default function Meilensteine({ werte, app, adresse }) {
   const [offen, setOffen] = useState(null) // { k, stufe, ziel }

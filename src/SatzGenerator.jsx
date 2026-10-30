@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import PremiumWerbung from './PremiumWerbung.jsx'
 import { API_URL } from './api.js'
 import { neuerSatz, satzSchluessel } from './saetze.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
@@ -77,14 +78,19 @@ const ALLE_FORMEN = [['', 'Gemischt', 'alles durcheinander'], ...GRUPPEN.flatMap
  */
 export default function SatzGenerator({ saetze, setSaetze }) {
   const [thema, setThema] = useState('')
+  const [offeneGruppe, setOffeneGruppe] = useState('')
   const [grammatik, setGrammatik] = useState('')
   const [liste, setListe] = useState(null)
   const [fertig, setFertig] = useState({ thema: '', grammatik: '', hinweis: '' })
   const [laden, setLaden] = useState(false)
   const [fehler, setFehler] = useState('')
   const [erfolg, setErfolg] = useState(0) // wie viele gerade übernommen wurden
-  const { premium } = usePremium()
-  const [uebrig, setUebrig] = useState(() => verbleibend())
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend(premium))
+  // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
+  useEffect(() => {
+    setUebrig(verbleibend(premium))
+  }, [premium])
 
   const bekannt = Object.values(saetze).map((s) => s.anzeige ?? '')
 
@@ -145,17 +151,10 @@ export default function SatzGenerator({ saetze, setSaetze }) {
 
   // Kontingent aufgebraucht
   if (uebrig <= 0 && !liste) {
+    if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="list-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} kostenlosen Generierungen sind für heute
-            aufgebraucht – unbegrenzte Sätze kommen mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Sätze" />
       </div>
     )
   }
@@ -178,60 +177,67 @@ export default function SatzGenerator({ saetze, setSaetze }) {
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        {/* Themen: ein Tipp erzeugt sofort */}
-        <div className="wort-vorschlaege">
+        {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
+        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <div className="sg-themen">
           {THEMEN.map((t) => (
             <button
               key={t}
               type="button"
-              className="vorschlag-chip"
+              className={'sg-thema' + (thema === t ? ' ist-aktiv' : '')}
               disabled={laden}
-              onClick={(e) => {
-                setThema(t)
-                generieren(e, t)
-              }}
+              onClick={() => setThema(thema === t ? '' : t)}
             >
               {t}
             </button>
           ))}
         </div>
 
-        {/* Form: bleibt gewählt, gilt für die nächste Generierung */}
-        <div className="grammatik-wahl">
+        {/* Schritt 2: Grammatik – erst Bereich, dann Form */}
+        <p className="sg-schritt"><span>2</span> Grammatik <small>optional</small></p>
+        <div className="sg-reiter" role="tablist">
           <button
             type="button"
-            className={
-              'vorschlag-chip zeit-chip' + (grammatik === '' ? ' vorschlag-chip-aktiv' : '')
-            }
-            onClick={() => setGrammatik('')}
+            className={offeneGruppe === '' ? 'ist-aktiv' : ''}
+            onClick={() => {
+              setOffeneGruppe('')
+              setGrammatik('')
+            }}
           >
             Gemischt
-            <small>alles durcheinander</small>
           </button>
-
-          {GRUPPEN.map((gruppe) => (
-            <div key={gruppe.titel} className="grammatik-gruppe">
-              <span className="grammatik-titel">{gruppe.titel}</span>
-              <div className="wort-vorschlaege">
-                {gruppe.formen.map(([wert, name, hilfe]) => (
-                  <button
-                    key={wert}
-                    type="button"
-                    className={
-                      'vorschlag-chip zeit-chip' +
-                      (grammatik === wert ? ' vorschlag-chip-aktiv' : '')
-                    }
-                    onClick={() => setGrammatik(wert)}
-                    title={hilfe}
-                  >
-                    {name}
-                    <small>{hilfe}</small>
-                  </button>
-                ))}
-              </div>
-            </div>
+          {GRUPPEN.map((g) => (
+            <button
+              key={g.titel}
+              type="button"
+              className={
+                (offeneGruppe === g.titel ? 'ist-aktiv' : '') +
+                (g.formen.some(([w]) => w === grammatik) ? ' hat-wahl' : '')
+              }
+              onClick={() => setOffeneGruppe(g.titel)}
+            >
+              {g.titel}
+            </button>
           ))}
         </div>
+
+        {offeneGruppe === '' ? (
+          <p className="sg-gemischt">Alle Formen durcheinander – gut zum Wiederholen.</p>
+        ) : (
+          <div className="sg-formen">
+            {GRUPPEN.find((g) => g.titel === offeneGruppe).formen.map(([wert, name, hilfe]) => (
+              <button
+                key={wert}
+                type="button"
+                className={'sg-form' + (grammatik === wert ? ' ist-aktiv' : '')}
+                onClick={() => setGrammatik(grammatik === wert ? '' : wert)}
+              >
+                <b>{name}</b>
+                <span>{hilfe}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="gen-feld">
           <input

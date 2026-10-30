@@ -31,6 +31,7 @@ import {
 import Willkommen from './Willkommen.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
 
 /** Zieht die YouTube-ID aus einem Link oder gibt eine reine ID zurück. */
 function videoIdAusEingabe(eingabe) {
@@ -81,9 +82,9 @@ const ICONS = {
   ),
   bibliothek: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 4v16" />
-      <path d="M9 4v16" />
-      <path d="M13.5 5.2l4.6 1.2-3.9 14.4-4.6-1.2z" />
+      {/* YouTube-artig: abgerundeter Bildschirm mit Play-Dreieck */}
+      <rect x="2.5" y="5" width="19" height="14" rx="4.5" />
+      <path d="M10 9.2v5.6l4.8-2.8z" fill="currentColor" />
     </svg>
   ),
   lektionen: (
@@ -851,7 +852,7 @@ export default function App() {
   const currentSaved = video && savedVideos.find((v) => v.videoId === video.videoId)
 
   // Wenn man ein Wort anklickt: Übersetzung holen und Wort als "neu" merken
-  async function clickWord(rawWord) {
+  async function clickWord(rawWord, umfeld) {
     const word = cleanWord(rawWord)
     if (!word) return
     setSelected({ word, translation: '…', loading: true })
@@ -863,7 +864,7 @@ export default function App() {
     setVocab((v) => (v[word] ? v : { ...v, [word]: newEntry('', video?.title) }))
 
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(word))
+      const res = await fetch(uebersetzungsAdresse(API_URL, word, umfeld))
       const data = await res.json()
       // Einen Fehler NICHT in eine Übersetzung verwandeln. Bis zum
       // 23.08. stand hier `data.translation || '(keine Übersetzung
@@ -1086,7 +1087,7 @@ export default function App() {
             onClick={() => setView('videos')}
           >
             <span className="tab-icon">{ICONS.bibliothek}</span>
-            <span className="tab-label">Mediathek</span>
+            <span className="tab-label">YouTube</span>
           </button>
           <button
             className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}
@@ -1137,12 +1138,12 @@ export default function App() {
             counts={{
               faellig,
               woerter: Object.keys(vocab).length,
-              videos: savedVideos.length,
               // Gelesene Texte, nicht angelegte: Die Meilenstein-Reihe
               // heisst "Texte gelesen", und ein Text, der nur herumliegt,
               // hat niemandem etwas beigebracht.
               texte: Object.values(texte).reduce((n, t) => n + (t.gelesen ?? 0), 0),
               saetze: Object.keys(saetze).length,
+              videos: savedVideos.length,
             }}
             nextLesson={naechsteLektion(lessonProgress)}
             lessonProgress={lessonProgress}
@@ -1409,7 +1410,7 @@ export default function App() {
                       <span
                         key={j}
                         className={'word ' + (status || '') + (isActive ? ' word-active' : '')}
-                        onClick={() => clickWord(w)}
+                        onClick={() => clickWord(w, line.text)}
                       >
                         {w}{' '}
                       </span>

@@ -5,12 +5,13 @@
 // den Kalender; hier wird feiner gezählt: jede beantwortete Karte im
 // Wort- und Satztrainer, jede fertige Lektion, jeder gelesene Text.
 //
-// Datenformat: { "2026-10-23": { woerter: 12, saetze: 4, lektionen: 1, texte: 0, video: 7 } }
-// video = geschaute Video-Minuten (nur echte Wiedergabe, siehe App.jsx)
+// Datenformat: { "2026-10-23": { woerter: 12, saetze: 4, lektionen: 1, texte: 0 } }
 
 import { tagesSchluessel } from './datum.js'
 
 const SCHLUESSEL = 'lernkurve'
+// video = geschaute Video-Minuten (nur bei sichtbarem, wirklich
+// laufendem Player – siehe App.jsx)
 export const ARTEN = ['woerter', 'saetze', 'lektionen', 'texte', 'video']
 
 function lade() {
@@ -23,7 +24,7 @@ function lade() {
 
 /**
  * Etwas Gelerntes verbuchen.
- * @param {'woerter'|'saetze'|'lektionen'|'texte'|'video'} art
+ * @param {'woerter'|'saetze'|'lektionen'|'texte'} art
  */
 export function merkeGelernt(art, menge = 1) {
   if (!ARTEN.includes(art)) return

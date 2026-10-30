@@ -1,4 +1,5 @@
 import { API_URL } from './api.js'
+import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
@@ -16,8 +17,8 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
   const [error, setError] = useState('')
   const [suggestions, setSuggestions] = useState(null) // [{wort, uebersetzung, beispiel, checked}]
   const [added, setAdded] = useState(false)
-  const { premium } = usePremium()
-  const [uebrig, setUebrig] = useState(() => verbleibend())
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend(premium))
 
   // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
   // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
@@ -74,17 +75,10 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
 
   // Kostenloses Kontingent aufgebraucht: Premium-Hinweis statt Knopf
   if (uebrig <= 0 && !suggestions) {
+    if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="vocab-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} Listen für heute sind aufgebraucht. Neue gibt es {naechsteAuffuellung()} –
-            unbegrenzte Vokabel-Generierung kommt mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Vokabeln" />
       </div>
     )
   }

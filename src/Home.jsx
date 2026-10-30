@@ -1,14 +1,14 @@
 import { MODULE, lektionenVon } from './lektionen.js'
+import { istApp } from './api.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
-import { letzteWoche } from './aktivitaet.js'
+import { letzteWoche, jahresRaster, erstesJahr, summeWiederholungen } from './aktivitaet.js'
 import { useEffect, useState } from 'react'
 import { IconPfeil } from './icons.jsx'
-import { FeedTuer } from './Feed.jsx'
-import Meilensteine from './Meilensteine.jsx'
 import Lernkurve from './Lernkurve.jsx'
+import Meilensteine from './Meilensteine.jsx'
+import InstallKnopf from './InstallKnopf.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
-import { summeWiederholungen } from './aktivitaet.js'
 
 // Die Startseite.
 //
@@ -29,6 +29,18 @@ export default function Home({
   onNavigate,
   nutzerId,
 }) {
+  // Kommt der Lernverlauf von einem anderen Gerät an, neu zeichnen
+  const [, setVerlaufStand] = useState(0)
+  useEffect(() => {
+    const neu = () => setVerlaufStand((n) => n + 1)
+    window.addEventListener('aktivitaet', neu)
+    window.addEventListener('lernkurve', neu)
+    return () => {
+      window.removeEventListener('aktivitaet', neu)
+      window.removeEventListener('lernkurve', neu)
+    }
+  }, [])
+
   const modul = nextLesson
     ? MODULE.find((m) => nextLesson.kursNr >= m.von && nextLesson.kursNr <= m.bis)
     : null
@@ -50,6 +62,9 @@ export default function Home({
         Привет<span className="accent">!</span>
       </h1>
       <p className="intro">Bereit für deinen nächsten Schritt?</p>
+
+      {/* Nur im Browser: App auf den Startbildschirm holen */}
+      <InstallKnopf app="Davaigo" />
 
       {/* ============ 1. WEITERLERNEN ============ */}
       <section className="start-karte start-lektion">
@@ -92,38 +107,44 @@ export default function Home({
         </div>
       </section>
 
-      {/* ============ 2. DER FEED ============ */}
-      {/* Steht VOR den übrigen Türen: Es ist der Weg mit der
-          niedrigsten Hürde. Wer keine Lust auf eine Lektion hat,
-          wischt sich hier durch – und lernt trotzdem etwas. */}
-      <FeedTuer onOeffnen={() => onNavigate('feed')} />
-
-      {/* ============ 2b. DIE RANGLISTE ============ */}
+      {/* ============ 2. DIE RANGLISTE ============ */}
       {/* Steht weit oben, aber nicht an erster Stelle: Weiterlernen
           bleibt die Antwort auf "Was mache ich jetzt?", der Vergleich
           kommt gleich danach. Ohne Konto und ohne die Migration in
           der Datenbank blendet sich die Karte selbst aus. */}
       {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} />}
 
-      {/* ============ 3. DER WEG ZUM LEITFADEN ============ */}
-      {/* Nur die Tuer, nicht der ganze Raum: Der Leitfaden ist lang
-          und liest sich einmal – auf dem Start stuende er jeden Tag
-          im Weg. */}
-      <button className="start-karte leitfaden-tuer" onClick={() => onNavigate('leitfaden')}>
-        <span className="leitfaden-text">
-          <span className="start-marke">Neu hier?</span>
-          <h2>So nutzt du Davaigo</h2>
-          <p>Deine Reise durch die App – und was wir uns dabei gedacht haben.</p>
-        </span>
-        <span className="leitfaden-pfeil" aria-hidden="true">
-          <IconPfeil groesse={18} />
-        </span>
-      </button>
-
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
-        <h2 className="start-abschnitt">Dein Lernfortschritt</h2>
-        <p className="start-abschnitt-sub">Diese Woche</p>
+        {/* Die Serie als Hingucker: Flamme + große Zahl */}
+        <div className="streak-kopf">
+          <span className={'streak-flamme' + (progress.streak > 0 ? ' streak-an' : '')} aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="40" height="40">
+              <defs>
+                <linearGradient id="streak-verlauf" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#c4a1ff" />
+                  <stop offset="100%" stopColor="#7c3aed" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M12 2.5c.6 3.3 3.1 4.9 4.6 7.2 1.2 1.8 1.9 3.5 1.9 5.3A6.5 6.5 0 0 1 12 21.5 6.5 6.5 0 0 1 5.5 15c0-2.6 1.3-4.6 3-6.3.2 1.6.9 2.7 2 3.3-.3-3.6.3-6.6 1.5-9.5z"
+                fill="url(#streak-verlauf)"
+              />
+              <path
+                d="M12 21.5a3.3 3.3 0 0 1-3.3-3.3c0-1.9 1.6-3 2.6-4.6.5 1.4 1.4 2 2.3 2.6.9.6 1.7 1.2 1.7 2.1a3.3 3.3 0 0 1-3.3 3.2z"
+                fill="#ffd84d"
+              />
+            </svg>
+          </span>
+          <div className="streak-text">
+            <b className="streak-zahl">{progress.streak}</b>
+            <span className="streak-label">
+              {progress.streak === 1 ? 'Tag' : 'Tage'} in Folge
+            </span>
+          </div>
+          <h2 className="start-abschnitt streak-titel">Deine Lernstreak</h2>
+        </div>
+
 
         <ol className="woche-reihe" aria-label={`${wochenSumme} Einheiten diese Woche`}>
           {woche.map((tag, i) => (
@@ -147,31 +168,15 @@ export default function Home({
           ))}
         </ol>
 
-        <div className="start-zahlen">
-          <div className="start-zahl">
-            <b>{progress.streak}</b>
-            <span>Tage Serie</span>
-          </div>
-          <div className="start-zahl">
-            <b>{counts.woerter}</b>
-            <span>Wörter</span>
-          </div>
-          <div className="start-zahl">
-            <b>{lektionenFertig}</b>
-            <span>Lektionen</span>
-          </div>
-        </div>
+        {/* Der Kalender: ein Haken an jedem Tag, an dem etwas gelernt wurde */}
+        <Kalender />
+
+        {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
+        <Lernkurve />
       </section>
 
-      {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich.
-          Hier werden die Video-Minuten sichtbar – XP allein sagen
-          nicht, WOMIT man sie verdient hat. */}
-      <Lernkurve />
-
-      {/* ============ 4. DIE MEILENSTEINE ============ */}
-      {/* Abzeichen in sechs Stufen – jede gibt XP und meldet sich,
-          wenn sie fällt. Steht unter der Woche: Die Woche sagt, was
-          gerade läuft, die Abzeichen sagen, was schon erreicht ist. */}
+      {/* Meilensteine: Abzeichen in sechs Stufen – jede gibt XP und
+          meldet sich, wenn sie fällt. */}
       <Meilensteine
         app="Davaigo"
         adresse="davaigo.de"
@@ -294,7 +299,7 @@ function Gruppenstunde({ onNavigate }) {
           </button>
         )}
 
-        {!premium && (
+        {!premium && !istApp && (
           <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
             Mit Premium teilnehmen <IconPfeil groesse={16} />
           </button>
@@ -403,8 +408,8 @@ export function Leitfaden({ onNavigate, onZurueck }) {
 
   return (
     <div className="trainer home leitfaden-seite">
-      <button className="btn-plain back-link" onClick={onZurueck}>
-        ← Zurück
+      <button className="btn-zurueck" onClick={onZurueck}>
+        <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
       </button>
       <h1 className="trainer-titel">
         So nutzt du <span className="accent">Davaigo</span>
@@ -442,3 +447,208 @@ export function Leitfaden({ onNavigate, onZurueck }) {
     </div>
   )
 }
+
+/**
+ * Kalender der letzten Wochen. Kreuz = an diesem Tag gelernt; antippen
+ * zeigt die Aufschlüsselung in Lektionen und Wiederholungen.
+ */
+function Kalender() {
+  const jetzt = new Date()
+  const [ansicht, setAnsicht] = useState('monat') // 'monat' | 'jahr'
+  const [gewaehlt, setGewaehlt] = useState(null)
+  const [jahr, setJahr] = useState(jetzt.getFullYear())
+  const [monat, setMonat] = useState(jetzt.getMonth())
+  const [wisch, setWisch] = useState(null) // Startpunkt einer Wischgeste
+
+  const monate = jahresRaster(jahr)
+  const frueh = Math.min(erstesJahr(), jetzt.getFullYear())
+  const wochentage = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+
+  // Grenzen: nicht vor das erste Jahr mit Daten, nicht in die Zukunft
+  const amAnfang = ansicht === 'monat' ? jahr <= frueh && monat === 0 : jahr <= frueh
+  const amEnde =
+    ansicht === 'monat'
+      ? jahr === jetzt.getFullYear() && monat === jetzt.getMonth()
+      : jahr >= jetzt.getFullYear()
+
+  function blaettern(richtung) {
+    if ((richtung < 0 && amAnfang) || (richtung > 0 && amEnde)) return
+    setGewaehlt(null)
+    if (ansicht === 'jahr') return setJahr(jahr + richtung)
+    const neu = monat + richtung
+    if (neu < 0) { setMonat(11); setJahr(jahr - 1) }
+    else if (neu > 11) { setMonat(0); setJahr(jahr + 1) }
+    else setMonat(neu)
+  }
+
+  // Wischen: nach links = vor, nach rechts = zurück
+  function wischStart(e) {
+    const t = e.touches[0]
+    setWisch({ x: t.clientX, y: t.clientY })
+  }
+  function wischEnde(e) {
+    if (!wisch) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - wisch.x
+    const dy = t.clientY - wisch.y
+    setWisch(null)
+    if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.5) blaettern(dx < 0 ? 1 : -1)
+  }
+
+  function wechsle(neu) {
+    setAnsicht(neu)
+    setGewaehlt(null)
+    setJahr(jetzt.getFullYear())
+    setMonat(jetzt.getMonth())
+  }
+
+  const aktuellerMonat = monate[monat]
+  const aktiveTage =
+    ansicht === 'monat' ? aktuellerMonat.aktiv : monate.reduce((summe, m) => summe + m.aktiv, 0)
+  const titel =
+    ansicht === 'monat'
+      ? aktuellerMonat.name.charAt(0).toUpperCase() + aktuellerMonat.name.slice(1) + ' ' + jahr
+      : String(jahr)
+
+  return (
+    <div className="kalender">
+      <div className="kal-kopf">
+        <p className="start-abschnitt-sub kal-titel">
+          Kalender · {aktiveTage} {aktiveTage === 1 ? 'aktiver Tag' : 'aktive Tage'}
+        </p>
+        <div className="kal-umschalter" role="tablist">
+          <button type="button" className={ansicht === 'monat' ? 'ist-aktiv' : ''} onClick={() => wechsle('monat')}>
+            Monat
+          </button>
+          <button type="button" className={ansicht === 'jahr' ? 'ist-aktiv' : ''} onClick={() => wechsle('jahr')}>
+            Jahr
+          </button>
+        </div>
+      </div>
+
+      <div className="kal-jahr-nav">
+        <button type="button" aria-label="Zurück" disabled={amAnfang} onClick={() => blaettern(-1)}>‹</button>
+        <b>{titel}</b>
+        <button type="button" aria-label="Weiter" disabled={amEnde} onClick={() => blaettern(1)}>›</button>
+      </div>
+
+      <div className="kal-wischflaeche" onTouchStart={wischStart} onTouchEnd={wischEnde}>
+        {ansicht === 'monat' && (
+          <div key={jahr + '-' + monat} className="kal-blatt">
+            <div className="kal-wochentage">
+              {wochentage.map((t) => (
+                <span key={t}>{t}</span>
+              ))}
+            </div>
+            <div className="kal-gitter">
+              {Array.from({ length: aktuellerMonat.versatz }, (_, i) => (
+                <span key={'l' + i} />
+              ))}
+              {aktuellerMonat.tage.map((z) => (
+                <button
+                  key={z.schluessel}
+                  type="button"
+                  disabled={z.zukunft}
+                  className={
+                    'kal-tag' +
+                    (z.gesamt > 0 ? ' kal-aktiv' : '') +
+                    (z.istHeute ? ' kal-heute' : '') +
+                    (z.zukunft ? ' kal-zukunft' : '') +
+                    (gewaehlt?.schluessel === z.schluessel ? ' kal-gewaehlt' : '')
+                  }
+                  onClick={() => setGewaehlt(z)}
+                >
+                  <span className="kal-zahl">{z.tag}</span>
+                  {z.gesamt > 0 && (
+                    <svg className="kal-haken" viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {ansicht === 'jahr' && (
+          <div key={jahr} className="kal-jahr kal-blatt">
+            {monate.map((m, i) => (
+              <div key={m.name} className="kal-monat">
+                <button
+                  type="button"
+                  className="kal-monat-name"
+                  onClick={() => { setMonat(i); setAnsicht('monat'); setGewaehlt(null) }}
+                >
+                  {m.name}
+                  {m.aktiv > 0 && <span>{m.aktiv}</span>}
+                </button>
+                <div className="kal-mini">
+                  {Array.from({ length: m.versatz }, (_, i) => (
+                    <span key={'l' + i} />
+                  ))}
+                  {m.tage.map((t) => (
+                    <button
+                      key={t.schluessel}
+                      type="button"
+                      disabled={t.zukunft}
+                      aria-label={kalDatum(t.schluessel)}
+                      className={
+                        'kal-punkt' +
+                        (t.gesamt > 0 ? ' kal-aktiv' : '') +
+                        (t.istHeute ? ' kal-heute' : '') +
+                        (t.zukunft ? ' kal-zukunft' : '') +
+                        (gewaehlt?.schluessel === t.schluessel ? ' kal-gewaehlt' : '')
+                      }
+                      onClick={() => setGewaehlt(t)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {gewaehlt && (
+        <div className={'kal-detail' + (gewaehlt.gesamt > 0 ? ' kal-detail-aktiv' : '')}>
+          <p className="kal-detail-datum">{kalDatum(gewaehlt.schluessel)}</p>
+          {gewaehlt.gesamt === 0 ? (
+            <p className="kal-detail-leer">An diesem Tag wurde nichts gelernt.</p>
+          ) : (
+            <div className="kal-detail-werte">
+              {gewaehlt.wiederholungen > 0 && (
+                <div className="kal-wert kal-wert-wdh">
+                  <b>{gewaehlt.wiederholungen}</b>
+                  <span>{gewaehlt.wiederholungen === 1 ? 'Wiederholung' : 'Wiederholungen'}</span>
+                </div>
+              )}
+              {gewaehlt.lektionen > 0 && (
+                <div className="kal-wert kal-wert-lek">
+                  <b>{gewaehlt.lektionen}</b>
+                  <span>{gewaehlt.lektionen === 1 ? 'Lektion' : 'Lektionen'}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** "2026-08-24" → "Mo, 24. Aug." */
+function kalDatum(schluessel) {
+  const [j, m, t] = schluessel.split('-').map(Number)
+  const d = new Date(j, m - 1, t)
+  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })
+}
+
+/** Aufschlüsselung eines Tages als Text, z. B. "1 Lektion, 2 Wiederholungen". */
+function kalTeile(z) {
+  const teile = []
+  if (z.lektionen > 0) teile.push(z.lektionen + (z.lektionen === 1 ? ' Lektion' : ' Lektionen'))
+  if (z.wiederholungen > 0)
+    teile.push(z.wiederholungen + (z.wiederholungen === 1 ? ' Wiederholung' : ' Wiederholungen'))
+  return teile.join(', ')
+}
+

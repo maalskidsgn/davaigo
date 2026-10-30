@@ -22,8 +22,11 @@
 	@audio path /audio/*
 	header @audio Access-Control-Allow-Origin "*"
 
-	# index.html NIE cachen – sonst sehen Nutzer nach einem Update die alte App
-	header /index.html Cache-Control "no-cache"
+	# Die App-Seite NIE cachen – sonst sehen Nutzer nach einem Update die
+	# alte App. Nicht "/index.html" als Pfad: Die Startseite wird als "/"
+	# angefragt, und dort griff die alte Regel nie (wie in Habloo).
+	@seite not path /assets/* /audio/* /manifest.webmanifest /apple-touch-icon*.png /icon-*.png /favicon.svg /ratgeber/* /sitemap.xml /robots.txt
+	header @seite Cache-Control "no-cache"
 
 	# Das Web-App-Manifest braucht seinen eigenen Typ. Go kennt die
 	# Endung .webmanifest nicht, Caddy würde sonst raten – und Chrome

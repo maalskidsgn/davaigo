@@ -321,6 +321,9 @@ export default function Settings({
       )}
 
       {/* ---------- Abo ---------- */}
+      {/* In der Store-App nur zeigen, wenn schon Premium besteht – kein Angebot */}
+      {(!istApp || premium) && (
+      <>
       <h2 className="settings-heading">Dein Abo</h2>
       <div className="plan-grid">
         <div className="plan-card plan-active">
@@ -399,6 +402,8 @@ export default function Settings({
           {kaufFehler && <p className="error">{kaufFehler}</p>}
         </div>
       </div>
+      </>
+      )}
 
       {/* ---------- Lernziel ---------- */}
       <h2 className="settings-heading">Tagesziel</h2>

@@ -1,4 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import PremiumWerbung from './PremiumWerbung.jsx'
+import { createPortal } from 'react-dom'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
@@ -117,8 +120,8 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
     return (
       <div className="trainer wechsel" key="text-liste">
         {kopf}
-        <button className="recht-zurueck" onClick={() => setAnsicht('start')}>
-          ← Zurück
+        <button className="btn-zurueck" onClick={() => setAnsicht('start')}>
+          <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
         </button>
         {neueste.length === 0 ? (
           <p className="empty-hint">Noch keine Texte.</p>
@@ -162,47 +165,29 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
         </div>
       ) : (
         <>
-          <div className="satz-stand">
-            <div className="satz-zahl">
+          {/* Wie beim Vokabeltrainer: eine Karte, ein Knopf –
+              statt alle fälligen Texte untereinander aufzulisten. */}
+          <section className="bereich bereich-wiederholen">
+            <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
-              <span>zum Lesen</span>
+              <span>{faellig.length === 1 ? 'Text wartet' : 'Texte warten'}</span>
             </div>
-            <div className="satz-zahl">
-              <b>{entries.length}</b>
-              <span>Texte</span>
+            <div className="wiederholen-text">
+              <h2>Heute wiederlesen</h2>
+              <p>
+                {faellig.length > 0
+                  ? 'Diese Texte sind wieder dran – beim zweiten Lesen bleibt am meisten hängen.'
+                  : 'Alles gelesen. Der nächste Text wird von selbst wieder fällig.'}
+              </p>
             </div>
-            <div className="satz-zahl">
-              <b>{entries.reduce((s, t) => s + (t.gelesen ?? 0), 0)}</b>
-              <span>gelesen</span>
-            </div>
-          </div>
-
-          {/* Was heute ansteht – direkt antippbar */}
-          {faellig.length > 0 ? (
-            <div className="text-faellig">
-              <p className="suche-hinweis">Diese Texte sind heute wieder dran:</p>
-              {faellig.slice(0, 5).map((t) => (
-                <button
-                  key={t.id}
-                  className="text-karte"
-                  onClick={() => setOffenerText(t.id)}
-                >
-                  <span className="text-karte-inhalt">
-                    <span className="text-titel">{t.titelEs}</span>
-                    <span className="text-untertitel">{t.titelDe}</span>
-                    {t.gelesen > 0 && (
-                      <span className="text-meta">{t.gelesen}× gelesen</span>
-                    )}
-                  </span>
-                  <IconPfeil groesse={18} />
-                </button>
-              ))}
-            </div>
-          ) : (
-            <p className="empty-hint">
-              Alles gelesen. Der nächste Text wird von selbst wieder fällig.
-            </p>
-          )}
+            <button
+              className="btn wiederholen-los"
+              onClick={() => setOffenerText(faellig[0].id)}
+              disabled={faellig.length === 0}
+            >
+              {faellig.length > 0 ? 'Jetzt Texte wiederholen' : 'Nichts fällig'}
+            </button>
+          </section>
         </>
       )}
 
@@ -254,12 +239,12 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
    * zeigen. Dasselbe Verhalten wie im Chat und im Ebook-Leser –
    * wer es dort einmal gelernt hat, kennt es hier wieder.
    */
-  async function wortAntippen(rohesWort) {
+  async function wortAntippen(rohesWort, umfeld) {
     const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
@@ -294,7 +279,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
         <span
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
-          onClick={() => wortAntippen(teil)}
+          onClick={() => wortAntippen(teil, absatz)}
         >
           {teil}
         </span>
@@ -415,7 +400,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
       )}
 
       {/* ---------- Angetipptes Wort ---------- */}
-      {wort && (
+      {wort && createPortal(
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <button
@@ -423,7 +408,9 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
               aria-label="Schließen"
               onClick={() => setWort(null)}
             >
-              ✕
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" />
+              </svg>
             </button>
             <div className="wortkarte-wort">
               {wort.text}
@@ -451,7 +438,8 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
@@ -467,8 +455,12 @@ function TextGenerator({ texte, setTexte, onFertig }) {
   const [stufe, setStufe] = useState('b1')
   const [laden, setLaden] = useState(false)
   const [fehler, setFehler] = useState('')
-  const { premium } = usePremium()
-  const [uebrig, setUebrig] = useState(() => verbleibend())
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend(premium))
+  // Premium kommt erst nach dem Laden – dann das Kontingent neu setzen
+  useEffect(() => {
+    setUebrig(verbleibend(premium))
+  }, [premium])
 
   const bekannt = Object.values(texte).map((t) => t.titelDe ?? '')
 
@@ -502,17 +494,11 @@ function TextGenerator({ texte, setTexte, onFertig }) {
   }
 
   if (uebrig <= 0) {
+
+    if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="list-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} kostenlosen Generierungen sind für heute
-            aufgebraucht – unbegrenzte Texte kommen mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Texte" />
       </div>
     )
   }
@@ -535,68 +521,52 @@ function TextGenerator({ texte, setTexte, onFertig }) {
       </div>
 
       <form className="wort-form" onSubmit={erzeugen}>
-        <div className="wort-vorschlaege">
+        {/* Schritt 1: Gebiet – nur auswählen, erzeugt wird unten */}
+        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <div className="sg-themen sg-zwei">
           {GEBIETE.map(([wert, name]) => (
             <button
               key={wert}
               type="button"
-              className="vorschlag-chip"
+              className={'sg-thema' + (gebiet === wert ? ' ist-aktiv' : '')}
               disabled={laden}
-              onClick={(e) => {
-                setGebiet(wert)
-                erzeugen(e, wert)
-              }}
+              onClick={() => setGebiet(gebiet === wert ? '' : wert)}
             >
               {name}
             </button>
           ))}
         </div>
 
-        <div className="grammatik-wahl">
-          <span className="grammatik-titel">Schwierigkeit</span>
-          <div className="wort-vorschlaege">
-            {STUFEN.map(([wert, name, hilfe]) => (
-              <button
-                key={wert}
-                type="button"
-                className={
-                  'vorschlag-chip zeit-chip' + (stufe === wert ? ' vorschlag-chip-aktiv' : '')
-                }
-                onClick={() => setStufe(wert)}
-              >
-                {name}
-                <small>{hilfe}</small>
-              </button>
-            ))}
-          </div>
+        {/* Schritt 2: Schwierigkeit */}
+        <p className="sg-schritt"><span>2</span> Schwierigkeit</p>
+        <div className="sg-formen sg-drei">
+          {STUFEN.map(([wert, name, hilfe]) => (
+            <button
+              key={wert}
+              type="button"
+              className={'sg-form' + (stufe === wert ? ' ist-aktiv' : '')}
+              onClick={() => setStufe(wert)}
+            >
+              <b>{name}</b>
+              <span>{hilfe}</span>
+            </button>
+          ))}
         </div>
 
-        <div className="gen-feld">
-          <input
-            type="text"
-            value={thema}
-            onChange={(e) => setThema(e.target.value)}
-            placeholder="Eigenes Thema, z. B. Vulkane …"
-            disabled={laden}
-          />
-          <button
-            type="submit"
-            className="gen-pfeil"
-            disabled={laden || (!thema.trim() && !gebiet)}
-            aria-label="Text erzeugen"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path
-                d="M4 12h15M13 6l6 6-6 6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
+        {/* Eigener Wunsch: ein ganzer Absatz statt nur ein Stichwort */}
+        <p className="sg-schritt"><span>3</span> Oder eigener Wunsch <small>optional</small></p>
+        <textarea
+          className="text-wunsch"
+          value={thema}
+          onChange={(e) => {
+            setThema(e.target.value)
+            if (e.target.value.trim()) setGebiet('')
+          }}
+          placeholder="z. B. Ich möchte einen Text, der erklärt, wie man langfristig an einer Sache dranbleibt."
+          rows={3}
+          maxLength={600}
+          disabled={laden}
+        />
 
         <div className="gen-knoepfe">
           <button

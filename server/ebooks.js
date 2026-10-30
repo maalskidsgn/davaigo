@@ -235,9 +235,16 @@ function ohneBekannte(vorschlaege, bekannt) {
  * @param {string}   thema   – z. B. "Restaurant"
  * @param {string[]} bekannt – Wörter, die die Person schon gesammelt hat
  */
-export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 12) {
+// Optional nur eine Wortart – russische Grundformen, keine Artikel.
+const WORTART_REGEL = {
+  verben: 'Wähle AUSSCHLIESSLICH Verben, im Infinitiv (z. B. "читать"); wenn sinnvoll das Aspektpaar.',
+  adjektive: 'Wähle AUSSCHLIESSLICH Adjektive in der männlichen Grundform (z. B. "быстрый").',
+  nomen: 'Wähle AUSSCHLIESSLICH Nomen (Substantive) im Nominativ Singular.',
+}
+
+export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wortart = 'alle') {
   // Zwischen 5 und 50 Wörtern – das Onboarding bestellt z.B. 50.
-  anzahl = Math.max(5, Math.min(50, Number(anzahl) || 12))
+  anzahl = Math.max(5, Math.min(50, Number(anzahl) || 10))
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
@@ -253,7 +260,45 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 12) {
       'man im Alltag ständig braucht? Wähle ein zusammenhängendes Thema statt ' +
       'wahlloser Einzelwörter.' + bekanntesAlsHinweis(bekannt)
     : `Thema: ${thema}` + bekanntesAlsHinweis(bekannt)
+  const auftragMitWortart = WORTART_REGEL[wortart] ? auftrag + '\n' + WORTART_REGEL[wortart] : auftrag
 
+  // Immer genau `anzahl` Wörter. Das Modell schlägt bewusst mehr vor,
+  // weil danach alles rausfliegt, was die Person schon kennt – vorher
+  // kamen so manchmal nur 1–6 Wörter an. Reicht es nicht, wird mit den
+  // aussortierten Wörtern als Sperrliste nachgefragt (max. 3 Runden).
+  let gesammelt = []
+  let begruendung = ''
+  let gefundenesThema = ''
+  const abgelehnt = []
+
+  for (let runde = 0; runde < 3 && gesammelt.length < anzahl; runde++) {
+    const fehlen = anzahl - gesammelt.length
+    const sperre = [...bekannt, ...gesammelt.map((v) => v.wort), ...abgelehnt]
+    const nachschlag = runde
+      ? `\n\nNICHT erlaubt (schon vorhanden oder schon vorgeschlagen): ${[
+          ...new Set([...gesammelt.map((v) => v.wort), ...abgelehnt]),
+        ].join(', ')}`
+      : ''
+
+    const ergebnis = await frageListe(schluessel, auftragMitWortart + nachschlag, fehlen + 8)
+    if (!begruendung) begruendung = ergebnis.begruendung ?? ''
+    if (!gefundenesThema) gefundenesThema = ergebnis.thema ?? ''
+
+    const neu = ohneBekannte(ergebnis.vokabeln, sperre)
+    const gesperrt = new Set(sperre.map(wortKern))
+    for (const v of ergebnis.vokabeln ?? []) if (gesperrt.has(wortKern(v.wort))) abgelehnt.push(v.wort)
+    gesammelt = gesammelt.concat(neu)
+  }
+
+  return {
+    vokabeln: gesammelt.slice(0, anzahl),
+    begruendung,
+    thema: gefundenesThema || thema || '',
+  }
+}
+
+/** Eine einzelne Anfrage an das Modell für eine Themenliste. */
+async function frageListe(schluessel, auftrag, anzahl) {
   const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
@@ -266,10 +311,17 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 12) {
         {
           role: 'system',
           content:
-            'Du stellst Vokabellisten für deutschsprachige Russischlernende zusammen: ' +
-            `die ${anzahl} nützlichsten Wörter, Alltagsniveau, Nomen mit Artikel, jedes Wort ` +
-            'mit einem einfachen Beispielsatz. Erkläre in der Begründung kurz und ' +
-            'persönlich, warum du gerade diese Auswahl getroffen hast.',
+            `Du stellst Vokabellisten für deutschsprachige Russischlernende zusammen: ` +
+            `genau ${anzahl} Wörter, jedes mit einem kurzen, lebendigen Beispielsatz. ` +
+            'Wähle Wörter, die Muttersprachler im Alltag WIRKLICH ständig benutzen – ' +
+            'echte, nützliche Wörter, bei denen man denkt "oh ja, das brauche ich". ' +
+            'Sortiere nach Nutzen: zuerst die häufigsten, die im echten Gespräch fallen. ' +
+            'Gern auch typische Alltagsausdrücke, die in Lehrbüchern fehlen. ' +
+            'Verben im Infinitiv, Nomen in der Grundform (Nominativ Singular). ' +
+            'Keine Anglizismen, keine exotischen Fachbegriffe, keine Wortgruppen über 3 Wörter, ' +
+            'keine Allerweltswörter wie "и", "в", "не". Jedes Wort genau einmal. ' +
+            'Erkläre in der Begründung kurz und persönlich (2 Sätze), warum du ' +
+            'gerade diese Auswahl getroffen hast.',
         },
         { role: 'user', content: auftrag },
       ],
@@ -286,13 +338,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 12) {
   }
 
   const daten = await antwort.json()
-  const ergebnis = JSON.parse(daten.choices[0].message.content)
-  return {
-    // Sicherheitsnetz: das Modell hält sich nicht immer an die Vorgabe
-    vokabeln: ohneBekannte(ergebnis.vokabeln, bekannt),
-    begruendung: ergebnis.begruendung ?? '',
-    thema: ergebnis.thema ?? thema ?? '',
-  }
+  return JSON.parse(daten.choices[0].message.content)
 }
 
 /**

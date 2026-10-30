@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { API_URL } from './api.js'
+import { createPortal } from 'react-dom'
+import { uebersetzungsAdresse } from './satzUmfeld.js'
+import { API_URL, istApp } from './api.js'
 import { db } from './supabase.js'
 
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2']
@@ -169,14 +171,15 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
-              Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du
-              unbegrenzt viele Bücher.
+              {istApp
+                ? 'Dein Monatskontingent ist aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.'
+                : 'Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.'}
             </p>
           )}
         </form>
       </section>
 
-      {aufgebraucht && (
+      {aufgebraucht && !istApp && (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
             Unbegrenzt lesen <span className="plan-badge badge-soon">Premium</span>
@@ -252,13 +255,13 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
   }, [])
 
   /** Ein angetipptes Wort übersetzen lassen. */
-  async function wortAntippen(rohesWort) {
+  async function wortAntippen(rohesWort, umfeld) {
     const sauber = rohesWort.replace(/[«».,;:¿?¡!()"—…]/g, '').trim()
     if (!sauber) return
 
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(sauber))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
@@ -288,7 +291,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
         <span
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
-          onClick={() => wortAntippen(teil)}
+          onClick={() => wortAntippen(teil, absatz)}
           title={status ? 'Im Vokabeltrainer' : undefined}
         >
           {teil}
@@ -390,7 +393,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
       )}
 
       {/* Angetipptes Wort: Übersetzung und ab in den Trainer */}
-      {wort && (
+      {wort && createPortal(
         <div className="wortkarte-hintergrund" onClick={() => setWort(null)}>
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <div className="wortkarte-wort">
@@ -411,7 +414,8 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Fuß: Sprachwahl, Fortschritt, Navigation */}

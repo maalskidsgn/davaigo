@@ -3,18 +3,13 @@ import { verlauf, ARTEN } from './lernkurve.js'
 
 /**
  * Lernkurve: wie viel man an welchem Tag wovon gelernt hat.
- * Fünf Linien in fünf Farben (inkl. geschauter Video-Minuten), oben antippbar zum Ein-/Ausblenden,
+ * Fünf Linien in fünf Farben, oben antippbar zum Ein-/Ausblenden,
  * ein Punkt im Diagramm antippen zeigt die Zahlen dieses Tages.
  */
 
 const SERIEN = {
-  // Fünf Linien brauchen fünf Farben, die man auch nebeneinander
-  // auseinanderhält. Wörter tragen die Hausfarbe – sie sind die
-  // Linie, auf die man zuerst schaut. Habloos Violett für die Sätze
-  // musste weichen: Neben Davaigos Violett wären es zwei Linien
-  // derselben Farbe.
   woerter: { name: 'Wörter', farbe: '#7c3aed' },
-  saetze: { name: 'Sätze', farbe: '#ff8a00' },
+  saetze: { name: 'Sätze', farbe: '#f5a400' },
   lektionen: { name: 'Lektionen', farbe: '#1e9d85' },
   texte: { name: 'Texte', farbe: '#2e8fe8' },
   video: { name: 'Video-Min.', farbe: '#e5484d' },

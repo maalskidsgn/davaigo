@@ -1,4 +1,5 @@
-import { API_URL } from './api.js'
+import { API_URL, istApp } from './api.js'
+import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
@@ -9,13 +10,14 @@ import { IconFunken } from './icons.jsx'
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
 export default function ListGenerator({ vocab, setVocab }) {
   const [thema, setThema] = useState('')
+  const [wortart, setWortart] = useState('alle')
   const [fertigThema, setFertigThema] = useState('') // Thema der fertigen Liste
   const [laden, setLaden] = useState(false)
   const [fehler, setFehler] = useState('')
   const [liste, setListe] = useState(null) // Vorschläge mit Häkchen
   const [erfolg, setErfolg] = useState(false)
-  const { premium } = usePremium()
-  const [uebrig, setUebrig] = useState(() => verbleibend())
+  const { premium, laedt: premiumLaedt } = usePremium()
+  const [uebrig, setUebrig] = useState(() => verbleibend(premium))
   // Unter fuenf gesammelten Woertern kann die KI nichts erkennen –
   // dann bleibt der KI-Gen-Knopf gesperrt.
   const zuWenige = Object.keys(vocab).length < 5
@@ -51,6 +53,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         body: JSON.stringify({
           thema: automatisch ? '' : gefragt,
           bekannt: Object.keys(vocab),
+          wortart,
         }),
       })
       const data = await res.json()
@@ -89,17 +92,10 @@ export default function ListGenerator({ vocab, setVocab }) {
 
   // Kostenloses Kontingent aufgebraucht: Premium-Hinweis statt Formular
   if (uebrig <= 0 && !liste) {
+    if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="list-gen">
-        <div className="plan-card plan-premium premium-teaser">
-          <div className="plan-name">
-            Premium <span className="plan-badge badge-soon">Bald verfügbar</span>
-          </div>
-          <p className="row-hint">
-            Deine {LISTEN_PRO_TAG} kostenlosen Listen sind aufgebraucht – unbegrenzte
-            KI-Vokabellisten kommen mit dem Premium-Abo.
-          </p>
-        </div>
+        <PremiumWerbung was="Vokabellisten" />
       </div>
     )
   }
@@ -127,43 +123,48 @@ export default function ListGenerator({ vocab, setVocab }) {
       </div>
 
       <form className="wort-form" onSubmit={generieren}>
-        <div className="gen-feld">
+        {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
+        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <div className="sg-themen">
+          {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen', 'Familie', 'Gesundheit'].map((v) => (
+            <button
+              key={v}
+              type="button"
+              className={'sg-thema' + (thema === v ? ' ist-aktiv' : '')}
+              disabled={laden}
+              onClick={() => setThema(thema === v ? '' : v)}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+
+        <div className="gen-feld sg-eigenes">
           <input
             type="text"
             value={thema}
             onChange={(e) => setThema(e.target.value)}
-            placeholder="z. B. Restaurant, Reisen, Arztbesuch …"
+            placeholder="… oder eigenes Thema, z. B. Arztbesuch"
             disabled={laden}
-            required
           />
-          <button
-            type="submit"
-            className="gen-pfeil"
-            disabled={laden || !thema.trim()}
-            aria-label="Liste erstellen"
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18">
-              <path
-                d="M4 12h15M13 6l6 6-6 6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
         </div>
 
-        <div className="wort-vorschlaege">
-          {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen'].map((v) => (
+        {/* Schritt 2: Wortart – gemischt oder gezielt */}
+        <p className="sg-schritt"><span>2</span> Wortart <small>optional</small></p>
+        <div className="sg-themen sg-vier">
+          {[
+            ['alle', 'Gemischt'],
+            ['verben', 'Verben'],
+            ['adjektive', 'Adjektive'],
+            ['nomen', 'Nomen'],
+          ].map(([wert, text]) => (
             <button
-              key={v}
+              key={wert}
               type="button"
-              className="vorschlag-chip"
-              onClick={() => setThema(v)}
+              className={'sg-thema' + (wortart === wert ? ' ist-aktiv' : '')}
+              onClick={() => setWortart(wert)}
             >
-              {v}
+              {text}
             </button>
           ))}
         </div>
@@ -186,7 +187,7 @@ export default function ListGenerator({ vocab, setVocab }) {
             disabled={laden || zuWenige}
             title={zuWenige ? 'Dafür brauchst du erst 5 gesammelte Wörter' : undefined}
           >
-            KI-Gen
+            Passend zu mir
           </button>
 
           <button
@@ -225,7 +226,7 @@ export default function ListGenerator({ vocab, setVocab }) {
 
       {erfolg && <p className="gen-success">Liste ist im Trainer! ✓</p>}
 
-      {fehler === 'premium' ? (
+      {fehler === 'premium' && !istApp ? (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
             Premium-Funktion <span className="plan-badge badge-soon">Bald verfügbar</span>

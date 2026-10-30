@@ -109,11 +109,11 @@ const WORT_SCHEMA = {
  * @param {string} text
  * @param {'ru-de'|'de-ru'} richtung
  */
-export async function uebersetzeWort(text, richtung = 'ru-de') {
+export async function uebersetzeWort(text, richtung = 'ru-de', satz = '') {
   const sauber = text.trim()
   if (!sauber) return ''
 
-  const schluessel = richtung + '|' + sauber.toLowerCase()
+  const schluessel = richtung + '|' + sauber.toLowerCase() + (satz ? '|' + satz : '')
   const gemerkt = ausSpeicher(schluessel)
   if (gemerkt !== undefined) return gemerkt
 
@@ -139,9 +139,13 @@ export async function uebersetzeWort(text, richtung = 'ru-de') {
           `Übersetzung – keine Erklärung, keine Anführungszeichen, keine ` +
           `Alternativen, keine Umschrift. ${grundform}` +
           `Ist die Eingabe bereits ${nachRussisch ? 'russisch' : 'deutsch'}, ` +
-          `gib sie unverändert zurück.`,
+          `gib sie unverändert zurück.` +
+          (satz
+            ? ` Du bekommst zusätzlich den Satz, in dem das Wort steht: Übersetze NUR das ` +
+              `Wort, aber in genau der Bedeutung, die es in diesem Satz hat.`
+            : ''),
       },
-      { role: 'user', content: sauber },
+      { role: 'user', content: satz ? `Wort: ${sauber}\nSatz: ${satz}` : sauber },
     ],
     WORT_SCHEMA
   )

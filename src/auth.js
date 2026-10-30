@@ -77,6 +77,13 @@ export async function registrieren(email, passwort, name) {
   })
   if (error) throw new Error(uebersetzeFehler(error))
 
+  // Gibt es die Adresse schon, meldet Supabase KEINEN Fehler und
+  // schickt auch keine Mail (Schutz gegen Konten-Raten). Erkennbar
+  // ist es nur an der leeren identities-Liste.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    return { schonVorhanden: true }
+  }
+
   // Wenn Supabase eine Bestätigungs-Mail verschickt, gibt es noch keine Sitzung.
   return { nutzer: data.user, sitzung: data.session, mailBestaetigen: !data.session }
 }
@@ -95,6 +102,35 @@ export async function anmelden(email, passwort) {
 export async function abmelden() {
   const { error } = await db.auth.signOut()
   if (error) throw new Error(uebersetzeFehler(error))
+}
+
+/**
+ * Anmeldung über Google oder Apple. Supabase leitet zum Anbieter
+ * und danach zurück auf die Seite – dort steht die Sitzung bereit.
+ * @param {'google'|'apple'} anbieter
+ */
+export async function mitAnbieter(anbieter) {
+  const { error } = await db.auth.signInWithOAuth({
+    provider: anbieter,
+    options: { redirectTo: window.location.origin },
+  })
+  if (error) throw new Error(uebersetzeFehler(error))
+}
+
+/**
+ * Welche Anbieter sind in Supabase eingeschaltet? So erscheinen die
+ * Knöpfe von selbst, sobald ein Anbieter eingerichtet ist.
+ */
+export async function aktiveAnbieter() {
+  try {
+    const url = import.meta.env.VITE_SUPABASE_URL
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+    const r = await fetch(url + '/auth/v1/settings', { headers: { apikey: key } })
+    const d = await r.json()
+    return ['apple', 'google'].filter((a) => d.external?.[a])
+  } catch {
+    return []
+  }
 }
 
 /** Schickt eine E-Mail zum Zurücksetzen des Passworts. */
