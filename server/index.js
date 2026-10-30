@@ -6,7 +6,6 @@ import { execFile } from 'child_process'
 import { mkdtemp, readFile, readdir, rm } from 'fs/promises'
 import { tmpdir } from 'os'
 import { join } from 'path'
-import Anthropic from '@anthropic-ai/sdk'
 import { findeRussischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { uebersetzeWort, uebersetzeZeilen } from './uebersetzen.js'
 import { erzeugeSatzliste, GRAMMATIK } from './saetze.js'
@@ -44,6 +43,7 @@ import {
   FREI_PRO_MONAT,
   erzeugeVokabelliste,
   erzeugeVideoVokabeln,
+  erzeugeBuchzusammenfassung,
 } from './ebooks.js'
 
 // Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
@@ -102,7 +102,6 @@ app.get('/health', (req, res) => res.json({ ok: true }))
 
 // Claude-KI nur nutzen, wenn ein API-Schlüssel hinterlegt ist —
 // sonst arbeitet der Vokabelgenerator mit Häufigkeits-Analyse + Übersetzung.
-const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic() : null
 
 /**
  * Schaetzt ein, wie brauchbar ein Transkript ist.
@@ -464,8 +463,11 @@ const STOPWORDS = new Set(
 )
 
 // Erstellt Vokabel-Vorschläge aus einem Transkript.
-// Mit ANTHROPIC_API_KEY: Claude wählt die nützlichsten Wörter aus.
-// Ohne: Häufigkeits-Analyse + automatische Übersetzung.
+//
+// Der Kommentar hier behauptete bis zum 30.10.2026, Claude wähle
+// die Wörter aus. Das stimmte schon länger nicht: erzeugeVideoVokabeln
+// in ebooks.js arbeitet mit gpt-4o-mini. Ohne Schlüssel bleibt es bei
+// Häufigkeits-Analyse und automatischer Übersetzung.
 app.post('/api/generate-vocab', async (req, res) => {
   const text = (req.body.text || '').slice(0, 8000)
   // "exclude" sind die Wörter, die der Nutzer schon gesammelt hat
@@ -622,77 +624,24 @@ app.post('/api/vokabelliste', async (req, res) => {
   }
 })
 
-// Erstellt eine Blinkist-artige Buchzusammenfassung in einfachem Spanisch.
-// Braucht die Claude-KI – ohne API-Schlüssel kommt ein "Premium"-Hinweis.
+// Erstellt eine Blinkist-artige Buchzusammenfassung in einfachem Russisch.
+//
+// Lief bis zum 30.10.2026 ueber Anthropic – als einzige Stelle im
+// ganzen Projekt. Jetzt gpt-4o-mini wie alles andere auch: ein
+// Anbieter, ein Schluessel, eine Rechnung.
 app.post('/api/buch', async (req, res) => {
   const titel = (req.body.titel || '').trim().slice(0, 120)
   if (!titel) return res.status(400).json({ error: 'Kein Buchtitel angegeben.' })
-  if (!anthropic) return res.status(402).json({ error: 'premium' })
 
-  // Buchzusammenfassungen laufen ueber Anthropic und sind von allem
-  // hier das Teuerste. Ohne Anmeldung geht gar nichts.
   const tuerB = await kiTuersteher(req, res, 'ki')
   if (!tuerB) return
 
   try {
-    const response = await anthropic.messages.create({
-      model: 'claude-opus-5',
-      max_tokens: 16000,
-      output_config: {
-        format: {
-          type: 'json_schema',
-          schema: {
-            type: 'object',
-            properties: {
-              titel: { type: 'string' },
-              autor: { type: 'string' },
-              niveau: { type: 'string' },
-              absaetze: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    es: { type: 'string' },
-                    de: { type: 'string' },
-                  },
-                  required: ['es', 'de'],
-                  additionalProperties: false,
-                },
-              },
-              vokabeln: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    wort: { type: 'string' },
-                    uebersetzung: { type: 'string' },
-                  },
-                  required: ['wort', 'uebersetzung'],
-                  additionalProperties: false,
-                },
-              },
-            },
-            required: ['titel', 'autor', 'niveau', 'absaetze', 'vokabeln'],
-            additionalProperties: false,
-          },
-        },
-      },
-      messages: [
-        {
-          role: 'user',
-          content:
-            `Erstelle eine Blinkist-artige Zusammenfassung des Buches "${titel}" für deutschsprachige Russisch-Anfänger (Niveau A2): ` +
-            '5 bis 7 kurze Absätze in EINFACHEM Russisch (kurze Sätze, Grundwortschatz), jeder Absatz mit deutscher Übersetzung. ' +
-            'Schreibe ausschließlich in kyrillischer Schrift, niemals in Umschrift, und setze keine Betonungszeichen. ' +
-            'Dazu 8 nützliche russische Vokabeln aus der Zusammenfassung mit deutscher Übersetzung. ' +
-            'Kennst du das Buch nicht sicher, sage das im ersten Absatz ehrlich und fasse zusammen, wofür der Titel bekannt ist.',
-        },
-      ],
-    })
-    const textBlock = response.content.find((b) => b.type === 'text')
-    res.json(JSON.parse(textBlock.text))
+    const buch = await erzeugeBuchzusammenfassung(titel)
+    await zaehleNutzung(tuerB.nutzer.id, 'ki')
+    res.json(buch)
   } catch (err) {
-    console.error(err.message)
+    console.error('Buchzusammenfassung:', err.message)
     res.status(500).json({ error: 'Zusammenfassung konnte nicht erstellt werden.' })
   }
 })

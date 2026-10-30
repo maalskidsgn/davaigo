@@ -35,7 +35,7 @@ const SCHEMA = {
         properties: {
           label_es: {
             type: 'string',
-            description: 'Kurze Einordnung, z. B. "Introducción", "Capítulo 1", "Conclusión"',
+            description: 'Kurze Einordnung auf Russisch, z. B. "Введение", "Глава 1", "Итог"',
           },
           label_de: { type: 'string', description: 'Dieselbe Einordnung auf Deutsch' },
           titel_es: {
@@ -111,8 +111,8 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
           content:
             'Du schreibst kurze Sachbuch-Zusammenfassungen im Stil von Blinkist für ' +
             'deutschsprachige Russischlernende – Lesedauer insgesamt etwa 10 Minuten. ' +
-            'Aufbau: eine Einführung ("Introducción"), dann Kapitel, zum Schluss eine ' +
-            'knappe Schlussfolgerung ("Conclusión"). Jede Kapitelüberschrift ist eine ' +
+            'Aufbau: eine Einführung ("Введение"), dann Kapitel ("Глава 1", "Глава 2" …), ' +
+            'zum Schluss ein knapper Abschluss ("Итог"). Jede Kapitelüberschrift ist eine ' +
             'Kernaussage, kein Etikett. Alles liegt vollständig auf Russisch UND ' +
             'Deutsch vor; die deutsche Fassung ist natürlich formuliert, nicht Wort ' +
             'für Wort übersetzt.',
@@ -460,4 +460,100 @@ export async function speichereEbook(nutzerId, buch) {
     throw new Error('Buch konnte nicht gespeichert werden: ' + (await antwort.text()).slice(0, 200))
   }
   return (await antwort.json())[0]
+}
+
+/* ---------------------------------------------------------------- *
+ *  Buchzusammenfassung für die Bibliothek
+ * ---------------------------------------------------------------- */
+
+const BUCH_SCHEMA = {
+  type: 'object',
+  properties: {
+    titel: { type: 'string', description: 'Der Buchtitel' },
+    autor: { type: 'string', description: 'Der echte Autor des Buches' },
+    niveau: { type: 'string', description: 'A1, A2 oder B1' },
+    absaetze: {
+      type: 'array',
+      description: '5 bis 7 Absätze, jeder zweisprachig',
+      items: {
+        type: 'object',
+        properties: {
+          es: { type: 'string', description: 'Der Absatz auf Russisch, kyrillisch' },
+          de: { type: 'string', description: 'Derselbe Absatz auf Deutsch' },
+        },
+        required: ['es', 'de'],
+        additionalProperties: false,
+      },
+    },
+    vokabeln: {
+      type: 'array',
+      description: '8 nützliche Wörter aus dem Text',
+      items: {
+        type: 'object',
+        properties: {
+          wort: { type: 'string', description: 'Das russische Wort' },
+          uebersetzung: { type: 'string', description: 'Die deutsche Bedeutung' },
+        },
+        required: ['wort', 'uebersetzung'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['titel', 'autor', 'niveau', 'absaetze', 'vokabeln'],
+  additionalProperties: false,
+}
+
+/**
+ * Eine Blinkist-artige Zusammenfassung zu einem Buchtitel.
+ *
+ * Lief bis zum 30.10.2026 über Anthropic (claude-opus-5) – als
+ * einzige Stelle im ganzen Projekt. Alles andere, von den
+ * Vokabellisten bis zum Tutor, nutzt gpt-4o-mini. Ein zweiter
+ * Anbieter für eine einzige Funktion heißt: ein zweiter Vertrag,
+ * eine zweite Rechnung und ein zweiter Schlüssel, der in Coolify
+ * fehlen kann – und genau das war er auch.
+ */
+export async function erzeugeBuchzusammenfassung(titel) {
+  const schluessel = process.env.OPENAI_API_KEY
+  if (!schluessel) throw new Error('OPENAI_API_KEY fehlt.')
+
+  const antwort = await fetch(OPENAI_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${schluessel}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: MODELL,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'Du schreibst kurze Buchzusammenfassungen im Stil von Blinkist für ' +
+            'deutschsprachige Russisch-Anfänger. Schreib ausschließlich in ' +
+            'kyrillischer Schrift, niemals in Umschrift, und setze keine ' +
+            'Betonungszeichen – die stehen in Lehrbüchern, nicht in echten Texten.',
+        },
+        {
+          role: 'user',
+          content:
+            `Fasse das Buch "${titel}" zusammen: 5 bis 7 kurze Absätze in ` +
+            'EINFACHEM Russisch (kurze Sätze, Grundwortschatz, Niveau A2), jeder ' +
+            'Absatz mit deutscher Übersetzung. Dazu 8 nützliche russische Wörter ' +
+            'aus dem Text.\n\n' +
+            'Kennst du das Buch nicht sicher, sag das ehrlich im ersten Absatz und ' +
+            'fasse zusammen, wofür der Titel bekannt ist. Erfinde keine Inhalte und ' +
+            'keinen Autor.',
+        },
+      ],
+      response_format: {
+        type: 'json_schema',
+        json_schema: { name: 'buch', schema: BUCH_SCHEMA, strict: true },
+      },
+    }),
+  })
+
+  if (!antwort.ok) {
+    const fehler = await antwort.text()
+    throw new Error(`OpenAI antwortet mit ${antwort.status}: ${fehler.slice(0, 200)}`)
+  }
+  const daten = await antwort.json()
+  return JSON.parse(daten.choices[0].message.content)
 }
