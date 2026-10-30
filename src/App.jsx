@@ -60,6 +60,8 @@ import {
 } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import './App.css'
+import { zeigeMichAn, verschwinde } from './praesenz.js'
+import { ladeBenutzername } from './rangliste.js'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -317,6 +319,34 @@ export default function App() {
       setSyncStatus('')
     }
   }, [nutzer])
+
+  // Freunden zeigen, dass man da ist. Braucht den Benutzernamen –
+  // ohne den steht man ohnehin in keiner Liste.
+  useEffect(() => {
+    if (!nutzer) {
+      verschwinde()
+      return
+    }
+    let aktiv = true
+    ladeBenutzername(nutzer.id).then((n) => {
+      if (aktiv && n) zeigeMichAn(n)
+    })
+    // Nach einem Namenswechsel neu anmelden
+    const neu = () => ladeBenutzername(nutzer.id).then((n) => n && zeigeMichAn(n))
+    window.addEventListener('benutzername', neu)
+    return () => {
+      aktiv = false
+      window.removeEventListener('benutzername', neu)
+    }
+  }, [nutzer])
+
+  // Beim Schließen des Tabs sauber abmelden, damit der grüne Punkt
+  // bei den Freunden nicht stehen bleibt.
+  useEffect(() => {
+    const weg = () => verschwinde()
+    window.addEventListener('pagehide', weg)
+    return () => window.removeEventListener('pagehide', weg)
+  }, [])
 
   const playerRef = useRef(null) // der YouTube-Player
   const lineRefs = useRef([]) // die Zeilen-Elemente, damit wir hinscrollen können

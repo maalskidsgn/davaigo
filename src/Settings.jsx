@@ -6,6 +6,7 @@ import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
 import { BenutzernameFeld } from './Rangliste.jsx'
 import Blockierte from './Blockierte.jsx'
+import Freunde from './Freunde.jsx'
 import { ladeBenutzername } from './rangliste.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
@@ -279,6 +280,20 @@ export default function Settings({
               </button>
             </>
           )}
+        </>
+      )}
+
+      {/* ---------- Freunde ----------
+          Gleich unter dem Konto: Das Soziale gehört zum eigenen
+          Konto, und ein sechster Reiter unten würde die Leiste
+          unübersichtlich machen. Ohne Konto gibt es nichts zu
+          zeigen – ohne Benutzername erst recht nicht. */}
+      {supabaseBereit && nutzer && (
+        <>
+          <h2 className="settings-heading">Freunde</h2>
+          <div className="settings-card">
+            <Freunde />
+          </div>
         </>
       )}
 

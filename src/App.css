@@ -10588,3 +10588,146 @@ button.rang-saeule:active { transform: none; box-shadow: none; }
    Konto-Bereich. */
 .name-einstellung { margin: 14px 0; }
 .name-einstellung h3 { margin: 0 0 4px; font-size: 15px; color: var(--navy); }
+
+/* ================================================================
+   FREUNDE: SUCHE, ANFRAGEN, LISTE
+   ================================================================ */
+.fr-suche input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line);
+  background: var(--flaeche);
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--navy);
+}
+.fr-suche input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--card);
+}
+.fr-block { margin-top: 20px; }
+.fr-titel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.fr-zahl {
+  min-width: 20px;
+  padding: 1px 7px;
+  border-radius: 100px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+.fr-leer {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.fr-treffer { margin-top: 10px; }
+.fr-zeile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+}
+.fr-zeile + .fr-zeile { border-top: 1px solid var(--line); }
+.fr-person {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 2px;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 12px;
+  font-family: inherit;
+  text-align: left;
+  color: var(--navy);
+  cursor: pointer;
+}
+.fr-person:hover { background: rgba(124, 58, 237, 0.06); filter: none; }
+.fr-person:active { transform: none; box-shadow: none; }
+.fr-bild {
+  width: 38px;
+  height: 38px;
+  flex: none;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: var(--flaeche);
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 15px;
+}
+.fr-bild.hat-bild { object-fit: cover; display: block; }
+.fr-text { display: grid; gap: 1px; min-width: 0; }
+.fr-text b {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--navy);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fr-text small { font-size: 0.78rem; font-weight: 700; color: var(--muted); }
+.fr-tun { flex: none; display: flex; align-items: center; gap: 4px; }
+.fr-marke {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: var(--flaeche);
+  color: var(--muted);
+}
+.fr-marke.fr-ist { background: rgba(124, 58, 237, 0.13); color: var(--primary); }
+.fr-nein {
+  padding: 5px 9px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+/* ---------- "ist gerade da" ----------
+   Ein Punkt am Bild statt Text hinter dem Namen: So bleibt er auch
+   bei langen Namen sichtbar und drückt die Zeile nicht breiter.
+   Der weisse Ring trennt ihn vom Bild darunter – ohne ihn
+   verschwindet Grün auf einem grünen Foto. */
+.fr-bildfeld,
+.du-bildfeld {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  line-height: 0;
+}
+.ist-da {
+  position: absolute;
+  /* Am Kreis sitzt der Punkt knapp aussen, am abgerundeten Quadrat
+     der Freundesliste etwas weiter innen – sonst schwebt er frei. */
+  right: -2px;
+  bottom: -2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 2.5px var(--card);
+  animation: da-puls 2.4s ease-in-out infinite;
+}
+/* Auf der getönten Zeile "du bist dran" passt der weisse Ring nicht */
+.du-ist-ich_dran .ist-da { box-shadow: 0 0 0 2.5px #f7f2fe; }
+.du-gegner .ist-da { box-shadow: 0 0 0 2.5px var(--card); }
+.fr-bildfeld .ist-da { right: 1px; bottom: 1px; }
