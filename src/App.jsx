@@ -46,6 +46,7 @@ import VocabGenerator from './VocabGenerator.jsx'
 import Settings from './Settings.jsx'
 import Lessons from './Lessons.jsx'
 import Home, { Leitfaden } from './Home.jsx'
+import BereichsIntro, { BEREICHE, RUNDGANG_REIHE, gesehene } from './Rundgang.jsx'
 import { naechsteLektion } from './lektionen.js'
 
 // Der Name der App – an dieser einen Stelle änderbar
@@ -240,6 +241,38 @@ export default function App() {
   const [view, setView] = useState(() =>
     new URLSearchParams(window.location.search).get('code') ? 'videos' : 'start'
   ) // 'start', 'lesen', 'lektionen', 'trainer', 'videos', 'mehr'
+
+  // Bereichs-Einführungen: Welche Infobox ist gerade offen, und läuft
+  // der Rundgang (Index in RUNDGANG_REIHE)? null = nichts davon.
+  // Anders als in Habloo erklärt sich auch die Startseite selbst:
+  // Davaigo hat kein Onboarding, die Startbox ist der erste Gruß.
+  const [intro, setIntro] = useState(null)
+  const [rundgangNr, setRundgangNr] = useState(null)
+
+  useEffect(() => {
+    if (rundgangNr !== null) return // der Rundgang zeigt selbst an
+    if (BEREICHE[view] && !gesehene()[view]) setIntro(view)
+  }, [view, rundgangNr])
+
+  function starteRundgang() {
+    setRundgangNr(0)
+    setView(RUNDGANG_REIHE[0])
+    setIntro(RUNDGANG_REIHE[0])
+  }
+
+  function rundgangWeiter() {
+    const naechste = rundgangNr + 1
+    if (naechste >= RUNDGANG_REIHE.length) return rundgangEnde()
+    setRundgangNr(naechste)
+    setView(RUNDGANG_REIHE[naechste])
+    setIntro(RUNDGANG_REIHE[naechste])
+  }
+
+  function rundgangEnde() {
+    setRundgangNr(null)
+    setIntro(null)
+    setView('start')
+  }
   const [savedVideos, setSavedVideos] = useState(loadSavedVideos)
   const [categoryInput, setCategoryInput] = useState('')
   const [progress, setProgress] = useState(loadProgress) // XP, Streak, letzter Lerntag
@@ -1258,7 +1291,7 @@ export default function App() {
       {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
       {view === 'leitfaden' && (
         <main>
-          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} />
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={starteRundgang} />
         </main>
       )}
 
@@ -1289,6 +1322,8 @@ export default function App() {
         <main>
           <Settings
             onRecht={setRechtSeite}
+            onLeitfaden={() => setView('leitfaden')}
+            onRundgang={starteRundgang}
             onKasse={() => setKasseOffen(true)}
             addXp={addXp}
             progress={progress}
@@ -1641,6 +1676,21 @@ export default function App() {
       )}
 
       {loginOffen && <Login onSchliessen={() => setLoginOffen(false)} />}
+
+      {/* Bereichs-Einführung bzw. Rundgang – liegt über allem */}
+      {intro && (
+        <BereichsIntro
+          bereich={intro}
+          rundgang={
+            rundgangNr !== null
+              ? { nr: rundgangNr + 1, von: RUNDGANG_REIHE.length }
+              : null
+          }
+          onWeiter={rundgangWeiter}
+          onFertig={rundgangNr !== null ? rundgangEnde : () => setIntro(null)}
+          onRundgang={rundgangNr === null && intro === 'start' ? starteRundgang : undefined}
+        />
+      )}
     </div>
   )
 }

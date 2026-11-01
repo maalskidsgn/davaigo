@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react'
+import { IconPfeil } from './icons.jsx'
 import { API_URL, istApp } from './api.js'
 import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
@@ -19,6 +20,8 @@ import { ladeBenutzername } from './rangliste.js'
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 
 export default function Settings({
+  onLeitfaden,
+  onRundgang,
   progress,
   settings,
   setSettings,
@@ -405,6 +408,28 @@ export default function Settings({
         </div>
       </div>
       </>
+      )}
+
+      {/* ---------- Hilfe ----------
+          Der Leitfaden war bisher von nirgends verlinkt – die Seite
+          gab es, nur kam niemand hin. */}
+      {onLeitfaden && (
+        <button className="leitfaden-zeile" onClick={onLeitfaden}>
+          <span className="leitfaden-zeile-text">
+            <b>So nutzt du Davaigo</b>
+            <span>Deine Reise durch die App – und was wir uns dabei gedacht haben.</span>
+          </span>
+          <IconPfeil groesse={17} />
+        </button>
+      )}
+      {onRundgang && (
+        <button className="leitfaden-zeile" onClick={onRundgang}>
+          <span className="leitfaden-zeile-text">
+            <b>Rundgang starten</b>
+            <span>Einmal durch alle Bereiche, in einer Minute.</span>
+          </span>
+          <IconPfeil groesse={17} />
+        </button>
       )}
 
       {/* ---------- Lernziel ---------- */}

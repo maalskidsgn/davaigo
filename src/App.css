@@ -12066,3 +12066,137 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 .gespr-start-zwei { margin-top: 22px; }
 /* Situationen dezenter als die Themen – sie sind die zweite Wahl. */
 .gespr-chip-situation { background: var(--flaeche); border-color: transparent; }
+
+/* ---------- Bereichs-Einführung & Rundgang ----------
+   Aus Habloo übernommen. Schatten und Funken dort in festem Orange,
+   hier über var(--primary) – sonst leuchtet in Davaigo plötzlich
+   Habloos Farbe auf. */
+.intro-hintergrund {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 10, 50, .45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 18px;
+  z-index: 80;
+  animation: intro-dunkel .25s ease;
+}
+@keyframes intro-dunkel { from { opacity: 0; } to { opacity: 1; } }
+
+.intro-karte {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  background: var(--card);
+  border-radius: 24px;
+  padding: 26px 24px 22px;
+  margin-bottom: 66px; /* über der Tab-Leiste */
+  box-shadow: 0 24px 60px rgba(20, 10, 50, .35);
+  text-align: center;
+  animation: intro-karte-hoch .34s cubic-bezier(.34, 1.35, .64, 1);
+}
+@keyframes intro-karte-hoch {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.intro-karte h2 { margin: 12px 0 6px; font-size: 1.3rem; }
+.intro-karte p { margin: 0; color: var(--muted); line-height: 1.55; font-size: .95rem; }
+
+/* Das Zeichen springt der Karte hinterher – EIN Moment, kein Loop. */
+.intro-icon {
+  width: 62px; height: 62px;
+  margin: -56px auto 0;
+  border-radius: 20px;
+  background: var(--primary);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 30px color-mix(in srgb, var(--primary) 45%, transparent);
+  animation: intro-hops .5s cubic-bezier(.34, 1.6, .64, 1) .12s backwards;
+}
+@keyframes intro-hops {
+  from { opacity: 0; transform: translateY(22px) scale(.6); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Zwei Funken, die beim Aufspringen kurz wegfliegen */
+.intro-funke {
+  position: absolute;
+  top: -8px;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: intro-funkeln-a .7s ease .2s backwards;
+  opacity: 0;
+}
+.intro-funke-a { left: 38%; animation-name: intro-funkeln-a; }
+.intro-funke-b { left: 58%; width: 6px; height: 6px; animation-name: intro-funkeln-b; }
+@keyframes intro-funkeln-a {
+  0% { opacity: 0; transform: translate(0, 10px) scale(.5); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-22px, -26px) scale(1); }
+}
+@keyframes intro-funkeln-b {
+  0% { opacity: 0; transform: translate(0, 10px) scale(.5); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translate(24px, -20px) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-karte, .intro-icon, .intro-funke, .intro-hintergrund { animation: none; }
+}
+
+.intro-schritt {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: .75rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.intro-knoepfe {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 18px;
+}
+.intro-alles-klar { min-width: 55%; }
+
+.rundgang-start {
+  width: 100%;
+  margin-bottom: 18px;
+}
+
+/* Zeilen "So nutzt du Davaigo" / "Rundgang" unter Mehr */
+.leitfaden-zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  padding: 15px 16px;
+  margin-bottom: 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  background: var(--card);
+  color: var(--muted);
+  box-shadow: 0 6px 22px color-mix(in srgb, var(--primary) 10%, transparent);
+  cursor: pointer;
+}
+.leitfaden-zeile-text { flex: 1; min-width: 0; }
+.leitfaden-zeile-text b {
+  display: block;
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--navy, var(--text));
+}
+.leitfaden-zeile-text span {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--muted);
+}
