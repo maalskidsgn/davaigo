@@ -1,4 +1,4 @@
-import { API_URL, istApp } from './api.js'
+import { API_URL, istApp, kiKopf } from './api.js'
 import { holeVideoMitTranskript, supabaseBereit } from './supabase.js'
 import { useNutzer } from './auth.js'
 import {
@@ -903,7 +903,7 @@ export default function App() {
     try {
       const res = await fetch(API_URL + '/api/translate-batch', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: await kiKopf(),
         body: JSON.stringify({ lines: video.lines.map((l) => l.text) }),
       })
       const data = await res.json()
@@ -967,7 +967,7 @@ export default function App() {
     setVocab((v) => (v[word] ? v : { ...v, [word]: newEntry('', video?.title) }))
 
     try {
-      const res = await fetch(uebersetzungsAdresse(API_URL, word, umfeld))
+      const res = await fetch(uebersetzungsAdresse(API_URL, word, umfeld), { headers: await kiKopf() })
       const data = await res.json()
       // Einen Fehler NICHT in eine Übersetzung verwandeln. Bis zum
       // 23.08. stand hier `data.translation || '(keine Übersetzung

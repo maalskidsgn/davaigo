@@ -84,6 +84,9 @@ app.post(
   }
 )
 
+// Der Server steht hinter dem Proxy von Coolify. Ohne das wäre req.ip für alle
+// dieselbe Adresse, und die Grenzen je Adresse träfen alle Nutzer gemeinsam.
+app.set('trust proxy', 1)
 app.use(express.json({ limit: '2mb' }))
 const PORT = process.env.PORT || 8787
 
@@ -295,6 +298,70 @@ app.get('/api/transcript', async (req, res) => {
   }
 })
 
+// Der Türsteher der beiden Übersetzungs-Endpunkte.
+//
+// Jede Anfrage kostet OpenAI-Guthaben, und bis zum 02.11.2026 konnte
+// sie jeder stellen. Das Tageskontingent aus kiTuersteher passt hier
+// nicht: Ein Wort anzutippen ist die Grundfunktion der App, zehn am
+// Tag wären nichts. Darum eigene Grenzen je Stunde.
+//
+// Anfragen ohne Anmeldung sind vorerst noch erlaubt, aber eng begrenzt:
+// Die App-Fassung, die bei Apple in der Prüfung liegt, schickt noch
+// keine Anmeldung mit. Eine harte Sperre würde bei ihr das Antippen von
+// Wörtern abschalten. Sobald alle Nutzer eine neuere Fassung haben, in
+// Coolify UEBERSETZEN_NUR_ANGEMELDET=1 setzen – dann ist es ganz zu.
+const STUNDE = 3600000
+const UEBERSETZ_GRENZEN = {
+  wort: { nutzer: 600, adresse: 30, alleOhneAnmeldung: 1000 },
+  zeilen: { nutzer: 30, adresse: 3, alleOhneAnmeldung: 40 },
+}
+const uebersetzZaehler = new Map()
+const bekannteToken = new Map()
+
+/** Zählt mit und sagt, ob noch Platz ist. Im Arbeitsspeicher: Ein Neustart setzt die Zähler zurück. */
+function nochFrei(schluessel, grenze) {
+  const jetzt = Date.now()
+  let z = uebersetzZaehler.get(schluessel)
+  if (!z || jetzt > z.bis) {
+    if (uebersetzZaehler.size > 20000) uebersetzZaehler.clear()
+    z = { anzahl: 0, bis: jetzt + STUNDE }
+    uebersetzZaehler.set(schluessel, z)
+  }
+  if (z.anzahl >= grenze) return false
+  z.anzahl++
+  return true
+}
+
+/** Fragt Supabase nur alle fünf Minuten je Token: Wer liest, tippt viele Wörter nacheinander an. */
+async function nutzerIdAusKopf(req) {
+  const token = req.headers.authorization?.replace('Bearer ', '')
+  if (!token) return null
+  const gemerkt = bekannteToken.get(token)
+  if (gemerkt && Date.now() < gemerkt.bis) return gemerkt.id
+  const nutzer = await nutzerAusToken(token).catch(() => null)
+  if (bekannteToken.size > 5000) bekannteToken.clear()
+  bekannteToken.set(token, { id: nutzer?.id ?? null, bis: Date.now() + 5 * 60000 })
+  return nutzer?.id ?? null
+}
+
+async function uebersetzTuer(req, res, art) {
+  const grenze = UEBERSETZ_GRENZEN[art]
+  const nutzerId = await nutzerIdAusKopf(req)
+  if (!nutzerId && process.env.UEBERSETZEN_NUR_ANGEMELDET === '1') {
+    res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+    return false
+  }
+  const frei = nutzerId
+    ? nochFrei(`${art}|nutzer|${nutzerId}`, grenze.nutzer)
+    : nochFrei(`${art}|adresse|${req.ip}`, grenze.adresse) &&
+      nochFrei(`${art}|alle`, grenze.alleOhneAnmeldung)
+  if (!frei) {
+    res.status(429).json({ error: 'Gerade zu viele Übersetzungen. Bitte versuch es später noch einmal.' })
+    return false
+  }
+  return true
+}
+
 // Übersetzt ein russisches Wort ins Deutsche.
 //
 // Lief bis zum 23.08. über Googles Widget-Endpunkt, der inzwischen
@@ -302,8 +369,9 @@ app.get('/api/transcript', async (req, res) => {
 // ein Sprachmodell, das nebenbei die Grundform findet: Wer "книгу"
 // antippt, bekommt "das Buch" statt einer Fehlanzeige.
 app.get('/api/translate', async (req, res) => {
-  const word = (req.query.q || '').trim()
+  const word = (req.query.q || '').trim().slice(0, 100)
   if (!word) return res.status(400).json({ error: 'Kein Wort angegeben.' })
+  if (!(await uebersetzTuer(req, res, 'wort'))) return
   try {
     // Der Satz drumherum (optional) – damit mehrdeutige Wörter passend übersetzt werden
     const satz = String(req.query.satz || '').trim().slice(0, 300)
@@ -495,6 +563,7 @@ app.post('/api/generate-vocab', async (req, res) => {
 app.post('/api/translate-batch', async (req, res) => {
   const lines = Array.isArray(req.body.lines) ? req.body.lines.slice(0, 500) : []
   if (lines.length === 0) return res.status(400).json({ error: 'Keine Zeilen übergeben.' })
+  if (!(await uebersetzTuer(req, res, 'zeilen'))) return
 
   try {
     const uebersetzungen = await uebersetzeZeilen(lines)

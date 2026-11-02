@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { holeVerzeichnis, holeInhalt, lesedauer, teileMitVokabeln, ARTEN } from './inhalte.js'
 import { spiele } from './audio.js'
-import { API_URL } from './api.js'
+import { API_URL, kiKopf } from './api.js'
 import { IconSuche, IconPfeil, IconMediathek, IconBuch, IconLesezeichen } from './icons.jsx'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 
@@ -153,7 +153,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
     setHolt(wort)
     setWortFehler('')
     try {
-      const r = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(wort))
+      const r = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(wort), { headers: await kiKopf() })
       const d = await r.json()
       if (!r.ok || !d.translation) throw new Error(d.error || 'Keine Übersetzung gefunden.')
       onAddVocab?.([{
