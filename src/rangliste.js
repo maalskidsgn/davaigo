@@ -10,6 +10,7 @@
 
 import { db, supabaseBereit } from './supabase.js'
 import { API_URL } from './api.js'
+import { tr } from './sprache.js'
 
 // Gleiche Regel wie der CHECK in der Datenbank
 export const NAME_MUSTER = /^[A-Za-z0-9_.]{3,20}$/
@@ -20,10 +21,10 @@ const RESERVIERT = ['davaigo', 'davai', 'admin', 'support', 'team', 'moderator',
 /** Prüft die Form, ohne die Datenbank zu fragen. Liefert Fehlertext oder ''. */
 export function nameFehler(name) {
   const n = name.trim()
-  if (n.length < 3) return 'Mindestens 3 Zeichen.'
-  if (n.length > 20) return 'Höchstens 20 Zeichen.'
-  if (!NAME_MUSTER.test(n)) return 'Nur Buchstaben, Ziffern, Punkt und Unterstrich – ohne Leerzeichen und Umlaute.'
-  if (RESERVIERT.some((r) => n.toLowerCase().includes(r))) return 'Dieser Name ist reserviert.'
+  if (n.length < 3) return tr('Mindestens 3 Zeichen.')
+  if (n.length > 20) return tr('Höchstens 20 Zeichen.')
+  if (!NAME_MUSTER.test(n)) return tr('Nur Buchstaben, Ziffern, Punkt und Unterstrich – ohne Leerzeichen und Umlaute.')
+  if (RESERVIERT.some((r) => n.toLowerCase().includes(r))) return tr('Dieser Name ist reserviert.')
   return ''
 }
 
@@ -73,18 +74,18 @@ export async function setzeBenutzername(nutzerId, name) {
     window.dispatchEvent(new CustomEvent('benutzername', { detail: n }))
     return n
   }
-  if (error.code === '23505') throw new Error('Den Namen gibt es schon – nimm einen anderen.')
-  if (error.code === '23514') throw new Error('Nur Buchstaben, Ziffern, Punkt und Unterstrich (3–20 Zeichen).')
-  if (fehltMigration(error)) throw new Error('Benutzernamen sind gleich verfügbar – bitte später nochmal.')
-  throw new Error('Hat nicht geklappt: ' + error.message)
+  if (error.code === '23505') throw new Error(tr('Den Namen gibt es schon – nimm einen anderen.'))
+  if (error.code === '23514') throw new Error(tr('Nur Buchstaben, Ziffern, Punkt und Unterstrich (3–20 Zeichen).'))
+  if (fehltMigration(error)) throw new Error(tr('Benutzernamen sind gleich verfügbar – bitte später nochmal.'))
+  throw new Error(tr('Hat nicht geklappt: {0}', error.message))
 }
 
 /** Die drei Zeiträume, in denen man sich vergleichen kann. */
 export const ZEITRAEUME = [
-  ['woche', 'Woche'],
-  ['monat', 'Monat'],
-  ['jahr', 'Jahr'],
-  ['gesamt', 'Gesamt'],
+  ['woche', tr('Woche')],
+  ['monat', tr('Monat')],
+  ['jahr', tr('Jahr')],
+  ['gesamt', tr('Gesamt')],
 ]
 
 /**
@@ -182,12 +183,12 @@ function verkleinern(datei, kante = 400) {
       c.width = c.height = kante
       const g = c.getContext('2d')
       g.drawImage(bild, x, y, seite, seite, 0, 0, kante, kante)
-      c.toBlob((b) => (b ? fertig(b) : fehler(new Error('Bild ließ sich nicht umwandeln.'))),
+      c.toBlob((b) => (b ? fertig(b) : fehler(new Error(tr('Bild ließ sich nicht umwandeln.')))),
         'image/jpeg', 0.86)
     }
     bild.onerror = () => {
       URL.revokeObjectURL(adresse)
-      fehler(new Error('Das ist kein Bild, das wir lesen können.'))
+      fehler(new Error(tr('Das ist kein Bild, das wir lesen können.')))
     }
     bild.src = adresse
   })
@@ -198,8 +199,8 @@ function verkleinern(datei, kante = 400) {
  * @returns {Promise<string>} die öffentliche Adresse
  */
 export async function setzeProfilbild(nutzerId, datei) {
-  if (!supabaseBereit || !nutzerId) throw new Error('Bitte zuerst anmelden.')
-  if (!datei.type.startsWith('image/')) throw new Error('Bitte ein Bild auswählen.')
+  if (!supabaseBereit || !nutzerId) throw new Error(tr('Bitte zuerst anmelden.'))
+  if (!datei.type.startsWith('image/')) throw new Error(tr('Bitte ein Bild auswählen.'))
 
   const klein = await verkleinern(datei)
   // Der Name wechselt bei jedem Mal, sonst zeigt der Browser noch
@@ -210,12 +211,12 @@ export async function setzeProfilbild(nutzerId, datei) {
     contentType: 'image/jpeg',
     upsert: true,
   })
-  if (hoch.error) throw new Error('Hochladen fehlgeschlagen: ' + hoch.error.message)
+  if (hoch.error) throw new Error(tr('Hochladen fehlgeschlagen: {0}', hoch.error.message))
 
   // Das alte Bild wegräumen, damit der Speicher nicht zuwächst
   const { data: vorher } = await db.from('profile').select('bild').eq('id', nutzerId).maybeSingle()
   const { error } = await db.from('profile').upsert({ id: nutzerId, bild: pfad }, { onConflict: 'id' })
-  if (error) throw new Error('Speichern fehlgeschlagen: ' + error.message)
+  if (error) throw new Error(tr('Speichern fehlgeschlagen: {0}', error.message))
   if (vorher?.bild && vorher.bild !== pfad) {
     db.storage.from(EIMER).remove([vorher.bild]).catch(() => {})
   }
@@ -272,7 +273,7 @@ export async function ladeFreunde() {
  *   ist die Freundschaft sofort geschlossen.
  */
 export async function frageFreund(benutzername) {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(tr('Bitte zuerst anmelden.'))
   const { data, error } = await db.rpc('freund_anfragen', { name: benutzername })
   if (error) throw new Error(error.message)
   window.dispatchEvent(new CustomEvent('freunde'))
@@ -292,7 +293,7 @@ async function meldePerMail() {
     if (!token) return
     await fetch(API_URL + '/api/freunde/melden', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ herkunft: window.location.origin }),
     })
   } catch {
@@ -428,11 +429,11 @@ export async function ladeBlockierteListe() {
 
 /** Die Gründe, aus denen man jemanden melden kann. */
 export const MELDE_GRUENDE = [
-  ['bild', 'Anstößiges Profilbild'],
-  ['name', 'Anstößiger Benutzername'],
-  ['belaestigung', 'Belästigung'],
-  ['spam', 'Spam oder Werbung'],
-  ['anderes', 'Etwas anderes'],
+  ['bild', tr('Anstößiges Profilbild')],
+  ['name', tr('Anstößiger Benutzername')],
+  ['belaestigung', tr('Belästigung')],
+  ['spam', tr('Spam oder Werbung')],
+  ['anderes', tr('Etwas anderes')],
 ]
 
 /**
@@ -463,7 +464,7 @@ async function meldungPerMail(wen, grund, bemerkung) {
     if (!token) return
     await fetch(API_URL + '/api/meldung', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ wen, grund, bemerkung }),
     })
   } catch {

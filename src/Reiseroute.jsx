@@ -18,6 +18,7 @@
 
 import { ALLES_OFFEN, dauerMinuten } from './lektionen.js'
 import { IconUhr, IconSchloss } from './icons.jsx'
+import { tr } from './sprache.js'
 
 export const SPUR = 74 // Breite der Spur, in der der Weg laeuft
 // Die Spur ist im Kasten eingerueckt. Der Wert steckt in BEIDEN
@@ -157,19 +158,19 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
                 disabled={zu}
                 onClick={() => onStart(l)}
               >
-                {dran && <span className="karte-marke">Als Nächstes</span>}
+                {dran && <span className="karte-marke">{tr('Als Nächstes')}</span>}
                 <span className="karte-kopf">
                   {zu && <IconSchloss groesse={16} />}
                   <span className="karte-titel">{l.titel}</span>
                 </span>
 
                 {fertig ? (
-                  <span className="karte-status">Geschafft</span>
+                  <span className="karte-status">{tr('Geschafft')}</span>
                 ) : dran ? (
                   <>
                     <span className="karte-unter">{l.grammatik?.[0] ?? l.beschreibung}</span>
                     <span className="karte-los">
-                      Weiterlernen
+                      {tr('Weiterlernen')}
                       <svg viewBox="0 0 24 24" width="17" height="17">
                         <path
                           d="M4 12h15M13 6l6 6-6 6"
@@ -185,7 +186,7 @@ export default function Reiseroute({ lektionen, fortschritt, naechsteId, onStart
                 ) : (
                   <span className="karte-dauer">
                     <IconUhr groesse={14} />
-                    {dauer.von}–{dauer.bis} Min.
+                    {tr('{0}–{1} Min.', dauer.von, dauer.bis)}
                   </span>
                 )}
               </button>

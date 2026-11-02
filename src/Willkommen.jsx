@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
+import { tr, sprache, setzeSprache } from './sprache.js'
 
 /**
  * Die Startseite für alle, die noch kein Konto haben – im Stil der
@@ -200,36 +201,36 @@ function BildKi() {
 // Die vier Stärken – Text links/rechts im Wechsel wie bei Duolingo
 const STAERKEN = [
   {
-    titel: 'Kostenlos. Unterhaltsam. Effektiv.',
-    text: 'Du lernst mit echten YouTube-Videos: Der Text läuft mit, jedes Wort ist antippbar und wandert mit einem Klick in deinen Vokabeltrainer. So fühlt sich Lernen nicht nach Schule an.',
+    titel: tr('Kostenlos. Unterhaltsam. Effektiv.'),
+    text: tr('Du lernst mit echten YouTube-Videos: Der Text läuft mit, jedes Wort ist antippbar und wandert mit einem Klick in deinen Vokabeltrainer. So fühlt sich Lernen nicht nach Schule an.'),
     bild: <BildVideo />,
   },
   {
-    titel: 'Merkt sich, was du vergisst',
-    text: 'Dein Vokabeltrainer arbeitet wie ein Karteikasten mit Gedächtnis: Was du kannst, kommt seltener dran. Was du fast vergessen hättest, genau im richtigen Moment wieder.',
+    titel: tr('Merkt sich, was du vergisst'),
+    text: tr('Dein Vokabeltrainer arbeitet wie ein Karteikasten mit Gedächtnis: Was du kannst, kommt seltener dran. Was du fast vergessen hättest, genau im richtigen Moment wieder.'),
     bild: <BildKarten />,
   },
   {
-    titel: 'Immer motiviert',
-    text: 'XP für jede Übung, eine Tagesserie, die du nicht reißen willst, Level mit Namen und Mini-Spiele mit deinen eigenen Wörtern – dranbleiben war noch nie so leicht.',
+    titel: tr('Immer motiviert'),
+    text: tr('XP für jede Übung, eine Tagesserie, die du nicht reißen willst, Level mit Namen und Mini-Spiele mit deinen eigenen Wörtern – dranbleiben war noch nie so leicht.'),
     bild: <BildMotivation />,
   },
   {
-    titel: 'Personalisiertes Lernen',
-    text: 'Die KI stellt dir Vokabellisten zu deinen Themen zusammen, schreibt zweisprachige Bücher auf deinem Niveau und schlägt nie Wörter vor, die du längst kennst.',
+    titel: tr('Personalisiertes Lernen'),
+    text: tr('Die KI stellt dir Vokabellisten zu deinen Themen zusammen, schreibt zweisprachige Bücher auf deinem Niveau und schlägt nie Wörter vor, die du längst kennst.'),
     bild: <BildKi />,
   },
 ]
 
 // Die ersten russischen Wörter als Vorgeschmack im Laufband
 const WOERTER = [
-  ['Привет', 'Hallo'],
-  ['Спасибо', 'Danke'],
-  ['Давай!', 'Los geht’s!'],
-  ['Хорошо', 'Gut'],
-  ['Пока', 'Tschüss'],
-  ['Да', 'Ja'],
-  ['Дружба', 'Freundschaft'],
+  ['Привет', tr('Hallo')],
+  ['Спасибо', tr('Danke')],
+  ['Давай!', tr('Los geht’s!')],
+  ['Хорошо', tr('Gut')],
+  ['Пока', tr('Tschüss')],
+  ['Да', tr('Ja')],
+  ['Дружба', tr('Freundschaft')],
 ]
 
 export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
@@ -263,7 +264,7 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           <span className="lp-name">{APP_NAME}</span>
         </span>
         <button className="lp-knopf-leise" onClick={onAnmelden}>
-          Anmelden
+          {tr('Anmelden')}
         </button>
       </nav>
 
@@ -274,14 +275,14 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         </div>
         <div className="lp-hero-text">
           <h1>
-            Die unterhaltsamste Art, <span className="lp-akzent">Russisch</span> zu lernen!
+            {tr('Die unterhaltsamste Art,')} <span className="lp-akzent">{tr('Russisch')}</span> {tr('zu lernen!')}
           </h1>
           <div className="lp-hero-knoepfe">
             <button className="lp-knopf-gold" onClick={onStarten}>
-              Loslegen
+              {tr('Loslegen')}
             </button>
             <button className="lp-knopf-rahmen" onClick={onAnmelden}>
-              Ich habe schon ein Konto
+              {tr('Ich habe schon ein Konto')}
             </button>
           </div>
         </div>
@@ -316,11 +317,11 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         <span className="lp-kachel lp-k4">🃏</span>
         <span className="lp-kachel lp-k5">Б</span>
         <span className="lp-kachel lp-k6">🎬</span>
-        <h2>Lerne jederzeit und überall</h2>
+        <h2>{tr('Lerne jederzeit und überall')}</h2>
         <p>
-          Im Browser, auf dem Handy oder Tablet – dein Fortschritt reist mit.
+          {tr('Im Browser, auf dem Handy oder Tablet – dein Fortschritt reist mit.')}
         </p>
-        <span className="lp-bald">📱 Bald auch im App Store &amp; bei Google Play</span>
+        <span className="lp-bald">{tr('📱 Bald auch im App Store & bei Google Play')}</span>
       </section>
 
       {/* ---------- Premium ---------- */}
@@ -328,14 +329,13 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
 <section className="lp-premium lp-zeig">
         <div className="lp-premium-karte">
           <span className="lp-premium-funke" aria-hidden="true">✦</span>
-          <p className="lp-premium-ueber">Power up mit</p>
-          <h2 className="lp-premium-titel">{APP_NAME} Premium</h2>
+          <p className="lp-premium-ueber">{tr('Power up mit')}</p>
+          <h2 className="lp-premium-titel">{tr('{0} Premium', APP_NAME)}</h2>
           <p className="lp-premium-text">
-            Unbegrenzte KI-Vokabellisten und E-Books, Abgleich auf allen
-            Geräten und Statistiken zu deinem Fortschritt.
+            {tr('Unbegrenzte KI-Vokabellisten und E-Books, Abgleich auf allen Geräten und Statistiken zu deinem Fortschritt.')}
           </p>
           <button className="lp-knopf-hell" onClick={onStarten}>
-            Kostenlos ausprobieren
+            {tr('Kostenlos ausprobieren')}
           </button>
         </div>
       </section>
@@ -344,10 +344,10 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       {/* ---------- Großer Schluss ---------- */}
       <section className="lp-schluss lp-zeig">
         <h2>
-          Lerne Russisch<br />mit {APP_NAME}
+          {tr('Lerne Russisch')}<br />{tr('mit {0}', APP_NAME)}
         </h2>
         <button className="lp-knopf-gold" onClick={onStarten}>
-          Давай – los geht’s!
+          {tr('Давай – los geht’s!')}
         </button>
       </section>
 
@@ -355,35 +355,38 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       <footer className="lp-fuss">
         <div className="lp-fuss-spalten">
           <div>
-            <h3>Lernen</h3>
-            <button onClick={onStarten}>Lektionen</button>
-            <button onClick={onStarten}>Vokabeltrainer</button>
-            <button onClick={onStarten}>Videos &amp; Songs</button>
+            <h3>{tr('Lernen')}</h3>
+            <button onClick={onStarten}>{tr('Lektionen')}</button>
+            <button onClick={onStarten}>{tr('Vokabeltrainer')}</button>
+            <button onClick={onStarten}>{tr('Videos & Songs')}</button>
             <button onClick={onStarten}>E-Books</button>
           </div>
           <div>
-            <h3>Konto</h3>
-            <button onClick={onStarten}>Kostenlos starten</button>
-            <button onClick={onAnmelden}>Anmelden</button>
-            {!istApp && <button onClick={onStarten}>Premium</button>}
+            <h3>{tr('Konto')}</h3>
+            <button onClick={onStarten}>{tr('Kostenlos starten')}</button>
+            <button onClick={onAnmelden}>{tr('Anmelden')}</button>
+            {!istApp && <button onClick={onStarten}>{tr('Premium')}</button>}
           </div>
           <div>
             <h3>{APP_NAME}</h3>
-            <span>Russisch lernen mit echten Videos, einem Karteikasten mit Gedächtnis und einer KI, die mitdenkt.</span>
+            <span>{tr('Russisch lernen mit echten Videos, einem Karteikasten mit Gedächtnis und einer KI, die mitdenkt.')}</span>
           </div>
           {/* Pflichtangaben. Sie müssen von jeder Seite aus in zwei
               Klicks erreichbar sein – und vor allem OHNE Konto,
               sonst stünden sie hinter der Anmeldung. */}
           <div>
-            <h3>Mehr</h3>
-            <a href="/ratgeber/">Ratgeber</a>
-            <button onClick={() => onRecht('impressum')}>Impressum</button>
-            <button onClick={() => onRecht('datenschutz')}>Datenschutz</button>
-            <button onClick={() => onRecht('agb')}>AGB &amp; Widerruf</button>
+            <h3>{tr('Mehr')}</h3>
+            <a href="/ratgeber/">{tr('Ratgeber')}</a>
+            <button onClick={() => onRecht('impressum')}>{tr('Impressum')}</button>
+            <button onClick={() => onRecht('datenschutz')}>{tr('Datenschutz')}</button>
+            <button onClick={() => onRecht('agb')}>{tr('AGB & Widerruf')}</button>
+            <button onClick={() => setzeSprache(sprache() === 'en' ? 'de' : 'en')}>
+              {sprache() === 'en' ? 'Deutsch' : 'English'}
+            </button>
           </div>
         </div>
         <p className="lp-fuss-zeile">
-          © {new Date().getFullYear()} {APP_NAME} · Сделано с любовью – mit Liebe gemacht 💜
+          {tr('© {0} {1} · Сделано с любовью – mit Liebe gemacht 💜', new Date().getFullYear(), APP_NAME)}
         </p>
       </footer>
     </div>

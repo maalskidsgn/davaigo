@@ -8,24 +8,25 @@
 
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
+import { tr } from './sprache.js'
 
 // ---------------------------------------------------------------
 //  Fehlermeldungen auf Deutsch
 // ---------------------------------------------------------------
 // Supabase antwortet auf Englisch; hier die häufigsten Fälle übersetzt.
 const MELDUNGEN = {
-  'Invalid login credentials': 'E-Mail oder Passwort stimmt nicht.',
-  'User already registered': 'Für diese E-Mail gibt es schon ein Konto. Melde dich einfach an.',
-  'Email not confirmed': 'Bitte bestätige zuerst den Link in deiner E-Mail.',
+  'Invalid login credentials': tr('E-Mail oder Passwort stimmt nicht.'),
+  'User already registered': tr('Für diese E-Mail gibt es schon ein Konto. Melde dich einfach an.'),
+  'Email not confirmed': tr('Bitte bestätige zuerst den Link in deiner E-Mail.'),
   'Password should be at least 6 characters':
-    'Das Passwort braucht mindestens 6 Zeichen.',
+    tr('Das Passwort braucht mindestens 6 Zeichen.'),
   'Unable to validate email address: invalid format':
-    'Diese E-Mail-Adresse sieht nicht richtig aus.',
+    tr('Diese E-Mail-Adresse sieht nicht richtig aus.'),
   'For security purposes, you can only request this after 60 seconds.':
-    'Kurz warten – aus Sicherheitsgründen geht das nur einmal pro Minute.',
-  'Signup requires a valid password': 'Bitte gib ein Passwort ein.',
+    tr('Kurz warten – aus Sicherheitsgründen geht das nur einmal pro Minute.'),
+  'Signup requires a valid password': tr('Bitte gib ein Passwort ein.'),
   'Email rate limit exceeded':
-    'Gerade wurden zu viele E-Mails verschickt. Bitte später noch einmal versuchen.',
+    tr('Gerade wurden zu viele E-Mails verschickt. Bitte später noch einmal versuchen.'),
 }
 
 function uebersetzeFehler(fehler) {
@@ -36,10 +37,10 @@ function uebersetzeFehler(fehler) {
 
   // Meldungen mit wechselndem Inhalt (z. B. die genannte Adresse)
   if (/is invalid/.test(text) && /email/i.test(text)) {
-    return 'Diese E-Mail-Adresse wird nicht akzeptiert. Bitte nimm deine richtige Adresse.'
+    return tr('Diese E-Mail-Adresse wird nicht akzeptiert. Bitte nimm deine richtige Adresse.')
   }
   if (/password/i.test(text) && /least/i.test(text)) {
-    return 'Das Passwort braucht mindestens 6 Zeichen.'
+    return tr('Das Passwort braucht mindestens 6 Zeichen.')
   }
   return text
 }
@@ -194,5 +195,5 @@ export async function neuesPasswortSetzen(passwort) {
 /** Anzeigename fürs Profil – fällt auf den Teil vor dem @ zurück. */
 export function anzeigename(nutzer) {
   if (!nutzer) return ''
-  return nutzer.user_metadata?.name || nutzer.email?.split('@')[0] || 'Du'
+  return nutzer.user_metadata?.name || nutzer.email?.split('@')[0] || tr('Du')
 }

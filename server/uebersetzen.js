@@ -34,6 +34,8 @@
 // (DeepL hat 500.000 Zeichen im Monat frei): Die beiden Funktionen
 // unten sind die einzige Stelle, die man dafür anfassen muss.
 
+import { frageOpenAI, zielsprache } from './sprache.js'
+
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
 
@@ -66,7 +68,7 @@ async function frageModell(nachrichten, schema) {
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -113,7 +115,7 @@ export async function uebersetzeWort(text, richtung = 'ru-de', satz = '') {
   const sauber = text.trim()
   if (!sauber) return ''
 
-  const schluessel = richtung + '|' + sauber.toLowerCase() + (satz ? '|' + satz : '')
+  const schluessel = zielsprache() + '|' + richtung + '|' + sauber.toLowerCase() + (satz ? '|' + satz : '')
   const gemerkt = ausSpeicher(schluessel)
   if (gemerkt !== undefined) return gemerkt
 
@@ -127,6 +129,33 @@ export async function uebersetzeWort(text, richtung = 'ru-de', satz = '') {
     : 'Steht das Wort in einer gebeugten Form (Fall, Zahl, Person, Zeit), ' +
       'übersetze die Grundform – wer "книгу" antippt, möchte "das Buch" ' +
       'lesen. Bei einem Substantiv nenne den deutschen Artikel mit. '
+
+  // Auf Englisch sagen wir es dem Modell ausdrücklich: Der allgemeine
+  // Vorrang-Hinweis reicht hier nicht, weil diese Anweisung den deutschen
+  // Artikel verlangt und das Modell ihr sonst folgt.
+  if (zielsprache() === 'en') {
+    const { uebersetzung: englisch } = await frageModell(
+      [
+        {
+          role: 'system',
+          content:
+            (nachRussisch
+              ? 'Translate from English into Russian. '
+              : 'Translate from Russian into English. If the word is inflected (case, number, ' +
+                'person, tense), translate its base form: "книгу" gives "book". Nouns without an ' +
+                'article, verbs with "to". ') +
+            'Answer ONLY with the translation: no explanation, quotation marks, alternatives or ' +
+            'transliteration.' +
+            (satz ? ' You also get the sentence the word is in: translate ONLY the word, in the sense it has there.' : ''),
+        },
+        { role: 'user', content: satz ? `Word: ${sauber}\nSentence: ${satz}` : sauber },
+      ],
+      WORT_SCHEMA
+    )
+    const ergebnisEn = (englisch ?? '').trim()
+    if (ergebnisEn) merke(schluessel, ergebnisEn)
+    return ergebnisEn
+  }
 
   const [von, nach] = nachRussisch ? ['Deutschen', 'Russische'] : ['Russischen', 'Deutsche']
 

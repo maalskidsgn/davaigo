@@ -7,37 +7,38 @@
 // über dieselbe review()-Funktion im Spaced-Repetition-Verfahren.
 
 import { mischen } from './lektionen.js'
+import { tr } from './sprache.js'
 
 export const LEKTION_GROESSE = 20
 
 export const ARTEN = [
   {
     id: 'karten',
-    titel: 'Karten',
+    titel: tr('Karten'),
     icon: 'karten',
-    text: 'Wort ansehen, selbst einschätzen, umdrehen',
-    hinweis: 'Klassisch wie Karteikarten',
+    text: tr('Wort ansehen, selbst einschätzen, umdrehen'),
+    hinweis: tr('Klassisch wie Karteikarten'),
   },
   {
     id: 'auswahl',
-    titel: 'Multiple Choice',
+    titel: tr('Multiple Choice'),
     icon: 'auswahl',
-    text: 'Aus fünf Möglichkeiten die richtige finden',
-    hinweis: 'Geht schnell, gut zum Aufwärmen',
+    text: tr('Aus fünf Möglichkeiten die richtige finden'),
+    hinweis: tr('Geht schnell, gut zum Aufwärmen'),
   },
   {
     id: 'schreiben',
-    titel: 'Schreiben',
+    titel: tr('Schreiben'),
     icon: 'schreiben',
-    text: 'Das Wort selbst eintippen',
-    hinweis: 'Am anstrengendsten – und am wirksamsten',
+    text: tr('Das Wort selbst eintippen'),
+    hinweis: tr('Am anstrengendsten – und am wirksamsten'),
   },
   {
     id: 'gemischt',
-    titel: 'Gemischt',
+    titel: tr('Gemischt'),
     icon: 'gemischt',
-    text: 'Alle drei Arten bunt durcheinander',
-    hinweis: 'Wie eine echte Prüfung',
+    text: tr('Alle drei Arten bunt durcheinander'),
+    hinweis: tr('Wie eine echte Prüfung'),
   },
 ]
 

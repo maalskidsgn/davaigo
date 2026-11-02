@@ -45,6 +45,7 @@ import {
   erzeugeVideoVokabeln,
   erzeugeBuchzusammenfassung,
 } from './ebooks.js'
+import { spracheAusAnfrage, zielsprache } from './sprache.js'
 
 // Beim lokalen Entwickeln die Zugangsdaten aus .env.local einlesen.
 // In der Produktion (Coolify/Docker) kommen sie als echte Umgebungsvariablen.
@@ -85,6 +86,7 @@ app.post(
 )
 
 app.use(express.json({ limit: '2mb' }))
+app.use(spracheAusAnfrage)
 const PORT = process.env.PORT || 8787
 
 // CORS: erlaubt dem Frontend (andere Domain, z.B. Vercel), diesen Server
@@ -565,8 +567,10 @@ async function kiTuersteher(req, res, art) {
     res.status(402).json({
       error: 'limit',
       nachricht:
-        `Du hast heute ${KI_PRO_TAG} Mal die KI genutzt. ` +
-        `Neues Kontingent gibt es ${naechsteAuffuellung()} – oder sofort mit Premium.`,
+        zielsprache() === 'en'
+          ? `You've used the AI ${KI_PRO_TAG} times today. Your limit resets tomorrow – or get Premium now.`
+          : `Du hast heute ${KI_PRO_TAG} Mal die KI genutzt. ` +
+            `Neues Kontingent gibt es ${naechsteAuffuellung()} – oder sofort mit Premium.`,
     })
     return null
   }

@@ -12,6 +12,7 @@ import { lokalerVerlauf, vereineVerlauf, uebernimmVerlauf } from './verlauf.js'
 import { INTERVALS_DAYS } from './srs.js'
 import { heute } from './datum.js'
 import { merkeTagesXp } from './rangliste.js'
+import { tr } from './sprache.js'
 
 /**
  * Der Abstand eines Eintrags in Tagen – als Maß für „wie weit ist
@@ -125,9 +126,7 @@ export async function speichereVokabeln(nutzerId, vokabeln) {
   if (error && fehltSpalte(error)) {
     feineFelderDa = false
     console.warn(
-      'Die Spalten intervall/leichtigkeit fehlen in der Tabelle vokabeln. ' +
-        'Der Abgleich läuft ohne sie weiter – die Abstände bleiben dann grob. ' +
-        'Das SQL zum Nachrüsten steht in UEBERTRAGEN-VON-HABLOO.md.'
+      tr('Die Spalten intervall/leichtigkeit fehlen in der Tabelle vokabeln. Der Abgleich läuft ohne sie weiter – die Abstände bleiben dann grob. Das SQL zum Nachrüsten steht in UEBERTRAGEN-VON-HABLOO.md.')
     )
     ;({ error } = await schreiben())
   }

@@ -1,3 +1,4 @@
+import { tr } from './sprache.js'
 // Punkte- und Levelsystem wie bei Duolingo:
 // Für Lernaktionen gibt es XP (Erfahrungspunkte). Mit genug XP steigt man
 // ein Level auf, und wer jeden Tag lernt, baut eine Tagesserie (Streak) auf.
@@ -25,15 +26,15 @@ export const XP = {
 
 // Titel für die Level (ab dem letzten bleibt man "Legende")
 export const LEVEL_NAMES = [
-  'Neuling',
-  'Anfänger',
-  'Entdecker',
-  'Lerner',
-  'Kenner',
-  'Könner',
-  'Profi',
-  'Meister',
-  'Legende',
+  tr('Neuling'),
+  tr('Anfänger'),
+  tr('Entdecker'),
+  tr('Lerner'),
+  tr('Kenner'),
+  tr('Könner'),
+  tr('Profi'),
+  tr('Meister'),
+  tr('Legende'),
 ]
 
 // Gesamt-XP, ab denen ein Level erreicht ist.

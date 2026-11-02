@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { neuesPasswortSetzen } from './auth.js'
 import Logo from './Logo.jsx'
+import { tr } from './sprache.js'
 
 /**
  * Das Formular nach dem Klick in der "Passwort vergessen"-Mail.
@@ -19,8 +20,8 @@ export default function NeuesPasswort({ onFertig }) {
   async function absenden(e) {
     e.preventDefault()
     setFehler('')
-    if (passwort.length < 6) return setFehler('Mindestens 6 Zeichen.')
-    if (passwort !== nochmal) return setFehler('Die beiden Passwörter sind nicht gleich.')
+    if (passwort.length < 6) return setFehler(tr('Mindestens 6 Zeichen.'))
+    if (passwort !== nochmal) return setFehler(tr('Die beiden Passwörter sind nicht gleich.'))
     setLaeuft(true)
     try {
       await neuesPasswortSetzen(passwort)
@@ -35,30 +36,30 @@ export default function NeuesPasswort({ onFertig }) {
     // Bewusst kein onClick zum Schliessen am Overlay und kein x-Knopf:
     // Wer hier abbricht, steht beim naechsten Anmelden wieder vor
     // derselben Tuer.
-    <div className="login-overlay" role="dialog" aria-label="Neues Passwort">
+    <div className="login-overlay" role="dialog" aria-label={tr('Neues Passwort')}>
       <div className="login-box">
         <div className="login-kopf">
           <Logo klasse="login-badge" />
-          <h2>Neues Passwort</h2>
-          <p>Du bist über den Link aus der E-Mail hier. Gib jetzt ein neues Passwort ein – das alte gilt danach nicht mehr.</p>
+          <h2>{tr('Neues Passwort')}</h2>
+          <p>{tr('Du bist über den Link aus der E-Mail hier. Gib jetzt ein neues Passwort ein – das alte gilt danach nicht mehr.')}</p>
         </div>
 
         <form onSubmit={absenden} className="login-form">
           <label className="login-feld">
-            <span>Neues Passwort</span>
+            <span>{tr('Neues Passwort')}</span>
             <input
               type="password"
               value={passwort}
               onChange={(e) => setPasswort(e.target.value)}
               minLength={6}
               autoComplete="new-password"
-              placeholder="Mindestens 6 Zeichen"
+              placeholder={tr('Mindestens 6 Zeichen')}
               autoFocus
               required
             />
           </label>
           <label className="login-feld">
-            <span>Noch einmal</span>
+            <span>{tr('Noch einmal')}</span>
             <input
               type="password"
               value={nochmal}
@@ -70,7 +71,7 @@ export default function NeuesPasswort({ onFertig }) {
           </label>
           {fehler && <p className="login-fehler" role="alert">{fehler}</p>}
           <button type="submit" className="btn login-absenden" disabled={laeuft}>
-            {laeuft ? 'Speichere …' : 'Passwort speichern'}
+            {laeuft ? tr('Speichere …') : tr('Passwort speichern')}
           </button>
         </form>
       </div>

@@ -26,6 +26,7 @@ import {
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
+import { tr, gebiet } from './sprache.js'
 
 // ---------------------------------------------------------------
 //  Davaigo-Aussehen für die Stripe-Felder
@@ -85,10 +86,10 @@ const AUSSEHEN = {
 
 // Was Premium kann – dieselbe Liste wie in den Einstellungen.
 const LEISTUNGEN = [
-  'Unbegrenzte KI-Vokabellisten',
-  'Unbegrenzte Übungssätze nach Aspekt und Fall',
-  'Zweisprachige E-Books zu deinem Wunschthema',
-  'Wissenstexte zum Lesen ohne Tageslimit',
+  tr('Unbegrenzte KI-Vokabellisten'),
+  tr('Unbegrenzte Übungssätze nach Aspekt und Fall'),
+  tr('Zweisprachige E-Books zu deinem Wunschthema'),
+  tr('Wissenstexte zum Lesen ohne Tageslimit'),
 ]
 
 // Stripe.js wird einmal geladen und dann wiederverwendet. Der
@@ -129,10 +130,10 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       setClientSecret(null)
       setFehler('')
       try {
-        if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+        if (!supabaseBereit) throw new Error(tr('Bitte zuerst anmelden.'))
         const { data } = await db.auth.getSession()
         const token = data?.session?.access_token
-        if (!token) throw new Error('Bitte zuerst anmelden.')
+        if (!token) throw new Error(tr('Bitte zuerst anmelden.'))
 
         // Preis, Schlüssel und Bezahlvorgang parallel holen –
         // nacheinander dauerte es dreimal so lang.
@@ -140,7 +141,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           fetch(API_URL + '/api/bezahlung/status').then((r) => r.json()),
           fetch(API_URL + '/api/bezahlung/start', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({ herkunft: window.location.origin, art: 'elements', tarif }),
           }).then((r) => r.json()),
         ])
@@ -149,10 +150,10 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
         if (start.error) throw new Error(start.error)
         if (!status.schluessel) {
           throw new Error(
-            'Auf dem Server fehlt der öffentliche Stripe-Schlüssel (STRIPE_PUBLIC_KEY).'
+            tr('Auf dem Server fehlt der öffentliche Stripe-Schlüssel (STRIPE_PUBLIC_KEY).')
           )
         }
-        if (!start.clientSecret) throw new Error('Der Bezahlvorgang kam unvollständig zurück.')
+        if (!start.clientSecret) throw new Error(tr('Der Bezahlvorgang kam unvollständig zurück.'))
 
         const s = await stripeHolen(status.schluessel)
         if (abgebrochen) return
@@ -171,14 +172,14 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
   }, [tarif]) // anderer Tarif = neuer Bezahlvorgang
 
   const geld = (p) =>
-    p ? p.betrag.toLocaleString('de-DE', { style: 'currency', currency: p.waehrung }) : null
+    p ? p.betrag.toLocaleString(gebiet(), { style: 'currency', currency: p.waehrung }) : null
   const preis = preise?.[tarif] ?? null
   const preisText = geld(preis)
-  const zeitraum = { monat: 'pro Monat', jahr: 'pro Jahr', lifetime: 'einmalig' }[tarif]
+  const zeitraum = { monat: 'pro Monat', jahr: 'pro Jahr', lifetime: tr('einmalig') }[tarif]
   const abrechnung = {
-    monat: 'monatlich, jederzeit kündbar',
-    jahr: 'jährlich, jederzeit kündbar',
-    lifetime: 'einmal zahlen, für immer',
+    monat: tr('monatlich, jederzeit kündbar'),
+    jahr: tr('jährlich, jederzeit kündbar'),
+    lifetime: tr('einmal zahlen, für immer'),
   }[tarif]
   // Ersparnis des Jahrestarifs gegenueber 12 Monaten
   const ersparnis =
@@ -186,14 +187,14 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       ? Math.round((1 - preise.jahr.betrag / (preise.monat.betrag * 12)) * 100)
       : null
   const TARIF_KARTEN = [
-    { id: 'monat', name: 'Monatlich', unter: 'pro Monat' },
+    { id: 'monat', name: tr('Monatlich'), unter: 'pro Monat' },
     {
       id: 'jahr',
-      name: 'Jährlich',
+      name: tr('Jährlich'),
       unter: preise?.jahr ? `≈ ${geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })} / Monat` : 'pro Jahr',
-      marke: ersparnis > 0 ? `−${ersparnis} %` : 'Beliebt',
+      marke: ersparnis > 0 ? `−${ersparnis} %` : tr('Beliebt'),
     },
-    { id: 'lifetime', name: 'Lifetime', unter: 'einmalig, für immer' },
+    { id: 'lifetime', name: tr('Lifetime'), unter: tr('einmalig, für immer') },
   ].filter((k) => preise?.[k.id])
 
   return (
@@ -202,21 +203,21 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           soll man bezahlen, nicht weiterklicken. */}
       <header className="kassen-kopf">
         <button className="btn-zurueck" onClick={onAbbrechen}>
-          <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
+          <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{tr('Zurück')}
         </button>
         <Logo />
-        <span className="kassen-sicher" title="Verschlüsselte Verbindung">
-          <SchlossIcon /> Sichere Zahlung
+        <span className="kassen-sicher" title={tr('Verschlüsselte Verbindung')}>
+          <SchlossIcon /> {tr('Sichere Zahlung')}
         </span>
       </header>
 
       <div className="kassen-raster">
         {/* ---------- Links: was man kauft ---------- */}
         <aside className="kassen-bestellung">
-          <p className="kassen-label">{tarif === 'lifetime' ? 'Dein Zugang' : 'Dein Abo'}</p>
-          <h1 className="kassen-titel">Davaigo Premium</h1>
+          <p className="kassen-label">{tarif === 'lifetime' ? tr('Dein Zugang') : tr('Dein Abo')}</p>
+          <h1 className="kassen-titel">{tr('Davaigo Premium')}</h1>
           {TARIF_KARTEN.length > 1 && (
-            <div className="kassen-tarife" role="radiogroup" aria-label="Tarif wählen">
+            <div className="kassen-tarife" role="radiogroup" aria-label={tr('Tarif wählen')}>
               {TARIF_KARTEN.map((k) => (
                 <button
                   key={k.id}
@@ -250,15 +251,15 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
           {preisText && (
             <div className="kassen-summe">
               <div className="kassen-zeile">
-                <span>Davaigo Premium</span>
+                <span>{tr('Davaigo Premium')}</span>
                 <span>{preisText}</span>
               </div>
               <div className="kassen-zeile kassen-zeile-klein">
-                <span>Abrechnung</span>
+                <span>{tr('Abrechnung')}</span>
                 <span>{abrechnung}</span>
               </div>
               <div className="kassen-zeile kassen-gesamt">
-                <span>Heute fällig</span>
+                <span>{tr('Heute fällig')}</span>
                 <span>{preisText}</span>
               </div>
             </div>
@@ -271,13 +272,13 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
             <>
               <p className="error">{fehler}</p>
               <button className="btn-plain" onClick={onAbbrechen}>
-                Zurück zur App
+                {tr('Zurück zur App')}
               </button>
             </>
           ) : !clientSecret || !stripe ? (
             <div className="kasse-laedt">
               <span className="kasse-spinner" aria-hidden="true" />
-              <p>Bezahlung wird vorbereitet …</p>
+              <p>{tr('Bezahlung wird vorbereitet …')}</p>
             </div>
           ) : (
             <CheckoutElementsProvider
@@ -292,11 +293,9 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
 
       <footer className="kassen-fuss">
         <p>
-          Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu
-          sehen.{' '}
-          {tarif === 'lifetime'
-            ? 'Einmalige Zahlung – kein Abo, keine Verlängerung.'
-            : 'Jederzeit kündbar in den Einstellungen.'}
+          {tr('Die Zahlung wickelt Stripe ab – deine Kartendaten bekommen wir nie zu sehen. {0}', tarif === 'lifetime'
+            ? tr('Einmalige Zahlung – kein Abo, keine Verlängerung.')
+            : tr('Jederzeit kündbar in den Einstellungen.'))}
         </p>
       </footer>
     </div>
@@ -313,7 +312,7 @@ function KassenFormular({ onFertig, onAbbrechen }) {
     return (
       <div className="kasse-laedt">
         <span className="kasse-spinner" aria-hidden="true" />
-        <p>Einen Moment …</p>
+        <p>{tr('Einen Moment …')}</p>
       </div>
     )
   }
@@ -345,23 +344,23 @@ function KassenFormular({ onFertig, onAbbrechen }) {
 
   return (
     <form className="kasse-form" onSubmit={bezahlen}>
-      <h2 className="kassen-abschnitt">Zahlungsart</h2>
+      <h2 className="kassen-abschnitt">{tr('Zahlungsart')}</h2>
       <PaymentElement options={{ layout: 'accordion' }} />
 
       {fehler && <p className="error kasse-fehler">{fehler}</p>}
 
       <button type="submit" className="btn kasse-los" disabled={!kasse.canConfirm || laeuft}>
         {laeuft ? (
-          <>Zahlung läuft<span className="studio-punkte" /></>
+          <>{tr('Zahlung läuft')}<span className="studio-punkte" /></>
         ) : summe ? (
-          `${summe} zahlungspflichtig abonnieren`
+          tr('{0} zahlungspflichtig abonnieren', summe)
         ) : (
-          'Zahlungspflichtig abonnieren'
+          tr('Zahlungspflichtig abonnieren')
         )}
       </button>
 
       <button type="button" className="btn-plain" onClick={onAbbrechen} disabled={laeuft}>
-        Abbrechen
+        {tr('Abbrechen')}
       </button>
     </form>
   )

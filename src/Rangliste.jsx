@@ -4,6 +4,7 @@ import {
   bildAdresse, einladungsLink, loeseEinladungEin,
 } from './rangliste.js'
 import ProfilSchau from './ProfilSchau.jsx'
+import { tr, gebiet } from './sprache.js'
 
 /**
  * Die Rangliste auf der Startseite: die zehn Lernenden mit den meisten
@@ -116,22 +117,22 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
             <path d="M12 15v3M9 20h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
         </span>
-        <h2 className="rang-titel">Rangliste</h2>
+        <h2 className="rang-titel">{tr('Rangliste')}</h2>
         {/* Rechts der eigene Platz – das ist die Zahl, die einen
             wirklich interessiert, wenn man die Karte sieht. */}
-        {meinPlatz && <span className="rang-meiner">Platz {meinPlatz}</span>}
+        {meinPlatz && <span className="rang-meiner">{tr('Platz {0}', meinPlatz)}</span>}
       </div>
 
       {/* Alle oder nur Freunde. Gegen Leute antreten, die man kennt,
           zieht mehr als gegen siebenundvierzig Unbekannte. */}
-      <div className="rang-kreis" role="tablist" aria-label="Wer zählt">
+      <div className="rang-kreis" role="tablist" aria-label={tr('Wer zählt')}>
         <button
           role="tab"
           aria-selected={!nurFreunde}
           className={'rang-kr' + (!nurFreunde ? ' ist-aktiv' : '')}
           onClick={() => { if (nurFreunde) { setWechselt(true); setNurFreunde(false) } }}
         >
-          Alle
+          {tr('Alle')}
         </button>
         <button
           role="tab"
@@ -139,13 +140,13 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
           className={'rang-kr' + (nurFreunde ? ' ist-aktiv' : '')}
           onClick={() => { if (!nurFreunde) { setWechselt(true); setNurFreunde(true) } }}
         >
-          Nur Freunde
+          {tr('Nur Freunde')}
         </button>
       </div>
 
       {/* Drei Zeiträume: Wer lange dabei ist, steht insgesamt vorn –
           wer gerade loslegt, hat im Monat eine faire Chance. */}
-      <div className="rang-zeitraum" role="tablist" aria-label="Zeitraum">
+      <div className="rang-zeitraum" role="tablist" aria-label={tr('Zeitraum')}>
         {/* Die Pille gleitet zum gewählten Knopf, statt zu springen */}
         <span
           className="rang-zr-pille"
@@ -178,19 +179,17 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
         <div className="rang-leer">
           {nurFreunde ? (
             <p>
-              <b>Noch keine Freunde.</b>
+              <b>{tr('Noch keine Freunde.')}</b>
             </p>
           ) : zeitraum === 'gesamt' ? (
-            <p>Noch niemand drin – sei die Nummer 1.</p>
+            <p>{tr('Noch niemand drin – sei die Nummer 1.')}</p>
           ) : (
             <>
               <p>
-                <b>Die Wertung läuft ab jetzt.</b>
+                <b>{tr('Die Wertung läuft ab jetzt.')}</b>
               </p>
               <p className="rang-leer-klein">
-                Wer wann gelernt hat, wird erst seit heute festgehalten – vorher gab es nur
-                den Gesamtstand. Die erste XP {zeitraum === 'monat' ? 'dieses Monats' : 'dieses Jahres'}{' '}
-                bringt dich auf Platz 1.
+                {tr('Wer wann gelernt hat, wird erst seit heute festgehalten – vorher gab es nur den Gesamtstand. Die erste XP {0} bringt dich auf Platz 1.', zeitraum === 'monat' ? 'dieses Monats' : 'dieses Jahres')}
               </p>
             </>
           )}
@@ -227,8 +226,7 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
           dass sie kurz ist. */}
       {eingeloest && (
         <p className="rang-eingeloest">
-          Anfrage an <b>{eingeloest}</b> ist raus – ihr wart euch über einen
-          Einladungslink begegnet.
+          {tr('Anfrage an')} <b>{eingeloest}</b> {tr('ist raus – ihr wart euch über einen Einladungslink begegnet.')}
         </p>
       )}
 
@@ -239,10 +237,9 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
       {name === null && (
         <div className="rang-mitmachen">
           <p>
-            <b>Du fehlst noch!</b> Such dir einen Benutzernamen aus, dann stehst du mit deinen{' '}
-            {eigeneXp} XP in der Liste.
+            <b>{tr('Du fehlst noch!')}</b> {tr('Such dir einen Benutzernamen aus, dann stehst du mit deinen {0} XP in der Liste.', eigeneXp)}
           </p>
-          <BenutzernameFeld nutzerId={nutzerId} knopf="Mitmachen" />
+          <BenutzernameFeld nutzerId={nutzerId} knopf={tr('Mitmachen')} />
         </div>
       )}
     </section>
@@ -264,7 +261,7 @@ function Einladen({ name }) {
   async function teilen() {
     const daten = {
       title: 'Davaigo',
-      text: 'Lern mit mir Russisch bei Davaigo – mal sehen, wer vorn liegt.',
+      text: tr('Lern mit mir Russisch bei Davaigo – mal sehen, wer vorn liegt.'),
       url: adresse,
     }
     // Auf dem Handy das Teilen-Blatt des Systems: WhatsApp, Nachrichten,
@@ -288,9 +285,9 @@ function Einladen({ name }) {
 
   return (
     <div className="rang-einladen">
-      <p className="rang-ein-titel">Spiel gegen deine Freunde</p>
+      <p className="rang-ein-titel">{tr('Spiel gegen deine Freunde')}</p>
       <p className="rang-ein-text">
-        Schick ihnen den Link. Wer darüber mitmacht, landet direkt in deiner Liste.
+        {tr('Schick ihnen den Link. Wer darüber mitmacht, landet direkt in deiner Liste.')}
       </p>
 
       <button type="button" className="rang-ein-knopf" onClick={teilen}>
@@ -300,13 +297,13 @@ function Einladen({ name }) {
           <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="currentColor"
                 strokeWidth="2" strokeLinecap="round" />
         </svg>
-        {stand === 'kopiert' ? 'Link kopiert' : 'Link teilen'}
+        {stand === 'kopiert' ? tr('Link kopiert') : tr('Link teilen')}
       </button>
 
       {/* Den Link auch zum Anschauen – manche kopieren lieber selbst */}
       <p className="rang-ein-adresse">{adresse.replace('https://', '')}</p>
       {stand === 'fehler' && (
-        <p className="rang-ein-fehler">Kopieren ging nicht – markier den Link oben von Hand.</p>
+        <p className="rang-ein-fehler">{tr('Kopieren ging nicht – markier den Link oben von Hand.')}</p>
       )}
     </div>
   )
@@ -334,14 +331,14 @@ function Saeule({ z, stufe, onOeffnen }) {
       type="button"
       className={'rang-saeule rang-' + stufe + (z.ich ? ' ist-ich' : '')}
       onClick={() => onOeffnen?.(z.benutzername)}
-      aria-label={`Profil von ${z.benutzername} ansehen`}
+      aria-label={tr('Profil von {0} ansehen', z.benutzername)}
     >
       <Bildnis name={z.benutzername} bild={z.bild} klasse="rs-bild" />
       <span className="rs-name">
         {z.benutzername}
-        {z.ich && <small>du</small>}
+        {z.ich && <small>{tr('du')}</small>}
       </span>
-      <span className="rs-xp">{z.xp.toLocaleString('de-DE')} XP</span>
+      <span className="rs-xp">{z.xp.toLocaleString(gebiet())} XP</span>
       <span className="rs-block">{z.platz}</span>
     </button>
   )
@@ -363,16 +360,16 @@ function RangZeile({ z, nr = 0, onOeffnen }) {
         type="button"
         className={'rang-zeile' + (z.ich ? ' rang-ich' : '') + stufe}
         onClick={() => onOeffnen?.(z.benutzername)}
-        aria-label={`Profil von ${z.benutzername} ansehen`}
+        aria-label={tr('Profil von {0} ansehen', z.benutzername)}
       >
       <span className="rang-platz">{z.platz}</span>
       <Bildnis name={z.benutzername} bild={z.bild} klasse="rang-initial" />
       <span className="rang-name">
         {z.benutzername}
-        {z.ich && <small>du</small>}
+        {z.ich && <small>{tr('du')}</small>}
       </span>
         <b className="rang-xp">
-          {z.xp.toLocaleString('de-DE')}
+          {z.xp.toLocaleString(gebiet())}
           <small>XP</small>
         </b>
       </button>
@@ -385,7 +382,7 @@ function RangZeile({ z, nr = 0, onOeffnen }) {
  * Wird auf dem Start, im Begrüßungsschritt und in den Einstellungen
  * benutzt.
  */
-export function BenutzernameFeld({ nutzerId, start = '', knopf = 'Speichern', onGespeichert }) {
+export function BenutzernameFeld({ nutzerId, start = '', knopf = tr('Speichern'), onGespeichert }) {
   const [wert, setWert] = useState(start)
   const [frei, setFrei] = useState(null) // null = unbekannt
   const [fehler, setFehler] = useState('')
@@ -424,8 +421,8 @@ export function BenutzernameFeld({ nutzerId, start = '', knopf = 'Speichern', on
   let hinweis = ''
   let klasse = ''
   if (form) { hinweis = form; klasse = 'name-schlecht' }
-  else if (frei === false) { hinweis = 'Den Namen gibt es schon.'; klasse = 'name-schlecht' }
-  else if (frei === true) { hinweis = '✓ Der Name ist frei.'; klasse = 'name-gut' }
+  else if (frei === false) { hinweis = tr('Den Namen gibt es schon.'); klasse = 'name-schlecht' }
+  else if (frei === true) { hinweis = tr('✓ Der Name ist frei.'); klasse = 'name-gut' }
 
   return (
     <form className="name-form" onSubmit={speichern}>
@@ -434,12 +431,12 @@ export function BenutzernameFeld({ nutzerId, start = '', knopf = 'Speichern', on
         <input
           value={wert}
           onChange={(e) => setWert(e.target.value.replace(/\s/g, ''))}
-          placeholder="z. B. mischa_lernt"
+          placeholder={tr('z. B. mischa_lernt')}
           maxLength={20}
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
-          aria-label="Benutzername"
+          aria-label={tr('Benutzername')}
         />
         <button
           className="btn name-knopf"

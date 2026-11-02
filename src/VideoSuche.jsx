@@ -1,34 +1,35 @@
 import { useState, useEffect, useRef } from 'react'
 import { API_URL } from './api.js'
+import { tr } from './sprache.js'
 
 // Ein paar Themen zum Antippen, damit man nicht vor einem leeren Feld sitzt
 // Die Längen zur Auswahl
 const LAENGEN = [
-  { wert: '', label: 'Egal' },
+  { wert: '', label: tr('Egal') },
   { wert: 'kurz', label: '5–10 Min' },
   { wert: 'mittel', label: '10–15 Min' },
-  { wert: 'lang', label: 'Über 15 Min' },
+  { wert: 'lang', label: tr('Über 15 Min') },
 ]
 
 // Sprachniveaus. Die Beschreibung sagt, was einen erwartet –
 // YouTube kennt keine Niveaus, wir steuern über Suchwörter und Länge.
 const NIVEAUS = [
-  { wert: '', label: 'Egal', hilfe: 'Alles gemischt' },
-  { wert: 'A1', label: 'A1', hilfe: 'Kurze Erklärvideos, einfache Sprache' },
-  { wert: 'A2', label: 'A2', hilfe: 'Einfach erklärt, überschaubare Länge' },
-  { wert: 'B1', label: 'B1', hilfe: 'Normale Erklärvideos' },
-  { wert: 'B2', label: 'B2', hilfe: 'Alltagssprache, längere Beiträge' },
-  { wert: 'C1', label: 'C1', hilfe: 'Podcasts und Interviews' },
-  { wert: 'C2', label: 'C2', hilfe: 'Debatten und Analysen, volles Tempo' },
+  { wert: '', label: tr('Egal'), hilfe: tr('Alles gemischt') },
+  { wert: 'A1', label: 'A1', hilfe: tr('Kurze Erklärvideos, einfache Sprache') },
+  { wert: 'A2', label: 'A2', hilfe: tr('Einfach erklärt, überschaubare Länge') },
+  { wert: 'B1', label: 'B1', hilfe: tr('Normale Erklärvideos') },
+  { wert: 'B2', label: 'B2', hilfe: tr('Alltagssprache, längere Beiträge') },
+  { wert: 'C1', label: 'C1', hilfe: tr('Podcasts und Interviews') },
+  { wert: 'C2', label: 'C2', hilfe: tr('Debatten und Analysen, volles Tempo') },
 ]
 
 const IDEEN = [
-  'Gesunde Ernährung',
-  'Schlaf verbessern',
-  'Stoizismus',
-  'Sport für Anfänger',
-  'Produktivität',
-  'Reisen in Spanien',
+  tr('Gesunde Ernährung'),
+  tr('Schlaf verbessern'),
+  tr('Stoizismus'),
+  tr('Sport für Anfänger'),
+  tr('Produktivität'),
+  tr('Reisen in Russland'),
 ]
 
 /**
@@ -88,7 +89,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
         (niveau ? '&niveau=' + niveau : '')
       const res = await fetch(adresse)
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || tr('Suche fehlgeschlagen'))
       setTreffer((daten.results ?? []).slice(0, 6))
       // Der Server sagt Bescheid, wenn er den Suchbegriff nicht ins
       // Russische übersetzen konnte. Dann stehen dort womöglich
@@ -114,10 +115,10 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
       <div className="suche-fenster" onClick={(e) => e.stopPropagation()}>
         <div className="suche-kopf">
           <div>
-            <b>Video finden</b>
-            <span>Thema auf Deutsch eingeben – wir suchen russische Videos dazu</span>
+            <b>{tr('Video finden')}</b>
+            <span>{tr('Thema auf Deutsch eingeben – wir suchen russische Videos dazu')}</span>
           </div>
-          <button className="suche-schliessen" onClick={onSchliessen} aria-label="Schließen">
+          <button className="suche-schliessen" onClick={onSchliessen} aria-label={tr('Schließen')}>
             ×
           </button>
         </div>
@@ -134,17 +135,17 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
             type="text"
             value={begriff}
             onChange={(e) => setBegriff(e.target.value)}
-            placeholder="z.B. gesunde Ernährung, Schlaf …"
+            placeholder={tr('z.B. gesunde Ernährung, Schlaf …')}
           />
           <button type="submit" className="btn" disabled={laedt || !begriff.trim()}>
-            {laedt ? 'Sucht …' : 'Suchen'}
+            {laedt ? tr('Sucht …') : tr('Suchen')}
           </button>
         </form>
 
         {/* Länge und Niveau vor der Suche wählen */}
         <div className="suche-filter">
           <div className="filter-gruppe">
-            <span className="filter-label">Länge</span>
+            <span className="filter-label">{tr('Länge')}</span>
             <div className="filter-knoepfe">
               {LAENGEN.map((l) => (
                 <button
@@ -160,7 +161,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
 
           <div className="filter-gruppe">
             <span className="filter-label">
-              Niveau
+              {tr('Niveau')}
               {niveau && (
                 <em className="filter-hilfe">
                   {NIVEAUS.find((n) => n.wert === niveau)?.hilfe}
@@ -193,11 +194,11 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
           </div>
         )}
 
-        {laedt && <p className="suche-hinweis">Suche russische Videos zu „{begriff}“ …</p>}
+        {laedt && <p className="suche-hinweis">{tr('Suche russische Videos zu „{0}“ …', begriff)}</p>}
         {fehler && <p className="error">{fehler}</p>}
         {treffer?.length === 0 && (
           <p className="suche-hinweis">
-            Nichts gefunden. Versuch es mit einem anderen Wort.
+            {tr('Nichts gefunden. Versuch es mit einem anderen Wort.')}
           </p>
         )}
 
@@ -205,7 +206,7 @@ export default function VideoSuche({ onSchliessen, onVideoWaehlen, startBegriff 
           <>
             {warnung && <p className="suche-warnung">{warnung}</p>}
             <p className="suche-hinweis">
-              {treffer.length} Videos gefunden – tippe eins an, um es zu öffnen.
+              {tr('{0} Videos gefunden – tippe eins an, um es zu öffnen.', treffer.length)}
             </p>
             <div className="suche-treffer">
               {treffer.map((v) => (

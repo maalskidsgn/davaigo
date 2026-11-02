@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { tr } from './sprache.js'
 
 // "Zum Startbildschirm hinzufuegen" als Knopf.
 //
@@ -28,7 +29,7 @@ function istIphone() {
   return /iPhone|iPad|iPod/.test(ua) || (ua.includes('Mac') && 'ontouchend' in document)
 }
 
-export default function InstallKnopf({ app = 'App' }) {
+export default function InstallKnopf({ app = tr('App') }) {
   const [aufruf, setAufruf] = useState(() => gemerkterAufruf)
   const [anleitung, setAnleitung] = useState(false)
   const [weg, setWeg] = useState(
@@ -85,42 +86,42 @@ export default function InstallKnopf({ app = 'App' }) {
       <div className="install-kopf">
         <img src="/apple-touch-icon.png" alt="" width="48" height="48" />
         <div>
-          <b>{app} auf deinen Startbildschirm</b>
-          <span>Ein Tipp – und du lernst wie in einer echten App, ohne Browserleiste.</span>
+          <b>{tr('{0} auf deinen Startbildschirm', app)}</b>
+          <span>{tr('Ein Tipp – und du lernst wie in einer echten App, ohne Browserleiste.')}</span>
         </div>
       </div>
 
       {anleitung ? (
         <ol className="install-schritte">
           <li>
-            Tippe unten auf{' '}
-            <span className="install-symbol" aria-label="Teilen">
+            {tr('Tippe unten auf')}{' '}
+            <span className="install-symbol" aria-label={tr('Teilen')}>
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                 <path d="M12 3v12M7 8l5-5 5 5M5 13v7h14v-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>{' '}
-            <b>Teilen</b>
+            <b>{tr('Teilen')}</b>
           </li>
           <li>
-            Wähle <b>„Zum Home-Bildschirm"</b>
+            {tr('Wähle')} <b>{tr('„Zum Home-Bildschirm"')}</b>
           </li>
           <li>
-            Oben rechts auf <b>Hinzufügen</b> – fertig
+            {tr('Oben rechts auf')} <b>{tr('Hinzufügen')}</b> {tr('– fertig')}
           </li>
         </ol>
       ) : (
         <div className="install-knoepfe">
           <button type="button" className="btn" onClick={installieren}>
-            Zum Startbildschirm hinzufügen
+            {tr('Zum Startbildschirm hinzufügen')}
           </button>
           <button type="button" className="btn-plain" onClick={spaeter}>
-            Später
+            {tr('Später')}
           </button>
         </div>
       )}
       {anleitung && (
         <button type="button" className="btn-plain install-zu" onClick={spaeter}>
-          Erledigt
+          {tr('Erledigt')}
         </button>
       )}
     </section>

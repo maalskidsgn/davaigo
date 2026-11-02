@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react'
 import { spiele, spieleVonSelbst, gibtEsAufnahme, sicherVertont } from './audio.js'
 import { IconLautsprecher } from './icons.jsx'
+import { tr } from './sprache.js'
 
 /**
  * Ein Lautsprecher – aber nur, wenn es wirklich etwas zu hoeren gibt.
@@ -27,7 +28,7 @@ import { IconLautsprecher } from './icons.jsx'
  */
 export default function HoerKnopf({
   text,
-  titel = 'Anhören',
+  titel = tr('Anhören'),
   klein = false,
   stimme,
   vonSelbst = false,

@@ -10,6 +10,8 @@
  * im Browser einfach umgehen.
  */
 
+import { frageOpenAI } from './sprache.js'
+
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
 
@@ -97,7 +99,7 @@ export async function erzeugeEbook(thema, niveau = 'A2') {
     B2: 'anspruchsvolle Sprache mit Redewendungen; 6 Kapitel',
   }[niveau] ?? 'einfache Sätze; 5 Kapitel'
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -299,7 +301,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wort
 
 /** Eine einzelne Anfrage an das Modell für eine Themenliste. */
 async function frageListe(schluessel, auftrag, anzahl) {
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -350,7 +352,7 @@ export async function erzeugeVideoVokabeln(text, bekannt = []) {
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -517,7 +519,7 @@ export async function erzeugeBuchzusammenfassung(titel) {
   const schluessel = process.env.OPENAI_API_KEY
   if (!schluessel) throw new Error('OPENAI_API_KEY fehlt.')
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: { Authorization: `Bearer ${schluessel}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({

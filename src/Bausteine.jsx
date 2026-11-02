@@ -23,6 +23,7 @@ import { review, withSrsDefaults, isDue, formatDue } from './srs.js'
 import { XP } from './gamification.js'
 import InfoKnopf from './InfoKnopf.jsx'
 import { merkeEinheit } from './aktivitaet.js'
+import { tr } from './sprache.js'
 
 // Der Grammatik-Trainer.
 //
@@ -97,17 +98,17 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
               <span key={i} className="confetti" style={{ '--i': i }} />
             ))}
           </div>
-          <h2>{ergebnis.falsch === 0 ? 'Alles richtig! 🎉' : 'Runde geschafft!'}</h2>
+          <h2>{ergebnis.falsch === 0 ? tr('Alles richtig! 🎉') : tr('Runde geschafft!')}</h2>
           <p>
-            {ergebnis.richtig} von {runde.aufgaben.length} bei „{runde.baustein.titel}“
+            {tr('{0} von {1} bei „{2}“', ergebnis.richtig, runde.aufgaben.length, runde.baustein.titel)}
           </p>
           <p className="gram-naechster">
             {bewertung === 'nochmal'
-              ? 'Der Baustein kommt gleich noch einmal.'
-              : `Nächste Wiederholung: ${formatDue(eintrag)}`}
+              ? tr('Der Baustein kommt gleich noch einmal.')
+              : tr('Nächste Wiederholung: {0}', formatDue(eintrag))}
           </p>
-          <p className="bonus-note">+{XP.RUNDE} Bonus-XP für die volle Runde!</p>
-          <button onClick={() => setRunde(null)}>Zurück zur Übersicht</button>
+          <p className="bonus-note">{tr('+{0} Bonus-XP für die volle Runde!', XP.RUNDE)}</p>
+          <button onClick={() => setRunde(null)}>{tr('Zurück zur Übersicht')}</button>
         </div>
       </div>
     )
@@ -132,7 +133,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
             />
           </div>
           <p className="training-progress">
-            {runde.baustein.titel} · Aufgabe {schritt + 1} von {runde.aufgaben.length}
+            {tr('{0} · Aufgabe {1} von {2}', runde.baustein.titel, schritt + 1, runde.aufgaben.length)}
           </p>
         </div>
 
@@ -144,7 +145,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
         />
 
         <button className="gram-abbrechen" onClick={() => setRunde(null)}>
-          Runde abbrechen
+          {tr('Runde abbrechen')}
         </button>
       </div>
     )
@@ -162,21 +163,21 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
         <InfoKnopf thema="grammatik" />
         <div className="wiederholen-zahl">
           <b>{faellig.length}</b>
-          <span>{faellig.length === 1 ? 'Baustein wartet' : 'Bausteine warten'}</span>
+          <span>{faellig.length === 1 ? tr('Baustein wartet') : tr('Bausteine warten')}</span>
         </div>
         <div className="wiederholen-text">
-          <h2>{heute ? 'Baustein des Tages' : 'Noch nichts freigeschaltet'}</h2>
+          <h2>{heute ? tr('Baustein des Tages') : tr('Noch nichts freigeschaltet')}</h2>
           {heute ? (
             <>
               <p className="gram-heute-titel">{heute.titel}</p>
               <p>{heute.regel}</p>
             </>
           ) : (
-            <p>Schließe eine Lektion ab – dann wird die passende Regel hier zum Üben frei.</p>
+            <p>{tr('Schließe eine Lektion ab – dann wird die passende Regel hier zum Üben frei.')}</p>
           )}
         </div>
         <button className="btn wiederholen-los" onClick={() => starte(heute)} disabled={!heute}>
-          {RUNDE_GROESSE} Aufgaben
+          {tr('{0} Aufgaben', RUNDE_GROESSE)}
         </button>
       </section>
 
@@ -195,7 +196,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
               <span className="liste-kopf-text">
                 <span className="liste-titel">{familie.titel}</span>
                 <span className="liste-sub">
-                  {familie.text} · {offen.length} von {liste.length} frei
+                  {tr('{0} · {1} von {2} frei', familie.text, offen.length, liste.length)}
                 </span>
               </span>
               <span className={'liste-pfeil' + (aufgeklappt ? ' liste-pfeil-auf' : '')}>▾</span>
@@ -219,7 +220,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
                         <span className="gram-karte-regel">
                           {frei
                             ? b.regel
-                            : `Wird mit Lektion ${lektion?.kursNr ?? '?'} frei.`}
+                            : tr('Wird mit Lektion {0} frei.', lektion?.kursNr ?? '?')}
                         </span>
                       </span>
                       {frei && (
@@ -231,7 +232,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
                           {/* Nicht die Stufe anzeigen: Stufe 0 heisst
                               "Neu", und das stand nach dem ersten Ueben
                               faelschlich da. Der Termin ist ehrlicher. */}
-                          {!eintrag ? 'neu' : isDue(eintrag) ? 'fällig' : formatDue(eintrag)}
+                          {!eintrag ? 'neu' : isDue(eintrag) ? tr('fällig') : formatDue(eintrag)}
                         </span>
                       )}
                     </button>
@@ -244,7 +245,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
       })}
 
       <p className="gram-fuss">
-        {BAUSTEINE.length} Bausteine · jede Regel erklärt die Lektion, aus der sie stammt.
+        {tr('{0} Bausteine · jede Regel erklärt die Lektion, aus der sie stammt.', BAUSTEINE.length)}
       </p>
     </div>
   )
@@ -272,7 +273,7 @@ function Aufloesung({ aufgabe, rueckmeldung }) {
   if (rueckmeldung !== 'falsch') return null
   return (
     <p className="gram-aufloesung">
-      Richtig wäre: <b>{loesungsText(aufgabe)}</b>
+      {tr('Richtig wäre:')} <b>{loesungsText(aufgabe)}</b>
     </p>
   )
 }
@@ -284,7 +285,7 @@ function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Ergänze</p>
+      <p className="lesson-hint">{tr('Ergänze')}</p>
       <p className="gram-deutsch">{aufgabe.de}</p>
       <p className="gram-satz">
         {vorn}
@@ -302,7 +303,7 @@ function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
           value={eingabe}
           onChange={(e) => setEingabe(e.target.value)}
           disabled={gesperrt}
-          placeholder="Deine Antwort"
+          placeholder={tr('Deine Antwort')}
           autoComplete="off"
           autoCapitalize="off"
           autoCorrect="off"
@@ -312,7 +313,7 @@ function LueckeTippen({ aufgabe, rueckmeldung, onAntwort }) {
         <Aufloesung aufgabe={aufgabe} rueckmeldung={rueckmeldung} />
         <div className="flash-actions">
           <button type="submit" disabled={gesperrt || !eingabe.trim()}>
-            Prüfen
+            {tr('Prüfen')}
           </button>
         </div>
       </form>
@@ -327,7 +328,7 @@ function AuswahlAufgabe({ aufgabe, rueckmeldung, onAntwort }) {
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Was passt?</p>
+      <p className="lesson-hint">{tr('Was passt?')}</p>
       <p className="gram-deutsch">{aufgabe.de}</p>
       <p className="gram-satz">
         {vorn}
@@ -364,7 +365,7 @@ function FehlerSuchen({ aufgabe, rueckmeldung, onAntwort }) {
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Ein Wort ist falsch – tippe es an</p>
+      <p className="lesson-hint">{tr('Ein Wort ist falsch – tippe es an')}</p>
       <p className="gram-deutsch">{aufgabe.de}</p>
       <div className="gram-woerter">
         {woerter.map((w, i) => (
@@ -387,7 +388,7 @@ function FehlerSuchen({ aufgabe, rueckmeldung, onAntwort }) {
       </div>
       {gesperrt && (
         <p className="gram-aufloesung">
-          Richtig wäre: <b>{aufgabe.richtig}</b> statt <b>{aufgabe.falsch}</b>
+          {tr('Richtig wäre:')} <b>{aufgabe.richtig}</b> {tr('statt')} <b>{aufgabe.falsch}</b>
         </p>
       )}
     </div>
@@ -409,11 +410,11 @@ function SatzBauen({ aufgabe, rueckmeldung, onAntwort }) {
 
   return (
     <div className={'flashcard' + (rueckmeldung ? ' gram-' + rueckmeldung : '')}>
-      <p className="lesson-hint">Baue den Satz</p>
+      <p className="lesson-hint">{tr('Baue den Satz')}</p>
       <p className="satzbau-deutsch">{aufgabe.de}</p>
 
       <div className="satzbau-ablage">
-        {gewaehlt.length === 0 && <span className="ablage-leer">Tippe die Wörter unten an</span>}
+        {gewaehlt.length === 0 && <span className="ablage-leer">{tr('Tippe die Wörter unten an')}</span>}
         {gewaehlt.map((i) => (
           <button key={i} className="satz-baustein baustein-gesetzt" onClick={() => tippe(i)}>
             {woerter[i]}
@@ -441,7 +442,7 @@ function SatzBauen({ aufgabe, rueckmeldung, onAntwort }) {
           disabled={!fertig || gesperrt}
           onClick={() => onAntwort(istRichtig(aufgabe, gewaehlt.map((i) => woerter[i]).join(' ')))}
         >
-          Prüfen
+          {tr('Prüfen')}
         </button>
       </div>
     </div>

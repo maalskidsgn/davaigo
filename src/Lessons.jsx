@@ -27,6 +27,7 @@ import {
   baueSchritteStation,
   nochOffen,
 } from './pruefstationen.js'
+import { tr } from './sprache.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -331,37 +332,37 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
           <h2>
             {sitzt
               ? lektion.istStation
-                ? 'Prüfstation bestanden!'
-                : 'Lektion geschafft!'
-              : 'Fast geschafft'}
+                ? tr('Prüfstation bestanden!')
+                : tr('Lektion geschafft!')
+              : tr('Fast geschafft')}
           </h2>
           <p>
-            {richtige} von {uebungen} Aufgaben richtig · +{XP.LEKTION} Bonus-XP
+            {tr('{0} von {1} Aufgaben richtig · +{2} Bonus-XP', richtige, uebungen, XP.LEKTION)}
           </p>
           {lektion.kulturnotiz && (
             <p className="kulturnotiz">
-              <b>Gut zu wissen:</b> {lektion.kulturnotiz}
+              <b>{tr('Gut zu wissen:')}</b> {lektion.kulturnotiz}
             </p>
           )}
           <p className="bonus-note">
             {lektion.istStation
               ? sitzt
-                ? 'Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.'
-                : 'Ab 80 % gilt das Modul als bestanden. Nichts geht verloren – geh die schwachen Stellen in Ruhe noch einmal durch.'
+                ? tr('Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.')
+                : tr('Ab 80 % gilt das Modul als bestanden. Nichts geht verloren – geh die schwachen Stellen in Ruhe noch einmal durch.')
               : sitzt
-                ? 'Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.'
-                : 'Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.'}
+                ? tr('Die neuen Wörter warten jetzt im Vokabeltrainer auf dich.')
+                : tr('Ab 80 % sitzt eine Lektion erfahrungsgemäß. Eine zweite Runde lohnt sich – die Wörter sind trotzdem schon im Trainer.')}
           </p>
 
           <div className="abschluss-knoepfe">
             {!sitzt && (
-              <button onClick={() => starten(lektion, laufendeStation)}>Noch einmal</button>
+              <button onClick={() => starten(lektion, laufendeStation)}>{tr('Noch einmal')}</button>
             )}
             <button
               className={sitzt ? '' : 'btn-outline'}
               onClick={() => setLektion(null)}
             >
-              Zurück zur Übersicht
+              {tr('Zurück zur Übersicht')}
             </button>
           </div>
         </div>
@@ -394,21 +395,21 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             <div className="lesson-done-emoji">{lektion.emoji}</div>
             <div className="flash-word">{lektion.titel}</div>
             <p className="lesson-hint">
-              {lektion.istStation ? 'Was hier auf dich zukommt' : 'Das lernst du in dieser Lektion'}
+              {lektion.istStation ? tr('Was hier auf dich zukommt') : tr('Das lernst du in dieser Lektion')}
             </p>
             <ul className="intro-goals">
               {lektion.ziele.map((z) => (
                 <li key={z}>✓ {z}</li>
               ))}
             </ul>
-            <button onClick={weiter}>Давай! Los geht’s</button>
+            <button onClick={weiter}>{tr('Давай! Los geht’s')}</button>
           </div>
         )}
 
         {/* --- Neues Wort mit Ton und hervorgehobenem Beispielsatz --- */}
         {schritt.typ === 'lernen' && (
           <div className="flashcard word-step" key={'s' + index}>
-            <p className="lesson-hint">📖 Neues Wort</p>
+            <p className="lesson-hint">{tr('📖 Neues Wort')}</p>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
               {/* vonSelbst: Das Wort erklingt, sobald die Karte da
@@ -422,12 +423,12 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
               <div className="example-box">
                 <div className="example-es">
                   {hebeHervor(schritt.item.beispielEs, schritt.item.es)}
-                  <HoerKnopf text={schritt.item.beispielEs} titel="Satz anhören" klein />
+                  <HoerKnopf text={schritt.item.beispielEs} titel={tr('Satz anhören')} klein />
                 </div>
                 <div className="example-de">{schritt.item.beispielDe}</div>
               </div>
             )}
-            <button onClick={weiter}>Weiter</button>
+            <button onClick={weiter}>{tr('Weiter')}</button>
           </div>
         )}
 
@@ -451,7 +452,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'quiz' && (
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint">
-              ✏️ {schritt.richtung === 'es-de' ? 'Was heißt…' : 'Wie sagt man…'}
+              ✏️ {schritt.richtung === 'es-de' ? tr('Was heißt…') : tr('Wie sagt man…')}
             </p>
             {schritt.richtung === 'es-de' ? (
               <div className="word-row">
@@ -475,7 +476,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {schritt.typ === 'rueckblick' && (
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint rueckblick-hinweis">
-              Kurze Wiederholung – kennst du das noch?
+              {tr('Kurze Wiederholung – kennst du das noch?')}
             </p>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
@@ -494,13 +495,13 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Hörwort: welches Wort hast du gehört? --- */}
         {schritt.typ === 'hoerwort' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">👂 Hör zu – welches Wort ist das?</p>
+            <p className="lesson-hint">{tr('👂 Hör zu – welches Wort ist das?')}</p>
             <button className="hoeren-knopf" onClick={() => spiele(schritt.item.es)}>
               <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M11 5 6 9H3v6h3l5 4z" />
                 <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" />
               </svg>
-              Anhören
+              {tr('Anhören')}
             </button>
             <QuizOptionen
               runde={index}
@@ -515,13 +516,13 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Diktat: das gehörte Wort aus Buchstaben bauen --- */}
         {schritt.typ === 'diktat' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">⌨️ Diktat – baue, was du hörst</p>
+            <p className="lesson-hint">{tr('⌨️ Diktat – baue, was du hörst')}</p>
             <button className="hoeren-knopf" onClick={() => spiele(schritt.item.es)}>
               <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M11 5 6 9H3v6h3l5 4z" />
                 <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" />
               </svg>
-              Anhören
+              {tr('Anhören')}
             </button>
             <DiktatUebung
               wort={schritt.wort}
@@ -534,7 +535,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Hörverstehen: erst hören, dann Bedeutung wählen --- */}
         {schritt.typ === 'hoeren' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">Hör zu – was bedeutet der Satz?</p>
+            <p className="lesson-hint">{tr('Hör zu – was bedeutet der Satz?')}</p>
             <button
               className="hoeren-knopf"
               onClick={() => spiele(schritt.zeile.es, { stimme: stimmeImDialog(schritt.dialog, schritt.zeile.sprecher) })}
@@ -543,7 +544,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                 <path d="M11 5 6 9H3v6h3l5 4z" />
                 <path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 6a9 9 0 0 1 0 12" />
               </svg>
-              Anhören
+              {tr('Anhören')}
             </button>
             <QuizOptionen
               runde={index}
@@ -572,7 +573,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Abschlussfrage: einen ganzen Satz verstehen --- */}
         {schritt.typ === 'dialogquiz' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">🎓 Vertiefung: Was bedeutet dieser Satz?</p>
+            <p className="lesson-hint">{tr('🎓 Vertiefung: Was bedeutet dieser Satz?')}</p>
             <div className="gap-sentence">{schritt.zeile.es}</div>
             <QuizOptionen
               runde={index}
@@ -587,7 +588,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {/* --- Übung: Lückentext aus dem Beispielsatz --- */}
         {schritt.typ === 'luecke' && (
           <div className="flashcard" key={'s' + index}>
-            <p className="lesson-hint">✏️ Setze das fehlende Wort ein</p>
+            <p className="lesson-hint">{tr('✏️ Setze das fehlende Wort ein')}</p>
             <div className="gap-sentence">
               {schritt.luecke.satz.split(LUECKE_MARKE).map((teil, i, alle) => (
                 <span key={i}>
@@ -622,7 +623,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
     return (
       <div className="lessons">
         <button className="btn-plain back-link" onClick={() => setModul(null)}>
-          ← Alle Module
+          {tr('← Alle Module')}
         </button>
         <div className="modul-kopf">
           <span className="modul-kopf-ring" aria-hidden="true">
@@ -642,10 +643,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             />
           </span>
           <span className="modul-stand-text">
-            {modulFertig} / {gesamt} Lektionen
+            {tr('{0} / {1} Lektionen', modulFertig, gesamt)}
           </span>
           <span className={'modul-stand-chip' + (modulFertig === gesamt ? ' chip-fertig' : '')}>
-            {modulFertig === gesamt ? 'Alles geschafft' : `${modulFertig} geschafft`}
+            {modulFertig === gesamt ? tr('Alles geschafft') : tr('{0} geschafft', modulFertig)}
           </span>
         </div>
 
@@ -657,7 +658,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             onClick={() => setAnsicht('karte')}
           >
             <IconLandkarte groesse={18} />
-            Karte
+            {tr('Karte')}
           </button>
           <button
             role="tab"
@@ -666,7 +667,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
             onClick={() => setAnsicht('liste')}
           >
             <IconListe groesse={18} />
-            Liste
+            {tr('Liste')}
           </button>
         </div>
 
@@ -714,15 +715,15 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                   <span className="plan-text">
                     <span className="plan-titel">{l.titel}</span>
                     <span className="plan-lernst">
-                      {l.grammatik?.[0] ?? l.beschreibung} · {l.items.length} Wörter
+                      {tr('{0} · {1} Wörter', l.grammatik?.[0] ?? l.beschreibung, l.items.length)}
                     </span>
                   </span>
                   {geschafft ? (
                     <span className="plan-haken">✓</span>
                   ) : dran ? (
-                    <span className="plan-knopf">Start</span>
+                    <span className="plan-knopf">{tr('Start')}</span>
                   ) : (
-                    <span className="plan-schloss" aria-label="noch zu" />
+                    <span className="plan-schloss" aria-label={tr('noch zu')} />
                   )}
                 </button>
               </li>
@@ -764,11 +765,11 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   return (
     <div className="lessons">
       <h1 className="reise-titel">
-        Deine <span className="accent accent-strich">Sprach-Reise</span>
+        {tr('Deine')} <span className="accent accent-strich">{tr('Sprach-Reise')}</span>
       </h1>
       <p className="intro">
-        Lerne Schritt für Schritt Russisch –<br />
-        mit kurzen Videos, Übungen und echten Erfolgserlebnissen.
+        {tr('Lerne Schritt für Schritt Russisch –')}<br />
+        {tr('mit kurzen Videos, Übungen und echten Erfolgserlebnissen.')}
       </p>
 
       {laufendesModul && (
@@ -781,7 +782,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
       )}
 
       <h2 className="reise-abschnitt">
-        <span aria-hidden="true">📖</span> Alle Module
+        <span aria-hidden="true">📖</span> {tr('Alle Module')}
       </h2>
 
       <div className="modul-liste">
@@ -808,9 +809,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
 
               <span className="modul-text">
                 <span className="modul-titel">
-                  Modul {i + 1}: {m.titel}
+                  {tr('Modul {0}: {1}', i + 1, m.titel)}
                 </span>
-                <span className="modul-sub">{bald ? 'Kommt bald!' : m.beschreibung}</span>
+                <span className="modul-sub">{bald ? tr('Kommt bald!') : m.beschreibung}</span>
                 {!bald && (
                   <span className="modul-bar">
                     <span className="xp-bar goal-bar">
@@ -820,7 +821,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                       />
                     </span>
                     <span className="modul-count">
-                      {f} / {gesamt} Lektionen
+                      {tr('{0} / {1} Lektionen', f, gesamt)}
                     </span>
                   </span>
                 )}
@@ -830,7 +831,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                 <span className={'modul-zahl' + (komplett ? ' modul-zahl-fertig' : '')}>
                   <b>{f}</b>
                   <i>/{gesamt}</i>
-                  <em>Lektionen</em>
+                  <em>{tr('Lektionen')}</em>
                 </span>
               )}
             </button>
@@ -893,7 +894,7 @@ function DialogChat({ dialog, onWeiter }) {
 
   return (
     <div className="flashcard chat-card">
-      <p className="lesson-hint">🗣️ Dialog – tippe auf eine Blase für die Übersetzung</p>
+      <p className="lesson-hint">{tr('🗣️ Dialog – tippe auf eine Blase für die Übersetzung')}</p>
       <div className="chat">
         {dialog.slice(0, anzahl).map((zeile, i) => {
           const rechts = zeile.sprecher !== ersterSprecher
@@ -910,7 +911,7 @@ function DialogChat({ dialog, onWeiter }) {
               </button>
               <button
                 className="chat-ton"
-                title="Diese Zeile anhören"
+                title={tr('Diese Zeile anhören')}
                 onClick={() => spiele(zeile.es, { stimme: stimmeImDialog(dialog, zeile.sprecher) })}
               >
                 🔊
@@ -933,12 +934,12 @@ function DialogChat({ dialog, onWeiter }) {
       {alleDa && (
         <div className="flash-actions dialog-actions">
           <button className="btn-plain" onClick={gespraech}>
-            {laeuft ? '⏹ Stopp' : '▶ Gespräch anhören'}
+            {laeuft ? '⏹ Stopp' : tr('▶ Gespräch anhören')}
           </button>
           <button className="btn-plain" onClick={() => setAlleDe(!alleDe)}>
-            {alleDe ? 'Übersetzung ausblenden' : 'Übersetzung zeigen'}
+            {alleDe ? tr('Übersetzung ausblenden') : tr('Übersetzung zeigen')}
           </button>
-          <button onClick={onWeiter}>Weiter</button>
+          <button onClick={onWeiter}>{tr('Weiter')}</button>
         </div>
       )}
     </div>
@@ -998,7 +999,7 @@ function LektionsPaare({ paare, onWeiter }) {
 
   return (
     <div className="flashcard">
-      <p className="lesson-hint">🔗 Verbinde die Paare</p>
+      <p className="lesson-hint">{tr('🔗 Verbinde die Paare')}</p>
       <div className="pairs-grid">
         <div className="pairs-col">
           {paare.map((p) => (
@@ -1031,7 +1032,7 @@ function LektionsPaare({ paare, onWeiter }) {
       </div>
       {fertig && (
         <div className="flash-actions">
-          <button onClick={onWeiter}>Weiter</button>
+          <button onClick={onWeiter}>{tr('Weiter')}</button>
         </div>
       )}
     </div>
@@ -1062,12 +1063,12 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
 
   return (
     <div className="flashcard">
-      <p className="lesson-hint">Baue den Satz</p>
+      <p className="lesson-hint">{tr('Baue den Satz')}</p>
       <p className="satzbau-deutsch">{satzbau.uebersetzung}</p>
 
       {/* Der entstehende Satz */}
       <div className={'satzbau-ablage' + (geprueft === true ? ' ablage-richtig' : geprueft === false ? ' ablage-falsch' : '')}>
-        {gewaehlt.length === 0 && <span className="ablage-leer">Tippe die Wörter unten an</span>}
+        {gewaehlt.length === 0 && <span className="ablage-leer">{tr('Tippe die Wörter unten an')}</span>}
         {gewaehlt.map((i) => (
           <button key={i} className="satz-baustein baustein-gesetzt" onClick={() => tippe(i)}>
             {satzbau.woerter[i]}
@@ -1075,7 +1076,7 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
         ))}
       </div>
       {geprueft === false && (
-        <p className="satzbau-loesung">Richtig wäre: <b>{satzbau.loesung}</b></p>
+        <p className="satzbau-loesung">{tr('Richtig wäre:')} <b>{satzbau.loesung}</b></p>
       )}
 
       {/* Der Vorrat */}
@@ -1094,7 +1095,7 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
 
       <div className="flash-actions">
         <button onClick={pruefen} disabled={!fertig || geprueft !== null}>
-          Prüfen
+          {tr('Prüfen')}
         </button>
       </div>
     </div>
@@ -1114,11 +1115,10 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
       <div className="station station-zu">
         <span className="station-emoji" aria-hidden="true">🔒</span>
         <div className="station-text">
-          <span className="station-marke">Prüfstation</span>
+          <span className="station-marke">{tr('Prüfstation')}</span>
           <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
           <p>
-            Noch {fehlend} {fehlend === 1 ? 'Lektion' : 'Lektionen'} – dann kannst du das
-            ganze Modul am Stück prüfen.
+            {tr('Noch {0} {1} – dann kannst du das ganze Modul am Stück prüfen.', fehlend, fehlend === 1 ? tr('Lektion') : tr('Lektionen'))}
           </p>
         </div>
       </div>
@@ -1131,13 +1131,13 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
         {geschafft ? '✓' : station.emoji}
       </span>
       <div className="station-text">
-        <span className="station-marke">{geschafft ? 'Bestanden' : 'Prüfstation'}</span>
+        <span className="station-marke">{geschafft ? tr('Bestanden') : tr('Prüfstation')}</span>
         <h3>{station.titel.replace('Prüfstation: ', '')}</h3>
         <p>
-          Rückblick und rund 25 Aufgaben aus dem ganzen Modul – ohne neue Wörter.
+          {tr('Rückblick und rund 25 Aufgaben aus dem ganzen Modul – ohne neue Wörter.')}
         </p>
       </div>
-      <span className="station-knopf">{geschafft ? 'Nochmal' : 'Start'}</span>
+      <span className="station-knopf">{geschafft ? tr('Nochmal') : tr('Start')}</span>
     </button>
   )
 }
@@ -1161,7 +1161,7 @@ function WissensKarte({ karten, nummer, istStation, onWeiter }) {
   return (
     <div className="flashcard info-card">
       <span className="info-icon">{tipp.emoji}</span>
-      <p className="lesson-hint">{istStation ? 'Rückblick' : 'Gut zu wissen'}</p>
+      <p className="lesson-hint">{istStation ? tr('Rückblick') : tr('Gut zu wissen')}</p>
 
       <div className="info-einzeln">
         <h3 className="info-title">{tipp.titel}</h3>
@@ -1169,14 +1169,14 @@ function WissensKarte({ karten, nummer, istStation, onWeiter }) {
       </div>
 
       {karten.length > 1 && (
-        <div className="info-punkte" aria-label={`Karte ${nummer + 1} von ${karten.length}`}>
+        <div className="info-punkte" aria-label={tr('Karte {0} von {1}', nummer + 1, karten.length)}>
           {karten.map((_, i) => (
             <i key={i} className={i === nummer ? 'punkt-aktiv' : ''} />
           ))}
         </div>
       )}
 
-      <button onClick={onWeiter}>{letzte ? 'Verstanden' : 'Weiter'}</button>
+      <button onClick={onWeiter}>{letzte ? tr('Verstanden') : tr('Weiter')}</button>
     </div>
   )
 }
@@ -1196,9 +1196,9 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
         {modul.emoji}
       </span>
       <span className="weiterlernen-text">
-        <span className="weiterlernen-marke">Weiterlernen</span>
+        <span className="weiterlernen-marke">{tr('Weiterlernen')}</span>
         <span className="weiterlernen-titel">
-          Modul {nummer}: {modul.titel}
+          {tr('Modul {0}: {1}', nummer, modul.titel)}
         </span>
         <span className="weiterlernen-sub">{modul.beschreibung}</span>
         <span className="modul-bar">
@@ -1209,7 +1209,7 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
             />
           </span>
           <span className="modul-count">
-            {fertig} / {gesamt} Lektionen
+            {tr('{0} / {1} Lektionen', fertig, gesamt)}
           </span>
         </span>
       </span>
@@ -1283,7 +1283,7 @@ function DiktatUebung({ wort, hinweis, onErgebnis }) {
           (geprueft === true ? ' ablage-richtig' : geprueft === false ? ' ablage-falsch' : '')
         }
         onClick={zurueckNehmen}
-        title="Klick nimmt den letzten Buchstaben zurück"
+        title={tr('Klick nimmt den letzten Buchstaben zurück')}
       >
         {Array.from({ length: wort.length }, (_, i) => (
           <span key={i} className={'diktat-platz' + (gewaehlt[i] != null ? ' platz-voll' : '')}>
@@ -1292,7 +1292,7 @@ function DiktatUebung({ wort, hinweis, onErgebnis }) {
         ))}
       </div>
       {geprueft === false && (
-        <p className="satzbau-loesung">Richtig wäre: <b>{wort}</b></p>
+        <p className="satzbau-loesung">{tr('Richtig wäre:')} <b>{wort}</b></p>
       )}
 
       {/* die Buchstaben-Kacheln */}

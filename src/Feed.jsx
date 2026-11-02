@@ -7,6 +7,7 @@ import { spiele, dialogAbspielen } from './audio.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { IconPfeil } from './icons.jsx'
+import { tr } from './sprache.js'
 
 /** Ein Wort auf seinen Schlüssel bringen – nur Kyrillisch bleibt stehen. */
 function wortSchluessel(wort) {
@@ -78,17 +79,17 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
     // Ohne Übersetzung nichts sammeln: Ein Wort ohne Bedeutung im
     // Trainer ist nur eine Karte, die man nie beantworten kann.
     if (!wort?.text || !wort.de || !onAddVocab) return setWort(null)
-    onAddVocab([{ wort: wort.text, uebersetzung: wort.de, quelle: 'Feed' }], status)
+    onAddVocab([{ wort: wort.text, uebersetzung: wort.de, quelle: tr('Feed') }], status)
     setWort(null)
   }
 
   return (
     <div className="feed-seite">
       <header className="feed-kopf">
-        <button className="feed-zurueck" onClick={onZurueck} aria-label="Zurück">
+        <button className="feed-zurueck" onClick={onZurueck} aria-label={tr('Zurück')}>
           ←
         </button>
-        <span className="feed-titel">Für dich</span>
+        <span className="feed-titel">{tr('Für dich')}</span>
         <span className="feed-zaehler">
           {sichtbar + 1}/{karten.length}
         </span>
@@ -114,13 +115,12 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
         {/* Letzte Seite: geschafft */}
         <div className="feed-karte feed-ende">
           <div className="feed-ende-inhalt">
-            <h2>Das war alles für heute</h2>
+            <h2>{tr('Das war alles für heute')}</h2>
             <p>
-              {gesehene().size} von {karten.length} Karten gesehen. Neue kommen
-              laufend dazu.
+              {tr('{0} von {1} Karten gesehen. Neue kommen laufend dazu.', gesehene().size, karten.length)}
             </p>
             <button className="btn" onClick={onZurueck}>
-              Zurück zur App
+              {tr('Zurück zur App')}
             </button>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
           <div className="wortkarte" onClick={(e) => e.stopPropagation()}>
             <button
               className="wortkarte-schliessen"
-              aria-label="Schließen"
+              aria-label={tr('Schließen')}
               onClick={() => setWort(null)}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -142,11 +142,11 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[wortSchluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{tr('✓ im Trainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? tr('Übersetze …') : wort.de || tr('Keine Übersetzung gefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button
@@ -154,14 +154,14 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
                 onClick={() => wortInTrainer('gewusst')}
                 disabled={wort.laedt || !wort.de}
               >
-                Kenne ich
+                {tr('Kenne ich')}
               </button>
               <button
                 className="btn"
                 onClick={() => wortInTrainer('lernen')}
                 disabled={wort.laedt || !wort.de}
               >
-                ＋ Lernen
+                {tr('＋ Lernen')}
               </button>
             </div>
           </div>
@@ -203,7 +203,7 @@ function Haeppchen({ karte, aktiv }) {
 
   return (
     <article className={'haeppchen farbe-' + (karte.farbe ?? 0) + (aktiv ? ' ist-aktiv' : '')}>
-      <span className="haeppchen-marke">Grundlagen</span>
+      <span className="haeppchen-marke">{tr('Grundlagen')}</span>
       <h2 className="haeppchen-titel">{karte.titel}</h2>
       <p className="haeppchen-kern">{karte.kern}</p>
 
@@ -226,7 +226,7 @@ function Haeppchen({ karte, aktiv }) {
 
       {karte.merke && (
         <p className="haeppchen-merke">
-          <b>Merke:</b> {karte.merke}
+          <b>{tr('Merke:')}</b> {karte.merke}
         </p>
       )}
     </article>
@@ -314,7 +314,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
 
   return (
     <article className={'feed-text farbe-' + (karte.farbe ?? 0) + (aktiv ? ' ist-aktiv' : '')}>
-      <span className="haeppchen-marke">Wissen</span>
+      <span className="haeppchen-marke">{tr('Wissen')}</span>
       <h2 className="feed-text-titel">
         {sprache === 'es' ? karte.titelEs : karte.titelDe}
       </h2>
@@ -326,7 +326,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
         <span className="hoeren-kreis" aria-hidden="true">
           {laeuft ? '■' : '▶'}
         </span>
-        {laeuft ? 'Stopp' : 'Vorlesen'}
+        {laeuft ? tr('Stopp') : tr('Vorlesen')}
       </button>
 
       <div className="feed-text-inhalt">
@@ -344,7 +344,7 @@ function TextKarte({ karte, aktiv, vocab, onWort, addXp }) {
       <div className="feed-sprachen" role="tablist">
         {[
           ['es', 'Русский'],
-          ['de', 'Deutsch'],
+          ['de', tr('Deutsch')],
         ].map(([wert, name]) => (
           <button
             key={wert}
@@ -369,11 +369,11 @@ export function FeedTuer({ onOeffnen }) {
   return (
     <button className="feed-tuer" onClick={onOeffnen}>
       <span className="feed-tuer-text">
-        <b>Für dich</b>
+        <b>{tr('Für dich')}</b>
         <span>
           {gesehen > 0
-            ? `${anzahl - gesehen} neue Karten – Russisch zum Durchwischen`
-            : 'Russisch zum Durchwischen – Grundlagen und Wissen'}
+            ? tr('{0} neue Karten – Russisch zum Durchwischen', anzahl - gesehen)
+            : tr('Russisch zum Durchwischen – Grundlagen und Wissen')}
         </span>
       </span>
       <IconPfeil groesse={20} />

@@ -21,6 +21,7 @@
 // gefestigt werden soll, wären zwölf neue Vokabeln verkehrt.
 
 import { LEKTIONEN, MODULE, lektionenVon, mischen, baueLuecke, baueSatzbau, kernwort } from './lektionen.js'
+import { lokalisiere } from './sprache.js'
 
 /**
  * Die sieben Stationen.
@@ -260,6 +261,7 @@ export const PRUEFSTATIONEN = [
     ],
   },
 ]
+lokalisiere(PRUEFSTATIONEN)
 
 /** Die Station eines Moduls – oder null. */
 export function stationVon(modul) {

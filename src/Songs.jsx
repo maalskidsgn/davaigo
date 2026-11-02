@@ -16,15 +16,16 @@ import {
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
 import { IconMusik, IconLesezeichen, IconStern } from './icons.jsx'
 import InfoKnopf from './InfoKnopf.jsx'
+import { tr } from './sprache.js'
 
 // Ein paar Einstiegspunkte, damit man nicht vor einem leeren Feld sitzt
 const STILE = [
-  'Russischer Pop',
-  'Rock',
-  'Rap & Hip-Hop',
-  'Indie',
-  'Chanson',
-  'Folk & Volkslieder',
+  tr('Russischer Pop'),
+  tr('Rock'),
+  tr('Rap & Hip-Hop'),
+  tr('Indie'),
+  tr('Chanson'),
+  tr('Folk & Volkslieder'),
 ]
 
 /**
@@ -105,21 +106,21 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
    */
   async function interpretenPruefen() {
     const token = await zugang()
-    if (!token) return setSpotifyFehler('Bitte zuerst mit Spotify verbinden.')
+    if (!token) return setSpotifyFehler(tr('Bitte zuerst mit Spotify verbinden.'))
 
     setSpotifyFehler('')
     try {
-      setAnalyse('Deine Musik wird gelesen …')
+      setAnalyse(tr('Deine Musik wird gelesen …'))
       const kuenstler = await sammleKuenstler(token)
 
-      setAnalyse(`${kuenstler.length} Künstler gefunden – die KI prüft die Sprache …`)
+      setAnalyse(tr('{0} Künstler gefunden – die KI prüft die Sprache …', kuenstler.length))
       const res = await fetch(API_URL + '/api/spotify/interpreten', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ kuenstler }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Auswertung fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || tr('Auswertung fehlgeschlagen'))
 
       // Die Songs kommen schon mit: aus deiner Bibliothek, wo
       // vorhanden, sonst von der KI ergaenzt.
@@ -152,7 +153,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         API_URL + '/api/search?nurMusik=1&q=' + encodeURIComponent(frage)
       )
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || tr('Suche fehlgeschlagen'))
       setTreffer((daten.results ?? []).slice(0, 6))
     } catch (f) {
       setFehler(f.message)
@@ -177,11 +178,11 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         API_URL + '/api/search?nurMusik=1&q=' + encodeURIComponent(`${kuenstler} ${titel}`)
       )
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Suche fehlgeschlagen')
+      if (!res.ok) throw new Error(daten.error || tr('Suche fehlgeschlagen'))
 
       const treffer = daten.results ?? []
       if (!treffer.length) {
-        throw new Error(`Zu „${titel}" gibt es leider kein Video mit Text.`)
+        throw new Error(tr('Zu „{0}" gibt es leider kein Video mit Text.', titel))
       }
 
       // Der Server siebt Songs ohne Untertitel bereits aus. Falls
@@ -197,14 +198,13 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
             onOpenVideo(kandidat.videoId, 'musik')
             return
           }
-          if (i < 2) setSpotifyFehler('Suche eine Fassung mit Text …')
+          if (i < 2) setSpotifyFehler(tr('Suche eine Fassung mit Text …'))
         } catch {
           // naechsten Treffer versuchen
         }
       }
       throw new Error(
-        `Zu „${titel}" habe ich keine Fassung mit Songtext gefunden. ` +
-          'Versuch es über die Suche oben mit „Letra" im Suchbegriff.'
+        tr('Zu „{0}" habe ich keine Fassung mit Songtext gefunden. Versuch es über die Suche oben mit „Letra" im Suchbegriff.', titel)
       )
     } catch (f) {
       setSpotifyFehler(f.message)
@@ -219,7 +219,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
     try {
       const daten = await holeVideoMitTranskript(song.youtube_id)
       if (!daten?.transkript?.length) {
-        throw new Error('Für diesen Song ist kein Text gespeichert.')
+        throw new Error(tr('Für diesen Song ist kein Text gespeichert.'))
       }
       songAlsPdf({
         titel: song.titel,
@@ -244,15 +244,15 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       {/* ============ 1. SONG SUCHEN ============ */}
       <Hero
         symbol={<IconMusik groesse={26} />}
-        titel="Russische Songs finden"
-        text="Der Text läuft mit – unbekannte Wörter tippst du an."
+        titel={tr('Russische Songs finden')}
+        text={tr('Der Text läuft mit – unbekannte Wörter tippst du an.')}
       >
         <SuchFeld
           wert={suche}
           onWert={setSuche}
           onAbsenden={() => songSuchen()}
-          platzhalter="Künstler, Songtitel oder Stilrichtung…"
-          knopf="Songs suchen"
+          platzhalter={tr('Künstler, Songtitel oder Stilrichtung…')}
+          knopf={tr('Songs suchen')}
           laedt={laedt}
         />
       </Hero>
@@ -272,7 +272,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         {fehler && <p className="error">{fehler}</p>}
 
         {treffer?.length === 0 && (
-          <p className="empty-hint">Nichts gefunden. Versuch einen anderen Namen.</p>
+          <p className="empty-hint">{tr('Nichts gefunden. Versuch einen anderen Namen.')}</p>
         )}
 
         {treffer?.length > 0 && (
@@ -301,11 +301,11 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       <section className="bereich">
         <Kopf
           symbol={<IconLesezeichen groesse={19} />}
-          titel="Deine Songs"
+          titel={tr('Deine Songs')}
           text={
             songs?.length
-              ? `${songs.length} gespeichert – zum Anhören antippen oder den Text als PDF sichern.`
-              : 'Noch keine Songs. Such dir oben einen aus und öffne ihn.'
+              ? tr('{0} gespeichert – zum Anhören antippen oder den Text als PDF sichern.', songs.length)
+              : tr('Noch keine Songs. Such dir oben einen aus und öffne ihn.')
           }
           zahl={songs?.length || null}
         />
@@ -328,9 +328,9 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                   className="song-pdf"
                   onClick={() => pdfErzeugen(s)}
                   disabled={pdfLaeuft === s.youtube_id}
-                  title="Songtext als PDF sichern"
+                  title={tr('Songtext als PDF sichern')}
                 >
-                  {pdfLaeuft === s.youtube_id ? 'Erstellt …' : 'PDF'}
+                  {pdfLaeuft === s.youtube_id ? tr('Erstellt …') : 'PDF'}
                 </button>
               </div>
             ))}
@@ -342,19 +342,18 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
       <section className="bereich">
         <Kopf
           symbol={<IconStern groesse={19} />}
-          titel="Deine russischen Interpreten"
+          titel={tr('Deine russischen Interpreten')}
         />
         <div className="bereich-kopf bereich-kopf-rest">
-          <h2 hidden>Deine russischen Interpreten</h2>
-          <p>Deine russischsprachigen Künstler aus Spotify, mit ihren Songs.</p>
+          <h2 hidden>{tr('Deine russischen Interpreten')}</h2>
+          <p>{tr('Deine russischsprachigen Künstler aus Spotify, mit ihren Songs.')}</p>
         </div>
 
         {!spotifyBereit && (
           <div className="spotify-teaser">
-            <span className="spotify-marke">Noch einzurichten</span>
+            <span className="spotify-marke">{tr('Noch einzurichten')}</span>
             <p>
-              Für die Verbindung fehlt noch die Spotify-Client-ID. Sobald sie
-              hinterlegt ist, erscheint hier der Verbinden-Knopf.
+              {tr('Für die Verbindung fehlt noch die Spotify-Client-ID. Sobald sie hinterlegt ist, erscheint hier der Verbinden-Knopf.')}
             </p>
           </div>
         )}
@@ -362,12 +361,11 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         {spotifyBereit && !verbunden && (
           <div className="spotify-box">
             <p className="spotify-erklaerung">
-              Wir lesen ausschließlich deine gespeicherten Titel und Playlists.
-              Nichts wird abgespielt, geändert oder geteilt.
+              {tr('Wir lesen ausschließlich deine gespeicherten Titel und Playlists. Nichts wird abgespielt, geändert oder geteilt.')}
             </p>
             <InfoKnopf thema="spotify" />
             <button className="btn spotify-los" onClick={starteAnmeldung}>
-              Mit Spotify verbinden
+              {tr('Mit Spotify verbinden')}
             </button>
           </div>
         )}
@@ -375,17 +373,17 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
         {spotifyBereit && verbunden && (
           <>
             <div className="spotify-leiste">
-              <span className="spotify-status">Spotify verbunden</span>
+              <span className="spotify-status">{tr('Spotify verbunden')}</span>
               <div className="spotify-aktionen">
                 <button
                   className="filter-knopf"
                   onClick={interpretenPruefen}
                   disabled={Boolean(analyse)}
                 >
-                  {analyse ? 'Läuft …' : 'Neu auswerten'}
+                  {analyse ? tr('Läuft …') : tr('Neu auswerten')}
                 </button>
                 <button className="filter-knopf" onClick={spotifyTrennen}>
-                  Trennen
+                  {tr('Trennen')}
                 </button>
               </div>
             </div>
@@ -394,16 +392,14 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
 
             {!analyse && interpreten.length === 0 && (
               <p className="empty-hint">
-                In deiner Musik war noch nichts Russischsprachiges dabei. Sobald
-                du welche hörst, taucht es hier nach einer neuen Auswertung auf.
+                {tr('In deiner Musik war noch nichts Russischsprachiges dabei. Sobald du welche hörst, taucht es hier nach einer neuen Auswertung auf.')}
               </p>
             )}
 
             {interpreten.length > 0 && (
               <>
                 <p className="suche-hinweis">
-                  {interpreten.length} gefunden – tippe einen an, um seine Songs
-                  zu sehen. Ein Klick auf einen Song sucht ihn direkt.
+                  {tr('{0} gefunden – tippe einen an, um seine Songs zu sehen. Ein Klick auf einen Song sucht ihn direkt.', interpreten.length)}
                 </p>
                 <div className="interpreten-liste">
                   {interpreten.map((k) => {
@@ -419,12 +415,12 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                             {k.herkunft} · {k.stil}
                           </span>
                           {!k.sicher && (
-                            <span className="interpret-hinweis">singt gemischt</span>
+                            <span className="interpret-hinweis">{tr('singt gemischt')}</span>
                           )}
                           <span className="interpret-anzahl">
                             {k.songs?.length
-                              ? `${k.songs.length} Songs ${offen ? '▴' : '▾'}`
-                              : 'keine Songs gefunden'}
+                              ? tr('{0} Songs {1}', k.songs.length, offen ? '▴' : '▾')
+                              : tr('keine Songs gefunden')}
                           </span>
                         </button>
 
@@ -445,7 +441,7 @@ export default function Songs({ onOpenVideo, vocab = {} }) {
                                 </span>
                                 <span className="song-vorschlag-titel">{s.titel}</span>
                                 <span className="song-vorschlag-dauer">
-                                  {laeuft === k.name + '|' + s.titel ? 'Öffnet …' : 'Mitlesen'}
+                                  {laeuft === k.name + '|' + s.titel ? tr('Öffnet …') : tr('Mitlesen')}
                                 </span>
                               </button>
                             ))}

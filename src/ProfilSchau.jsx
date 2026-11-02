@@ -3,25 +3,26 @@ import { ladeProfil, blockiere } from './rangliste.js'
 import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
 import { levelFromXp, levelName } from './gamification.js'
+import { tr, gebiet } from './sprache.js'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
 function seit(datum) {
   if (!datum) return ''
   const d = new Date(datum + 'T12:00:00')
-  return d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })
+  return d.toLocaleDateString(gebiet(), { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 /** Wie lange ist jemand schon dabei? Für die Zeile unter dem Datum. */
 function dauer(datum) {
   if (!datum) return ''
   const tage = Math.floor((Date.now() - new Date(datum + 'T12:00:00')) / 86400000)
-  if (tage < 1) return 'seit heute'
-  if (tage === 1) return 'seit gestern'
-  if (tage < 31) return `seit ${tage} Tagen`
+  if (tage < 1) return tr('seit heute')
+  if (tage === 1) return tr('seit gestern')
+  if (tage < 31) return tr('seit {0} Tagen', tage)
   const monate = Math.floor(tage / 30.4)
-  if (monate < 12) return `seit ${monate} ${monate === 1 ? 'Monat' : 'Monaten'}`
+  if (monate < 12) return tr('seit {0} {1}', monate, monate === 1 ? tr('Monat') : tr('Monaten'))
   const jahre = Math.floor(monate / 12)
-  return `seit ${jahre} ${jahre === 1 ? 'Jahr' : 'Jahren'}`
+  return tr('seit {0} {1}', jahre, jahre === 1 ? tr('Jahr') : tr('Jahren'))
 }
 
 /**
@@ -71,7 +72,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
   return (
     <div className="ps-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
       <div className="ps-karte" onClick={(e) => e.stopPropagation()}>
-        <button className="ps-zu" onClick={onSchliessen} aria-label="Schließen">
+        <button className="ps-zu" onClick={onSchliessen} aria-label={tr('Schließen')}>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6"
                   strokeLinecap="round" />
@@ -79,9 +80,9 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
         </button>
 
         {profil === undefined ? (
-          <p className="ps-laedt">Lädt …</p>
+          <p className="ps-laedt">{tr('Lädt …')}</p>
         ) : profil === null ? (
-          <p className="ps-laedt">Dieses Profil gibt es nicht mehr.</p>
+          <p className="ps-laedt">{tr('Dieses Profil gibt es nicht mehr.')}</p>
         ) : (
           <>
             <span className="ps-rahmen">
@@ -92,29 +93,29 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
             <h2 className="ps-name">{profil.benutzername}</h2>
             <p className="ps-rang">{levelName(level)}</p>
 
-            <div className="ps-platz">Platz {profil.platz}</div>
+            <div className="ps-platz">{tr('Platz {0}', profil.platz)}</div>
 
             <dl className="ps-zahlen">
               <div>
-                <dd>{profil.xp.toLocaleString('de-DE')}</dd>
-                <dt>XP gesamt</dt>
+                <dd>{profil.xp.toLocaleString(gebiet())}</dd>
+                <dt>{tr('XP gesamt')}</dt>
               </div>
               <div>
                 <dd>{profil.serie}</dd>
-                <dt>Tage am Stück</dt>
+                <dt>{tr('Tage am Stück')}</dt>
               </div>
               <div>
-                <dd>{profil.xp_woche.toLocaleString('de-DE')}</dd>
-                <dt>Diese Woche</dt>
+                <dd>{profil.xp_woche.toLocaleString(gebiet())}</dd>
+                <dt>{tr('Diese Woche')}</dt>
               </div>
               <div>
-                <dd>{profil.xp_monat.toLocaleString('de-DE')}</dd>
-                <dt>Dieser Monat</dt>
+                <dd>{profil.xp_monat.toLocaleString(gebiet())}</dd>
+                <dt>{tr('Dieser Monat')}</dt>
               </div>
             </dl>
 
             <p className="ps-seit">
-              Dabei seit {seit(profil.dabei_seit)}
+              {tr('Dabei seit {0}', seit(profil.dabei_seit))}
               <small>{dauer(profil.dabei_seit)}</small>
             </p>
 
@@ -122,17 +123,17 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                 sobald Nutzer Inhalte anderer Nutzer sehen. */}
             {!mehr ? (
               <button className="ps-mehr" onClick={() => setMehr(true)}>
-                Problem mit diesem Profil?
+                {tr('Problem mit diesem Profil?')}
               </button>
             ) : (
               <div className="ps-schutz">
                 <button className="ps-schutz-knopf" onClick={() => setMeldet(true)}>
-                  Melden
+                  {tr('Melden')}
                 </button>
                 <button
                   className="ps-schutz-knopf"
                   onClick={async () => {
-                    if (!confirm(`${benutzername} blockieren? Ihr seht euch dann nicht mehr in Rangliste, Suche und Duellen.`)) return
+                    if (!confirm(tr('{0} blockieren? Ihr seht euch dann nicht mehr in Rangliste, Suche und Duellen.', benutzername))) return
                     try {
                       await blockiere(benutzername)
                       onSchliessen?.()
@@ -141,7 +142,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                     }
                   }}
                 >
-                  Blockieren
+                  {tr('Blockieren')}
                 </button>
               </div>
             )}

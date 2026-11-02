@@ -1,3 +1,4 @@
+import { tr } from './sprache.js'
 // Die Adresse des Davaigo-Servers.
 //
 // Drei Fälle, die sich unterscheiden:
@@ -27,8 +28,7 @@ export const API_URL = AUS_UMGEBUNG || (istApp ? NOTFALL : '')
 // Beim Entwickeln früh warnen statt später rätselhafte Fehler zu suchen
 if (istApp && !AUS_UMGEBUNG) {
   console.warn(
-    'VITE_API_URL war beim Bauen nicht gesetzt – die App nutzt die ' +
-      'hinterlegte Notfall-Adresse. Für Veröffentlichungen bitte setzen.'
+    tr('VITE_API_URL war beim Bauen nicht gesetzt – die App nutzt die hinterlegte Notfall-Adresse. Für Veröffentlichungen bitte setzen.')
   )
 }
 
@@ -50,7 +50,7 @@ export async function kiKopf() {
     if (!supabaseBereit) return basis
     const { data } = await db.auth.getSession()
     const token = data?.session?.access_token
-    return token ? { ...basis, Authorization: 'Bearer ' + token } : basis
+    return token ? { ...basis, Authorization: `Bearer ${token}` } : basis
   } catch {
     return basis
   }

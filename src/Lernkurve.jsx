@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { verlauf, ARTEN } from './lernkurve.js'
+import { tr } from './sprache.js'
 
 /**
  * Lernkurve: wie viel man an welchem Tag wovon gelernt hat.
@@ -8,17 +9,17 @@ import { verlauf, ARTEN } from './lernkurve.js'
  */
 
 const SERIEN = {
-  woerter: { name: 'Wörter', farbe: '#7c3aed' },
-  saetze: { name: 'Sätze', farbe: '#f5a400' },
-  lektionen: { name: 'Lektionen', farbe: '#1e9d85' },
-  texte: { name: 'Texte', farbe: '#2e8fe8' },
-  video: { name: 'Video-Min.', farbe: '#e5484d' },
+  woerter: { name: tr('Wörter'), farbe: '#7c3aed' },
+  saetze: { name: tr('Sätze'), farbe: '#f5a400' },
+  lektionen: { name: tr('Lektionen'), farbe: '#1e9d85' },
+  texte: { name: tr('Texte'), farbe: '#2e8fe8' },
+  video: { name: tr('Video-Min.'), farbe: '#e5484d' },
 }
 
 const ZEITRAEUME = [
-  ['woche', 'Woche'],
-  ['monat', 'Monat'],
-  ['jahr', 'Jahr'],
+  ['woche', tr('Woche')],
+  ['monat', tr('Monat')],
+  ['jahr', tr('Jahr')],
 ]
 
 // Zeichenfläche (SVG-Einheiten, skaliert mit der Breite)
@@ -101,7 +102,7 @@ export default function Lernkurve() {
   return (
     <div className="lernkurve">
       <div className="lk-kopf">
-        <p className="start-abschnitt-sub lk-titel">Lernkurve</p>
+        <p className="start-abschnitt-sub lk-titel">{tr('Lernkurve')}</p>
         <div className="lk-zeitraum" role="tablist">
           {ZEITRAEUME.map(([id, name]) => (
             <button
@@ -139,7 +140,7 @@ export default function Lernkurve() {
         <div className="lk-tip" style={{ left: tipLinks + '%' }}>
           <span className="lk-tip-datum">{p.lang}</span>
           {gesamtGewaehlt === 0 ? (
-            <span className="lk-tip-leer">nichts gelernt</span>
+            <span className="lk-tip-leer">{tr('nichts gelernt')}</span>
           ) : (
             <span className="lk-tip-werte">
               {sichtbar
@@ -159,7 +160,7 @@ export default function Lernkurve() {
           onPointerDown={zeigeAuf}
           onPointerMove={(e) => e.buttons && zeigeAuf(e)}
           role="img"
-          aria-label="Lernkurve"
+          aria-label={tr('Lernkurve')}
         >
           <defs>
             {ARTEN.map((a) => (

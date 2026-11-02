@@ -13,6 +13,7 @@
  */
 
 import { KATEGORIEN } from './Meilensteine.jsx'
+import { tr } from './sprache.js'
 
 /** Was es für eine erreichte Stufe gibt. */
 export const MEILENSTEIN_XP = 200
@@ -92,4 +93,4 @@ export function meilensteineGleichsetzen(werte) {
 }
 
 /** Name der Stufe (Bronze … Legende) – für die Meldung. */
-export const STUFEN_NAMEN = ['Bronze', 'Silber', 'Gold', 'Platin', 'Diamant', 'Legende']
+export const STUFEN_NAMEN = [tr('Bronze'), tr('Silber'), tr('Gold'), tr('Platin'), tr('Diamant'), tr('Legende')]

@@ -4,6 +4,7 @@ import { spiele } from './audio.js'
 import { API_URL } from './api.js'
 import { IconSuche, IconPfeil, IconMediathek, IconBuch, IconLesezeichen } from './icons.jsx'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
+import { tr } from './sprache.js'
 
 // Hörtexte und Lesetexte – zwei Bereiche, eine Anzeige.
 //
@@ -44,11 +45,11 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
   if (fehler) {
     return (
       <p className="inhalt-hinweis">
-        {fehler} – bitte später noch einmal versuchen.
+        {tr('{0} – bitte später noch einmal versuchen.', fehler)}
       </p>
     )
   }
-  if (!verzeichnis) return <p className="inhalt-hinweis">Wird geladen …</p>
+  if (!verzeichnis) return <p className="inhalt-hinweis">{tr('Wird geladen …')}</p>
 
   const begriff = suche.trim().toLowerCase()
   const gefiltert = begriff
@@ -65,19 +66,19 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
       {!ohneHero && (
         <Hero
           symbol={hoeren ? <IconMediathek groesse={26} /> : <IconBuch groesse={26} />}
-          titel={hoeren ? 'Hör dich durch echte Themen' : 'Ebook finden'}
+          titel={hoeren ? tr('Hör dich durch echte Themen') : tr('Ebook finden')}
           text={
             hoeren
-              ? 'Jede Folge mit Tonspur, russischem Text und deutscher Fassung daneben.'
-              : 'Jedes Kapitel auf Russisch – die Übersetzung holst du dir mit einem Tipp.'
+              ? tr('Jede Folge mit Tonspur, russischem Text und deutscher Fassung daneben.')
+              : tr('Jedes Kapitel auf Russisch – die Übersetzung holst du dir mit einem Tipp.')
           }
         >
           <SuchFeld
             wert={suche}
             onWert={setSuche}
             onAbsenden={() => {}}
-            platzhalter={`${ARTEN[art].titel} durchsuchen`}
-            knopf="Filtern"
+            platzhalter={tr('{0} durchsuchen', ARTEN[art].titel)}
+            knopf={tr('Filtern')}
           />
         </Hero>
       )}
@@ -92,17 +93,17 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
             type="search"
             value={suche}
             onChange={(e) => setSuche(e.target.value)}
-            placeholder={`${ARTEN[art].titel} durchsuchen`}
+            placeholder={tr('{0} durchsuchen', ARTEN[art].titel)}
           />
         </label>
       )}
       <Kopf
         symbol={<IconLesezeichen groesse={19} />}
-        titel={begriff ? `Treffer für „${suche.trim()}“` : ARTEN[art].titel}
+        titel={begriff ? tr('Treffer für „{0}“', suche.trim()) : ARTEN[art].titel}
         text={
           begriff
             ? `${gefiltert.length} von ${verzeichnis.length}`
-            : 'Zum Lesen antippen – dein Fortschritt bleibt erhalten.'
+            : tr('Zum Lesen antippen – dein Fortschritt bleibt erhalten.')
         }
         zahl={gefiltert.length}
       />
@@ -114,9 +115,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
               <span className="inhalt-text">
                 <span className="inhalt-titel">{e.titel}</span>
                 <span className="inhalt-meta">
-                  {e.kapitel ? `${e.kapitel} Kapitel · ` : ''}
-                  {lesedauer(e.zeichen)} Min
-                  {e.audio ? ' · zum Hören' : ''}
+                  {tr('{0}{1} Min{2}', e.kapitel ? tr('{0} Kapitel · ', e.kapitel) : '', lesedauer(e.zeichen), e.audio ? tr(' · zum Hören') : '')}
                 </span>
               </span>
               <IconPfeil groesse={17} />
@@ -126,7 +125,7 @@ export default function Inhalte({ art, onAddVocab, vocab = {}, zusatz = null, oh
       </ul>
 
       {gefiltert.length === 0 && (
-        <p className="inhalt-hinweis">Dazu haben wir noch nichts.</p>
+        <p className="inhalt-hinweis">{tr('Dazu haben wir noch nichts.')}</p>
       )}
       </section>
     </>
@@ -155,14 +154,14 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
     try {
       const r = await fetch(API_URL + '/api/translate?q=' + encodeURIComponent(wort))
       const d = await r.json()
-      if (!r.ok || !d.translation) throw new Error(d.error || 'Keine Übersetzung gefunden.')
+      if (!r.ok || !d.translation) throw new Error(d.error || tr('Keine Übersetzung gefunden.'))
       onAddVocab?.([{
         wort,
         uebersetzung: d.translation,
-        quelle: (art === 'hoertexte' ? 'Hörtext: ' : 'Ebook: ') + eintrag.titel,
+        quelle: (art === 'hoertexte' ? tr('Hörtext: ') : tr('Ebook: ')) + eintrag.titel,
       }])
     } catch (f) {
-      setWortFehler(`„${wort}“ ließ sich nicht übernehmen: ${f.message}`)
+      setWortFehler(tr('„{0}“ ließ sich nicht übernehmen: {1}', wort, f.message))
     } finally {
       setHolt(null)
     }
@@ -186,7 +185,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
   useEffect(() => setUebersetzt([]), [kapitel])
 
   if (fehler) return <p className="inhalt-hinweis">{fehler}</p>
-  if (!daten) return <p className="inhalt-hinweis">Wird geladen …</p>
+  if (!daten) return <p className="inhalt-hinweis">{tr('Wird geladen …')}</p>
 
   const hatKapitel = Array.isArray(daten.kapitel) && daten.kapitel.length > 0
   const teil = hatKapitel ? daten.kapitel[kapitel] : daten
@@ -206,7 +205,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
 
       {daten.audio && (
         <audio className="lesetext-ton" controls preload="none" src={daten.audio}>
-          Dein Browser kann diese Aufnahme nicht abspielen.
+          {tr('Dein Browser kann diese Aufnahme nicht abspielen.')}
         </audio>
       )}
 
@@ -216,18 +215,18 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
             className="btn-plain"
             disabled={kapitel === 0}
             onClick={() => setKapitel((k) => k - 1)}
-            aria-label="Vorheriges Kapitel"
+            aria-label={tr('Vorheriges Kapitel')}
           >
             ←
           </button>
           <span>
-            {teil.label || `Kapitel ${kapitel + 1}`} · {kapitel + 1} von {daten.kapitel.length}
+            {tr('{0} · {1} von {2}', teil.label || tr('Kapitel {0}', kapitel + 1), kapitel + 1, daten.kapitel.length)}
           </span>
           <button
             className="btn-plain"
             disabled={kapitel >= daten.kapitel.length - 1}
             onClick={() => setKapitel((k) => k + 1)}
-            aria-label="Nächstes Kapitel"
+            aria-label={tr('Nächstes Kapitel')}
           >
             →
           </button>
@@ -254,7 +253,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
                       spiele(stueck.text)
                       wortUebernehmen(stueck.text)
                     }}
-                    title="Anhören und in den Trainer legen"
+                    title={tr('Anhören und in den Trainer legen')}
                   >
                     {stueck.text}
                   </button>
@@ -273,7 +272,7 @@ function Leser({ art, eintrag, onZurueck, onAddVocab, vocab }) {
       {wortFehler && <p className="lesetext-wortfehler">{wortFehler}</p>}
 
       <p className="lesetext-hinweis">
-        Tippe einen Absatz an für die Übersetzung, ein markiertes Wort für den Trainer.
+        {tr('Tippe einen Absatz an für die Übersetzung, ein markiertes Wort für den Trainer.')}
       </p>
     </section>
   )

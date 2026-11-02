@@ -27,6 +27,7 @@
 
 import { db } from './supabase.js'
 import { newEntry } from './srs.js'
+import { tr } from './sprache.js'
 
 const SPEICHER = 'lesetexte'
 
@@ -51,7 +52,7 @@ export function speichereTexteLokal(texte) {
 /** Einen frischen Text anlegen – mit allem, was srs.js braucht. */
 export function neuerText(roh) {
   return {
-    ...newEntry(roh.titel_de ?? '', 'Lesetext'),
+    ...newEntry(roh.titel_de ?? '', tr('Lesetext')),
     status: 'lernen',
     titelEs: roh.titel_es ?? '',
     titelDe: roh.titel_de ?? '',

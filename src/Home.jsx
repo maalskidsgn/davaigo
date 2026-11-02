@@ -9,6 +9,7 @@ import Lernkurve from './Lernkurve.jsx'
 import Meilensteine from './Meilensteine.jsx'
 import InstallKnopf from './InstallKnopf.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
+import { tr, gebiet } from './sprache.js'
 
 // Die Startseite.
 //
@@ -61,7 +62,7 @@ export default function Home({
       <h1 className="trainer-titel start-gruss">
         Привет<span className="accent">!</span>
       </h1>
-      <p className="intro">Bereit für deinen nächsten Schritt?</p>
+      <p className="intro">{tr('Bereit für deinen nächsten Schritt?')}</p>
 
       {/* Nur im Browser: App auf den Startbildschirm holen */}
       <InstallKnopf app="Davaigo" />
@@ -71,13 +72,13 @@ export default function Home({
         <MiniRoute fertig={!nextLesson} />
         <div className="start-lektion-text">
           <span className="start-marke">
-            {nextLesson ? 'Nächste aktive Lektion' : 'Alles geschafft'}
+            {nextLesson ? tr('Nächste aktive Lektion') : tr('Alles geschafft')}
           </span>
-          <h2>{nextLesson ? nextLesson.titel : 'Alle 150 Lektionen durch'}</h2>
+          <h2>{nextLesson ? nextLesson.titel : tr('Alle 180 Lektionen durch')}</h2>
           <p>
             {nextLesson
               ? (nextLesson.grammatik?.[0] ?? nextLesson.beschreibung)
-              : 'Halte die Sprache mit dem Trainer und der Mediathek wach.'}
+              : tr('Halte die Sprache mit dem Trainer und der Mediathek wach.')}
           </p>
 
           {nextLesson && modul && (
@@ -92,7 +93,7 @@ export default function Home({
                 />
               </span>
               <span className="start-lektion-zahl">
-                <b>{modulFertig}</b> / {modulListe.length} Lektionen
+                <b>{modulFertig}</b> {tr('/ {0} Lektionen', modulListe.length)}
               </span>
             </div>
           )}
@@ -101,7 +102,7 @@ export default function Home({
             className="start-weiter"
             onClick={() => onNavigate(nextLesson ? 'lektionen' : 'trainer')}
           >
-            {nextLesson ? 'Weiterlernen' : 'Zum Trainer'}
+            {nextLesson ? tr('Weiterlernen') : tr('Zum Trainer')}
             <IconPfeil groesse={18} />
           </button>
         </div>
@@ -139,17 +140,17 @@ export default function Home({
           <div className="streak-text">
             <b className="streak-zahl">{progress.streak}</b>
             <span className="streak-label">
-              {progress.streak === 1 ? 'Tag' : 'Tage'} in Folge
+              {tr('{0} in Folge', progress.streak === 1 ? tr('Tag') : tr('Tage'))}
             </span>
           </div>
-          <h2 className="start-abschnitt streak-titel">Deine Lernstreak</h2>
+          <h2 className="start-abschnitt streak-titel">{tr('Deine Lernstreak')}</h2>
         </div>
 
 
-        <ol className="woche-reihe" aria-label={`${wochenSumme} Einheiten diese Woche`}>
+        <ol className="woche-reihe" aria-label={tr('{0} Einheiten diese Woche', wochenSumme)}>
           {woche.map((tag, i) => (
             <li key={i} className={'woche-punkt' + (tag.istHeute ? ' punkt-heute' : '')}>
-              <span className="woche-name">{tag.istHeute ? 'Heute' : tag.label}</span>
+              <span className="woche-name">{tag.istHeute ? tr('Heute') : tag.label}</span>
               <span className={'woche-kreis' + stufe(tag.anzahl)}>
                 {tag.anzahl >= 2 && (
                   <svg viewBox="0 0 24 24" width="13" height="13">
@@ -258,18 +259,17 @@ function Gruppenstunde({ onNavigate }) {
       </div>
 
       <h2 className="tutor-titel">
-        Lerne in der <span className="accent">Praxis!</span>
+        {tr('Lerne in der')} <span className="accent">{tr('Praxis!')}</span>
       </h2>
 
       <p className="tutor-text">
         {s.zustand === 'laeuft' ? (
           <>
-            Die Gruppenstunde mit <b className="accent">{UNTERRICHT.lehrerin}</b> läuft
-            gerade – {restzeit(s.endetIn)} ist Schluss.
+            {tr('Die Gruppenstunde mit')} <b className="accent">{UNTERRICHT.lehrerin}</b> {tr('läuft gerade – {0} ist Schluss.', restzeit(s.endetIn))}
           </>
         ) : (
           <>
-            Gruppenunterricht mit <b className="accent">{UNTERRICHT.lehrerin}</b>:{' '}
+            {tr('Gruppenunterricht mit')} <b className="accent">{UNTERRICHT.lehrerin}</b>:{' '}
             {terminText(s.termin)}, {restzeit(s.beginntIn)}.
           </>
         )}
@@ -288,37 +288,37 @@ function Gruppenstunde({ onNavigate }) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            {s.zustand === 'laeuft' ? 'Jetzt beitreten' : 'Raum öffnen'}
+            {s.zustand === 'laeuft' ? tr('Jetzt beitreten') : tr('Raum öffnen')}
             <IconPfeil groesse={16} />
           </a>
         )}
 
         {offen && premium && !raumDa && (
           <button className="tutor-knopf" disabled>
-            Raum wird vorbereitet
+            {tr('Raum wird vorbereitet')}
           </button>
         )}
 
         {!premium && !istApp && (
           <button className="tutor-knopf" onClick={() => onNavigate('mehr')}>
-            Mit Premium teilnehmen <IconPfeil groesse={16} />
+            {tr('Mit Premium teilnehmen')} <IconPfeil groesse={16} />
           </button>
         )}
 
         {!offen && premium && (
           <button className="tutor-knopf" disabled>
-            Öffnet {restzeit(Math.max(0, s.beginntIn - UNTERRICHT.vorlaufMinuten * 60000))}
+            {tr('Öffnet {0}', restzeit(Math.max(0, s.beginntIn - UNTERRICHT.vorlaufMinuten * 60000)))}
           </button>
         )}
 
         <button className="tutor-knopf tutor-knopf-zweit" onClick={() => onNavigate('trainer')}>
-          KI Hilfe
+          {tr('KI Hilfe')}
         </button>
       </div>
 
       {offen && premium && !raumDa && (
         <p className="tutor-hinweis">
-          Die Zugangsadresse fehlt noch (VITE_UNTERRICHT_URL).
+          {tr('Die Zugangsadresse fehlt noch (VITE_UNTERRICHT_URL).')}
         </p>
       )}
     </section>
@@ -335,46 +335,46 @@ function Gruppenstunde({ onNavigate }) {
  */
 const STATIONEN = [
   {
-    titel: 'Jeden Tag eine Etappe',
-    text: 'Zwölf neue Wörter, ein Dialog, ein paar Übungen – acht bis zehn Minuten. Mehr braucht ein Tag nicht. Die Reiseroute zeigt dir immer genau die eine Lektion, die als Nächstes dran ist. Suchen musst du nichts.',
+    titel: tr('Jeden Tag eine Etappe'),
+    text: tr('Zwölf neue Wörter, ein Dialog, ein paar Übungen – acht bis zehn Minuten. Mehr braucht ein Tag nicht. Die Reiseroute zeigt dir immer genau die eine Lektion, die als Nächstes dran ist. Suchen musst du nichts.'),
     ziel: 'lektionen',
-    link: 'Zur Reiseroute',
+    link: tr('Zur Reiseroute'),
   },
   {
-    titel: 'Was du lernst, geht nicht wieder weg',
-    text: 'Jede Vokabel aus einer Lektion landet im Trainer. Der merkt sich, wann du sie zuletzt konntest, und legt sie dir genau dann wieder vor, wenn du sie zu vergessen drohst – nach einem Tag, nach dreien, nach einer Woche. Das ist der Unterschied zwischen „schon mal gesehen“ und „kann ich“.',
+    titel: tr('Was du lernst, geht nicht wieder weg'),
+    text: tr('Jede Vokabel aus einer Lektion landet im Trainer. Der merkt sich, wann du sie zuletzt konntest, und legt sie dir genau dann wieder vor, wenn du sie zu vergessen drohst – nach einem Tag, nach dreien, nach einer Woche. Das ist der Unterschied zwischen „schon mal gesehen“ und „kann ich“.'),
     ziel: 'trainer',
-    link: 'Zum Vokabeltrainer',
+    link: tr('Zum Vokabeltrainer'),
   },
   {
-    titel: 'Grammatik in kleinen Bausteinen',
-    text: 'Das schwache o, Ohne der/die/das, из und в: acht Regeln, jede mit fünf Aufgaben. Jeden Tag ist eine andere dran – im selben Karteikasten wie die Vokabeln. Zwei Minuten, und die Regel bleibt.',
+    titel: tr('Grammatik in kleinen Bausteinen'),
+    text: tr('Das schwache o, Ohne der/die/das, из und в: acht Regeln, jede mit fünf Aufgaben. Jeden Tag ist eine andere dran – im selben Karteikasten wie die Vokabeln. Zwei Minuten, und die Regel bleibt.'),
     ziel: 'trainer',
-    link: 'Zu den Bausteinen',
+    link: tr('Zu den Bausteinen'),
   },
   {
-    titel: 'Lernen, ohne zu lernen',
-    text: 'In der Mediathek sagst du auf Deutsch, worüber du etwas schauen willst – Ernährung, Sport, Psychologie – und bekommst russische Videos dazu. Dazu Songs mit mitlaufendem Text und Buchzusammenfassungen. Unbekannte Wörter tippst du an, sie wandern in den Trainer.',
+    titel: tr('Lernen, ohne zu lernen'),
+    text: tr('In der Mediathek sagst du auf Deutsch, worüber du etwas schauen willst – Ernährung, Sport, Psychologie – und bekommst russische Videos dazu. Dazu Songs mit mitlaufendem Text und Buchzusammenfassungen. Unbekannte Wörter tippst du an, sie wandern in den Trainer.'),
     ziel: 'videos',
-    link: 'Zur Mediathek',
+    link: tr('Zur Mediathek'),
   },
   {
-    titel: 'Und an den Tagen ohne Lust',
-    text: 'Sieben Spiele: Memory, Wortpaare, Wortsuche, Wortfang, Blitzrunde, Galgenmännchen und Buchstabensalat. Sie nehmen genau die Wörter, die als Nächstes fällig wären. Wer sie im Spiel wiedererkennt, schiebt sie eine Stufe weiter. Lernen, das sich nicht danach anfühlt.',
+    titel: tr('Und an den Tagen ohne Lust'),
+    text: tr('Sieben Spiele: Memory, Wortpaare, Wortsuche, Wortfang, Blitzrunde, Galgenmännchen und Buchstabensalat. Sie nehmen genau die Wörter, die als Nächstes fällig wären. Wer sie im Spiel wiedererkennt, schiebt sie eine Stufe weiter. Lernen, das sich nicht danach anfühlt.'),
     ziel: 'trainer',
-    link: 'Zu den Spielen',
+    link: tr('Zu den Spielen'),
   },
   {
-    titel: 'Was die KI dir abnimmt',
-    text: 'Sie stellt Wortlisten zu jedem Thema zusammen – ohne die Wörter, die du längst hast. Sie sucht Videos zu deinen Interessen. Sie schreibt dir eine Buchzusammenfassung auf Russisch. Sie lernt nicht für dich, sie nimmt dir das Suchen ab.',
+    titel: tr('Was die KI dir abnimmt'),
+    text: tr('Sie stellt Wortlisten zu jedem Thema zusammen – ohne die Wörter, die du längst hast. Sie sucht Videos zu deinen Interessen. Sie schreibt dir eine Buchzusammenfassung auf Russisch. Sie lernt nicht für dich, sie nimmt dir das Suchen ab.'),
     ziel: 'trainer',
-    link: 'Liste erstellen lassen',
+    link: tr('Liste erstellen lassen'),
   },
   {
-    titel: 'Warum es Level und Serien gibt',
-    text: 'Ehrlich gesagt: weil Lernen ohne sichtbaren Fortschritt aufhört. XP, Level, die Tage-Serie und die Prüfstation am Ende jedes Moduls sind kleine Beweise, dass etwas passiert – gerade an den Tagen, an denen es sich nicht so anfühlt.',
+    titel: tr('Warum es Level und Serien gibt'),
+    text: tr('Ehrlich gesagt: weil Lernen ohne sichtbaren Fortschritt aufhört. XP, Level, die Tage-Serie und die Prüfstation am Ende jedes Moduls sind kleine Beweise, dass etwas passiert – gerade an den Tagen, an denen es sich nicht so anfühlt.'),
     ziel: 'mehr',
-    link: 'Zu deinen Zielen',
+    link: tr('Zu deinen Zielen'),
   },
 ]
 
@@ -391,7 +391,7 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
   async function einladen() {
     const daten = {
       title: 'Davaigo',
-      text: 'Ich lerne gerade Russisch mit Davaigo – Lektionen, echte Videos und ein Trainer, der sich merkt, wann du wiederholen musst. Kommst du mit?',
+      text: tr('Ich lerne gerade Russisch mit Davaigo – Lektionen, echte Videos und ein Trainer, der sich merkt, wann du wiederholen musst. Kommst du mit?'),
       url: 'https://davaigo.de',
     }
     // Auf dem Handy oeffnet das die Teilen-Auswahl des Systems. Auf
@@ -409,13 +409,13 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
   return (
     <div className="trainer home leitfaden-seite">
       <button className="btn-zurueck" onClick={onZurueck}>
-        <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
+        <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{tr('Zurück')}
       </button>
       <h1 className="trainer-titel">
-        So nutzt du <span className="accent">Davaigo</span>
+        {tr('So nutzt du')} <span className="accent">Davaigo</span>
       </h1>
       <p className="intro">
-        Deine Reise durch die App – und was wir uns dabei gedacht haben.
+        {tr('Deine Reise durch die App – und was wir uns dabei gedacht haben.')}
       </p>
 
       {/* Der geführte Rundgang: die App klickt selbst durch alle
@@ -423,7 +423,7 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
           schauen als lesen. */}
       {onRundgang && (
         <button className="btn rundgang-start" onClick={onRundgang}>
-          ✦ Rundgang starten – einmal durch die ganze App
+          {tr('✦ Rundgang starten – einmal durch die ganze App')}
         </button>
       )}
 
@@ -444,13 +444,12 @@ export function Leitfaden({ onNavigate, onZurueck, onRundgang }) {
       </ol>
 
       <div className="reise-ziel">
-        <h3>Zu zweit hält man länger durch</h3>
+        <h3>{tr('Zu zweit hält man länger durch')}</h3>
         <p>
-          Die Serie reißt seltener, wenn noch jemand mitzählt. Schnapp dir jemanden,
-          der auch schon immer mal Russisch lernen wollte.
+          {tr('Die Serie reißt seltener, wenn noch jemand mitzählt. Schnapp dir jemanden, der auch schon immer mal Russisch lernen wollte.')}
         </p>
         <button className="einladen" onClick={einladen}>
-          {geteilt ? 'Link kopiert ✓' : 'Freunde einladen'}
+          {geteilt ? tr('Link kopiert ✓') : tr('Freunde einladen')}
         </button>
       </div>
     </div>
@@ -471,7 +470,7 @@ function Kalender() {
 
   const monate = jahresRaster(jahr)
   const frueh = Math.min(erstesJahr(), jetzt.getFullYear())
-  const wochentage = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
+  const wochentage = [tr('Mo'), tr('Di'), tr('Mi'), tr('Do'), tr('Fr'), tr('Sa'), tr('So')]
 
   // Grenzen: nicht vor das erste Jahr mit Daten, nicht in die Zukunft
   const amAnfang = ansicht === 'monat' ? jahr <= frueh && monat === 0 : jahr <= frueh
@@ -523,22 +522,22 @@ function Kalender() {
     <div className="kalender">
       <div className="kal-kopf">
         <p className="start-abschnitt-sub kal-titel">
-          Kalender · {aktiveTage} {aktiveTage === 1 ? 'aktiver Tag' : 'aktive Tage'}
+          {tr('Kalender · {0} {1}', aktiveTage, aktiveTage === 1 ? tr('aktiver Tag') : tr('aktive Tage'))}
         </p>
         <div className="kal-umschalter" role="tablist">
           <button type="button" className={ansicht === 'monat' ? 'ist-aktiv' : ''} onClick={() => wechsle('monat')}>
-            Monat
+            {tr('Monat')}
           </button>
           <button type="button" className={ansicht === 'jahr' ? 'ist-aktiv' : ''} onClick={() => wechsle('jahr')}>
-            Jahr
+            {tr('Jahr')}
           </button>
         </div>
       </div>
 
       <div className="kal-jahr-nav">
-        <button type="button" aria-label="Zurück" disabled={amAnfang} onClick={() => blaettern(-1)}>‹</button>
+        <button type="button" aria-label={tr('Zurück')} disabled={amAnfang} onClick={() => blaettern(-1)}>‹</button>
         <b>{titel}</b>
-        <button type="button" aria-label="Weiter" disabled={amEnde} onClick={() => blaettern(1)}>›</button>
+        <button type="button" aria-label={tr('Weiter')} disabled={amEnde} onClick={() => blaettern(1)}>›</button>
       </div>
 
       <div className="kal-wischflaeche" onTouchStart={wischStart} onTouchEnd={wischEnde}>
@@ -622,19 +621,19 @@ function Kalender() {
         <div className={'kal-detail' + (gewaehlt.gesamt > 0 ? ' kal-detail-aktiv' : '')}>
           <p className="kal-detail-datum">{kalDatum(gewaehlt.schluessel)}</p>
           {gewaehlt.gesamt === 0 ? (
-            <p className="kal-detail-leer">An diesem Tag wurde nichts gelernt.</p>
+            <p className="kal-detail-leer">{tr('An diesem Tag wurde nichts gelernt.')}</p>
           ) : (
             <div className="kal-detail-werte">
               {gewaehlt.wiederholungen > 0 && (
                 <div className="kal-wert kal-wert-wdh">
                   <b>{gewaehlt.wiederholungen}</b>
-                  <span>{gewaehlt.wiederholungen === 1 ? 'Wiederholung' : 'Wiederholungen'}</span>
+                  <span>{gewaehlt.wiederholungen === 1 ? tr('Wiederholung') : tr('Wiederholungen')}</span>
                 </div>
               )}
               {gewaehlt.lektionen > 0 && (
                 <div className="kal-wert kal-wert-lek">
                   <b>{gewaehlt.lektionen}</b>
-                  <span>{gewaehlt.lektionen === 1 ? 'Lektion' : 'Lektionen'}</span>
+                  <span>{gewaehlt.lektionen === 1 ? tr('Lektion') : tr('Lektionen')}</span>
                 </div>
               )}
             </div>
@@ -649,15 +648,15 @@ function Kalender() {
 function kalDatum(schluessel) {
   const [j, m, t] = schluessel.split('-').map(Number)
   const d = new Date(j, m - 1, t)
-  return d.toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })
+  return d.toLocaleDateString(gebiet(), { weekday: 'short', day: 'numeric', month: 'short' })
 }
 
 /** Aufschlüsselung eines Tages als Text, z. B. "1 Lektion, 2 Wiederholungen". */
 function kalTeile(z) {
   const teile = []
-  if (z.lektionen > 0) teile.push(z.lektionen + (z.lektionen === 1 ? ' Lektion' : ' Lektionen'))
+  if (z.lektionen > 0) teile.push(z.lektionen + (z.lektionen === 1 ? tr(' Lektion') : tr(' Lektionen')))
   if (z.wiederholungen > 0)
-    teile.push(z.wiederholungen + (z.wiederholungen === 1 ? ' Wiederholung' : ' Wiederholungen'))
+    teile.push(z.wiederholungen + (z.wiederholungen === 1 ? tr(' Wiederholung') : tr(' Wiederholungen')))
   return teile.join(', ')
 }
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { MEILENSTEIN_XP, STUFEN_NAMEN } from './meilensteine.js'
+import { tr, gebiet } from './sprache.js'
 
 /**
  * Die Meldung, wenn ein Abzeichen dazukommt.
@@ -40,13 +41,13 @@ export default function MeilensteinMeldung({ liste, onFertig }) {
         <p className="msm-stufe">{STUFEN_NAMEN[m.stufe]}</p>
         <h2 className="msm-titel">{m.titel}</h2>
         <p className="msm-text">
-          {m.ziel.toLocaleString('de-DE')} {m.einheit} geschafft
+          {tr('{0} {1} geschafft', m.ziel.toLocaleString(gebiet()), m.einheit)}
         </p>
 
         <div className="msm-xp">+{MEILENSTEIN_XP} XP</div>
 
         <button className="btn msm-knopf" onClick={weiter}>
-          {i + 1 < liste.length ? `Weiter (${liste.length - i - 1} mehr)` : 'Stark!'}
+          {i + 1 < liste.length ? tr('Weiter ({0} mehr)', liste.length - i - 1) : tr('Stark!')}
         </button>
       </div>
     </div>

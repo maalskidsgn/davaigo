@@ -18,6 +18,7 @@ import { ladeBenutzername } from './rangliste.js'
 // bewusst keine Zahl fest verdrahtet, sonst weicht die Anzeige
 // irgendwann von dem ab, was tatsaechlich abgebucht wird.
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
+import { tr, gebiet, sprache, setzeSprache, SPRACHEN } from './sprache.js'
 
 export default function Settings({
   onLeitfaden,
@@ -79,7 +80,7 @@ export default function Settings({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const gueltigBis = bis ? bis.toLocaleDateString('de-DE') : ''
+  const gueltigBis = bis ? bis.toLocaleDateString(gebiet()) : ''
 
   // Das Bezahlformular läuft jetzt IN der App (Bezahlen.jsx) statt
   // auf einer Stripe-Seite. Fehlt dem Server der öffentliche
@@ -99,11 +100,11 @@ export default function Settings({
 
   // Abmelden – die lokalen Daten bleiben erhalten
   async function abmeldenKlick() {
-    if (!confirm('Wirklich abmelden? Deine Daten bleiben gesichert.')) return
+    if (!confirm(tr('Wirklich abmelden? Deine Daten bleiben gesichert.'))) return
     try {
       await abmelden()
     } catch (f) {
-      alert('Abmelden hat nicht geklappt: ' + f.message)
+      alert(tr('Abmelden hat nicht geklappt: {0}', f.message))
     }
   }
 
@@ -159,7 +160,7 @@ export default function Settings({
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result)
-        if (data.app !== 'russisch-lernen') throw new Error('Falsche Datei')
+        if (data.app !== 'russisch-lernen') throw new Error(tr('Falsche Datei'))
 
         if (data.daten) {
           // Neues Format (Version 2): fertige Werte je Schluessel
@@ -178,7 +179,7 @@ export default function Settings({
         }
         window.location.reload() // App mit den importierten Daten neu laden
       } catch {
-        alert('Das ist leider keine gültige Backup-Datei.')
+        alert(tr('Das ist leider keine gültige Backup-Datei.'))
       }
     }
     reader.readAsText(file)
@@ -190,8 +191,8 @@ export default function Settings({
   // Lektionsfortschritt, Videostaende und die Tagesserie stehen –
   // "Alles zurücksetzen" loeschte also gerade nicht alles.
   function resetData() {
-    if (!confirm('Wirklich ALLE Vokabeln, Videos und deinen Fortschritt löschen?')) return
-    if (!confirm('Ganz sicher? Das kann nicht rückgängig gemacht werden!')) return
+    if (!confirm(tr('Wirklich ALLE Vokabeln, Videos und deinen Fortschritt löschen?'))) return
+    if (!confirm(tr('Ganz sicher? Das kann nicht rückgängig gemacht werden!'))) return
     for (const schluessel of [
       'vokabeln',
       'videos',
@@ -213,22 +214,22 @@ export default function Settings({
   // Konto endgueltig loeschen – Pflicht fuer App Store und Play Store.
   // Zweimal nachfragen, beim zweiten Mal muss der Nutzer tippen.
   async function kontoLoeschen() {
-    if (!confirm('Dein Konto und ALLE Daten werden unwiderruflich gelöscht. Ein laufendes Abo wird gekündigt. Fortfahren?')) return
-    const bestaetigung = prompt('Zum Bestätigen bitte LÖSCHEN eintippen:')
-    if (bestaetigung !== 'LÖSCHEN') return
+    if (!confirm(tr('Dein Konto und ALLE Daten werden unwiderruflich gelöscht. Ein laufendes Abo wird gekündigt. Fortfahren?'))) return
+    const bestaetigung = prompt(tr('Zum Bestätigen bitte LÖSCHEN eintippen:'))
+    if (bestaetigung !== tr('LÖSCHEN')) return
 
     setLoeschLaeuft(true)
     try {
       const { data: sitzung } = await db.auth.getSession()
       const token = sitzung?.session?.access_token
-      if (!token) throw new Error('Bitte zuerst anmelden.')
+      if (!token) throw new Error(tr('Bitte zuerst anmelden.'))
 
       const res = await fetch(API_URL + '/api/konto/loeschen', {
         method: 'POST',
-        headers: { Authorization: 'Bearer ' + token },
+        headers: { Authorization: `Bearer ${token}` },
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.error || 'Löschen fehlgeschlagen.')
+      if (!res.ok) throw new Error(daten.error || tr('Löschen fehlgeschlagen.'))
 
       localStorage.clear()
       await db.auth.signOut()
@@ -247,8 +248,7 @@ export default function Settings({
         <div className="profile-info">
           <div className="profile-name">{levelName(level)}</div>
           <div className="profile-stats">
-            {progress.xp} XP · 🔥 {progress.streak} Tage · {counts.woerter} Wörter ·{' '}
-            {counts.videos} Videos
+            {tr('{0} XP · 🔥 {1} Tage · {2} Wörter · {3} Videos', progress.xp, progress.streak, counts.woerter, counts.videos)}
           </div>
         </div>
       </div>
@@ -256,7 +256,7 @@ export default function Settings({
       {/* ---------- Konto ---------- */}
       {supabaseBereit && (
         <>
-          <h2 className="settings-heading">Dein Konto</h2>
+          <h2 className="settings-heading">{tr('Dein Konto')}</h2>
           {nutzer ? (
             <>
               <div className="konto-karte">
@@ -272,8 +272,7 @@ export default function Settings({
                 </span>
               </div>
               <p className="settings-hint">
-                Dein Fortschritt wird automatisch gesichert und steht auf allen
-                Geräten zur Verfügung.
+                {tr('Dein Fortschritt wird automatisch gesichert und steht auf allen Geräten zur Verfügung.')}
               </p>
               <BenutzernameEinstellung nutzerId={nutzer.id} />
 
@@ -281,18 +280,16 @@ export default function Settings({
               <Blockierte />
 
               <button className="btn-outline" onClick={abmeldenKlick}>
-                Abmelden
+                {tr('Abmelden')}
               </button>
             </>
           ) : (
             <>
               <p className="settings-hint">
-                Ohne Konto liegen deine Vokabeln nur auf diesem Gerät. Mit Konto
-                sind sie gesichert und du lernst auf Handy und Rechner am
-                gleichen Stand weiter.
+                {tr('Ohne Konto liegen deine Vokabeln nur auf diesem Gerät. Mit Konto sind sie gesichert und du lernst auf Handy und Rechner am gleichen Stand weiter.')}
               </p>
               <button className="btn" onClick={onLoginOeffnen}>
-                Anmelden oder Konto anlegen
+                {tr('Anmelden oder Konto anlegen')}
               </button>
             </>
           )}
@@ -306,7 +303,7 @@ export default function Settings({
           zeigen – ohne Benutzername erst recht nicht. */}
       {supabaseBereit && nutzer && ranglisteDa && (
         <>
-          <h2 className="settings-heading">Freunde</h2>
+          <h2 className="settings-heading">{tr('Freunde')}</h2>
           <div className="settings-card">
             <Freunde />
           </div>
@@ -314,11 +311,10 @@ export default function Settings({
           {/* ---------- Duell ----------
               Direkt unter den Freunden: Gegen wen man spielt, steht
               eine Kachel weiter oben. */}
-          <h2 className="settings-heading">Duell</h2>
+          <h2 className="settings-heading">{tr('Duell')}</h2>
           <div className="settings-card">
             <p className="settings-hint">
-              Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr
-              trifft, gewinnt.
+              {tr('Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr trifft, gewinnt.')}
             </p>
             <DuellKasten addXp={addXp} />
           </div>
@@ -329,41 +325,41 @@ export default function Settings({
       {/* In der Store-App nur zeigen, wenn schon Premium besteht – kein Angebot */}
       {(!istApp || premium) && (
       <>
-      <h2 className="settings-heading">Dein Abo</h2>
+      <h2 className="settings-heading">{tr('Dein Abo')}</h2>
       <div className="plan-grid">
         <div className="plan-card plan-active">
           <div className="plan-name">
-            Kostenlos{' '}
-            {!premium && <span className="plan-badge">Aktueller Plan</span>}
+            {tr('Kostenlos')}{' '}
+            {!premium && <span className="plan-badge">{tr('Aktueller Plan')}</span>}
           </div>
           <ul className="plan-features">
-            <li>Unbegrenzt Videos lesen</li>
-            <li>Vokabeltrainer mit Spaced Repetition</li>
-            <li>XP, Level & Tagesserie</li>
+            <li>{tr('Unbegrenzt Videos lesen')}</li>
+            <li>{tr('Vokabeltrainer mit Spaced Repetition')}</li>
+            <li>{tr('XP, Level & Tagesserie')}</li>
           </ul>
         </div>
         <div className="plan-card plan-premium">
           <div className="plan-name">
-            Premium{' '}
+            {tr('Premium')}{' '}
             {premium ? (
-              <span className="plan-badge">Dein Plan</span>
+              <span className="plan-badge">{tr('Dein Plan')}</span>
             ) : !bezahlbar ? (
-              <span className="plan-badge badge-soon">Bald verfügbar</span>
+              <span className="plan-badge badge-soon">{tr('Bald verfügbar')}</span>
             ) : null}
           </div>
           <ul className="plan-features">
-            <li>Unbegrenzte KI-Vokabellisten</li>
-            <li>Unbegrenzte zweisprachige E-Books</li>
-            <li>Eigene Videos ohne Begrenzung</li>
-            <li>Offline-Modus & Erinnerungen</li>
+            <li>{tr('Unbegrenzte KI-Vokabellisten')}</li>
+            <li>{tr('Unbegrenzte zweisprachige E-Books')}</li>
+            <li>{tr('Eigene Videos ohne Begrenzung')}</li>
+            <li>{tr('Offline-Modus & Erinnerungen')}</li>
           </ul>
 
           {preis && !premium && !istApp && (
             <div className="price-options">
               <div className="price-row price-best">
-                <span>{preis.zeitraum === 'year' ? 'Jährlich' : 'Monatlich'}</span>
+                <span>{preis.zeitraum === 'year' ? tr('Jährlich') : tr('Monatlich')}</span>
                 <b>
-                  {preis.betrag.toLocaleString('de-DE', {
+                  {preis.betrag.toLocaleString(gebiet(), {
                     style: 'currency',
                     currency: preis.waehrung,
                   })}
@@ -376,14 +372,14 @@ export default function Settings({
             <>
               <p className="abo-status">
                 {!gueltigBis
-                  ? 'Aktiv – unbegrenzt'
+                  ? tr('Aktiv – unbegrenzt')
                   : aboStatus === 'gekuendigt'
-                    ? `Gekündigt – läuft noch bis ${gueltigBis}`
-                    : `Aktiv – verlängert sich am ${gueltigBis}`}
+                    ? tr('Gekündigt – läuft noch bis {0}', gueltigBis)
+                    : tr('Aktiv – verlängert sich am {0}', gueltigBis)}
               </p>
               {!istApp && (
                 <button onClick={verwalten} disabled={laedt}>
-                  {laedt ? 'Öffnet …' : 'Abo verwalten'}
+                  {laedt ? tr('Öffnet …') : tr('Abo verwalten')}
                 </button>
               )}
             </>
@@ -391,16 +387,15 @@ export default function Settings({
             /* Kein Kauf und kein Link nach draussen – nur der neutrale
                Hinweis, dass ein bestehendes Abo hier ankommt. */
             <p className="abo-status">
-              Ein bestehendes Premium-Abo wird nach der Anmeldung
-              automatisch erkannt.
+              {tr('Ein bestehendes Premium-Abo wird nach der Anmeldung automatisch erkannt.')}
             </p>
           ) : bezahlbar ? (
             <button onClick={kaufen} disabled={laedt}>
-              {laedt ? 'Weiterleitung …' : 'Premium holen'}
+              {laedt ? tr('Weiterleitung …') : tr('Premium holen')}
             </button>
           ) : (
-            <button disabled title="Bezahlung wird gerade eingerichtet">
-              Demnächst
+            <button disabled title={tr('Bezahlung wird gerade eingerichtet')}>
+              {tr('Demnächst')}
             </button>
           )}
 
@@ -416,8 +411,8 @@ export default function Settings({
       {onLeitfaden && (
         <button className="leitfaden-zeile" onClick={onLeitfaden}>
           <span className="leitfaden-zeile-text">
-            <b>So nutzt du Davaigo</b>
-            <span>Deine Reise durch die App – und was wir uns dabei gedacht haben.</span>
+            <b>{tr('So nutzt du Davaigo')}</b>
+            <span>{tr('Deine Reise durch die App – und was wir uns dabei gedacht haben.')}</span>
           </span>
           <IconPfeil groesse={17} />
         </button>
@@ -425,15 +420,31 @@ export default function Settings({
       {onRundgang && (
         <button className="leitfaden-zeile" onClick={onRundgang}>
           <span className="leitfaden-zeile-text">
-            <b>Rundgang starten</b>
-            <span>Einmal durch alle Bereiche, in einer Minute.</span>
+            <b>{tr('Rundgang starten')}</b>
+            <span>{tr('Einmal durch alle Bereiche, in einer Minute.')}</span>
           </span>
           <IconPfeil groesse={17} />
         </button>
       )}
 
+      {/* ---------- Sprache der Oberfläche ---------- */}
+      <h2 className="settings-heading">{tr('Sprache')}</h2>
+      <div className="settings-card">
+        <div className="goal-row">
+          {SPRACHEN.map(([kuerzel, name]) => (
+            <button
+              key={kuerzel}
+              className={'chip ' + (sprache() === kuerzel ? 'chip-active' : '')}
+              onClick={() => setzeSprache(kuerzel)}
+            >
+              {name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* ---------- Lernziel ---------- */}
-      <h2 className="settings-heading">Tagesziel</h2>
+      <h2 className="settings-heading">{tr('Tagesziel')}</h2>
       <div className="settings-card">
         <div className="goal-row">
           {[10, 20, 30, 50].map((ziel) => (
@@ -451,21 +462,20 @@ export default function Settings({
             <div className="xp-bar-fill" style={{ width: zielProzent + '%' }} />
           </div>
           <span className="goal-text">
-            {heutigeXp}/{settings.tagesziel} XP heute {zielProzent >= 100 && '– geschafft! 🎉'}
+            {tr('{0}/{1} XP heute {2}', heutigeXp, settings.tagesziel, zielProzent >= 100 && '– geschafft! 🎉')}
           </span>
         </div>
       </div>
 
       {/* ---------- Benachrichtigungen ---------- */}
       {/* ---------- Ton ---------- */}
-      <h2 className="settings-heading">Ton</h2>
+      <h2 className="settings-heading">{tr('Ton')}</h2>
       <div className="settings-card">
         <label className="settings-row">
           <div>
-            <div className="row-title">Wörter von selbst vorlesen</div>
+            <div className="row-title">{tr('Wörter von selbst vorlesen')}</div>
             <div className="row-hint">
-              Spielt die Aufnahme, sobald ein neues Wort erscheint – ohne
-              tippen. Aus, wenn du unterwegs oder im Büro lernst.
+              {tr('Spielt die Aufnahme, sobald ein neues Wort erscheint – ohne tippen. Aus, wenn du unterwegs oder im Büro lernst.')}
             </div>
           </div>
           <span className="switch">
@@ -482,13 +492,13 @@ export default function Settings({
         </label>
       </div>
 
-      <h2 className="settings-heading">Benachrichtigungen</h2>
+      <h2 className="settings-heading">{tr('Benachrichtigungen')}</h2>
       <div className="settings-card">
         <label className="settings-row">
           <div>
-            <div className="row-title">Lern-Erinnerungen</div>
+            <div className="row-title">{tr('Lern-Erinnerungen')}</div>
             <div className="row-hint">
-              Erinnert dich an fällige Vokabeln (als Push-Nachricht ab der App-Version)
+              {tr('Erinnert dich an fällige Vokabeln (als Push-Nachricht ab der App-Version)')}
             </div>
           </div>
           <span className="switch">
@@ -505,24 +515,24 @@ export default function Settings({
       </div>
 
       {/* ---------- Daten ---------- */}
-      <h2 className="settings-heading">Deine Daten</h2>
+      <h2 className="settings-heading">{tr('Deine Daten')}</h2>
       <div className="settings-card">
         <div className="settings-row">
           <div>
-            <div className="row-title">Backup erstellen</div>
-            <div className="row-hint">Lädt alle Vokabeln & Fortschritte als Datei herunter</div>
+            <div className="row-title">{tr('Backup erstellen')}</div>
+            <div className="row-hint">{tr('Lädt alle Vokabeln & Fortschritte als Datei herunter')}</div>
           </div>
           <button className="btn-small" onClick={exportData}>
-            Exportieren
+            {tr('Exportieren')}
           </button>
         </div>
         <div className="settings-row">
           <div>
-            <div className="row-title">Backup einspielen</div>
-            <div className="row-hint">Stellt Daten aus einer Backup-Datei wieder her</div>
+            <div className="row-title">{tr('Backup einspielen')}</div>
+            <div className="row-hint">{tr('Stellt Daten aus einer Backup-Datei wieder her')}</div>
           </div>
           <button className="btn-small" onClick={() => fileInputRef.current.click()}>
-            Importieren
+            {tr('Importieren')}
           </button>
           <input
             ref={fileInputRef}
@@ -534,13 +544,13 @@ export default function Settings({
         </div>
         <div className="settings-row">
           <div>
-            <div className="row-title">Alles zurücksetzen</div>
+            <div className="row-title">{tr('Alles zurücksetzen')}</div>
             <div className="row-hint">
-              Leert diese App – dein Konto bleibt bestehen
+              {tr('Leert diese App – dein Konto bleibt bestehen')}
             </div>
           </div>
           <button className="btn-small btn-danger" onClick={resetData}>
-            Zurücksetzen
+            {tr('Zurücksetzen')}
           </button>
         </div>
 
@@ -549,10 +559,9 @@ export default function Settings({
         {nutzer && (
         <div className="settings-row">
           <div>
-            <div className="row-title">Konto löschen</div>
+            <div className="row-title">{tr('Konto löschen')}</div>
             <div className="row-hint">
-              Entfernt dein Konto und alle Daten endgültig. Ein laufendes Abo
-              wird dabei gekündigt.
+              {tr('Entfernt dein Konto und alle Daten endgültig. Ein laufendes Abo wird dabei gekündigt.')}
             </div>
           </div>
           <button
@@ -560,7 +569,7 @@ export default function Settings({
             onClick={kontoLoeschen}
             disabled={loeschLaeuft}
           >
-            {loeschLaeuft ? 'Löscht …' : 'Konto löschen'}
+            {loeschLaeuft ? tr('Löscht …') : tr('Konto löschen')}
           </button>
         </div>
         )}
@@ -569,14 +578,13 @@ export default function Settings({
       {/* ---------- Messung ---------- */}
       {messungMoeglich() && (
         <>
-          <h2 className="settings-heading">Messung</h2>
+          <h2 className="settings-heading">{tr('Messung')}</h2>
           <div className="settings-card">
             <label className="settings-row">
               <div>
-                <div className="row-title">Anonyme Reichweitenmessung</div>
+                <div className="row-title">{tr('Anonyme Reichweitenmessung')}</div>
                 <div className="row-hint">
-                  Zählt mit Google Analytics, wie viele Menschen Davaigo benutzen.
-                  Aus heißt: kein Skript, keine Cookies. Davaigo funktioniert genauso.
+                  {tr('Zählt mit Google Analytics, wie viele Menschen Davaigo benutzen. Aus heißt: kein Skript, keine Cookies. Davaigo funktioniert genauso.')}
                 </div>
               </div>
               <span className="switch">
@@ -598,26 +606,26 @@ export default function Settings({
       {/* ---------- Rechtliches ---------- */}
       {/* Auch hier erreichbar, nicht nur im Fuß der Startseite: Wer
           angemeldet ist, sieht die Startseite nie wieder. */}
-      <h2 className="settings-heading">Rechtliches</h2>
+      <h2 className="settings-heading">{tr('Rechtliches')}</h2>
       <div className="settings-card">
         {[
-          ['impressum', 'Impressum'],
-          ['datenschutz', 'Datenschutzerklärung'],
-          ['agb', 'AGB & Widerrufsrecht'],
+          ['impressum', tr('Impressum')],
+          ['datenschutz', tr('Datenschutzerklärung')],
+          ['agb', tr('AGB & Widerrufsrecht')],
         ].map(([kennung, text]) => (
           <div className="settings-row" key={kennung}>
             <div>
               <div className="row-title">{text}</div>
             </div>
             <button className="btn-small" onClick={() => onRecht(kennung)}>
-              Lesen
+              {tr('Lesen')}
             </button>
           </div>
         ))}
       </div>
 
       {/* ---------- Über ---------- */}
-      <p className="about-note">Mit Herz entwickelt von Klarwerk Digital</p>
+      <p className="about-note">{tr('Mit Herz entwickelt von Klarwerk Digital')}</p>
     </div>
   )
 }
@@ -637,15 +645,15 @@ function BenutzernameEinstellung({ nutzerId }) {
   if (name === undefined) return null
   return (
     <div className="name-einstellung">
-      <h3>Benutzername</h3>
+      <h3>{tr('Benutzername')}</h3>
       <p className="settings-hint">
-        So erscheinst du in der Rangliste auf der Startseite. Jeden Namen gibt es nur einmal.
+        {tr('So erscheinst du in der Rangliste auf der Startseite. Jeden Namen gibt es nur einmal.')}
       </p>
       <BenutzernameFeld
         key={name ?? ''}
         nutzerId={nutzerId}
         start={name ?? ''}
-        knopf={name ? 'Ändern' : 'Speichern'}
+        knopf={name ? tr('Ändern') : tr('Speichern')}
         onGespeichert={setName}
       />
     </div>

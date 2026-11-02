@@ -25,6 +25,7 @@
 
 import { db } from './supabase.js'
 import { newEntry } from './srs.js'
+import { tr } from './sprache.js'
 
 const SPEICHER = 'saetze'
 
@@ -59,7 +60,7 @@ export function speichereSaetzeLokal(saetze) {
  */
 export function neuerSatz(s, herkunft = {}) {
   return {
-    ...newEntry(s.uebersetzung, herkunft.thema ? 'Sätze: ' + herkunft.thema : ''),
+    ...newEntry(s.uebersetzung, herkunft.thema ? tr('Sätze: {0}', herkunft.thema) : ''),
     status: 'lernen',
     anzeige: s.satz,
     schluessel: s.schluessel ?? '',

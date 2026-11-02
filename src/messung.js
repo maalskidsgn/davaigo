@@ -22,6 +22,7 @@
 //   3. Nur einmal. Ein zweiter Aufruf tut nichts.
 
 import { istApp } from './api.js'
+import { tr } from './sprache.js'
 
 // Die Mess-Kennung ist kein Geheimnis – sie steht bei jedem
 // GA-Nutzer sichtbar im Quelltext der Seite.
@@ -116,7 +117,7 @@ export function seitenaufruf(ansicht) {
   aktuelleAnsicht = ansicht
   if (!laeuft) return
   window.gtag?.('event', 'page_view', {
-    page_title: 'Davaigo – ' + ansicht,
+    page_title: tr('Davaigo – {0}', ansicht),
     page_path: '/' + ansicht,
     page_location: location.origin + '/' + ansicht,
   })

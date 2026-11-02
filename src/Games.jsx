@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
+import { tr } from './sprache.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare,
 // Wortsuche und Wortfang.
@@ -69,13 +70,12 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       <div className="trainer">
         <div className="spiel-leer">
           <span className="spiel-leer-icon" aria-hidden="true">🃏</span>
-          <h2>Noch zu wenige Wörter</h2>
+          <h2>{tr('Noch zu wenige Wörter')}</h2>
           <p>
-            Ab vier gesammelten Wörtern mit Übersetzung geht es los. Wörter
-            kommen aus den Lektionen, aus Videos oder von der KI-Wortliste.
+            {tr('Ab vier gesammelten Wörtern mit Übersetzung geht es los. Wörter kommen aus den Lektionen, aus Videos oder von der KI-Wortliste.')}
           </p>
           <button className="btn" onClick={onClose}>
-            Zurück zum Trainer
+            {tr('Zurück zum Trainer')}
           </button>
         </div>
       </div>
@@ -89,13 +89,13 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
         <h2 className="game-title">
           {
             {
-              memory: 'Memory',
-              paare: 'Wortpaare',
-              suche: 'Wortsuche',
-              fang: 'Wortfang',
-              blitz: 'Blitzrunde',
-              galgen: 'Galgenmännchen',
-              salat: 'Buchstabensalat',
+              memory: tr('Memory'),
+              paare: tr('Wortpaare'),
+              suche: tr('Wortsuche'),
+              fang: tr('Wortfang'),
+              blitz: tr('Blitzrunde'),
+              galgen: tr('Galgenmännchen'),
+              salat: tr('Buchstabensalat'),
             }[spiel]
           }
         </h2>
@@ -144,13 +144,12 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
           <span key={i} className="confetti" style={{ '--i': i }} />
         ))}
       </div>
-      <h2>Geschafft! 🎉</h2>
+      <h2>{tr('Geschafft! 🎉')}</h2>
       <p>{text}</p>
       <p className="bonus-note">
-        +{XP.SPIEL} Bonus-XP
-        {woerter.length > 0 && ` · ${woerter.length} Wörter eine Stufe weiter`}
+        {tr('+{0} Bonus-XP{1}', XP.SPIEL, woerter.length > 0 && tr(' · {0} Wörter eine Stufe weiter', woerter.length))}
       </p>
-      <button onClick={onClose}>Zurück zum Trainer</button>
+      <button onClick={onClose}>{tr('Zurück zum Trainer')}</button>
     </div>
   )
 }
@@ -164,7 +163,7 @@ function RundenWoerter({ woerter, gefunden }) {
   if (!woerter?.length) return null
   return (
     <div className="runden-woerter">
-      <p className="runden-woerter-titel">Die Wörter dieser Runde</p>
+      <p className="runden-woerter-titel">{tr('Die Wörter dieser Runde')}</p>
       <ul>
         {woerter.map((w) => (
           <li
@@ -221,10 +220,10 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       const alle = [...gefunden, a.pairId]
       setGefunden(alle)
       setOffen([])
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
+      belohne(XP.QUIZ_RICHTIG, tr('Treffer!'))
       // Das letzte Paar NICHT sofort wegblenden: Erst soll man es in
       // Ruhe lesen können – weiter geht es über den Knopf unten.
-      if (alle.length === paare.length) belohne(XP.SPIEL, 'Geschafft!')
+      if (alle.length === paare.length) belohne(XP.SPIEL, tr('Geschafft!'))
     } else {
       // kein Paar: kurz zeigen, dann wieder zudecken
       setSperre(true)
@@ -238,7 +237,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
   if (fertig) {
     return (
       <SpielFertig
-        text={`Alle ${anzahl} Paare in ${versuche} Versuchen gefunden!`}
+        text={tr('Alle {0} Paare in {1} Versuchen gefunden!', anzahl, versuche)}
         woerter={woerter}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -253,7 +252,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
         <div className="lern-balken">
           <div className="lern-balken-voll" style={{ width: (gefunden.length / anzahl) * 100 + '%' }} />
         </div>
-        <p className="training-progress">{gefunden.length}/{anzahl} Paare · {versuche} Versuche</p>
+        <p className="training-progress">{tr('{0}/{1} Paare · {2} Versuche', gefunden.length, anzahl, versuche)}</p>
       </div>
       <div className="memory-grid">
         {karten.map((k) => {
@@ -275,7 +274,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       </div>
       {gefunden.length === anzahl && (
         <button className="btn memory-weiter" onClick={() => setFertig(true)}>
-          Alle gefunden – weiter
+          {tr('Alle gefunden – weiter')}
         </button>
       )}
       <RundenWoerter woerter={paare} gefunden={gefunden.map((i) => paare[i].es)} />
@@ -309,9 +308,9 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
       const alle = [...geloest, p.es]
       setGeloest(alle)
       setWahlLinks(null)
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
+      belohne(XP.QUIZ_RICHTIG, tr('Treffer!'))
       if (alle.length === paare.length) {
-        belohne(XP.SPIEL, 'Geschafft!')
+        belohne(XP.SPIEL, tr('Geschafft!'))
         setFertig(true)
       }
     } else {
@@ -326,7 +325,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
   if (fertig) {
     return (
       <SpielFertig
-        text={`Alle ${paare.length} Wortpaare verbunden!`}
+        text={tr('Alle {0} Wortpaare verbunden!', paare.length)}
         woerter={paare.map((p) => p.es)}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -342,7 +341,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
           <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
         </div>
         <p className="training-progress">
-          {geloest.length}/{paare.length} verbunden – links ein Wort, rechts die Übersetzung
+          {tr('{0}/{1} verbunden – links ein Wort, rechts die Übersetzung', geloest.length, paare.length)}
         </p>
       </div>
       <div className="pairs-grid">
@@ -525,7 +524,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
 
     if (treffer) {
       setGefunden((g) => [...g, treffer.es])
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
+      belohne(XP.QUIZ_RICHTIG, tr('Treffer!'))
     }
   }
 
@@ -538,7 +537,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
   if (alleGefunden) {
     return (
       <SpielFertig
-        text={`Alle ${platziert.length} Wörter im Gitter gefunden!`}
+        text={tr('Alle {0} Wörter im Gitter gefunden!', platziert.length)}
         woerter={platziert.map((w) => w.es)}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -550,14 +549,14 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
     <div className="spiel-buehne">
       {xpAnzeige}
       <div className="spiel-kopf">
-        <span className="spiel-titel">🔍 Wortsuche</span>
+        <span className="spiel-titel">{tr('🔍 Wortsuche')}</span>
         <span className="spiel-stand">
           {gefunden.length} / {platziert.length}
         </span>
       </div>
 
       <div className="such-auftrag">
-        <span className="such-label">Diese Wörter sind versteckt</span>
+        <span className="such-label">{tr('Diese Wörter sind versteckt')}</span>
         <div className="such-liste">
           {platziert.map((w) => {
             const fertig = gefunden.includes(w.es)
@@ -572,8 +571,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
       </div>
 
       <p className="spiel-hinweis">
-        Zieh mit dem Finger über die Buchstaben – waagerecht, senkrecht oder
-        diagonal.
+        {tr('Zieh mit dem Finger über die Buchstaben – waagerecht, senkrecht oder diagonal.')}
       </p>
 
       <div
@@ -607,7 +605,7 @@ function Wortsuche({ paare, addXp, onClose, onGespielt }) {
       </div>
 
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
-        Abbrechen
+        {tr('Abbrechen')}
       </button>
     </div>
   )
@@ -685,7 +683,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
 
     if (eintrag.richtig) {
       setBlitz('gut')
-      belohne(XP.QUIZ_RICHTIG, 'Treffer!')
+      belohne(XP.QUIZ_RICHTIG, tr('Treffer!'))
       setGefangen((g) => [...g, ziel.es])
       setFallend([])          // Runde räumen
       setRunde((r) => r + 1)
@@ -702,8 +700,8 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
       <SpielFertig
         text={
           leben > 0
-            ? `Alle ${geschafft} Wörter gefangen – ohne alle Leben zu verlieren!`
-            : `${geschafft} von ${ziele.length} gefangen. Beim nächsten Mal mehr!`
+            ? tr('Alle {0} Wörter gefangen – ohne alle Leben zu verlieren!', geschafft)
+            : tr('{0} von {1} gefangen. Beim nächsten Mal mehr!', geschafft, ziele.length)
         }
         woerter={gefangen}
         onGespielt={onGespielt}
@@ -716,7 +714,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
     <div className="spiel-buehne">
       {xpAnzeige}
       <div className="spiel-kopf">
-        <span className="spiel-titel">🎣 Wortfang</span>
+        <span className="spiel-titel">{tr('🎣 Wortfang')}</span>
         <span className="spiel-stand">
           {'❤️'.repeat(leben)}
           {'🖤'.repeat(LEBEN - leben)} · {runde}/{ziele.length}
@@ -724,7 +722,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
       </div>
 
       <div className="fang-auftrag">
-        <span className="fang-label">Finde</span>
+        <span className="fang-label">{tr('Finde')}</span>
         <b className="fang-wort">{ziel.de}</b>
       </div>
 
@@ -745,7 +743,7 @@ function Wortfang({ paare, addXp, onClose, onGespielt }) {
       </div>
 
       <button className="btn-plain spiel-abbrechen" onClick={onClose}>
-        Abbrechen
+        {tr('Abbrechen')}
       </button>
     </div>
   )
@@ -808,7 +806,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
   useEffect(() => {
     if (!vorbei) return
     if (punkte > rekordVorher) localStorage.setItem(BLITZ_REKORD, String(punkte))
-    if (richtig > 0) belohne(XP.SPIEL, 'Zeit um!')
+    if (richtig > 0) belohne(XP.SPIEL, tr('Zeit um!'))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vorbei])
 
@@ -842,8 +840,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
         {xpAnzeige}
         <SpielFertig
           text={
-            `${punkte} Punkte · ${richtig} richtig, ${falsch} falsch` +
-            (neuerRekord ? ' · Neuer Rekord!' : rekordVorher ? ` · Rekord ${rekordVorher}` : '')
+            tr('{0} Punkte · {1} richtig, {2} falsch{3}', punkte, richtig, falsch, neuerRekord ? ' · Neuer Rekord!' : rekordVorher ? ` · Rekord ${rekordVorher}` : '')
           }
           woerter={woerter}
           onGespielt={onGespielt}
@@ -865,9 +862,9 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
         </div>
         <div className="blitz-werte">
           <span><b>{rest}</b> s</span>
-          <span><b>{punkte}</b> Punkte</span>
+          <span><b>{punkte}</b> {tr('Punkte')}</span>
           <span className={serie >= 3 ? 'blitz-serie heiss' : 'blitz-serie'}>
-            {serie >= 3 ? `${serie}er-Serie · ×2` : `Serie ${serie}`}
+            {serie >= 3 ? `${serie}er-Serie · ×2` : tr('Serie {0}', serie)}
           </span>
         </div>
       </div>
@@ -878,12 +875,12 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
       </div>
       {!laeuft && (
         <p className="training-progress">
-          Die Zeit läuft ab der ersten Antwort. Ab 3 richtigen in Folge zählt jede doppelt.
+          {tr('Die Zeit läuft ab der ersten Antwort. Ab 3 richtigen in Folge zählt jede doppelt.')}
         </p>
       )}
       <div className="blitz-knoepfe">
-        <button className="blitz-knopf nein" onClick={() => antworte(false)}>Passt nicht</button>
-        <button className="blitz-knopf ja" onClick={() => antworte(true)}>Passt</button>
+        <button className="blitz-knopf nein" onClick={() => antworte(false)}>{tr('Passt nicht')}</button>
+        <button className="blitz-knopf ja" onClick={() => antworte(true)}>{tr('Passt')}</button>
       </div>
     </>
   )
@@ -915,7 +912,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
   if (!wort) {
     return (
       <SpielFertig
-        text={`${geloest.length} von ${runde.length} Wörtern erraten`}
+        text={tr('{0} von {1} Wörtern erraten', geloest.length, runde.length)}
         woerter={geloest}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -940,14 +937,14 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
     if (alleOffen) {
       setEnde('geloest')
       setGeloest((g) => [...g, wort.es])
-      belohne(XP.QUIZ_RICHTIG * 5, 'Erraten!')
+      belohne(XP.QUIZ_RICHTIG * 5, tr('Erraten!'))
     } else if (neueFehler >= GALGEN_LEBEN) {
       setEnde('verloren')
     }
   }
 
   function weiter() {
-    if (nr + 1 >= runde.length && geloest.length > 0) belohne(XP.SPIEL, 'Geschafft!')
+    if (nr + 1 >= runde.length && geloest.length > 0) belohne(XP.SPIEL, tr('Geschafft!'))
     setNr((n) => n + 1)
     setGeraten([])
     setEnde(null)
@@ -956,8 +953,8 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
   return (
     <>
       {xpAnzeige}
-      <p className="training-progress">Wort {nr + 1} von {runde.length}</p>
-      <div className="galgen-leben" aria-label={`${GALGEN_LEBEN - fehler} Versuche übrig`}>
+      <p className="training-progress">{tr('Wort {0} von {1}', nr + 1, runde.length)}</p>
+      <div className="galgen-leben" aria-label={tr('{0} Versuche übrig', GALGEN_LEBEN - fehler)}>
         {Array.from({ length: GALGEN_LEBEN }, (_, i) => (
           <span key={i} className={'galgen-herz' + (i < GALGEN_LEBEN - fehler ? '' : ' weg')}>♥</span>
         ))}
@@ -976,9 +973,9 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
       </div>
       {ende ? (
         <div className="galgen-ende">
-          <p>{ende === 'geloest' ? 'Richtig!' : 'Leider nicht – so heißt es richtig.'}</p>
+          <p>{ende === 'geloest' ? tr('Richtig!') : tr('Leider nicht – so heißt es richtig.')}</p>
           <button className="btn" onClick={weiter}>
-            {nr + 1 >= runde.length ? 'Auswertung' : 'Nächstes Wort'}
+            {nr + 1 >= runde.length ? tr('Auswertung') : tr('Nächstes Wort')}
           </button>
         </div>
       ) : (
@@ -1026,7 +1023,7 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
   if (!wort) {
     return (
       <SpielFertig
-        text={`${runde.length} Wörter richtig zusammengesetzt`}
+        text={tr('{0} Wörter richtig zusammengesetzt', runde.length)}
         woerter={fertigWoerter}
         onGespielt={onGespielt}
         onClose={onClose}
@@ -1041,16 +1038,16 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
         <div className="lern-balken">
           <div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} />
         </div>
-        <p className="training-progress">Wort {nr + 1} von {runde.length}</p>
+        <p className="training-progress">{tr('Wort {0} von {1}', nr + 1, runde.length)}</p>
       </div>
       <SalatWort
         key={wort.es}
         wort={wort}
         onFertig={(ohneFehler) => {
-          belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? 'Fehlerfrei!' : 'Richtig!')
+          belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? tr('Fehlerfrei!') : tr('Richtig!'))
           if (ohneFehler) setFertigWoerter((f) => [...f, wort.es])
           setTimeout(() => {
-            if (nr + 1 >= runde.length) belohne(XP.SPIEL, 'Geschafft!')
+            if (nr + 1 >= runde.length) belohne(XP.SPIEL, tr('Geschafft!'))
             setNr((n) => n + 1)
           }, 900)
         }}
@@ -1123,7 +1120,7 @@ function SalatWort({ wort, onFertig }) {
           </button>
         ))}
       </div>
-      {fehler > 0 && !fertig && <p className="training-progress">{fehler} Fehler</p>}
+      {fehler > 0 && !fertig && <p className="training-progress">{tr('{0} Fehler', fehler)}</p>}
     </div>
   )
 }

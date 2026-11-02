@@ -1,3 +1,4 @@
+import { tr } from './sprache.js'
 // Anmeldung bei Spotify – nach dem PKCE-Verfahren.
 //
 // Warum PKCE? Der übliche Weg verlangt ein "Client Secret". Das
@@ -75,7 +76,7 @@ export async function schliesseAnmeldungAb() {
     }),
   })
   const daten = await res.json()
-  if (!res.ok) throw new Error(daten.error_description || 'Anmeldung fehlgeschlagen')
+  if (!res.ok) throw new Error(daten.error_description || tr('Anmeldung fehlgeschlagen'))
 
   sessionStorage.removeItem('spotify_geheimnis')
   merkeZugang(daten)
@@ -162,13 +163,13 @@ export function trenneSpotify() {
 
 async function hole(pfad, token) {
   const res = await fetch('https://api.spotify.com/v1' + pfad, {
-    headers: { Authorization: 'Bearer ' + token },
+    headers: { Authorization: `Bearer ${token}` },
   })
   if (res.status === 401) {
     trenneSpotify()
-    throw new Error('Die Verbindung zu Spotify ist abgelaufen. Bitte neu verbinden.')
+    throw new Error(tr('Die Verbindung zu Spotify ist abgelaufen. Bitte neu verbinden.'))
   }
-  if (!res.ok) throw new Error('Spotify antwortet nicht (' + res.status + ')')
+  if (!res.ok) throw new Error(tr('Spotify antwortet nicht ({0})', res.status))
   return res.json()
 }
 

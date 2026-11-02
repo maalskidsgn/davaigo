@@ -13,6 +13,7 @@
 import { db, supabaseBereit } from './supabase.js'
 import { LEKTIONEN, mischen } from './lektionen.js'
 import { ladeBlockierte, ohneBlockierte } from './rangliste.js'
+import { tr } from './sprache.js'
 
 /** So viele Fragen hat ein Duell. */
 export const FRAGEN = 7
@@ -91,9 +92,9 @@ export function baueFragen() {
 
 /** Fordert jemanden heraus. Gibt die Duell-ID zurück. */
 export async function duellStarten(gegner) {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(tr('Bitte zuerst anmelden.'))
   const fragen = baueFragen()
-  if (!fragen.length) throw new Error('Gerade keine Fragen verfügbar.')
+  if (!fragen.length) throw new Error(tr('Gerade keine Fragen verfügbar.'))
   const { data, error } = await db.rpc('duell_starten', { gegner, fragen })
   if (error) throw new Error(error.message)
   window.dispatchEvent(new CustomEvent('duelle'))

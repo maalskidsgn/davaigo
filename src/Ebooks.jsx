@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { API_URL, istApp } from './api.js'
 import { db } from './supabase.js'
+import { tr } from './sprache.js'
 
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2']
 
@@ -96,7 +97,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
   }
 
   async function loeschen(id) {
-    if (!confirm('Dieses Buch wirklich löschen?')) return
+    if (!confirm(tr('Dieses Buch wirklich löschen?'))) return
     const { error } = await db.from('ebooks').delete().eq('id', id)
     if (error) return setFehler(error.message)
     setBuecher((b) => b.filter((x) => x.id !== id))
@@ -121,19 +122,18 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       <section className="bereich">
         <div className="bereich-kopf">
           <div className="kopf-zeile">
-            <h2>Buch schreiben lassen</h2>
+            <h2>{tr('Buch schreiben lassen')}</h2>
             {kontingent && (
               <span
                 className={'rest-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
-                title="Kostenlose Bücher diesen Monat"
+                title={tr('Kostenlose Bücher diesen Monat')}
               >
                 {kontingent.frei}/{kontingent.gesamt}
               </span>
             )}
           </div>
           <p>
-            Nenn ein Thema, und die KI schreibt eine kurze Zusammenfassung auf
-            Russisch – mit deutscher Fassung zum Umschalten.
+            {tr('Nenn ein Thema, und die KI schreibt eine kurze Zusammenfassung auf Russisch – mit deutscher Fassung zum Umschalten.')}
           </p>
         </div>
 
@@ -142,13 +142,13 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
             type="text"
             value={thema}
             onChange={(e) => setThema(e.target.value)}
-            placeholder="Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“"
+            placeholder={tr('Thema oder Buchtitel, z.B. „Ikigai“ oder „Besser schlafen“')}
             disabled={aufgebraucht || laedt}
             required
           />
 
           <div className="niveau-zeile">
-            <span className="niveau-label">Niveau</span>
+            <span className="niveau-label">{tr('Niveau')}</span>
             {NIVEAUS.map((n) => (
               <button
                 key={n}
@@ -163,17 +163,17 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
           <button type="submit" className="btn wort-los" disabled={laedt || aufgebraucht}>
             {laedt ? (
-              <>Schreibt dein Buch<span className="studio-punkte" /></>
+              <>{tr('Schreibt dein Buch')}<span className="studio-punkte" /></>
             ) : (
-              'Buch erstellen'
+              tr('Buch erstellen')
             )}
           </button>
 
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
               {istApp
-                ? 'Dein Monatskontingent ist aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.'
-                : 'Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.'}
+                ? tr('Dein Monatskontingent ist aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.')
+                : tr('Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.')}
             </p>
           )}
         </form>
@@ -182,11 +182,10 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       {aufgebraucht && !istApp && (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
-            Unbegrenzt lesen <span className="plan-badge badge-soon">Premium</span>
+            {tr('Unbegrenzt lesen')} <span className="plan-badge badge-soon">{tr('Premium')}</span>
           </div>
           <p className="row-hint">
-            Mit Premium erstellst du so viele E-Books, wie du möchtest – zu jedem
-            Thema und auf jedem Niveau.
+            {tr('Mit Premium erstellst du so viele E-Books, wie du möchtest – zu jedem Thema und auf jedem Niveau.')}
           </p>
         </div>
       )}
@@ -196,11 +195,11 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       {/* ============ 2. DEINE BÜCHER ============ */}
       <section className="bereich">
         <div className="bereich-kopf">
-          <h2>Deine Bücher</h2>
+          <h2>{tr('Deine Bücher')}</h2>
           <p>
             {buecher
-              ? `${buecher.length} zum Lesen – tippe eins an.`
-              : 'Wird geladen …'}
+              ? tr('{0} zum Lesen – tippe eins an.', buecher.length)
+              : tr('Wird geladen …')}
           </p>
         </div>
 
@@ -212,18 +211,18 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
                 <span className="ebook-cover-niveau">{b.niveau}</span>
                 <span className="ebook-cover-titel">{b.titel}</span>
                 <span className="ebook-cover-autor">{b.autor}</span>
-                {b.ist_beispiel && <span className="ebook-marke">Beispiel</span>}
+                {b.ist_beispiel && <span className="ebook-marke">{tr('Beispiel')}</span>}
               </div>
               <div className="ebook-info">
                 <div className="ebook-titel">{b.titel_de || b.titel}</div>
                 <div className="ebook-meta">
-                  {leseMinuten(b)} Min · {b.kapitel?.length ?? 0} Kapitel
+                  {tr('{0} Min · {1} Kapitel', leseMinuten(b), b.kapitel?.length ?? 0)}
                 </div>
               </div>
               {!b.ist_beispiel && (
                 <button
                   className="btn-delete ebook-loeschen"
-                  title="Buch löschen"
+                  title={tr('Buch löschen')}
                   onClick={(e) => { e.stopPropagation(); loeschen(b.id) }}
                 >
                   ✕
@@ -273,7 +272,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
   function wortSammeln() {
     if (!wort?.text) return
     onAddVocab?.([
-      { wort: wort.text, uebersetzung: wort.de, quelle: 'Buch: ' + buch.titel },
+      { wort: wort.text, uebersetzung: wort.de, quelle: tr('Buch: {0}', buch.titel) },
     ])
     setWort(null)
   }
@@ -292,7 +291,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
           key={i}
           className={'lese-wort' + (status ? ' lese-wort-' + status : '')}
           onClick={() => wortAntippen(teil, absatz)}
-          title={status ? 'Im Vokabeltrainer' : undefined}
+          title={status ? tr('Im Vokabeltrainer') : undefined}
         >
           {teil}
         </span>
@@ -320,7 +319,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
       (buch.vokabeln ?? []).map((v) => ({
         wort: v.es,
         uebersetzung: v.de,
-        quelle: 'Buch: ' + buch.titel,
+        quelle: tr('Buch: {0}', buch.titel),
       }))
     )
     setUebernommen(true)
@@ -333,12 +332,12 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
       {/* Kopf: zurück + Titel */}
       <div className="leser-kopf">
         <button className="btn-plain back-link" onClick={onZurueck}>
-          ← Mediathek
+          {tr('← Mediathek')}
         </button>
         <div className="leser-kopf-titel">
           <b>{sprache === 'es' ? buch.titel : buch.titel_de || buch.titel}</b>
           <span>
-            {buch.autor} · {gesamtMin} Min · {kapitel.length} Kapitel
+            {tr('{0} · {1} Min · {2} Kapitel', buch.autor, gesamtMin, kapitel.length)}
           </span>
         </div>
       </div>
@@ -361,7 +360,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             ))}
           {sprache === 'es' && (
             <p className="lese-tipp">
-              Tipp: Tippe ein Wort an, um es zu übersetzen und zu sammeln.
+              {tr('Tipp: Tippe ein Wort an, um es zu übersetzen und zu sammeln.')}
             </p>
           )}
         </div>
@@ -371,12 +370,12 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
       {fertig && (
         <div className="leser-text" ref={textRef}>
           <div className="leser-label">
-            {sprache === 'es' ? '¡Enhorabuena!' : 'Geschafft!'}
+            {sprache === 'es' ? '¡Enhorabuena!' : tr('Geschafft!')}
           </div>
           <h1 className="leser-titel">
             {sprache === 'es'
-              ? 'Las palabras más importantes'
-              : 'Die wichtigsten Wörter'}
+              ? tr('Самые важные слова')
+              : tr('Die wichtigsten Wörter')}
           </h1>
           <div className="buch-vokabeln">
             {(buch.vokabeln ?? []).map((v, i) => (
@@ -387,7 +386,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             ))}
           </div>
           <button className="btn" onClick={vokabelnUebernehmen} disabled={uebernommen}>
-            {uebernommen ? '✓ Im Trainer' : '＋ Alle in den Vokabeltrainer'}
+            {uebernommen ? '✓ Im Trainer' : tr('＋ Alle in den Vokabeltrainer')}
           </button>
         </div>
       )}
@@ -399,18 +398,18 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[schluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{tr('✓ im Trainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? tr('Übersetze …') : wort.de || tr('Keine Übersetzung gefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button className="btn-outline" onClick={() => setWort(null)}>
-                Schließen
+                {tr('Schließen')}
               </button>
               <button className="btn" onClick={wortSammeln} disabled={wort.laedt}>
-                ＋ Sammeln
+                {tr('＋ Sammeln')}
               </button>
             </div>
           </div>
@@ -425,13 +424,13 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             className={'sprach-knopf' + (sprache === 'es' ? ' sprach-aktiv' : '')}
             onClick={() => setSprache('es')}
           >
-            Russisch
+            {tr('Russisch')}
           </button>
           <button
             className={'sprach-knopf sprach-navy' + (sprache === 'de' ? ' sprach-aktiv' : '')}
             onClick={() => setSprache('de')}
           >
-            Deutsch
+            {tr('Deutsch')}
           </button>
         </div>
 
@@ -465,7 +464,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             disabled={fertig}
             onClick={() => setKapitelNr((n) => n + 1)}
           >
-            {kapitelNr === kapitel.length - 1 ? 'Fertig' : '→'}
+            {kapitelNr === kapitel.length - 1 ? tr('Fertig') : '→'}
           </button>
         </div>
       </div>

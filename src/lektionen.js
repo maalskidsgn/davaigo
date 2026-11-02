@@ -1,3 +1,4 @@
+import { lokalisiere } from './sprache.js'
 // ============================================================
 //  Das Lektions-Schema (Davaigo / Russisch)
 // ============================================================
@@ -7129,6 +7130,7 @@ export const LEKTIONEN = [
   },
 
 ]
+lokalisiere(LEKTIONEN)
 
 // Die zehn Module des 180er-Kursplans – Details in docs/KURSPLAN.md.
 // "geplant" zeigt in der App, was ein noch leeres Modul bringen wird.
@@ -7232,6 +7234,7 @@ export const MODULE = [
     geplant: ['Aspekt-Feinheiten', 'Gesprochene Partikeln', 'Natürliches Hörtempo', 'Langes Lesen & Hören', 'Finales Projekt'],
   },
 ]
+lokalisiere(MODULE)
 
 export function kommtBald(modul) {
   return lektionenVon(modul).length === 0

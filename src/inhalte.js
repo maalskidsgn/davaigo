@@ -1,3 +1,4 @@
+import { tr } from './sprache.js'
 // Die fertigen Inhalte: Hörtexte (Podcasts) und Lesetexte (Bücher).
 //
 // Anders als Videos und Songs wird hier nichts erzeugt – die Texte
@@ -12,11 +13,11 @@
 const ABLAGE = import.meta.env.VITE_INHALTE_URL || ''
 
 export const ARTEN = {
-  hoertexte: { titel: 'Hörtexte', einzahl: 'Hörtext' },
+  hoertexte: { titel: tr('Hörtexte'), einzahl: tr('Hörtext') },
   // Die 89 importierten Buchzusammenfassungen. Sie hiessen frueher
   // "Lesetexte" – der Schluessel bleibt, weil er den Ablageort
   // bestimmt, nur die Beschriftung wurde umbenannt.
-  lesetexte: { titel: 'Ebooks', einzahl: 'Ebook' },
+  lesetexte: { titel: tr('Ebooks'), einzahl: tr('Ebook') },
 }
 
 // Einmal geholt, für die Sitzung gemerkt – das Verzeichnis ändert
@@ -27,7 +28,7 @@ async function hole(pfad) {
   if (!ABLAGE) return [] // noch kein Speicher eingerichtet
   if (gemerkt.has(pfad)) return gemerkt.get(pfad)
   const versprechen = fetch(`${ABLAGE}/${pfad}`).then((r) => {
-    if (!r.ok) throw new Error('Inhalt nicht erreichbar (' + r.status + ')')
+    if (!r.ok) throw new Error(tr('Inhalt nicht erreichbar ({0})', r.status))
     return r.json()
   })
   // Das Versprechen selbst merken, nicht erst das Ergebnis: Sonst

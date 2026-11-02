@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { istApp } from './api.js'
 import { bezahlungBereit } from './premium.js'
 import { LISTEN_PRO_TAG, naechsteAuffuellung } from './limits.js'
+import { tr } from './sprache.js'
 
 /**
  * Hinweis, wenn die kostenlosen Generierungen fuer heute aufgebraucht
@@ -12,7 +13,7 @@ import { LISTEN_PRO_TAG, naechsteAuffuellung } from './limits.js'
  *
  * @param {string} was – z. B. "Vokabellisten", "Texte", "Sätze"
  */
-export default function PremiumWerbung({ was = 'Generierungen' }) {
+export default function PremiumWerbung({ was = tr('Generierungen') }) {
   const [bezahlbar, setBezahlbar] = useState(false)
 
   useEffect(() => {
@@ -33,13 +34,12 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
             </svg>
           </span>
           <div>
-            <p className="pw-ueber">Für heute geschafft</p>
-            <h3 className="pw-titel">Morgen geht's weiter</h3>
+            <p className="pw-ueber">{tr('Für heute geschafft')}</p>
+            <h3 className="pw-titel">{tr('Morgen geht\'s weiter')}</h3>
           </div>
         </div>
         <p className="pw-text">
-          Deine Generierungen für heute sind aufgebraucht. Neue {was} gibt es{' '}
-          {naechsteAuffuellung()} – bis dahin kannst du mit dem Gesammelten üben.
+          {tr('Deine Generierungen für heute sind aufgebraucht. Neue {0} gibt es {1} – bis dahin kannst du mit dem Gesammelten üben.', was, naechsteAuffuellung())}
         </p>
       </div>
     )
@@ -60,31 +60,30 @@ export default function PremiumWerbung({ was = 'Generierungen' }) {
           </svg>
         </span>
         <div>
-          <p className="pw-ueber">Tageslimit erreicht</p>
+          <p className="pw-ueber">{tr('Tageslimit erreicht')}</p>
           <h3 className="pw-titel">
-            Mehr lernen mit <span className="accent">Premium</span>
+            {tr('Mehr lernen mit')} <span className="accent">{tr('Premium')}</span>
           </h3>
         </div>
       </div>
 
       <p className="pw-text">
-        Deine {LISTEN_PRO_TAG} kostenlosen Generierungen für heute sind aufgebraucht.
-        Neue {was} gibt es {naechsteAuffuellung()} – oder sofort und ohne Grenze mit Premium.
+        {tr('Deine {0} kostenlosen Generierungen für heute sind aufgebraucht. Neue {1} gibt es {2} – oder sofort und ohne Grenze mit Premium.', LISTEN_PRO_TAG, was, naechsteAuffuellung())}
       </p>
 
       <ul className="pw-vorteile">
-        <li>Unbegrenzt Vokabellisten, Wörter und Texte</li>
-        <li>Unbegrenzt eigene YouTube-Videos</li>
-        <li>Zweisprachige E-Books ohne Limit</li>
+        <li>{tr('Unbegrenzt Vokabellisten, Wörter und Texte')}</li>
+        <li>{tr('Unbegrenzt eigene YouTube-Videos')}</li>
+        <li>{tr('Zweisprachige E-Books ohne Limit')}</li>
       </ul>
 
       {!istApp &&
         (bezahlbar ? (
           <button className="pw-knopf" onClick={zurKasse}>
-            Premium freischalten
+            {tr('Premium freischalten')}
           </button>
         ) : (
-          <p className="pw-bald">Premium ist bald verfügbar</p>
+          <p className="pw-bald">{tr('Premium ist bald verfügbar')}</p>
         ))}
     </div>
   )

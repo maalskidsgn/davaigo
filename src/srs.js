@@ -1,3 +1,4 @@
+import { tr, gebiet } from './sprache.js'
 // Spaced Repetition = "verteiltes Wiederholen".
 // Jede Vokabel steckt in einer Stufe (wie Fächer in einem Karteikasten).
 // Richtig beantwortet -> eine Stufe höher, das Wort kommt seltener dran.
@@ -7,7 +8,7 @@
 export const INTERVALS_DAYS = [0, 1, 3, 7, 14, 30, 90]
 
 // Lesbare Namen für die Stufen (gleiche Reihenfolge wie oben)
-export const LEVEL_LABELS = ['Neu', '1 Tag', '3 Tage', '1 Woche', '2 Wochen', '1 Monat', '3 Monate']
+export const LEVEL_LABELS = [tr('Neu'), tr('1 Tag'), tr('3 Tage'), '1 Woche', '2 Wochen', '1 Monat', '3 Monate']
 
 export const MAX_LEVEL = INTERVALS_DAYS.length - 1
 
@@ -143,17 +144,17 @@ export function vorschau(entry, bewertung) {
   else tage = intervall === 0 ? ERSTES_INTERVALL : intervall * leichtigkeit
 
   tage = Math.min(tage, MAX_TAGE)
-  if (tage < 1) return Math.round(tage * 24) + ' Std'
+  if (tage < 1) return tr('{0} Std', Math.round(tage * 24))
   // Unter einer Woche mit Nachkommastelle. Sonst stünden auf zwei
   // Knöpfen dieselben "3 Tage" – 2,5 und 3,25 runden beide dorthin –
   // und es sähe aus, als täten sie dasselbe.
   if (tage < 7) {
     const gerundet = Math.round(tage * 10) / 10
-    if (gerundet === 1) return '1 Tag'
-    return String(gerundet).replace('.', ',') + ' Tage'
+    if (gerundet === 1) return tr('1 Tag')
+    return tr('{0} Tage', String(gerundet).replace('.', ','))
   }
-  if (tage < 30) return Math.round(tage) + ' Tage'
-  if (tage < 365) return Math.round(tage / 30) + ' Mon.'
+  if (tage < 30) return tr('{0} Tage', Math.round(tage))
+  if (tage < 365) return tr('{0} Mon.', Math.round(tage / 30))
   return '1 Jahr'
 }
 
@@ -166,10 +167,10 @@ export function isDue(entry) {
 export function formatDue(entry) {
   if (entry.status === 'gewusst') return '—'
   const diff = (entry.due ?? 0) - Date.now()
-  if (diff <= 0) return 'jetzt fällig'
+  if (diff <= 0) return tr('jetzt fällig')
   if (diff < DAY_MS) return 'heute'
   const days = Math.round(diff / DAY_MS)
   if (days === 1) return 'morgen'
   if (days < 31) return `in ${days} Tagen`
-  return new Date(entry.due).toLocaleDateString('de-DE')
+  return new Date(entry.due).toLocaleDateString(gebiet())
 }

@@ -24,6 +24,7 @@ import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
+import { tr } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Russisch nebenbei,
@@ -49,24 +50,24 @@ const SONGS_ZEIGEN = false
 const EBOOKS_ZEIGEN = false
 
 const BEREICHE = [
-  { wert: 'videos', label: 'Videos' },
-  ...(SONGS_ZEIGEN ? [{ wert: 'songs', label: 'Songs' }] : []),
-  ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: 'Hörtexte' }] : []),
-  ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: 'Ebooks' }] : []),
+  { wert: 'videos', label: tr('Videos') },
+  ...(SONGS_ZEIGEN ? [{ wert: 'songs', label: tr('Songs') }] : []),
+  ...(HOERTEXTE_ZEIGEN ? [{ wert: 'hoertexte', label: tr('Hörtexte') }] : []),
+  ...(EBOOKS_ZEIGEN ? [{ wert: 'ebooks', label: tr('Ebooks') }] : []),
 ]
 
 const KATEGORIEN = [
-  { wert: 'alle', label: 'Alle' },
-  { wert: 'sprache', label: 'Russisch lernen' },
-  { wert: 'gesundheit', label: 'Gesundheit' },
-  { wert: 'sport', label: 'Sport' },
-  { wert: 'ernaehrung', label: 'Ernährung' },
-  { wert: 'produktivitaet', label: 'Produktivität' },
-  { wert: 'stoizismus', label: 'Stoizismus' },
-  { wert: 'psychologie', label: 'Psychologie' },
+  { wert: 'alle', label: tr('Alle') },
+  { wert: 'sprache', label: tr('Russisch lernen') },
+  { wert: 'gesundheit', label: tr('Gesundheit') },
+  { wert: 'sport', label: tr('Sport') },
+  { wert: 'ernaehrung', label: tr('Ernährung') },
+  { wert: 'produktivitaet', label: tr('Produktivität') },
+  { wert: 'stoizismus', label: tr('Stoizismus') },
+  { wert: 'psychologie', label: tr('Psychologie') },
   // Videos, die jemand selbst gesucht hat. Ohne eigene Reihe waeren
   // sie unsichtbar – sie tragen keine der kuratierten Kategorien.
-  { wert: 'gefunden', label: 'Selbst gefunden' },
+  { wert: 'gefunden', label: tr('Selbst gefunden') },
 ]
 
 // Suchanfragen für "Für dich vorgeschlagen" – jeden Tag eine andere,
@@ -97,7 +98,7 @@ function ladeEmpfehlungsCache() {
 // englisch betitelt ("learn russian", "comprehensible input").
 const VORSCHLAEGE = [
   { label: '🎵 Musik', query: 'русские песни с текстом' },
-  { label: '🐣 Für Anfänger', query: 'russian comprehensible input for beginners' },
+  { label: tr('🐣 Für Anfänger'), query: 'russian comprehensible input for beginners' },
   { label: '🎙️ Podcasts', query: 'подкаст на русском для изучающих' },
   { label: '📰 Langsame Nachrichten', query: 'новости на русском медленно для изучающих' },
   { label: '🍳 Kochen', query: 'простой рецепт на русском' },
@@ -318,14 +319,14 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   return (
     <div className="library">
       <h1 className="lib-kopf">
-        Lernen mit <span className="accent">YouTube</span>
+        {tr('Lernen mit')} <span className="accent">YouTube</span>
       </h1>
       <p className="lib-unter">
         {{
-          videos: 'Finde russische Videos, die zu deinem Niveau passen.',
-          songs: 'Russische Songs mit mitlaufendem Text.',
-          hoertexte: 'Hörtexte mit Tonspur und Übersetzung daneben.',
-          ebooks: 'Buchzusammenfassungen auf Russisch – oder lass dir selbst eine schreiben.',
+          videos: tr('Finde russische Videos, die zu deinem Niveau passen.'),
+          songs: tr('Russische Songs mit mitlaufendem Text.'),
+          hoertexte: tr('Hörtexte mit Tonspur und Übersetzung daneben.'),
+          ebooks: tr('Buchzusammenfassungen auf Russisch – oder lass dir selbst eine schreiben.'),
         }[bereich]}
       </p>
 
@@ -381,16 +382,16 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
               Zusammenfassungen sitzt dafuer schmal ueber der Liste. */}
           <Hero
             symbol={<IconBuch groesse={26} />}
-            titel="Ebook erstellen"
-            text="Nenn einen Buchtitel oder ein Thema – die KI schreibt eine Zusammenfassung auf Russisch."
+            titel={tr('Ebook erstellen')}
+            text={tr('Nenn einen Buchtitel oder ein Thema – die KI schreibt eine Zusammenfassung auf Russisch.')}
           >
             <SuchFeld
               rund
               wert={buchTitel}
               onWert={setBuchTitel}
               onAbsenden={generiereBuch}
-              platzhalter="z. B. „Ikigai“ oder „Besser schlafen“"
-              knopf="Ebook erstellen"
+              platzhalter={tr('z. B. „Ikigai“ oder „Besser schlafen“')}
+              knopf={tr('Ebook erstellen')}
               laedt={buchLaden}
             />
           </Hero>
@@ -398,7 +399,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           {buchFehler && <p className="error">{buchFehler}</p>}
           {buchLaden && (
             <p className="inhalt-hinweis">
-              Das dauert einen Moment – die KI schreibt gerade beide Fassungen.
+              {tr('Das dauert einen Moment – die KI schreibt gerade beide Fassungen.')}
             </p>
           )}
 
@@ -447,12 +448,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         <section className="bereich">
           <Kopf
             symbol={<IconLesezeichen groesse={19} />}
-            titel="Deine gemerkten Videos"
-            text={`${savedVideos.length} gespeichert – dort weitermachen, wo du aufgehört hast.`}
+            titel={tr('Deine gemerkten Videos')}
+            text={tr('{0} gespeichert – dort weitermachen, wo du aufgehört hast.', savedVideos.length)}
             aktion={
               savedVideos.length > SICHTBAR_GEMERKT ? (
                 <button className="kopf-aktion" onClick={() => setAlleGemerkt((a) => !a)}>
-                  {alleGemerkt ? 'Weniger' : 'Alle anzeigen'}
+                  {alleGemerkt ? tr('Weniger') : tr('Alle anzeigen')}
                   <IconPfeil groesse={15} />
                 </button>
               ) : null
@@ -463,7 +464,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
               className={'chip ' + (filter === 'alle' ? 'chip-active' : '')}
               onClick={() => setFilter('alle')}
             >
-              Alle ({savedVideos.length})
+              {tr('Alle ({0})', savedVideos.length)}
             </button>
             {categories.map((c) => (
               <button
@@ -501,7 +502,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                     {v.category && <span className="category-badge">{v.category}</span>}
                     <button
                       className="btn-delete"
-                      title="Aus der Mediathek entfernen"
+                      title={tr('Aus der Mediathek entfernen')}
                       onClick={() => removeVideo(v.videoId)}
                     >
                       ✕
@@ -519,7 +520,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         <section className="bereich">
           <Kopf
             symbol={<IconGesundheit groesse={19} />}
-            titel="Für dich"
+            titel={tr('Für dich')}
             aktion={
               kategorie !== 'alle' ? (
                 <button
@@ -529,7 +530,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                     setSichtbareVideos(SCHRITT)
                   }}
                 >
-                  Alle ansehen <IconPfeil groesse={15} />
+                  {tr('Alle ansehen')} <IconPfeil groesse={15} />
                 </button>
               ) : null
             }
@@ -554,7 +555,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
           {bibliothekFehler && <p className="error">{bibliothekFehler}</p>}
           {!bibliothek && !bibliothekFehler && (
-            <p className="intro">Lade Mediathek…</p>
+            <p className="intro">{tr('Lade Mediathek…')}</p>
           )}
 
           {bibliothek && (() => {
@@ -564,7 +565,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                 : bibliothek.filter((v) => v.kategorie === kategorie)
 
             if (gefiltert.length === 0) {
-              return <p className="intro">Zu diesem Thema ist noch nichts dabei.</p>
+              return <p className="intro">{tr('Zu diesem Thema ist noch nichts dabei.')}</p>
             }
 
             const sichtbar = gefiltert.slice(0, sichtbareVideos)
@@ -593,7 +594,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                          strokeLinejoin="round" aria-hidden="true">
                       <path d="m5 9 7 7 7-7" />
                     </svg>
-                    Mehr anzeigen ({rest} weitere)
+                    {tr('Mehr anzeigen ({0} weitere)', rest)}
                   </button>
                 )}
               </>
@@ -622,8 +623,8 @@ function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
     <section className="bereich">
       <Kopf
         symbol={<IconBuch groesse={19} />}
-        titel="Deine eigenen Ebooks"
-        text="Auf diesem Gerät gespeichert."
+        titel={tr('Deine eigenen Ebooks')}
+        text={tr('Auf diesem Gerät gespeichert.')}
         zahl={buecher.length}
       />
       <ul className="inhalt-liste ebook-eigene">
@@ -633,15 +634,14 @@ function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
               <span className="inhalt-text">
                 <span className="inhalt-titel">{b.titel}</span>
                 <span className="inhalt-meta">
-                  selbst erstellt
-                  {b.kapitel ? ` · ${b.kapitel.length} Kapitel` : ''}
+                  {tr('selbst erstellt{0}', b.kapitel ? ` · ${b.kapitel.length} Kapitel` : '')}
                 </span>
               </span>
               <IconPfeil groesse={17} />
             </button>
             <button
               className="btn-delete ebook-weg"
-              title="Löschen"
+              title={tr('Löschen')}
               onClick={() => onLoeschen(b.id)}
             >
               ✕
@@ -662,7 +662,7 @@ function BuchView({ buch, onClose, onAddVocab }) {
       buch.vokabeln.map((v) => ({
         wort: v.wort,
         uebersetzung: v.uebersetzung,
-        quelle: 'Buch: ' + buch.titel,
+        quelle: tr('Buch: {0}', buch.titel),
       }))
     )
     setUebernommen(true)
@@ -671,11 +671,11 @@ function BuchView({ buch, onClose, onAddVocab }) {
   return (
     <div className="library buch-view">
       <button className="btn-plain back-link" onClick={onClose}>
-        ← Zur Mediathek
+        {tr('← Zur Mediathek')}
       </button>
       <h1>{buch.titel}</h1>
       <p className="intro">
-        {buch.autor} · Niveau {buch.niveau}
+        {tr('{0} · Niveau {1}', buch.autor, buch.niveau)}
       </p>
 
       <label className="autoscroll-toggle">
@@ -684,7 +684,7 @@ function BuchView({ buch, onClose, onAddVocab }) {
           checked={zeigeDe}
           onChange={(e) => setZeigeDe(e.target.checked)}
         />
-        Deutsche Übersetzung einblenden
+        {tr('Deutsche Übersetzung einblenden')}
       </label>
 
       {buch.absaetze.map((a, i) => (
@@ -694,7 +694,7 @@ function BuchView({ buch, onClose, onAddVocab }) {
         </div>
       ))}
 
-      <h2 className="settings-heading">Vokabeln aus diesem Buch</h2>
+      <h2 className="settings-heading">{tr('Vokabeln aus diesem Buch')}</h2>
       <div className="settings-card">
         {buch.vokabeln.map((v) => (
           <div key={v.wort} className="settings-row">
@@ -706,10 +706,10 @@ function BuchView({ buch, onClose, onAddVocab }) {
         ))}
       </div>
       {uebernommen ? (
-        <p className="gen-success">Vokabeln sind im Trainer! ✓</p>
+        <p className="gen-success">{tr('Vokabeln sind im Trainer! ✓')}</p>
       ) : (
         <button className="hero-cta" onClick={vokabelnUebernehmen}>
-          Alle {buch.vokabeln.length} Vokabeln in den Trainer übernehmen
+          {tr('Alle {0} Vokabeln in den Trainer übernehmen', buch.vokabeln.length)}
         </button>
       )}
     </div>
@@ -795,7 +795,7 @@ function VideoKarte({ video, onOpen, fortschritt = 0 }) {
 //  Die Video-Engine: Einstieg in die YouTube-Suche
 // ===============================================================
 
-const ENGINE_THEMEN = ['Fußball', 'Kochen', 'Reisen', 'Musik', 'Vlogs', 'Psychologie']
+const ENGINE_THEMEN = [tr('Fußball'), tr('Kochen'), tr('Reisen'), tr('Musik'), tr('Vlogs'), tr('Psychologie')]
 
 /**
  * Kein Formular, sondern das Aushängeschild der Mediathek: dunkle
@@ -819,22 +819,21 @@ function VideoEngine({ wert, onWert, onSuche }) {
           </svg>
         </span>
         <span className="engine-marke">
-          <span className="engine-punkt" /> Video-Engine
+          <span className="engine-punkt" /> {tr('Video-Engine')}
         </span>
       </div>
 
       <h2 className="engine-titel">
-        Lerne Russisch mit <span>echten YouTube-Videos</span>
+        {tr('Lerne Russisch mit')} <span>{tr('echten YouTube-Videos')}</span>
       </h2>
       <p className="engine-text">
-        Such dir ein Thema – Davaigo findet russische Videos auf deinem Niveau
-        und macht sie lernbar.
+        {tr('Such dir ein Thema – Davaigo findet russische Videos auf deinem Niveau und macht sie lernbar.')}
       </p>
 
       <ul className="engine-features">
-        <li><b>RU</b> Untertitel mitlesen</li>
-        <li><b>↻</b> Wort antippen = übersetzt</li>
-        <li><b>✦</b> Vokabeln per KI</li>
+        <li><b>RU</b> {tr('Untertitel mitlesen')}</li>
+        <li><b>↻</b> {tr('Wort antippen = übersetzt')}</li>
+        <li><b>✦</b> {tr('Vokabeln per KI')}</li>
       </ul>
 
       <form className="engine-suche" onSubmit={absenden}>
@@ -845,11 +844,11 @@ function VideoEngine({ wert, onWert, onSuche }) {
         <input
           value={wert}
           onChange={(e) => onWert(e.target.value)}
-          placeholder="Worüber willst du ein Video sehen?"
+          placeholder={tr('Worüber willst du ein Video sehen?')}
           enterKeyHint="search"
         />
-        <button type="submit" disabled={!wert.trim()} aria-label="Videos suchen">
-          Suchen
+        <button type="submit" disabled={!wert.trim()} aria-label={tr('Videos suchen')}>
+          {tr('Suchen')}
         </button>
       </form>
 

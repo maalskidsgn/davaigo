@@ -3,6 +3,7 @@ import { sucheNutzer, ladeFreunde, frageFreund, nimmAn, beende } from './ranglis
 import { Bildnis } from './Rangliste.jsx'
 import ProfilSchau from './ProfilSchau.jsx'
 import { useAnwesend } from './praesenz.js'
+import { tr, gebiet } from './sprache.js'
 
 /**
  * Leute finden und Freundschaften verwalten.
@@ -53,17 +54,17 @@ export default function Freunde() {
           type="search"
           value={was}
           onChange={(e) => setWas(e.target.value)}
-          placeholder="Benutzername suchen …"
-          aria-label="Leute suchen"
+          placeholder={tr('Benutzername suchen …')}
+          aria-label={tr('Leute suchen')}
         />
       </div>
 
       {was.trim().length >= 2 && (
         <div className="fr-treffer">
           {laeuft && !treffer.length ? (
-            <p className="fr-leer">Sucht …</p>
+            <p className="fr-leer">{tr('Sucht …')}</p>
           ) : !treffer.length ? (
-            <p className="fr-leer">Niemanden gefunden.</p>
+            <p className="fr-leer">{tr('Niemanden gefunden.')}</p>
           ) : (
             treffer.map((t) => (
               <Zeile key={t.benutzername} p={t} onSchau={setSchau} onFertig={neuLaden} />
@@ -76,7 +77,7 @@ export default function Freunde() {
       {anfragen.length > 0 && (
         <section className="fr-block">
           <h3 className="fr-titel">
-            Anfragen <span className="fr-zahl">{anfragen.length}</span>
+            {tr('Anfragen')} <span className="fr-zahl">{anfragen.length}</span>
           </h3>
           {anfragen.map((f) => (
             <Zeile key={f.anfrage_id} p={f} onSchau={setSchau} onFertig={neuLaden} />
@@ -87,7 +88,7 @@ export default function Freunde() {
       {/* ---------- Freunde ---------- */}
       <section className="fr-block">
         <h3 className="fr-titel">
-          Freunde {freunde.length > 0 && <span className="fr-zahl">{freunde.length}</span>}
+          {tr('Freunde')} {freunde.length > 0 && <span className="fr-zahl">{freunde.length}</span>}
         </h3>
         {freunde.length ? (
           freunde.map((f) => (
@@ -95,8 +96,7 @@ export default function Freunde() {
           ))
         ) : (
           <p className="fr-leer">
-            Noch niemand. Such jemanden über den Namen – oder schau in der Rangliste, wer
-            gerade fleißig ist.
+            {tr('Noch niemand. Such jemanden über den Namen – oder schau in der Rangliste, wer gerade fleißig ist.')}
           </p>
         )}
       </section>
@@ -104,7 +104,7 @@ export default function Freunde() {
       {/* ---------- Gesendet ---------- */}
       {gesendet.length > 0 && (
         <section className="fr-block">
-          <h3 className="fr-titel">Gesendet</h3>
+          <h3 className="fr-titel">{tr('Gesendet')}</h3>
           {gesendet.map((f) => (
             <Zeile key={f.anfrage_id} p={f} onSchau={setSchau} onFertig={neuLaden} />
           ))}
@@ -140,35 +140,35 @@ function Zeile({ p, onSchau, onFertig }) {
             er auch bei langen Namen sichtbar. */}
         <span className="fr-bildfeld">
           <Bildnis name={p.benutzername} bild={p.bild} klasse="fr-bild" />
-          {da(p.benutzername) && <span className="ist-da" title="gerade online" />}
+          {da(p.benutzername) && <span className="ist-da" title={tr('gerade online')} />}
         </span>
         <span className="fr-text">
           <b>{p.benutzername}</b>
           <small>
             {da(p.benutzername)
-              ? 'gerade online'
-              : (p.xp ?? 0).toLocaleString('de-DE') + ' XP'}
+              ? tr('gerade online')
+              : (p.xp ?? 0).toLocaleString(gebiet()) + ' XP'}
           </small>
         </span>
       </button>
 
       <span className="fr-tun">
-        {p.stand === 'ich' && <span className="fr-marke">du</span>}
+        {p.stand === 'ich' && <span className="fr-marke">{tr('du')}</span>}
 
         {p.stand === 'fremd' && (
           <button className="btn-small" disabled={laeuft} onClick={() => tu('anfragen')}>
-            {laeuft ? '…' : 'Hinzufügen'}
+            {laeuft ? '…' : tr('Hinzufügen')}
           </button>
         )}
 
         {p.stand === 'wartet' && (
           <>
             <button className="btn-small" disabled={laeuft} onClick={() => tu('annehmen')}>
-              Annehmen
+              {tr('Annehmen')}
             </button>
             {p.anfrage_id && (
               <button className="btn-plain fr-nein" disabled={laeuft} onClick={() => tu('beenden')}>
-                Nein
+                {tr('Nein')}
               </button>
             )}
           </>
@@ -176,10 +176,10 @@ function Zeile({ p, onSchau, onFertig }) {
 
         {p.stand === 'gesendet' && (
           <>
-            <span className="fr-marke">gefragt</span>
+            <span className="fr-marke">{tr('gefragt')}</span>
             {p.anfrage_id && (
               <button className="btn-plain fr-nein" disabled={laeuft} onClick={() => tu('beenden')}>
-                Zurück
+                {tr('Zurück')}
               </button>
             )}
           </>
@@ -187,10 +187,10 @@ function Zeile({ p, onSchau, onFertig }) {
 
         {p.stand === 'freund' && (
           <>
-            <span className="fr-marke fr-ist">Freund</span>
+            <span className="fr-marke fr-ist">{tr('Freund')}</span>
             {p.anfrage_id && (
               <button className="btn-plain fr-nein" disabled={laeuft} onClick={() => tu('beenden')}>
-                Entfernen
+                {tr('Entfernen')}
               </button>
             )}
           </>

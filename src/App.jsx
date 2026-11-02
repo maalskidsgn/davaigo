@@ -69,6 +69,7 @@ import { gleicheVideosAb, ladeGeloeschteLokal, speichereGeloeschteLokal } from '
 import { ladeBenutzername } from './rangliste.js'
 import { baueBrueckenPlayer } from './ytBruecke.js'
 import Gespraech from './Gespraech.jsx'
+import { tr, sprache, geradeGewechselt } from './sprache.js'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -239,7 +240,9 @@ export default function App() {
   // starten wir gleich im Songs-Bereich – sonst landet er auf der
   // Startseite und der Code wird nie eingeloest.
   const [view, setView] = useState(() =>
-    new URLSearchParams(window.location.search).get('code') ? 'videos' : 'start'
+    geradeGewechselt()
+      ? 'mehr'
+      : new URLSearchParams(window.location.search).get('code') ? 'videos' : 'start'
   ) // 'start', 'lesen', 'lektionen', 'trainer', 'videos', 'mehr'
 
   // Bereichs-Einführungen: Welche Infobox ist gerade offen, und läuft
@@ -408,7 +411,7 @@ export default function App() {
     if (!nutzer || syncStatus === 'laeuft') return
     const timer = setTimeout(() => {
       speichereVokabeln(nutzer.id, vocab).catch((f) =>
-        console.warn('Vokabeln konnten nicht gesichert werden:', f.message)
+        console.warn(tr('Vokabeln konnten nicht gesichert werden:'), f.message)
       )
     }, 1500)
     return () => clearTimeout(timer)
@@ -499,7 +502,7 @@ export default function App() {
       gleicheVideosAb(nutzer.id, {
         videos: savedVideos,
         geloescht: ladeGeloeschteLokal(),
-      }).catch((f) => console.warn('Videos konnten nicht gesichert werden:', f.message))
+      }).catch((f) => console.warn(tr('Videos konnten nicht gesichert werden:'), f.message))
     }, 1500)
     return () => clearTimeout(timer)
   }, [savedVideos, nutzer, videosAbgeglichen])
@@ -518,7 +521,7 @@ export default function App() {
         setSavedVideos(vereint.videos)
         setVideosAbgeglichen(true)
       })
-      .catch((f) => console.warn('Videos konnten nicht abgeglichen werden:', f.message))
+      .catch((f) => console.warn(tr('Videos konnten nicht abgeglichen werden:'), f.message))
     return () => {
       abgebrochen = true
     }
@@ -531,7 +534,7 @@ export default function App() {
     if (!nutzer) return
     const abgleich = () =>
       gleicheGeraetedatenAb(nutzer.id).catch((f) =>
-        console.warn('Abgleich fehlgeschlagen:', f.message)
+        console.warn(tr('Abgleich fehlgeschlagen:'), f.message)
       )
     abgleich()
     const takt = setInterval(abgleich, 60000)
@@ -569,7 +572,7 @@ export default function App() {
         streak: progress.streak,
         lastDay: progress.lastDay,
         xpToday: progress.xpToday,
-      }).catch((f) => console.warn('Statistik nicht gesichert:', f.message))
+      }).catch((f) => console.warn(tr('Statistik nicht gesichert:'), f.message))
     }, 1500)
     return () => clearTimeout(timer)
   }, [progress, nutzer, syncStatus])
@@ -580,7 +583,7 @@ export default function App() {
     setLessonProgress((p) => ({ ...p, [lektion.id]: { fertig: true } }))
     if (nutzer) {
       speichereFortschritt(nutzer.id, lektion.id).catch((f) =>
-        console.warn('Lektion nicht gesichert:', f.message)
+        console.warn(tr('Lektion nicht gesichert:'), f.message)
       )
     }
     setVocab((v) => {
@@ -589,7 +592,7 @@ export default function App() {
         const key = item.es.toLowerCase()
         if (!copy[key]) {
           copy[key] = {
-            ...newEntry(item.de, 'Lektion: ' + lektion.titel),
+            ...newEntry(item.de, tr('Lektion: {0}', lektion.titel)),
             status: 'lernen',
           }
         }
@@ -645,7 +648,7 @@ export default function App() {
       videoSekunden.current += 1
       if (videoSekunden.current >= 60) {
         videoSekunden.current -= 60
-        addXp(XP.VIDEO_MINUTE, 'Video-Minute')
+        addXp(XP.VIDEO_MINUTE, tr('Video-Minute'))
         merkeGelernt('video') // für die Lernkurve
       }
     }, 1000)
@@ -815,7 +818,7 @@ export default function App() {
           })
           // Die deutsche Fassung liegt fertig in der Datenbank – dadurch
           // lässt sie sich ohne Wartezeit ein- und ausblenden.
-          if (treffer.transkript_de?.length === treffer.transkript.length) {
+          if (sprache() === 'de' && treffer.transkript_de?.length === treffer.transkript.length) {
             setDeLines(treffer.transkript_de)
           }
           return
@@ -834,8 +837,7 @@ export default function App() {
         data = JSON.parse(text)
       } catch {
         throw new Error(
-          'Dieses Video ist noch nicht in der Davaigo-Mediathek und der ' +
-          'Transkript-Dienst ist gerade nicht erreichbar.'
+          tr('Dieses Video ist noch nicht in der Davaigo-Mediathek und der Transkript-Dienst ist gerade nicht erreichbar.')
         )
       }
       if (!res.ok) throw new Error(data.error)
@@ -922,7 +924,7 @@ export default function App() {
     if (neu.size) {
       addXp(
         XP.WORT_NEU * neu.size,
-        neu.size === 1 ? 'Wort hinzugefügt' : neu.size + ' Wörter hinzugefügt'
+        neu.size === 1 ? tr('Wort hinzugefügt') : tr('{0} Wörter hinzugefügt', neu.size)
       )
     }
     setVocab((v) => {
@@ -975,7 +977,7 @@ export default function App() {
       // Wörter landeten mit einer Fehlermeldung als Lösung im Trainer
       // und wurden dort irgendwann so abgefragt.
       if (!res.ok || !data.translation) {
-        throw new Error(data.error || 'Der Übersetzungsdienst antwortet nicht.')
+        throw new Error(data.error || tr('Der Übersetzungsdienst antwortet nicht.'))
       }
       const translation = data.translation
       setSelected({ word, translation, fehler: '', loading: false })
@@ -1136,7 +1138,7 @@ export default function App() {
 
       {xpMeldung && (
         <span key={xpMeldung.key} className="spiel-xp" onAnimationEnd={() => setXpMeldung(null)}>
-          +{xpMeldung.punkte} XP · {xpMeldung.text}
+          {tr('+{0} XP · {1}', xpMeldung.punkte, xpMeldung.text)}
         </span>
       )}
 
@@ -1148,8 +1150,8 @@ export default function App() {
         <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
           <div className="levelup-card">
             <div className="levelup-emoji">🎉</div>
-            <h2>Level {levelUp} erreicht!</h2>
-            <p>Du bist jetzt: {levelName(levelUp)}</p>
+            <h2>{tr('Level {0} erreicht!', levelUp)}</h2>
+            <p>{tr('Du bist jetzt: {0}', levelName(levelUp))}</p>
           </div>
         </div>
       )}
@@ -1166,14 +1168,14 @@ export default function App() {
             onClick={() => setView('start')}
           >
             <span className="tab-icon">{ICONS.start}</span>
-            <span className="tab-label">Start</span>
+            <span className="tab-label">{tr('Start')}</span>
           </button>
           <button
             className={'tab ' + (view === 'lektionen' ? 'tab-active' : '')}
             onClick={() => setView('lektionen')}
           >
             <span className="tab-icon">{ICONS.lektionen}</span>
-            <span className="tab-label">Lektionen</span>
+            <span className="tab-label">{tr('Lektionen')}</span>
           </button>
           <button
             className={'tab ' + (view === 'trainer' ? 'tab-active' : '')}
@@ -1183,7 +1185,7 @@ export default function App() {
               {ICONS.trainer}
               {faellig > 0 && <span className="due-badge">{faellig}</span>}
             </span>
-            <span className="tab-label">Trainer</span>
+            <span className="tab-label">{tr('Trainer')}</span>
           </button>
           <button
             className={'tab ' + (view === 'videos' || view === 'lesen' ? 'tab-active' : '')}
@@ -1197,20 +1199,20 @@ export default function App() {
             onClick={() => setView('mehr')}
           >
             <span className="tab-icon">{ICONS.mehr}</span>
-            <span className="tab-label">Mehr</span>
+            <span className="tab-label">{tr('Mehr')}</span>
           </button>
         </nav>
         <div className="stats">
           {progress.streak > 0 && (
-            <span className="streak" title={`${progress.streak} Tage in Folge gelernt`}>
+            <span className="streak" title={tr('{0} Tage in Folge gelernt', progress.streak)}>
               🔥 {progress.streak}
             </span>
           )}
           <div
             className="level-pill"
-            title={`${Object.keys(vocab).length} Wörter · ${gelernt} gewusst · ${levelName(level)}`}
+            title={tr('{0} Wörter · {1} gewusst · {2}', Object.keys(vocab).length, gelernt, levelName(level))}
             role="img"
-            aria-label={`Level ${level} – noch ${nextLevelXp - progress.xp} XP bis Level ${level + 1}`}
+            aria-label={tr('Level {0} – noch {1} XP bis Level {2}', level, nextLevelXp - progress.xp, level + 1)}
           >
             {/* key={xp} lässt den Kreis bei jedem XP-Gewinn kurz hüpfen */}
             <span className="level-circle" key={progress.xp}>
@@ -1223,7 +1225,7 @@ export default function App() {
                 sieht es neben den Tages-XP wie ein zweites, konkurrierendes
                 Punktesystem aus. */}
             <span className="xp-text">
-              Noch {nextLevelXp - progress.xp} XP bis Level {level + 1}
+              {tr('Noch {0} XP bis Level {1}', nextLevelXp - progress.xp, level + 1)}
             </span>
             {/* Auf dem Handy ist fuer den Satz kein Platz. Statt gar
                 nichts – ein leerer grauer Balken sagt nichts aus –
@@ -1344,14 +1346,14 @@ export default function App() {
       {view === 'lesen' && (
       <main>
         <button className="zurueck-knopf" onClick={() => setView('videos')}>
-          ← Zu den Videos
+          {tr('← Zu den Videos')}
         </button>
 
         {/* Statt "Lade Transkript…" ein Geruest, das schon so
             aussieht wie das, was gleich kommt. Wartezeit fuehlt
             sich kuerzer an, wenn man sieht, WAS geladen wird. */}
         {loading && (
-          <div className="lade-geruest" aria-label="Video wird geladen" role="status">
+          <div className="lade-geruest" aria-label={tr('Video wird geladen')} role="status">
             <div className="lade-buehne">
               <div className="lade-video schimmer" />
               <div className="lade-titel schimmer" />
@@ -1375,20 +1377,19 @@ export default function App() {
                 />
               ))}
             </div>
-            <p className="lade-text">Untertitel werden geholt …</p>
+            <p className="lade-text">{tr('Untertitel werden geholt …')}</p>
           </div>
         )}
         {error && <p className="error">{error}</p>}
         {!video && !loading && !error && (
           <div className="empty-reader">
             <h1>
-              Kein Video <span className="accent">geladen</span>
+              {tr('Kein Video')} <span className="accent">{tr('geladen')}</span>
             </h1>
             <p className="intro">
-              Such dir im Videobereich ein Video aus oder füge dort einen
-              YouTube-Link ein.
+              {tr('Such dir im Videobereich ein Video aus oder füge dort einen YouTube-Link ein.')}
             </p>
-            <button onClick={() => setView('videos')}>Zu den Videos</button>
+            <button onClick={() => setView('videos')}>{tr('Zu den Videos')}</button>
           </div>
         )}
 
@@ -1411,10 +1412,7 @@ export default function App() {
                   ein anderes Video die bessere Wahl. */}
               {video.qualitaet?.stufe === 'schlecht' && (
                 <p className="text-warnung">
-                  ⚠️ Dieser Text stammt aus YouTubes automatischer
-                  Spracherkennung und ist bei Musik oft zerstückelt.
-                  Such lieber eine Fassung mit „Letra" im Titel – die
-                  hat meist einen sauber getippten Text.
+                  {tr('⚠️ Dieser Text stammt aus YouTubes automatischer Spracherkennung und ist bei Musik oft zerstückelt. Such lieber eine Fassung mit „Letra" im Titel – die hat meist einen sauber getippten Text.')}
                 </p>
               )}
 
@@ -1422,10 +1420,9 @@ export default function App() {
                   nicht bei null anfaengt */}
               {weiterAb !== null && (
                 <p className="weiter-hinweis">
-                  ⏱ Weiter bei {Math.floor(weiterAb / 60)}:
-                  {String(Math.round(weiterAb % 60)).padStart(2, '0')}
+                  {tr('⏱ Weiter bei {0}:{1}', Math.floor(weiterAb / 60), String(Math.round(weiterAb % 60)).padStart(2, '0'))}
                   <button className="weiter-neu" onClick={() => { playerRef.current?.seekTo?.(0, true); setWeiterAb(null) }}>
-                    Von vorn
+                    {tr('Von vorn')}
                   </button>
                 </p>
               )}
@@ -1437,19 +1434,19 @@ export default function App() {
                     onClick={toggleUebersetzung}
                     disabled={deLoading}
                   >
-                    {deLoading ? 'Übersetze …' : 'Übersetzung'}
+                    {deLoading ? tr('Übersetze …') : tr('Übersetzung')}
                   </button>
                   <button
                     className="video-aktion"
                     onClick={() => { setGenOpen(!genOpen); setSaveOpen(false) }}
                   >
-                    Vokabeln sammeln
+                    {tr('Vokabeln sammeln')}
                   </button>
                   <button
                     className={'video-aktion' + (currentSaved ? ' aktion-fertig' : '')}
                     onClick={() => { setSaveOpen(!saveOpen); setGenOpen(false) }}
                   >
-                    {currentSaved ? 'Gemerkt' : 'Merken'}
+                    {currentSaved ? tr('Gemerkt') : tr('Merken')}
                   </button>
                 </div>
               </div>
@@ -1472,8 +1469,8 @@ export default function App() {
                       <div>
                         <div className="success-text">
                           {cardExit.status === 'gewusst'
-                            ? 'Stark, das kannst du schon!'
-                            : 'Gespeichert – ab in den Trainer!'}
+                            ? tr('Stark, das kannst du schon!')
+                            : tr('Gespeichert – ab in den Trainer!')}
                         </div>
                         {cardExit.earned > 0 && (
                           <div className="success-xp">+{cardExit.earned} XP</div>
@@ -1487,7 +1484,7 @@ export default function App() {
                         <div className="word-fehler">
                           {selected.fehler}
                           <small>
-                            Das Wort ist gemerkt – die Bedeutung kannst du im Trainer nachtragen.
+                            {tr('Das Wort ist gemerkt – die Bedeutung kannst du im Trainer nachtragen.')}
                           </small>
                         </div>
                       ) : (
@@ -1495,13 +1492,13 @@ export default function App() {
                       )}
                       <div className="word-actions">
                         <button onClick={() => setStatus(selected.word, 'lernen')}>
-                          Lernen
+                          {tr('Lernen')}
                         </button>
                         <button
                           className="btn-right"
                           onClick={() => setStatus(selected.word, 'gewusst')}
                         >
-                          Gewusst ✓
+                          {tr('Gewusst ✓')}
                         </button>
                       </div>
                     </>
@@ -1550,8 +1547,8 @@ export default function App() {
             <button
               className="fuss-spiel"
               onClick={spielPause}
-              title={laeuft ? 'Pause' : 'Abspielen'}
-              aria-label={laeuft ? 'Pause' : 'Abspielen'}
+              title={laeuft ? tr('Pause') : tr('Abspielen')}
+              aria-label={laeuft ? tr('Pause') : tr('Abspielen')}
             >
               {/* Gezeichnete Symbole statt Emoji – die sehen auf jedem
                   Gerät gleich aus und lassen sich einfärben */}
@@ -1573,7 +1570,7 @@ export default function App() {
                 className="tempo-schritt"
                 onClick={() => setzeTempo(Math.max(0.5, Math.round((tempo - 0.25) * 100) / 100))}
                 disabled={tempo <= 0.5}
-                title="Langsamer"
+                title={tr('Langsamer')}
               >
                 −
               </button>
@@ -1582,7 +1579,7 @@ export default function App() {
                 className="tempo-schritt"
                 onClick={() => setzeTempo(Math.min(2, Math.round((tempo + 0.25) * 100) / 100))}
                 disabled={tempo >= 2}
-                title="Schneller"
+                title={tr('Schneller')}
               >
                 +
               </button>
@@ -1591,9 +1588,9 @@ export default function App() {
             <button
               className={'fuss-knopf' + (autoScroll ? ' fuss-an' : '')}
               onClick={() => setAutoScroll(!autoScroll)}
-              title="Text läuft mit dem Video mit"
+              title={tr('Text läuft mit dem Video mit')}
             >
-              Mitlaufen
+              {tr('Mitlaufen')}
             </button>
           </div>
         )}
@@ -1605,15 +1602,14 @@ export default function App() {
             {saveOpen && (
               <div className="fab-panel">
                 <div className="fab-panel-head">
-                  <b>{currentSaved ? 'In deiner Mediathek ✓' : 'Video speichern'}</b>
+                  <b>{currentSaved ? tr('In deiner Mediathek ✓') : tr('Video speichern')}</b>
                   <button className="btn-plain" onClick={() => setSaveOpen(false)}>
                     ✕
                   </button>
                 </div>
                 {currentSaved ? (
                   <p className="row-hint">
-                    Dieses Video ist gespeichert
-                    {currentSaved.category ? ` – Kategorie „${currentSaved.category}“` : ''}.
+                    {tr('Dieses Video ist gespeichert{0}.', currentSaved.category ? ` – Kategorie „${currentSaved.category}“` : '')}
                   </p>
                 ) : (
                   <div className="save-form">
@@ -1641,8 +1637,8 @@ export default function App() {
                       onChange={(e) => setCategoryInput(e.target.value)}
                       placeholder={
                         vorhandeneKategorien.length
-                          ? 'Oder neue Kategorie eingeben…'
-                          : 'Kategorie, z.B. Musik'
+                          ? tr('Oder neue Kategorie eingeben…')
+                          : tr('Kategorie, z.B. Musik')
                       }
                     />
                     <button
@@ -1652,7 +1648,7 @@ export default function App() {
                         setSaveOpen(false)
                       }}
                     >
-                      Speichern
+                      {tr('Speichern')}
                     </button>
                   </div>
                 )}
@@ -1662,7 +1658,7 @@ export default function App() {
             {genOpen && (
               <div className="fab-panel">
                 <div className="fab-panel-head">
-                  <b>Vokabelgenerator</b>
+                  <b>{tr('Vokabelgenerator')}</b>
                   <button className="btn-plain" onClick={() => setGenOpen(false)}>
                     ✕
                   </button>

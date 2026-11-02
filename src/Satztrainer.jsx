@@ -5,6 +5,7 @@ import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe, IconGemischt, IconSchreiben, IconLektion } from './icons.jsx'
+import { tr } from './sprache.js'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
@@ -18,33 +19,33 @@ const PAARE = 6
 const ARTEN = [
   {
     id: 'karten',
-    titel: 'Karten',
+    titel: tr('Karten'),
     icon: IconKarten,
-    text: 'Satz lesen, Übersetzung aufdecken, selbst einschätzen',
+    text: tr('Satz lesen, Übersetzung aufdecken, selbst einschätzen'),
   },
   {
     id: 'auswahl',
-    titel: 'Auswahl',
+    titel: tr('Auswahl'),
     icon: IconAuswahl,
-    text: 'Vier Übersetzungen – welche passt?',
+    text: tr('Vier Übersetzungen – welche passt?'),
   },
   {
     id: 'bauen',
-    titel: 'Satz bauen',
+    titel: tr('Satz bauen'),
     icon: IconSchreiben,
-    text: 'Deutscher Satz oben – die russischen Wörter in die richtige Reihenfolge tippen',
+    text: tr('Deutscher Satz oben – die russischen Wörter in die richtige Reihenfolge tippen'),
   },
   {
     id: 'luecke',
-    titel: 'Lückensatz',
+    titel: tr('Lückensatz'),
     icon: IconLektion,
-    text: 'Ein Wort fehlt – welches gehört in die Lücke?',
+    text: tr('Ein Wort fehlt – welches gehört in die Lücke?'),
   },
   {
     id: 'paare',
-    titel: 'Satzpaare',
+    titel: tr('Satzpaare'),
     icon: IconGemischt,
-    text: `${PAARE} Sätze und ihre Übersetzungen richtig verbinden`,
+    text: tr('{0} Sätze und ihre Übersetzungen richtig verbinden', PAARE),
   },
 ]
 
@@ -219,14 +220,14 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
       <div className="trainer wechsel" key="satz-liste">
         {kopf}
         <button className="btn-zurueck" onClick={() => setAnsicht('start')}>
-          <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
+          <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{tr('Zurück')}
         </button>
 
         <div className="satz-filter">
           {[
-            ['faellig', `Fällig (${faellig.length})`],
-            ['alle', `Alle (${entries.length})`],
-            ['gewusst', `Sitzt (${gewusst.length})`],
+            ['faellig', tr('Fällig ({0})', faellig.length)],
+            ['alle', tr('Alle ({0})', entries.length)],
+            ['gewusst', tr('Sitzt ({0})', gewusst.length)],
           ].map(([wert, text]) => (
             <button
               key={wert}
@@ -239,7 +240,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         </div>
 
         {gefiltert.length === 0 ? (
-          <p className="empty-hint">Hier ist gerade nichts.</p>
+          <p className="empty-hint">{tr('Hier ist gerade nichts.')}</p>
         ) : (
           <div className="satz-liste">
             {gefiltert.map((e) => (
@@ -248,14 +249,14 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                   <span className="satz-es">{e.satz}</span>
                   <span className="satz-de">{e.translation}</span>
                   <span className="satz-meta">
-                    {LEVEL_LABELS[e.level] ?? 'Neu'} · {formatDue(e)}
+                    {LEVEL_LABELS[e.level] ?? tr('Neu')} · {formatDue(e)}
                     {e.thema ? ' · ' + e.thema : ''}
                   </span>
                 </div>
                 <button
                   className="satz-weg"
                   onClick={() => entfernen(e.key)}
-                  title="Satz entfernen"
+                  title={tr('Satz entfernen')}
                 >
                   ✕
                 </button>
@@ -299,11 +300,11 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 <span key={i} className="confetti" style={{ '--i': i }} />
               ))}
             </div>
-            <h2>Runde geschafft! 🎉</h2>
+            <h2>{tr('Runde geschafft! 🎉')}</h2>
             <p>
-              {result.richtig}× gewusst · {result.falsch}× nicht gewusst
+              {tr('{0}× gewusst · {1}× nicht gewusst', result.richtig, result.falsch)}
             </p>
-            <button onClick={() => setQueue(null)}>Fertig</button>
+            <button onClick={() => setQueue(null)}>{tr('Fertig')}</button>
           </div>
         </div>
       )
@@ -312,7 +313,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     const key = queue[0]
     const current = withSrsDefaults(saetze[key] ?? {})
     const satz = current.anzeige ?? key
-    const loesung = current.translation || '(keine Übersetzung gespeichert)'
+    const loesung = current.translation || tr('(keine Übersetzung gespeichert)')
 
     return (
       <div className="trainer training-stage">
@@ -329,7 +330,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             />
           </div>
           <p className="training-progress">
-            {result.richtig} von {RUNDE} geschafft
+            {tr('{0} von {1} geschafft', result.richtig, RUNDE)}
           </p>
         </div>
 
@@ -345,15 +346,15 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 <div className="flash-translation">{loesung}</div>
                 {current.schluessel && (
                   <p className="satz-schluessel-hinweis">
-                    Achte auf: <b>{current.schluessel}</b>
+                    {tr('Achte auf:')} <b>{current.schluessel}</b>
                   </p>
                 )}
                 <div className="bewertungen">
                   {[
-                    { wert: 'nochmal', text: 'Nochmal' },
-                    { wert: 'schwer', text: 'Schwer' },
-                    { wert: 'gut', text: 'Gut' },
-                    { wert: 'einfach', text: 'Einfach' },
+                    { wert: 'nochmal', text: tr('Nochmal') },
+                    { wert: 'schwer', text: tr('Schwer') },
+                    { wert: 'gut', text: tr('Gut') },
+                    { wert: 'einfach', text: tr('Einfach') },
                   ].map((b) => (
                     <button
                       key={b.wert}
@@ -367,7 +368,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 </div>
               </div>
             ) : (
-              <button onClick={() => setRevealed(true)}>Übersetzung zeigen</button>
+              <button onClick={() => setRevealed(true)}>{tr('Übersetzung zeigen')}</button>
             )}
           </div>
         )}
@@ -378,7 +379,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint">Was heißt …</p>
+            <p className="lesson-hint">{tr('Was heißt …')}</p>
             <div className="flash-satz">{satz}</div>
             <SatzAuswahl
               key={key}
@@ -400,7 +401,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint">Bau den Satz auf Russisch</p>
+            <p className="lesson-hint">{tr('Bau den Satz auf Russisch')}</p>
             <div className="flash-satz satz-vorgabe">{loesung}</div>
             <SatzBauen
               key={key + queue.length}
@@ -416,7 +417,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint">Welches Wort fehlt?</p>
+            <p className="lesson-hint">{tr('Welches Wort fehlt?')}</p>
             <Lueckensatz
               key={key + queue.length}
               satz={satz}
@@ -429,7 +430,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
         )}
 
         <button className="btn-plain" onClick={() => setQueue(null)}>
-          Runde abbrechen
+          {tr('Runde abbrechen')}
         </button>
       </div>
     )
@@ -441,13 +442,13 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
       <div className="trainer">
         <div className="art-kopf">
           <button className="btn-zurueck" onClick={() => setArtWahl(false)}>
-            <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
+            <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{tr('Zurück')}
           </button>
           <h1 className="trainer-titel">
-            Wie willst du <span className="accent">üben?</span>
+            {tr('Wie willst du')} <span className="accent">{tr('üben?')}</span>
           </h1>
           <p className="art-unterzeile">
-            {Math.min(RUNDE, faellig.length)} Sätze stehen an.
+            {tr('{0} Sätze stehen an.', Math.min(RUNDE, faellig.length))}
           </p>
         </div>
         <div className="art-liste">
@@ -464,7 +465,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 className="art-karte"
                 onClick={() => starten(a.id)}
                 disabled={gesperrt}
-                title={gesperrt ? 'Dafür brauchst du mindestens vier Sätze' : undefined}
+                title={gesperrt ? tr('Dafür brauchst du mindestens vier Sätze') : undefined}
               >
                 <span className="art-emoji" aria-hidden="true">
                   <Icon groesse={24} />
@@ -474,7 +475,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                   <span className="art-beschreibung">{a.text}</span>
                   {gesperrt && (
                     <span className="art-hinweis">
-                      {a.id === 'paare' ? 'Ab drei gesammelten Sätzen' : 'Ab vier gesammelten Sätzen'}
+                      {a.id === 'paare' ? tr('Ab drei gesammelten Sätzen') : tr('Ab vier gesammelten Sätzen')}
                     </span>
                   )}
                 </span>
@@ -494,10 +495,9 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
 
       {entries.length === 0 ? (
         <div className="bereich satz-leer">
-          <h2>Noch keine Sätze</h2>
+          <h2>{tr('Noch keine Sätze')}</h2>
           <p>
-            Lass dir welche erzeugen – zu einem Thema, zu einer Grammatik oder zu
-            beidem. Danach wiederholst du sie hier, bis sie sitzen.
+            {tr('Lass dir welche erzeugen – zu einem Thema, zu einer Grammatik oder zu beidem. Danach wiederholst du sie hier, bis sie sitzen.')}
           </p>
         </div>
       ) : (
@@ -506,17 +506,17 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           <section className="bereich bereich-wiederholen">
             <div className="wiederholen-zahl">
               <b>{faellig.length}</b>
-              <span>{faellig.length === 1 ? 'Satz wartet' : 'Sätze warten'}</span>
+              <span>{faellig.length === 1 ? tr('Satz wartet') : tr('Sätze warten')}</span>
             </div>
             <div className="wiederholen-text">
-              <h2>Heute wiederholen</h2>
+              <h2>{tr('Heute wiederholen')}</h2>
               <p>
                 {faellig.length > 0
-                  ? 'Diese Sätze drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
-                  : 'Alles erledigt. Neue Sätze erzeugst du unten mit der KI.'}
+                  ? tr('Diese Sätze drohst du gerade zu vergessen – jetzt sitzen sie am besten.')
+                  : tr('Alles erledigt. Neue Sätze erzeugst du unten mit der KI.')}
               </p>
               <p className="wiederholen-stand">
-                {entries.length} gesammelt · {gewusst.length} sitzen
+                {tr('{0} gesammelt · {1} sitzen', entries.length, gewusst.length)}
               </p>
             </div>
             {/* Nichts fällig? Satzpaare gehen trotzdem – mit den übrigen Sätzen */}
@@ -525,7 +525,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               disabled={faellig.length === 0 && entries.filter((e) => e.translation).length < 3}
               onClick={() => (faellig.length > 0 ? setArtWahl(true) : starten('paare'))}
             >
-              {faellig.length > 0 ? 'Üben' : entries.filter((e) => e.translation).length >= 3 ? 'Satzpaare' : 'Nichts fällig'}
+              {faellig.length > 0 ? tr('Üben') : entries.filter((e) => e.translation).length >= 3 ? tr('Satzpaare') : tr('Nichts fällig')}
             </button>
           </section>
         </>
@@ -544,8 +544,8 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             <IconListe groesse={26} />
           </span>
           <span className="trainer-sprechen-text">
-            <h2>Deine Sätze</h2>
-            <p>{entries.length} gesammelt – ansehen und aufräumen.</p>
+            <h2>{tr('Deine Sätze')}</h2>
+            <p>{tr('{0} gesammelt – ansehen und aufräumen.', entries.length)}</p>
           </span>
         </button>
       )}
@@ -626,11 +626,11 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
             <span key={i} className="confetti" style={{ '--i': i }} />
           ))}
         </div>
-        <h2>Alle {paare.length} Satzpaare verbunden! 🎉</h2>
+        <h2>{tr('Alle {0} Satzpaare verbunden! 🎉', paare.length)}</h2>
         <p>
-          {paare.length - daneben.length}× auf Anhieb · {daneben.length}× mit zweitem Versuch
+          {tr('{0}× auf Anhieb · {1}× mit zweitem Versuch', paare.length - daneben.length, daneben.length)}
         </p>
-        <button onClick={onClose}>Fertig</button>
+        <button onClick={onClose}>{tr('Fertig')}</button>
       </div>
     )
   }
@@ -642,7 +642,7 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
           <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
         </div>
         <p className="training-progress">
-          {geloest.length}/{paare.length} verbunden – erst den Satz, dann die Übersetzung
+          {tr('{0}/{1} verbunden – erst den Satz, dann die Übersetzung', geloest.length, paare.length)}
         </p>
       </div>
       <div className="satzpaare">
@@ -681,7 +681,7 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
         </div>
       </div>
       <button className="btn-plain" onClick={onClose}>
-        Runde abbrechen
+        {tr('Runde abbrechen')}
       </button>
     </>
   )
@@ -781,7 +781,7 @@ function SatzBauen({ satz, onFertig }) {
   return (
     <div className="satzbau">
       <div className={'satzbau-zeile' + (ergebnis ? ' satzbau-' + (korrigiert ? 'korrigiert' : ergebnis) : '')}>
-        {gelegt.length === 0 && <span className="satzbau-platzhalter">Tippe die Wörter in der richtigen Reihenfolge</span>}
+        {gelegt.length === 0 && <span className="satzbau-platzhalter">{tr('Tippe die Wörter in der richtigen Reihenfolge')}</span>}
         {gelegt.map((n, pos) => (
           <button
             key={n}
@@ -802,7 +802,7 @@ function SatzBauen({ satz, onFertig }) {
       </div>
       {korrigiert && (
         <p className="satzbau-loesung">
-          Richtig wäre: <b>{satz}</b>
+          {tr('Richtig wäre:')} <b>{satz}</b>
         </p>
       )}
       <div className="satzbau-vorrat">

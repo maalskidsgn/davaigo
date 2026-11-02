@@ -17,6 +17,7 @@
 import { Capacitor } from '@capacitor/core'
 import { Purchases, LOG_LEVEL } from '@revenuecat/purchases-capacitor'
 import { db, supabaseBereit } from './supabase.js'
+import { tr } from './sprache.js'
 
 /** Der Name der Berechtigung, wie er im RevenueCat-Dashboard steht. */
 export const BERECHTIGUNG = 'premium'
@@ -126,20 +127,20 @@ export async function ladeAngebote() {
 
 function nameVon(art) {
   return {
-    MONTHLY: 'Monatlich',
-    ANNUAL: 'Jährlich',
-    LIFETIME: 'Lifetime',
-    SIX_MONTH: 'Halbjährlich',
-    THREE_MONTH: 'Vierteljährlich',
-    WEEKLY: 'Wöchentlich',
-  }[art] || 'Premium'
+    MONTHLY: tr('Monatlich'),
+    ANNUAL: tr('Jährlich'),
+    LIFETIME: tr('Lifetime'),
+    SIX_MONTH: tr('Halbjährlich'),
+    THREE_MONTH: tr('Vierteljährlich'),
+    WEEKLY: tr('Wöchentlich'),
+  }[art] || tr('Premium')
 }
 
 function zeitraumVon(art) {
   return {
     MONTHLY: 'pro Monat',
     ANNUAL: 'pro Jahr',
-    LIFETIME: 'einmalig, für immer',
+    LIFETIME: tr('einmalig, für immer'),
     SIX_MONTH: 'pro Halbjahr',
     THREE_MONTH: 'pro Quartal',
     WEEKLY: 'pro Woche',
@@ -208,15 +209,15 @@ export async function kaufStand() {
 function lesbar(fehler) {
   const text = String(fehler?.message || '')
   if (/network|connection|internet/i.test(text)) {
-    return 'Keine Verbindung zum Store. Versuch es gleich nochmal.'
+    return tr('Keine Verbindung zum Store. Versuch es gleich nochmal.')
   }
   if (/already|owned/i.test(text)) {
-    return 'Dieser Kauf besteht schon. Tipp auf „Käufe wiederherstellen“.'
+    return tr('Dieser Kauf besteht schon. Tipp auf „Käufe wiederherstellen“.')
   }
   if (/not allowed|restricted/i.test(text)) {
-    return 'Käufe sind auf diesem Gerät gesperrt (Bildschirmzeit oder Familienfreigabe).'
+    return tr('Käufe sind auf diesem Gerät gesperrt (Bildschirmzeit oder Familienfreigabe).')
   }
-  return text || 'Der Kauf hat nicht geklappt.'
+  return text || tr('Der Kauf hat nicht geklappt.')
 }
 
 /* ---------------------------------------------------------------- *

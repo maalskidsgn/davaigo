@@ -12,6 +12,7 @@
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
 import { API_URL } from './api.js'
+import { tr } from './sprache.js'
 
 /**
  * Liest die Berechtigung des angemeldeten Nutzers.
@@ -97,35 +98,35 @@ export function usePremium() {
  * klemmt: Ein Aufruf von hier führt wieder zu Stripe.
  */
 export async function zurKasse() {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(tr('Bitte zuerst anmelden.'))
   const { data: sitzung } = await db.auth.getSession()
   const token = sitzung?.session?.access_token
-  if (!token) throw new Error('Bitte zuerst anmelden.')
+  if (!token) throw new Error(tr('Bitte zuerst anmelden.'))
 
   const res = await fetch(API_URL + '/api/bezahlung/start', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ herkunft: window.location.origin, art: 'hosted' }),
   })
   const daten = await res.json()
-  if (!res.ok) throw new Error(daten.error || 'Bezahlung konnte nicht gestartet werden.')
+  if (!res.ok) throw new Error(daten.error || tr('Bezahlung konnte nicht gestartet werden.'))
   window.location.href = daten.url
 }
 
 /** Öffnet Stripes Verwaltungsseite zum Kündigen oder Kartenwechsel. */
 export async function aboVerwalten() {
-  if (!supabaseBereit) throw new Error('Bitte zuerst anmelden.')
+  if (!supabaseBereit) throw new Error(tr('Bitte zuerst anmelden.'))
   const { data: sitzung } = await db.auth.getSession()
   const token = sitzung?.session?.access_token
-  if (!token) throw new Error('Bitte zuerst anmelden.')
+  if (!token) throw new Error(tr('Bitte zuerst anmelden.'))
 
   const res = await fetch(API_URL + '/api/bezahlung/verwalten', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ herkunft: window.location.origin }),
   })
   const daten = await res.json()
-  if (!res.ok) throw new Error(daten.error || 'Verwaltung konnte nicht geöffnet werden.')
+  if (!res.ok) throw new Error(daten.error || tr('Verwaltung konnte nicht geöffnet werden.'))
   window.location.href = daten.url
 }
 

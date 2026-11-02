@@ -38,6 +38,7 @@ import {
 } from './uebungen.js'
 import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
+import { tr } from './sprache.js'
 
 // Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
 //
@@ -255,29 +256,29 @@ export default function Trainer({
   const schalter = (
     <>
       <h1 className="trainer-titel">
-        Dein{' '}
+        {tr('Dein')}{' '}
         <span className="accent">
           {deck === 'woerter'
-            ? 'Vokabeltrainer'
+            ? tr('Vokabeltrainer')
             : deck === 'saetze'
-              ? 'Satz-Trainer'
+              ? tr('Satz-Trainer')
               : deck === 'lesen'
-                ? 'Lesestoff'
+                ? tr('Lesestoff')
                 : deck === 'ki'
-                  ? 'Gespräch'
-                  : 'Grammatik-Trainer'}
+                  ? tr('Gespräch')
+                  : tr('Grammatik-Trainer')}
         </span>
       </h1>
       <p className="intro">
         {deck === 'woerter'
-          ? 'Neue Wörter sammeln und sicher behalten.'
+          ? tr('Neue Wörter sammeln und sicher behalten.')
           : deck === 'saetze'
-            ? 'Ganze Sätze üben – nach Thema, Aspekt und Fall.'
+            ? tr('Ganze Sätze üben – nach Thema, Aspekt und Fall.')
             : deck === 'lesen'
-              ? 'Kurze Wissenstexte lesen – und wiederlesen.'
+              ? tr('Kurze Wissenstexte lesen – und wiederlesen.')
               : deck === 'ki'
-                ? 'Mit Dascha reden – sie antwortet einfach und übersetzt mit.'
-                : 'Grammatik wiederholen, bis sie sitzt.'}
+                ? tr('Mit Dascha reden – sie antwortet einfach und übersetzt mit.')
+                : tr('Grammatik wiederholen, bis sie sitzt.')}
       </p>
       <div className="deck" role="tablist">
         <button
@@ -286,7 +287,7 @@ export default function Trainer({
           className={deck === 'woerter' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('woerter')}
         >
-          Vokabeln
+          {tr('Vokabeln')}
           {trainable.length > 0 && <span className="deck-zahl">{trainable.length}</span>}
         </button>
         <button
@@ -295,7 +296,7 @@ export default function Trainer({
           className={deck === 'saetze' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('saetze')}
         >
-          Sätze
+          {tr('Sätze')}
           {faelligeSaetze > 0 && <span className="deck-zahl">{faelligeSaetze}</span>}
         </button>
         <button
@@ -304,7 +305,7 @@ export default function Trainer({
           className={deck === 'lesen' ? 'deck-aktiv' : ''}
           onClick={() => setDeck('lesen')}
         >
-          Texte
+          {tr('Texte')}
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
         </button>
         {GRAMMATIK_ZEIGEN && (
@@ -314,7 +315,7 @@ export default function Trainer({
             className={deck === 'grammatik' ? 'deck-aktiv' : ''}
             onClick={() => setDeck('grammatik')}
           >
-            Grammatik
+            {tr('Grammatik')}
             {faelligeGrammatik.length > 0 && (
               <span className="deck-zahl">{faelligeGrammatik.length}</span>
             )}
@@ -327,7 +328,7 @@ export default function Trainer({
             className={deck === 'ki' ? 'deck-aktiv' : ''}
             onClick={() => setDeck('ki')}
           >
-            Sprechen
+            {tr('Sprechen')}
           </button>
         )}
       </div>
@@ -416,19 +417,19 @@ export default function Trainer({
                 <span key={i} className="confetti" style={{ '--i': i }} />
               ))}
             </div>
-            <h2>Runde geschafft! 🎉</h2>
+            <h2>{tr('Runde geschafft! 🎉')}</h2>
             <p>
-              {result.richtig}× gewusst · {result.falsch}× nicht gewusst
+              {tr('{0}× gewusst · {1}× nicht gewusst', result.richtig, result.falsch)}
             </p>
-            <p className="bonus-note">+{XP.RUNDE} Bonus-XP für die volle Runde!</p>
-            <button onClick={() => setQueue(null)}>Zurück zur Übersicht</button>
+            <p className="bonus-note">{tr('+{0} Bonus-XP für die volle Runde!', XP.RUNDE)}</p>
+            <button onClick={() => setQueue(null)}>{tr('Zurück zur Übersicht')}</button>
           </div>
         </div>
       )
     }
     const wort = queue[0]
     const current = withSrsDefaults(vocab[wort] ?? {})
-    const loesung = current.translation || '(keine Übersetzung gespeichert)'
+    const loesung = current.translation || tr('(keine Übersetzung gespeichert)')
     const dieseArt = artFuer(art, position)
 
     return (
@@ -446,7 +447,7 @@ export default function Trainer({
             />
           </div>
           <p className="training-progress">
-            {result.richtig} von {LEKTION_GROESSE} geschafft
+            {tr('{0} von {1} geschafft', result.richtig, LEKTION_GROESSE)}
           </p>
         </div>
 
@@ -462,10 +463,10 @@ export default function Trainer({
                 <div className="flash-translation">{loesung}</div>
                 <div className="bewertungen">
                   {[
-                    { wert: 'nochmal', text: 'Nochmal' },
-                    { wert: 'schwer', text: 'Schwer' },
-                    { wert: 'gut', text: 'Gut' },
-                    { wert: 'einfach', text: 'Einfach' },
+                    { wert: 'nochmal', text: tr('Nochmal') },
+                    { wert: 'schwer', text: tr('Schwer') },
+                    { wert: 'gut', text: tr('Gut') },
+                    { wert: 'einfach', text: tr('Einfach') },
                   ].map((b) => (
                     <button
                       key={b.wert}
@@ -479,7 +480,7 @@ export default function Trainer({
                 </div>
               </div>
             ) : (
-              <button onClick={() => setRevealed(true)}>Übersetzung zeigen</button>
+              <button onClick={() => setRevealed(true)}>{tr('Übersetzung zeigen')}</button>
             )}
           </div>
         )}
@@ -490,7 +491,7 @@ export default function Trainer({
             className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint">Was heißt …</p>
+            <p className="lesson-hint">{tr('Was heißt …')}</p>
             <div className="flash-word">{wort}</div>
             <AuswahlKnoepfe
               key={wort}
@@ -513,7 +514,7 @@ export default function Trainer({
             className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint">Wie sagt man …</p>
+            <p className="lesson-hint">{tr('Wie sagt man …')}</p>
             <div className="flash-word">{loesung}</div>
 
             {/* Der Tipp: erst die Buchstaben durcheinander, beim
@@ -536,7 +537,7 @@ export default function Trainer({
                 className="schreib-feld"
                 value={eingabe}
                 onChange={(e) => setEingabe(e.target.value)}
-                placeholder="Auf Russisch tippen …"
+                placeholder={tr('Auf Russisch tippen …')}
                 autoComplete="off"
                 autoCapitalize="off"
                 autoCorrect="off"
@@ -555,10 +556,10 @@ export default function Trainer({
                   }}
                   disabled={tippStufe >= 2}
                 >
-                  {tippStufe === 0 ? '💡 Tipp' : tippStufe === 1 ? '💡 Ganzes Wort' : '💡 Aufgedeckt'}
+                  {tippStufe === 0 ? '💡 Tipp' : tippStufe === 1 ? tr('💡 Ganzes Wort') : '💡 Aufgedeckt'}
                 </button>
                 <button type="submit" disabled={!eingabe.trim()}>
-                  Prüfen
+                  {tr('Prüfen')}
                 </button>
               </div>
             </form>
@@ -566,7 +567,7 @@ export default function Trainer({
         )}
 
         <button className="btn-plain" onClick={() => setQueue(null)}>
-          Runde abbrechen
+          {tr('Runde abbrechen')}
         </button>
       </div>
     )
@@ -579,13 +580,13 @@ export default function Trainer({
       <div className="trainer">
         <div className="art-kopf">
           <button className="btn-zurueck" onClick={() => setArtWahl(false)}>
-            <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück
+            <span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{tr('Zurück')}
           </button>
           <h1 className="trainer-titel">
-            Wie willst du <span className="accent">üben?</span>
+            {tr('Wie willst du')} <span className="accent">{tr('üben?')}</span>
           </h1>
           <p className="art-unterzeile">
-            {anzahl} Wörter · {trainable.length > 0 && `${Math.min(trainable.length, anzahl)} davon fällig`}
+            {tr('{0} Wörter · {1}', anzahl, trainable.length > 0 && tr('{0} davon fällig', Math.min(trainable.length, anzahl)))}
           </p>
         </div>
 
@@ -608,11 +609,11 @@ export default function Trainer({
       {/* Die vier Spiele als spielerische Alternative zur Abfrage */}
       <section className="bereich bereich-spiele">
         <div className="bereich-kopf">
-          <h2>Oder lieber spielen?</h2>
+          <h2>{tr('Oder lieber spielen?')}</h2>
           <p>
             {spielbar
-              ? 'Alle Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.'
-              : 'Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.'}
+              ? tr('Alle Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.')
+              : tr('Ab 4 gesammelten Wörtern mit Übersetzung geht es los – die Spiele öffnen sich dann von selbst.')}
           </p>
         </div>
         <div className="spiel-paar">
@@ -620,29 +621,29 @@ export default function Trainer({
             <span className="spiel-bild" aria-hidden="true">
               <i /><i /><i /><i />
             </span>
-            <span className="spiel-name">Memory</span>
-            <span className="spiel-hinweis">6 Paare aufdecken</span>
+            <span className="spiel-name">{tr('Memory')}</span>
+            <span className="spiel-hinweis">{tr('6 Paare aufdecken')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('paare')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
               <i /><i /><i />
             </span>
-            <span className="spiel-name">Wortpaare</span>
-            <span className="spiel-hinweis">5 Wörter verbinden</span>
+            <span className="spiel-name">{tr('Wortpaare')}</span>
+            <span className="spiel-hinweis">{tr('5 Wörter verbinden')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('suche')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
               <i /><i /><i /><i /><i /><i /><i /><i /><i />
             </span>
-            <span className="spiel-name">Wortsuche</span>
-            <span className="spiel-hinweis">5 Wörter im Gitter</span>
+            <span className="spiel-name">{tr('Wortsuche')}</span>
+            <span className="spiel-hinweis">{tr('5 Wörter im Gitter')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('fang')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-fang" aria-hidden="true">
               <i /><i /><i />
             </span>
-            <span className="spiel-name">Wortfang</span>
-            <span className="spiel-hinweis">Richtige antippen</span>
+            <span className="spiel-name">{tr('Wortfang')}</span>
+            <span className="spiel-hinweis">{tr('Richtige antippen')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('blitz')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
@@ -650,22 +651,22 @@ export default function Trainer({
                 <path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" />
               </svg>
             </span>
-            <span className="spiel-name">Blitzrunde</span>
-            <span className="spiel-hinweis">60 Sekunden: passt oder nicht?</span>
+            <span className="spiel-name">{tr('Blitzrunde')}</span>
+            <span className="spiel-hinweis">{tr('60 Sekunden: passt oder nicht?')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('galgen')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
               <b>д_м_</b>
             </span>
-            <span className="spiel-name">Galgenmännchen</span>
-            <span className="spiel-hinweis">Wort Buchstabe für Buchstabe raten</span>
+            <span className="spiel-name">{tr('Galgenmännchen')}</span>
+            <span className="spiel-hinweis">{tr('Wort Buchstabe für Buchstabe raten')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('salat')} disabled={!spielbar}>
             <span className="spiel-bild spiel-bild-text" aria-hidden="true">
               <b>м о д</b>
             </span>
-            <span className="spiel-name">Buchstabensalat</span>
-            <span className="spiel-hinweis">Buchstaben ordnen</span>
+            <span className="spiel-name">{tr('Buchstabensalat')}</span>
+            <span className="spiel-hinweis">{tr('Buchstaben ordnen')}</span>
           </button>
         </div>
       </section>
@@ -688,14 +689,14 @@ export default function Trainer({
         <InfoKnopf thema="woerter" />
         <div className="wiederholen-zahl">
           <b>{trainable.length}</b>
-          <span>{trainable.length === 1 ? 'Wort wartet' : 'Wörter warten'}</span>
+          <span>{trainable.length === 1 ? tr('Wort wartet') : tr('Wörter warten')}</span>
         </div>
         <div className="wiederholen-text">
-          <h2>Heute wiederholen</h2>
+          <h2>{tr('Heute wiederholen')}</h2>
           <p>
             {trainable.length > 0
-              ? 'Diese Wörter drohst du gerade zu vergessen – jetzt sitzen sie am besten.'
-              : 'Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.'}
+              ? tr('Diese Wörter drohst du gerade zu vergessen – jetzt sitzen sie am besten.')
+              : tr('Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.')}
           </p>
         </div>
         <button
@@ -703,7 +704,7 @@ export default function Trainer({
           onClick={() => setArtWahl(true)}
           disabled={entries.length === 0}
         >
-          {trainable.length > 0 ? 'Üben' : 'Nichts fällig'}
+          {trainable.length > 0 ? tr('Üben') : tr('Nichts fällig')}
         </button>
       </section>
 
@@ -721,9 +722,9 @@ export default function Trainer({
           aria-expanded={listeOffen}
         >
           <span className="liste-kopf-text">
-            <span className="liste-titel">Alle deine Wörter</span>
+            <span className="liste-titel">{tr('Alle deine Wörter')}</span>
             <span className="liste-sub">
-              {entries.length} gesammelt · {knownCount} sitzen schon fest
+              {tr('{0} gesammelt · {1} sitzen schon fest', entries.length, knownCount)}
             </span>
           </span>
           <span className={'liste-pfeil' + (listeOffen ? ' liste-pfeil-auf' : '')}>
@@ -742,7 +743,7 @@ export default function Trainer({
                   setSuche(e.target.value)
                   setSichtbar(30) // bei neuer Suche wieder oben anfangen
                 }}
-                placeholder="Wort oder Übersetzung suchen…"
+                placeholder={tr('Wort oder Übersetzung suchen…')}
               />
             </div>
 
@@ -751,13 +752,13 @@ export default function Trainer({
             <div className="filter-zeile">
               <div className="filter-haupt">
                 <Chip active={filter === 'faellig'} onClick={() => setFilter('faellig')}>
-                  Fällig ({dueEntries.length})
+                  {tr('Fällig ({0})', dueEntries.length)}
                 </Chip>
                 <Chip active={filter === 'alle'} onClick={() => setFilter('alle')}>
-                  Alle ({entries.length})
+                  {tr('Alle ({0})', entries.length)}
                 </Chip>
                 <Chip active={filter === 'gewusst'} onClick={() => setFilter('gewusst')}>
-                  Gewusst ({knownCount})
+                  {tr('Gewusst ({0})', knownCount)}
                 </Chip>
               </div>
               <select
@@ -767,7 +768,7 @@ export default function Trainer({
                   setFilter(e.target.value === '' ? 'alle' : Number(e.target.value))
                 }
               >
-                <option value="">Nach Stufe filtern …</option>
+                <option value="">{tr('Nach Stufe filtern …')}</option>
                 {LEVEL_LABELS.map((label, lvl) => (
                   <option key={lvl} value={lvl}>
                     {label} ({levelCounts[lvl]})
@@ -779,36 +780,36 @@ export default function Trainer({
             {gefiltert.length === 0 ? (
               <p className="empty-hint">
                 {suchtext
-                  ? `Nichts gefunden zu „${suche}“.`
-                  : 'Keine Wörter in dieser Ansicht. Klicke im Lese-Modus Wörter an, um sie hier zu sammeln.'}
+                  ? tr('Nichts gefunden zu „{0}“.', suche)
+                  : tr('Keine Wörter in dieser Ansicht. Klicke im Lese-Modus Wörter an, um sie hier zu sammeln.')}
               </p>
             ) : (
               <>
                 <table className="vocab-table">
                   <thead>
                     <tr>
-                      <th>Wort</th>
-                      <th>Übersetzung</th>
-                      <th>Stufe</th>
-                      <th>Fällig</th>
+                      <th>{tr('Wort')}</th>
+                      <th>{tr('Übersetzung')}</th>
+                      <th>{tr('Stufe')}</th>
+                      <th>{tr('Fällig')}</th>
                       <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {gefiltert.slice(0, sichtbar).map((e) => (
-                      <tr key={e.word} title={e.source ? 'Aus: ' + e.source : undefined}>
+                      <tr key={e.word} title={e.source ? tr('Aus: {0}', e.source) : undefined}>
                         <td className="cell-word">{e.word}</td>
                         <td>{e.translation || '–'}</td>
                         <td>
                           <span className={'level-badge lvl-' + e.level}>
-                            {e.status === 'gewusst' ? 'Gewusst ✓' : LEVEL_LABELS[e.level]}
+                            {e.status === 'gewusst' ? tr('Gewusst ✓') : LEVEL_LABELS[e.level]}
                           </span>
                         </td>
                         <td>{formatDue(e)}</td>
                         <td>
                           <button
                             className="btn-delete"
-                            title="Wort löschen"
+                            title={tr('Wort löschen')}
                             onClick={() => removeWord(e.word)}
                           >
                             ✕
@@ -824,7 +825,7 @@ export default function Trainer({
                     className="btn-outline liste-mehr"
                     onClick={() => setSichtbar((n) => n + 30)}
                   >
-                    Weitere 30 anzeigen ({gefiltert.length - sichtbar} übrig)
+                    {tr('Weitere 30 anzeigen ({0} übrig)', gefiltert.length - sichtbar)}
                   </button>
                 )}
               </>

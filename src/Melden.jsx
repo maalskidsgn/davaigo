@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { MELDE_GRUENDE, melde } from './rangliste.js'
+import { tr } from './sprache.js'
 
 /**
  * Jemanden melden.
@@ -21,7 +22,7 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
   const [fertig, setFertig] = useState(false)
 
   async function absenden() {
-    if (!grund) return setFehler('Bitte wähl einen Grund aus.')
+    if (!grund) return setFehler(tr('Bitte wähl einen Grund aus.'))
     setFehler('')
     setLaeuft(true)
     try {
@@ -43,13 +44,12 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
                     strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          <h2 className="md-titel">Danke für den Hinweis</h2>
+          <h2 className="md-titel">{tr('Danke für den Hinweis')}</h2>
           <p className="md-text">
-            Wir schauen uns das an. <b>{benutzername}</b> ist für dich blockiert – ihr
-            seht euch gegenseitig nicht mehr in Rangliste, Suche und Duellen.
+            {tr('Wir schauen uns das an.')} <b>{benutzername}</b> {tr('ist für dich blockiert – ihr seht euch gegenseitig nicht mehr in Rangliste, Suche und Duellen.')}
           </p>
           <button className="btn md-knopf" onClick={() => { onFertig?.(); onSchliessen?.() }}>
-            Alles klar
+            {tr('Alles klar')}
           </button>
         </div>
       </div>
@@ -61,10 +61,10 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
       <div className="md-karte" onClick={(e) => e.stopPropagation()}>
         <h2 className="md-titel">{benutzername} melden</h2>
         <p className="md-text">
-          Was stimmt hier nicht? Wir sehen uns jede Meldung an.
+          {tr('Was stimmt hier nicht? Wir sehen uns jede Meldung an.')}
         </p>
 
-        <div className="md-gruende" role="radiogroup" aria-label="Grund">
+        <div className="md-gruende" role="radiogroup" aria-label={tr('Grund')}>
           {MELDE_GRUENDE.map(([wert, text]) => (
             <button
               key={wert}
@@ -83,7 +83,7 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
           className="md-feld"
           value={bemerkung}
           onChange={(e) => setBemerkung(e.target.value.slice(0, 500))}
-          placeholder="Magst du kurz sagen, was los ist? (freiwillig)"
+          placeholder={tr('Magst du kurz sagen, was los ist? (freiwillig)')}
           rows={3}
           disabled={laeuft}
         />
@@ -91,16 +91,15 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
         {fehler && <p className="md-fehler">{fehler}</p>}
 
         <p className="md-hinweis">
-          Mit dem Melden blockierst du {benutzername} auch. Das lässt sich im Profil
-          wieder rückgängig machen.
+          {tr('Mit dem Melden blockierst du {0} auch. Das lässt sich im Profil wieder rückgängig machen.', benutzername)}
         </p>
 
         <div className="md-knoepfe">
           <button className="btn-plain" onClick={onSchliessen} disabled={laeuft}>
-            Abbrechen
+            {tr('Abbrechen')}
           </button>
           <button className="btn md-senden" onClick={absenden} disabled={laeuft || !grund}>
-            {laeuft ? 'Wird gesendet …' : 'Melden'}
+            {laeuft ? tr('Wird gesendet …') : tr('Melden')}
           </button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
+import { tr } from './sprache.js'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
 // "Fußball"), die KI schlägt 12 passende Vokabeln vor, du wählst aus.
@@ -78,7 +79,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         const key = s.wort.toLowerCase()
         if (!s.checked || copy[key]) continue
         copy[key] = {
-          ...newEntry(s.uebersetzung, 'Liste: ' + fertigThema),
+          ...newEntry(s.uebersetzung, tr('Liste: {0}', fertigThema)),
           status: 'lernen',
           beispiel: s.beispiel,
         }
@@ -95,7 +96,7 @@ export default function ListGenerator({ vocab, setVocab }) {
     if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="list-gen">
-        <PremiumWerbung was="Vokabellisten" />
+        <PremiumWerbung was={tr('Vokabellisten')} />
       </div>
     )
   }
@@ -109,14 +110,14 @@ export default function ListGenerator({ vocab, setVocab }) {
           <IconFunken groesse={24} />
         </span>
         <div className="gen-text">
-          <h2>KI-Listengenerator</h2>
-          <p>Erstelle neue Wortlisten zu jedem Thema.</p>
+          <h2>{tr('KI-Listengenerator')}</h2>
+          <p>{tr('Erstelle neue Wortlisten zu jedem Thema.')}</p>
         </div>
         {/* Der Zaehler steht nur da, wenn er etwas zu sagen hat.
             Bei vollem Kontingent ist er nur Zierde – kurz vor dem
             Ende ist er die einzige Vorwarnung. */}
         {uebrig <= 2 && (
-          <span className="rest-zaehler" title="Kostenlose Listen diesen Monat">
+          <span className="rest-zaehler" title={tr('Kostenlose Listen diesen Monat')}>
             {uebrig}/{LISTEN_PRO_TAG}
           </span>
         )}
@@ -124,9 +125,9 @@ export default function ListGenerator({ vocab, setVocab }) {
 
       <form className="wort-form" onSubmit={generieren}>
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
-        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <p className="sg-schritt"><span>1</span> {tr('Thema wählen')}</p>
         <div className="sg-themen">
-          {['Restaurant', 'Reisen', 'Arbeit', 'Einkaufen', 'Familie', 'Gesundheit'].map((v) => (
+          {[tr('Restaurant'), tr('Reisen'), tr('Arbeit'), tr('Einkaufen'), tr('Familie'), tr('Gesundheit')].map((v) => (
             <button
               key={v}
               type="button"
@@ -144,19 +145,19 @@ export default function ListGenerator({ vocab, setVocab }) {
             type="text"
             value={thema}
             onChange={(e) => setThema(e.target.value)}
-            placeholder="… oder eigenes Thema, z. B. Arztbesuch"
+            placeholder={tr('… oder eigenes Thema, z. B. Arztbesuch')}
             disabled={laden}
           />
         </div>
 
         {/* Schritt 2: Wortart – gemischt oder gezielt */}
-        <p className="sg-schritt"><span>2</span> Wortart <small>optional</small></p>
+        <p className="sg-schritt"><span>2</span> {tr('Wortart')} <small>{tr('optional')}</small></p>
         <div className="sg-themen sg-vier">
           {[
-            ['alle', 'Gemischt'],
-            ['verben', 'Verben'],
-            ['adjektive', 'Adjektive'],
-            ['nomen', 'Nomen'],
+            ['alle', tr('Gemischt')],
+            ['verben', tr('Verben')],
+            ['adjektive', tr('Adjektive')],
+            ['nomen', tr('Nomen')],
           ].map(([wert, text]) => (
             <button
               key={wert}
@@ -172,9 +173,9 @@ export default function ListGenerator({ vocab, setVocab }) {
         <div className="gen-knoepfe">
           <button type="submit" className="btn gen-los" disabled={laden || !thema.trim()}>
             {laden ? (
-              <>Stellt zusammen<span className="studio-punkte" /></>
+              <>{tr('Stellt zusammen')}<span className="studio-punkte" /></>
             ) : (
-              'Liste erstellen'
+              tr('Liste erstellen')
             )}
           </button>
 
@@ -185,9 +186,9 @@ export default function ListGenerator({ vocab, setVocab }) {
             className="btn-outline gen-ki"
             onClick={(e) => generieren(e, true)}
             disabled={laden || zuWenige}
-            title={zuWenige ? 'Dafür brauchst du erst 5 gesammelte Wörter' : undefined}
+            title={zuWenige ? tr('Dafür brauchst du erst 5 gesammelte Wörter') : undefined}
           >
-            Passend zu mir
+            {tr('Passend zu mir')}
           </button>
 
           <button
@@ -195,7 +196,7 @@ export default function ListGenerator({ vocab, setVocab }) {
             className="gen-info"
             onClick={() => setInfoOffen(!infoOffen)}
             aria-expanded={infoOffen}
-            title="Was ist der Unterschied?"
+            title={tr('Was ist der Unterschied?')}
           >
             {infoOffen ? '×' : '?'}
           </button>
@@ -204,36 +205,28 @@ export default function ListGenerator({ vocab, setVocab }) {
         {infoOffen && (
           <div className="gen-erklaerung">
             <p>
-              <b>Liste erstellen</b> nimmt dein Thema. Du sagst „Restaurant“,
-              und die KI stellt zwölf Wörter dazu zusammen – ohne die, die du
-              schon hast.
+              <b>{tr('Liste erstellen')}</b> {tr('nimmt dein Thema. Du sagst „Restaurant“, und die KI stellt zwölf Wörter dazu zusammen – ohne die, die du schon hast.')}
             </p>
             <p>
-              <b>KI-Gen</b> braucht kein Thema. Die KI sieht sich deine
-              gesammelten Wörter an, erkennt, worum es dir bisher ging, und
-              schlägt vor, was als Nächstes fehlt – etwa passende Verben zu
-              Wörtern, die du schon kennst. Warum sie genau diese Auswahl
-              getroffen hat, schreibt sie über die Liste.
+              <b>{tr('KI-Gen')}</b> {tr('braucht kein Thema. Die KI sieht sich deine gesammelten Wörter an, erkennt, worum es dir bisher ging, und schlägt vor, was als Nächstes fehlt – etwa passende Verben zu Wörtern, die du schon kennst. Warum sie genau diese Auswahl getroffen hat, schreibt sie über die Liste.')}
             </p>
             <p className="gen-klein">
-              Für KI-Gen brauchst du mindestens 5 gesammelte Wörter. Du hast{' '}
-              {Object.keys(vocab).length}.
+              {tr('Für KI-Gen brauchst du mindestens 5 gesammelte Wörter. Du hast {0}.', Object.keys(vocab).length)}
             </p>
           </div>
         )}
       </form>
 
 
-      {erfolg && <p className="gen-success">Liste ist im Trainer! ✓</p>}
+      {erfolg && <p className="gen-success">{tr('Liste ist im Trainer! ✓')}</p>}
 
       {fehler === 'premium' && !istApp ? (
         <div className="plan-card plan-premium premium-teaser">
           <div className="plan-name">
-            Premium-Funktion <span className="plan-badge badge-soon">Bald verfügbar</span>
+            {tr('Premium-Funktion')} <span className="plan-badge badge-soon">{tr('Bald verfügbar')}</span>
           </div>
           <p className="row-hint">
-            Themen-Vokabellisten erstellt die KI – diese Funktion wird
-            mit dem Premium-Abo freigeschaltet.
+            {tr('Themen-Vokabellisten erstellt die KI – diese Funktion wird mit dem Premium-Abo freigeschaltet.')}
           </p>
         </div>
       ) : (
@@ -244,12 +237,12 @@ export default function ListGenerator({ vocab, setVocab }) {
         <div className="gen-list">
           {begruendung && (
             <div className="gen-begruendung">
-              <span className="gen-begruendung-marke">Warum diese Wörter?</span>
+              <span className="gen-begruendung-marke">{tr('Warum diese Wörter?')}</span>
               <p>{begruendung}</p>
             </div>
           )}
           <p className="gen-hint">
-            Deine Liste zu „{fertigThema}“ – wähle aus, was in den Trainer soll:
+            {tr('Deine Liste zu „{0}“ – wähle aus, was in den Trainer soll:', fertigThema)}
           </p>
           {liste.map((s, i) => (
             <label key={i} className="gen-item">
@@ -269,10 +262,10 @@ export default function ListGenerator({ vocab, setVocab }) {
           ))}
           <div className="gen-actions">
             <button onClick={uebernehmen}>
-              {liste.filter((s) => s.checked).length} Vokabeln übernehmen
+              {tr('{0} Vokabeln übernehmen', liste.filter((s) => s.checked).length)}
             </button>
             <button className="btn-plain" onClick={() => setListe(null)}>
-              Abbrechen
+              {tr('Abbrechen')}
             </button>
           </div>
         </div>

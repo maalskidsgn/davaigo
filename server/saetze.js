@@ -11,6 +11,8 @@
  * hier, und das Tageskontingent lässt sich nicht umgehen.
  */
 
+import { frageOpenAI } from './sprache.js'
+
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
 
@@ -227,7 +229,7 @@ export async function erzeugeSatzliste(thema, grammatik = '', bekannt = []) {
     (regel ? '\n' + regel : '\nMische die Formen natürlich, wie im Alltag.') +
     bekanntesAlsHinweis(bekannt)
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

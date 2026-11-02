@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
 import { usePremium } from './premium.js'
+import { tr } from './sprache.js'
 
 // Macht aus einem Wort eine saubere Kleinschreibung ohne Satzzeichen
 function cleanWord(word) {
@@ -78,7 +79,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
     if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="vocab-gen">
-        <PremiumWerbung was="Vokabeln" />
+        <PremiumWerbung was={tr('Vokabeln')} />
       </div>
     )
   }
@@ -88,20 +89,20 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
       {!suggestions && (
         <>
           <button onClick={generate} disabled={loading}>
-            {loading ? 'Analysiere Text…' : 'Vokabeln generieren'}
+            {loading ? tr('Analysiere Text…') : tr('Vokabeln generieren')}
           </button>
           <p className="free-hint">
-            Noch {uebrig} von {LISTEN_PRO_TAG} heute
+            {tr('Noch {0} von {1} heute', uebrig, LISTEN_PRO_TAG)}
           </p>
         </>
       )}
-      {added && <p className="gen-success">Vokabeln wurden in den Trainer übernommen! ✓</p>}
+      {added && <p className="gen-success">{tr('Vokabeln wurden in den Trainer übernommen! ✓')}</p>}
       {error && <p className="error">{error}</p>}
 
       {suggestions && (
         <div className="gen-list">
           <p className="gen-hint">
-            Wähle aus, welche Vokabeln in deinen Trainer sollen:
+            {tr('Wähle aus, welche Vokabeln in deinen Trainer sollen:')}
           </p>
           {suggestions.map((s, i) => (
             <label key={i} className="gen-item">
@@ -117,10 +118,10 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
           ))}
           <div className="gen-actions">
             <button onClick={addToTrainer}>
-              {suggestions.filter((s) => s.checked).length} Vokabeln übernehmen
+              {tr('{0} Vokabeln übernehmen', suggestions.filter((s) => s.checked).length)}
             </button>
             <button className="btn-plain" onClick={() => setSuggestions(null)}>
-              Abbrechen
+              {tr('Abbrechen')}
             </button>
           </div>
         </div>

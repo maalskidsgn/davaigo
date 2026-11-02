@@ -26,6 +26,8 @@
  * Tutor, der pro Satz Geld kostet, wird nie freigeschaltet.
  */
 
+import { frageOpenAI } from './sprache.js'
+
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
 
@@ -201,7 +203,7 @@ export async function antworte(verlauf, niveau = 'Anfänger') {
     })),
   ]
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

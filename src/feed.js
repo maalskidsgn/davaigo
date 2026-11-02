@@ -1,3 +1,4 @@
+import { lokalisiere } from './sprache.js'
 /**
  * Der Feed – Russisch zum Durchwischen.
  *
@@ -195,6 +196,7 @@ export const HAEPPCHEN = [
     farbe: 5,
   },
 ]
+lokalisiere(HAEPPCHEN)
 
 // ---------------------------------------------------------------
 //  Wissenstexte
@@ -349,6 +351,7 @@ export const TEXTE = [
     farbe: 0,
   },
 ]
+lokalisiere(TEXTE)
 
 /**
  * Alle Karten im Wechsel: Häppchen, Text, Häppchen, Text …

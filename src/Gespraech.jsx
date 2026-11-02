@@ -17,6 +17,7 @@ import { API_URL, istApp } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
 import { erfolgston } from './erfolgston.js'
+import { tr } from './sprache.js'
 
 const NIVEAU_SPEICHER = 'gespraechNiveau'
 const DEUTSCH_SPEICHER = 'gespraechDeutsch'
@@ -43,7 +44,7 @@ function schluessel(wort) {
 // Die Sätze sind bewusst einfach gehalten – sie sind der erste Zug
 // eines Anfängers, nicht eine Kostprobe fortgeschrittener Grammatik.
 const THEMEN = [
-  { text: '🥗 Gesundheit & Ernährung', schick: 'Привет, Даша! Я хочу говорить о здоровье и еде. Расскажи мне что-нибудь простыми словами.' },
+  { text: tr('🥗 Gesundheit & Ernährung'), schick: 'Привет, Даша! Я хочу говорить о здоровье и еде. Расскажи мне что-нибудь простыми словами.' },
   { text: '💻 Technik', schick: 'Мне интересна техника. Поговорим об этом простыми словами?' },
   { text: '🌍 Natur & Umwelt', schick: 'Я люблю природу и животных. Расскажешь мне что-нибудь об этом?' },
   { text: '⚽ Sport', schick: 'Я люблю спорт. Поговорим о спорте?' },
@@ -54,10 +55,10 @@ const THEMEN = [
 ]
 
 const SITUATIONEN = [
-  { text: 'Im Café bestellen', schick: 'Давай потренируемся: я в кафе и хочу что-нибудь заказать.' },
-  { text: 'Beim Arzt', schick: 'Давай потренируемся: я у врача, мне нехорошо.' },
-  { text: 'Nach dem Weg fragen', schick: 'Давай потренируемся: я заблудился в городе и спрашиваю дорогу.' },
-  { text: 'Einfach plaudern', schick: 'Привет, Даша! Как дела?' },
+  { text: tr('Im Café bestellen'), schick: 'Давай потренируемся: я в кафе и хочу что-нибудь заказать.' },
+  { text: tr('Beim Arzt'), schick: 'Давай потренируемся: я у врача, мне нехорошо.' },
+  { text: tr('Nach dem Weg fragen'), schick: 'Давай потренируемся: я заблудился в городе и спрашиваю дорогу.' },
+  { text: tr('Einfach plaudern'), schick: 'Привет, Даша! Как дела?' },
 ]
 
 // kopf: Wird der Chat als Reiter IM Trainer gezeigt, kommt hier die
@@ -77,7 +78,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
   const [deutschAn, setDeutschAn] = useState(
     () => localStorage.getItem(DEUTSCH_SPEICHER) !== 'aus'
   )
-  const niveau = localStorage.getItem(NIVEAU_SPEICHER) || 'Anfänger'
+  const niveau = localStorage.getItem(NIVEAU_SPEICHER) || tr('Anfänger')
 
   const endeRef = useRef(null)
   useEffect(() => {
@@ -114,7 +115,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
   function wortSammeln(status) {
     if (!wort?.text || !onAddVocab) return setWort(null)
     onAddVocab(
-      [{ wort: wort.text, uebersetzung: wort.de, quelle: 'Gespräch mit Dascha' }],
+      [{ wort: wort.text, uebersetzung: wort.de, quelle: tr('Gespräch mit Dascha') }],
       status
     )
     erfolgston()
@@ -165,7 +166,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: 'Bearer ' + token } : {}),
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           niveau,
@@ -177,7 +178,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
       const data = await res.json()
       if (!res.ok) {
         if (data.error === 'limit') throw new Error(data.nachricht)
-        throw new Error(data.error || 'Der Tutor antwortet gerade nicht.')
+        throw new Error(data.error || tr('Der Tutor antwortet gerade nicht.'))
       }
       setVerlauf((v) => [
         ...v,
@@ -200,7 +201,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
       {kopf ? (
         kopf
       ) : (
-        <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>Zurück</button>
+        <button className="btn-zurueck" onClick={onZurueck}><span className="zurueck-pfeil" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>{tr('Zurück')}</button>
       )}
 
       {/* Als Reiter im Trainer gibt schon die Reiter-Leiste den Titel
@@ -210,10 +211,9 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
         <div className="gespr-kopf">
           <IconSprache groesse={22} />
           <div>
-            <h1 className="trainer-titel">Sprechen mit Dascha</h1>
+            <h1 className="trainer-titel">{tr('Sprechen mit Dascha')}</h1>
             <p className="gespr-unter">
-              Rede auf Russisch über das, was du willst. Dascha antwortet einfach –
-              und übersetzt, falls du hängst.
+              {tr('Rede auf Russisch über das, was du willst. Dascha antwortet einfach – und übersetzt, falls du hängst.')}
             </p>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
 
       {!leer && (
         <button className="lul-schalter gespr-schalter" onClick={schalteDeutsch}>
-          {deutschAn ? 'Deutsch ausblenden' : 'Deutsch einblenden'}
+          {deutschAn ? tr('Deutsch ausblenden') : tr('Deutsch einblenden')}
         </button>
       )}
 
@@ -229,7 +229,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
       <div className="gespr-verlauf">
         {leer && (
           <div className="gespr-start">
-            <p className="gespr-start-titel">Worüber möchtest du reden?</p>
+            <p className="gespr-start-titel">{tr('Worüber möchtest du reden?')}</p>
             <div className="gespr-einstiege">
               {THEMEN.map((e) => (
                 <button key={e.text} className="gespr-chip" onClick={() => sende(e.schick)}>
@@ -238,7 +238,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
               ))}
             </div>
 
-            <p className="gespr-start-titel gespr-start-zwei">Oder eine Situation üben</p>
+            <p className="gespr-start-titel gespr-start-zwei">{tr('Oder eine Situation üben')}</p>
             <div className="gespr-einstiege">
               {SITUATIONEN.map((e) => (
                 <button
@@ -280,7 +280,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             nur vom Gespräch ab. */}
         {frei !== null && frei <= 5 && !fehler && (
           <p className="gespr-rest">
-            Noch {frei} {frei === 1 ? 'Nachricht' : 'Nachrichten'} heute{!istApp && ' · unbegrenzt mit Premium'}
+            {tr('Noch {0} {1} heute{2}', frei, frei === 1 ? tr('Nachricht') : tr('Nachrichten'), !istApp && tr(' · unbegrenzt mit Premium'))}
           </p>
         )}
         <div ref={endeRef} />
@@ -298,7 +298,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
           type="text"
           value={eingabe}
           onChange={(e) => setEingabe(e.target.value)}
-          placeholder="Auf Russisch schreiben …"
+          placeholder={tr('Auf Russisch schreiben …')}
           autoComplete="off"
           disabled={laedt}
         />
@@ -314,7 +314,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             {/* X zum einfachen Wegklicken, ohne etwas zu sammeln. */}
             <button
               className="wortkarte-schliessen"
-              aria-label="Schließen"
+              aria-label={tr('Schließen')}
               onClick={() => setWort(null)}
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -324,11 +324,11 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
             <div className="wortkarte-wort">
               {wort.text}
               {vocab[schluessel(wort.text)] && (
-                <span className="wortkarte-marke">✓ im Trainer</span>
+                <span className="wortkarte-marke">{tr('✓ im Trainer')}</span>
               )}
             </div>
             <div className="wortkarte-de">
-              {wort.laedt ? 'Übersetze …' : wort.de || 'Keine Übersetzung gefunden'}
+              {wort.laedt ? tr('Übersetze …') : wort.de || tr('Keine Übersetzung gefunden')}
             </div>
             <div className="wortkarte-knoepfe">
               <button
@@ -336,10 +336,10 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
                 onClick={() => wortSammeln('gewusst')}
                 disabled={wort.laedt}
               >
-                Kenne ich
+                {tr('Kenne ich')}
               </button>
               <button className="btn" onClick={() => wortSammeln('lernen')} disabled={wort.laedt}>
-                ＋ Lernen
+                {tr('＋ Lernen')}
               </button>
             </div>
           </div>

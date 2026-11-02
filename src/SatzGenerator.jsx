@@ -5,10 +5,11 @@ import { neuerSatz, satzSchluessel } from './saetze.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
+import { tr } from './sprache.js'
 
 // Themen wie beim Vokabelgenerator – dieselbe Sprache, dieselbe
 // Bedienung. Ein Tipp erzeugt sofort, ohne erst ein Feld zu füllen.
-const THEMEN = ['Reisen', 'Arbeit', 'Restaurant', 'Einkaufen', 'Gesundheit', 'Familie']
+const THEMEN = [tr('Reisen'), tr('Arbeit'), tr('Restaurant'), tr('Einkaufen'), tr('Gesundheit'), tr('Familie')]
 
 // Die Formen, die der Server kennt (server/saetze.js) – hier in
 // Gruppen, weil siebzehn Chips in einer Reihe niemand überblickt.
@@ -23,51 +24,51 @@ const THEMEN = ['Reisen', 'Arbeit', 'Restaurant', 'Einkaufen', 'Gesundheit', 'Fa
 // "Instrumental" sagt Anfängern wenig, "кем? чем?" sofort etwas.
 const GRUPPEN = [
   {
-    titel: 'Aspekt',
+    titel: tr('Aspekt'),
     formen: [
-      ['aspekt_unvollendet', 'Unvollendet', 'читать'],
-      ['aspekt_vollendet', 'Vollendet', 'прочитать'],
-      ['aspekt_gemischt', 'Im Vergleich', 'beide gegenüber'],
+      ['aspekt_unvollendet', tr('Unvollendet'), 'читать'],
+      ['aspekt_vollendet', tr('Vollendet'), 'прочитать'],
+      ['aspekt_gemischt', tr('Im Vergleich'), tr('beide gegenüber')],
     ],
   },
   {
-    titel: 'Die sechs Fälle',
+    titel: tr('Die sechs Fälle'),
     formen: [
-      ['nominativ', 'Nominativ', 'кто? что?'],
-      ['genitiv', 'Genitiv', 'кого? чего?'],
-      ['dativ', 'Dativ', 'кому? чему?'],
-      ['akkusativ', 'Akkusativ', 'кого? что?'],
-      ['instrumental', 'Instrumental', 'кем? чем?'],
-      ['praepositiv', 'Präpositiv', 'о ком? где?'],
+      ['nominativ', tr('Nominativ'), 'кто? что?'],
+      ['genitiv', tr('Genitiv'), 'кого? чего?'],
+      ['dativ', tr('Dativ'), 'кому? чему?'],
+      ['akkusativ', tr('Akkusativ'), 'кого? что?'],
+      ['instrumental', tr('Instrumental'), 'кем? чем?'],
+      ['praepositiv', tr('Präpositiv'), 'о ком? где?'],
     ],
   },
   {
-    titel: 'Bewegung',
+    titel: tr('Bewegung'),
     formen: [
-      ['bewegungsverben', 'Bewegungsverben', 'идти / ходить'],
-      ['praefixverben', 'Mit Vorsilbe', 'при-, у-, вы-'],
+      ['bewegungsverben', tr('Bewegungsverben'), 'идти / ходить'],
+      ['praefixverben', tr('Mit Vorsilbe'), 'при-, у-, вы-'],
     ],
   },
   {
-    titel: 'Zeiten',
+    titel: tr('Zeiten'),
     formen: [
-      ['praesens', 'Präsens', 'я читаю'],
-      ['praeteritum', 'Vergangenheit', 'я читал'],
-      ['futur', 'Zukunft', 'я буду читать'],
+      ['praesens', tr('Präsens'), 'я читаю'],
+      ['praeteritum', tr('Vergangenheit'), 'я читал'],
+      ['futur', tr('Zukunft'), 'я буду читать'],
     ],
   },
   {
-    titel: 'Weiteres',
+    titel: tr('Weiteres'),
     formen: [
-      ['imperativ', 'Imperativ', 'скажи!'],
-      ['verneinung', 'Verneinung', 'не, никогда'],
-      ['reflexiv', 'Verben auf -ся', 'учиться'],
+      ['imperativ', tr('Imperativ'), 'скажи!'],
+      ['verneinung', tr('Verneinung'), 'не, никогда'],
+      ['reflexiv', tr('Verben auf -ся'), 'учиться'],
     ],
   },
 ]
 
 /** Alle Formen flach – zum Nachschlagen des Namens. */
-const ALLE_FORMEN = [['', 'Gemischt', 'alles durcheinander'], ...GRUPPEN.flatMap((g) => g.formen)]
+const ALLE_FORMEN = [['', tr('Gemischt'), tr('alles durcheinander')], ...GRUPPEN.flatMap((g) => g.formen)]
 
 /**
  * Sätze mit KI erzeugen und in den Satz-Trainer übernehmen.
@@ -112,7 +113,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         body: JSON.stringify({ thema: gefragt, grammatik, bekannt }),
       })
       const daten = await res.json()
-      if (!res.ok) throw new Error(daten.nachricht || daten.error || 'Das hat nicht geklappt.')
+      if (!res.ok) throw new Error(daten.nachricht || daten.error || tr('Das hat nicht geklappt.'))
 
       setListe(daten.saetze.map((s) => ({ ...s, checked: true })))
       setFertig({
@@ -154,7 +155,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
     if (premiumLaedt && !premium) return null // erst Premium-Stand abwarten
     return (
       <div className="list-gen">
-        <PremiumWerbung was="Sätze" />
+        <PremiumWerbung was={tr('Sätze')} />
       </div>
     )
   }
@@ -166,11 +167,11 @@ export default function SatzGenerator({ saetze, setSaetze }) {
           <IconFunken groesse={24} />
         </span>
         <div className="gen-text">
-          <h2>Sätze erzeugen</h2>
-          <p>Wähle ein Thema, eine Grammatik – oder beides.</p>
+          <h2>{tr('Sätze erzeugen')}</h2>
+          <p>{tr('Wähle ein Thema, eine Grammatik – oder beides.')}</p>
         </div>
         {uebrig <= 2 && (
-          <span className="rest-zaehler" title="Kostenlose Generierungen heute">
+          <span className="rest-zaehler" title={tr('Kostenlose Generierungen heute')}>
             {uebrig}/{LISTEN_PRO_TAG}
           </span>
         )}
@@ -178,7 +179,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
 
       <form className="wort-form" onSubmit={generieren}>
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}
-        <p className="sg-schritt"><span>1</span> Thema wählen</p>
+        <p className="sg-schritt"><span>1</span> {tr('Thema wählen')}</p>
         <div className="sg-themen">
           {THEMEN.map((t) => (
             <button
@@ -194,7 +195,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         </div>
 
         {/* Schritt 2: Grammatik – erst Bereich, dann Form */}
-        <p className="sg-schritt"><span>2</span> Grammatik <small>optional</small></p>
+        <p className="sg-schritt"><span>2</span> {tr('Grammatik')} <small>{tr('optional')}</small></p>
         <div className="sg-reiter" role="tablist">
           <button
             type="button"
@@ -204,7 +205,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
               setGrammatik('')
             }}
           >
-            Gemischt
+            {tr('Gemischt')}
           </button>
           {GRUPPEN.map((g) => (
             <button
@@ -222,7 +223,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         </div>
 
         {offeneGruppe === '' ? (
-          <p className="sg-gemischt">Alle Formen durcheinander – gut zum Wiederholen.</p>
+          <p className="sg-gemischt">{tr('Alle Formen durcheinander – gut zum Wiederholen.')}</p>
         ) : (
           <div className="sg-formen">
             {GRUPPEN.find((g) => g.titel === offeneGruppe).formen.map(([wert, name, hilfe]) => (
@@ -244,14 +245,14 @@ export default function SatzGenerator({ saetze, setSaetze }) {
             type="text"
             value={thema}
             onChange={(e) => setThema(e.target.value)}
-            placeholder="Eigenes Thema …"
+            placeholder={tr('Eigenes Thema …')}
             disabled={laden}
           />
           <button
             type="submit"
             className="gen-pfeil"
             disabled={laden || (!thema.trim() && !grammatik)}
-            aria-label="Sätze erzeugen"
+            aria-label={tr('Sätze erzeugen')}
           >
             <svg viewBox="0 0 24 24" width="18" height="18">
               <path
@@ -273,11 +274,11 @@ export default function SatzGenerator({ saetze, setSaetze }) {
             disabled={laden || (!thema.trim() && !grammatik)}
           >
             {laden ? (
-              <>Schreibt Sätze<span className="studio-punkte" /></>
+              <>{tr('Schreibt Sätze')}<span className="studio-punkte" /></>
             ) : grammatik && !thema.trim() ? (
-              `Sätze zum ${ALLE_FORMEN.find(([w]) => w === grammatik)?.[1]}`
+              tr('Sätze zum {0}', ALLE_FORMEN.find(([w]) => w === grammatik)?.[1])
             ) : (
-              'Sätze erzeugen'
+              tr('Sätze erzeugen')
             )}
           </button>
         </div>
@@ -285,7 +286,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
 
       {erfolg > 0 && (
         <p className="gen-success">
-          {erfolg} {erfolg === 1 ? 'Satz' : 'Sätze'} im Trainer! ✓
+          {tr('{0} {1} im Trainer! ✓', erfolg, erfolg === 1 ? tr('Satz') : tr('Sätze'))}
         </p>
       )}
       {fehler && <p className="error">{fehler}</p>}
@@ -295,13 +296,12 @@ export default function SatzGenerator({ saetze, setSaetze }) {
         <div className="gen-list">
           {fertig.hinweis && (
             <div className="gen-begruendung">
-              <span className="gen-begruendung-marke">Worauf du achten kannst</span>
+              <span className="gen-begruendung-marke">{tr('Worauf du achten kannst')}</span>
               <p>{fertig.hinweis}</p>
             </div>
           )}
           <p className="gen-hint">
-            Sätze zu „{fertig.thema}“{grammatikName ? ` · ${grammatikName}` : ''} – wähle
-            aus, was in den Trainer soll:
+            {tr('Sätze zu „{0}“{1} – wähle aus, was in den Trainer soll:', fertig.thema, grammatikName ? ` · ${grammatikName}` : '')}
           </p>
           {liste.map((s, i) => (
             <label key={i} className="gen-item satz-item">
@@ -319,10 +319,10 @@ export default function SatzGenerator({ saetze, setSaetze }) {
           ))}
           <div className="gen-actions">
             <button onClick={uebernehmen} disabled={!liste.some((s) => s.checked)}>
-              {liste.filter((s) => s.checked).length} Sätze übernehmen
+              {tr('{0} Sätze übernehmen', liste.filter((s) => s.checked).length)}
             </button>
             <button className="btn-plain" onClick={() => setListe(null)}>
-              Abbrechen
+              {tr('Abbrechen')}
             </button>
           </div>
         </div>

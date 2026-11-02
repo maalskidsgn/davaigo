@@ -22,6 +22,8 @@
  * Wer das hier umbenennt, muss es überall umbenennen.
  */
 
+import { frageOpenAI } from './sprache.js'
+
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
 
@@ -155,7 +157,7 @@ export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bek
     stufenRegel +
     bekanntesAlsHinweis(bekannt)
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

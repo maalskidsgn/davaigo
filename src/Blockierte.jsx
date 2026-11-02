@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { ladeBlockierteListe, gibFrei } from './rangliste.js'
 import { Bildnis } from './Rangliste.jsx'
+import { tr } from './sprache.js'
 
 /**
  * Wen habe ich blockiert?
@@ -29,9 +30,9 @@ export default function Blockierte() {
 
   return (
     <section className="pf-kasten">
-      <h2 className="pf-kasten-titel">Blockiert</h2>
+      <h2 className="pf-kasten-titel">{tr('Blockiert')}</h2>
       <p className="pf-kasten-text">
-        Diese Leute siehst du nicht in Rangliste, Suche und Duellen – und sie dich nicht.
+        {tr('Diese Leute siehst du nicht in Rangliste, Suche und Duellen – und sie dich nicht.')}
       </p>
 
       <div className="bl-liste">
@@ -54,7 +55,7 @@ export default function Blockierte() {
                 }
               }}
             >
-              {laeuft === b.benutzername ? '…' : 'Freigeben'}
+              {laeuft === b.benutzername ? '…' : tr('Freigeben')}
             </button>
           </div>
         ))}

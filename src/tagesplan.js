@@ -1,4 +1,5 @@
 import { heute } from './datum.js'
+import { tr } from './sprache.js'
 // Der Tagesplan: aus allem, was ansteht, eine überschaubare Session bauen.
 //
 // Das Problem ohne ihn: Wer 88 fällige Vokabeln sieht, sieht einen
@@ -37,8 +38,8 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
     schritte.push({
       art: 'wiederholen',
       anzahl: zuUeben,
-      titel: `${zuUeben} Vokabeln wiederholen`,
-      hinweis: faellig > zuUeben ? `von ${faellig} fälligen` : 'alle fälligen',
+      titel: tr('{0} Vokabeln wiederholen', zuUeben),
+      hinweis: faellig > zuUeben ? tr('von {0} fälligen', faellig) : tr('alle fälligen'),
       ziel: 'trainer',
       sekunden: zuUeben * SEK_PRO_WORT,
     })
@@ -48,7 +49,7 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
   if (lektion) {
     schritte.push({
       art: 'lektion',
-      titel: `Lektion „${lektion.titel}“`,
+      titel: tr('Lektion „{0}“', lektion.titel),
       hinweis: 'weitermachen',
       ziel: 'lektionen',
       sekunden: SEK_PRO_LEKTION,
@@ -59,8 +60,8 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
   //    Davaigo statt einer reinen Karteikarten-App nimmt.
   schritte.push({
     art: 'video',
-    titel: videoOffen ? 'Video weiterschauen' : 'Ein kurzes Video ansehen',
-    hinweis: woerter > 0 ? 'neue Wörter sammeln' : 'mit echten Inhalten lernen',
+    titel: videoOffen ? tr('Video weiterschauen') : tr('Ein kurzes Video ansehen'),
+    hinweis: woerter > 0 ? tr('neue Wörter sammeln') : tr('mit echten Inhalten lernen'),
     ziel: 'videos',
     sekunden: SEK_PRO_VIDEO,
   })

@@ -3,6 +3,7 @@ import Logo from './Logo.jsx'
 import {
   ladeAngebote, kaufe, stelleWiederHer, warteAufFreischaltung, plattform,
 } from './kauf.js'
+import { tr } from './sprache.js'
 
 /**
  * Die Kasse in der App – Apple App Store oder Google Play.
@@ -19,7 +20,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
   const [fehler, setFehler] = useState('')
   const [hinweis, setHinweis] = useState('')
 
-  const laden = plattform() === 'ios' ? 'App Store' : 'Google Play'
+  const laden = plattform() === 'ios' ? tr('App Store') : tr('Google Play')
 
   useEffect(() => {
     let aktiv = true
@@ -44,7 +45,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
     try {
       const ergebnis = await kaufe(a.paket)
       if (ergebnis === 'abgebrochen') return setLaeuft('')
-      setHinweis('Zahlung angenommen. Wird freigeschaltet …')
+      setHinweis(tr('Zahlung angenommen. Wird freigeschaltet …'))
       // Der Store hat bezahlt, aber unsere Datenbank weiss es erst,
       // wenn die Meldung durch ist. Kurz warten statt den Nutzer mit
       // der Premium-Werbung zurückzulassen.
@@ -64,10 +65,10 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
     try {
       const hat = await stelleWiederHer()
       if (!hat) {
-        setHinweis(`Auf diesem ${laden}-Konto ist kein Kauf hinterlegt.`)
+        setHinweis(tr('Auf diesem {0}-Konto ist kein Kauf hinterlegt.', laden))
         return
       }
-      setHinweis('Kauf gefunden. Wird freigeschaltet …')
+      setHinweis(tr('Kauf gefunden. Wird freigeschaltet …'))
       await warteAufFreischaltung()
       onFertig?.()
     } catch (f) {
@@ -87,27 +88,27 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </span>
-          Zurück
+          {tr('Zurück')}
         </button>
         <Logo />
-        <span className="kassen-sicher">über {laden}</span>
+        <span className="kassen-sicher">{tr('über {0}', laden)}</span>
       </header>
 
       <div className="kn">
-        <h1 className="kn-titel">Davaigo Premium</h1>
+        <h1 className="kn-titel">{tr('Davaigo Premium')}</h1>
         <p className="kn-unter">
-          Alle Lektionen, der KI-Trainer, eigene Texte und Sätze – ohne Begrenzung.
+          {tr('Alle Lektionen, der KI-Trainer, eigene Texte und Sätze – ohne Begrenzung.')}
         </p>
 
         {angebote === null ? (
-          <p className="kn-laedt">Angebote werden geladen …</p>
+          <p className="kn-laedt">{tr('Angebote werden geladen …')}</p>
         ) : angebote.length === 0 ? (
           <p className="kn-laedt">
-            Gerade sind keine Angebote verfügbar. Versuch es später nochmal.
+            {tr('Gerade sind keine Angebote verfügbar. Versuch es später nochmal.')}
           </p>
         ) : (
           <>
-            <div className="kn-tarife" role="radiogroup" aria-label="Tarif wählen">
+            <div className="kn-tarife" role="radiogroup" aria-label={tr('Tarif wählen')}>
               {angebote.map((a) => (
                 <button
                   key={a.id}
@@ -125,14 +126,14 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
             </div>
 
             <button className="kn-kaufen" onClick={kaufen} disabled={Boolean(laeuft) || !gewaehlt}>
-              {laeuft === 'kauf' ? 'Einen Moment …' : 'Jetzt holen'}
+              {laeuft === 'kauf' ? tr('Einen Moment …') : tr('Jetzt holen')}
             </button>
 
             {/* Apple verlangt diesen Knopf in jeder App mit Käufen:
                 Wer das Handy wechselt, muss ohne Support an seinen
                 bezahlten Zugang kommen. */}
             <button className="kn-wieder" onClick={wiederherstellen} disabled={Boolean(laeuft)}>
-              {laeuft === 'wieder' ? 'Wird gesucht …' : 'Käufe wiederherstellen'}
+              {laeuft === 'wieder' ? tr('Wird gesucht …') : tr('Käufe wiederherstellen')}
             </button>
           </>
         )}
@@ -141,8 +142,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
         {fehler && <p className="kn-fehler">{fehler}</p>}
 
         <p className="kn-klein">
-          Abrechnung über dein {laden}-Konto. Abos verlängern sich automatisch, bis du
-          sie dort kündigst – das geht jederzeit in den Einstellungen deines Geräts.
+          {tr('Abrechnung über dein {0}-Konto. Abos verlängern sich automatisch, bis du sie dort kündigst – das geht jederzeit in den Einstellungen deines Geräts.', laden)}
         </p>
       </div>
     </div>
