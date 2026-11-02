@@ -14,11 +14,11 @@ Davaigo – Russisch lernen
 ```
 
 ## Kurzbeschreibung
-*(max. 80 Zeichen – hier 78. Sie steht unter dem Symbol in der Suche
+*(max. 80 Zeichen – hier 76. Sie steht unter dem Symbol in der Suche
 und ist das, was die meisten überhaupt lesen.)*
 
 ```
-180 Lektionen, echte Stimmen, Videos und ein Karteikasten mit Gedächtnis.
+180 Lektionen, vertonte Dialoge, Videos und ein Karteikasten mit Gedächtnis.
 ```
 
 ## Vollständige Beschreibung
@@ -37,9 +37,9 @@ Buchstabe, immer mit echten Wörtern – nie mit Umschrift. Die sechs
 falschen Freunde (В Н Р С У Х) bekommen ihren eigenen Platz, damit du
 sie nicht ein Jahr lang falsch liest.
 
-ECHTE STIMMEN, KEINE COMPUTERSTIMME
-Jedes Wort, jeder Beispielsatz und jede Dialogzeile ist von
-russischen Muttersprachlern gesprochen – über 4.000 Aufnahmen. Das
+ALLES ZUM ANHÖREN
+Jedes Wort, jeder Beispielsatz und jede Dialogzeile ist vertont, mit
+natürlich klingenden russischen KI-Stimmen – über 4.000 Aufnahmen. Das
 ist wichtiger, als es klingt: Russisch hat eine bewegliche Betonung,
 und nur in der betonten Silbe klingt ein о wie o. „молоко" spricht
 sich „malakó". So etwas lernt man durch Hören, nicht durch Lesen.
@@ -102,7 +102,7 @@ Keine Werbung. Kein Weiterverkauf deiner Daten.
 Die erste Fassung von Davaigo.
 
 180 Lektionen vom kyrillischen Alphabet bis zur B2-Schwelle, über
-4.000 Aufnahmen von russischen Muttersprachlern, ein Vokabeltrainer
+4.000 Aufnahmen mit russischen KI-Stimmen, ein Vokabeltrainer
 mit wachsenden Wiederholungsabständen, echte YouTube-Videos mit
 antippbaren Untertiteln und Lieder über Spotify.
 

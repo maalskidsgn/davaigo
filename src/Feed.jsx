@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react'
 import { createPortal } from 'react-dom'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
 import { feedKarten, merkeGesehen, gesehene } from './feed.js'
-import { API_URL } from './api.js'
+import { API_URL, kiKopf } from './api.js'
 import { spiele, dialogAbspielen } from './audio.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
@@ -67,7 +67,7 @@ export default function Feed({ onZurueck, onAddVocab, vocab = {}, addXp }) {
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld), { headers: await kiKopf() })
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {

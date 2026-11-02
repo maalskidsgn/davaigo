@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
-import { API_URL, istApp } from './api.js'
+import { API_URL, istApp, kiKopf } from './api.js'
 import { db } from './supabase.js'
 import { tr } from './sprache.js'
 
@@ -260,7 +260,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
 
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld), { headers: await kiKopf() })
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {

@@ -242,7 +242,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld), { headers: await kiKopf() })
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {

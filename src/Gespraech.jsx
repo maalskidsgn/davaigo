@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom'
 
 import { useState, useRef, useEffect } from 'react'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
-import { API_URL, istApp } from './api.js'
+import { API_URL, istApp, kiKopf } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import { IconSprache, IconPfeil } from './icons.jsx'
 import { erfolgston } from './erfolgston.js'
@@ -100,7 +100,7 @@ export default function Gespraech({ onZurueck, kopf, onAddVocab, vocab = {} }) {
     if (!sauber) return
     setWort({ text: sauber, de: '', laedt: true })
     try {
-      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld))
+      const res = await fetch(uebersetzungsAdresse(API_URL, sauber, umfeld), { headers: await kiKopf() })
       const daten = await res.json()
       setWort({ text: sauber, de: daten.translation || '', laedt: false })
     } catch {
