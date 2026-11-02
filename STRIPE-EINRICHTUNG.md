@@ -111,5 +111,7 @@ der App ihr eigenes Abrechnungssystem und erlauben Stripe dort
 nicht. Die Bausteine dafür liegen bereit (`src/kauf.js`,
 `src/KaufNativ.jsx`, `server/kauf.js`, Paket
 `@revenuecat/purchases-capacitor`), sind aber **nirgends
-eingebunden** – siehe `store/checkliste.md`. Zum Einschalten fehlt
+eingebunden** (in `capacitor.config.json` steht deshalb `"includePlugins": []`,
+sonst zieht jedes `cap sync` den Bezahlcode in die App; beim Einschalten dort
+das Paket eintragen) – siehe `store/checkliste.md`. Zum Einschalten fehlt
 ein eigenes RevenueCat-Projekt für Davaigo samt Schlüsseln.

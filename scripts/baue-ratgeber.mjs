@@ -65,8 +65,8 @@ function baustein(b) {
 const AUFRUF = `
 <div class="cta">
   <p class="cta-titel">Probier es mit Davaigo</p>
-  <p>180 Lektionen vom kyrillischen Alphabet bis zur B2-Schwelle, jedes Wort von
-     russischen Muttersprachlern gesprochen. Der Einstieg kostet nichts.</p>
+  <p>180 Lektionen vom kyrillischen Alphabet bis zur B2-Schwelle, jedes Wort
+     vertont. Der Einstieg kostet nichts.</p>
   <a class="cta-knopf" href="/">Kostenlos anfangen</a>
 </div>`
 
