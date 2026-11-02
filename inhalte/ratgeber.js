@@ -57,8 +57,8 @@ export const BEITRAEGE = [
         inhalt: [
           { h3: '1. Das Alphabet systematisch beibringen' },
           'Nicht als Tabelle zum Auswendiglernen, sondern über Wochen verteilt, Buchstabe für Buchstabe, immer mit echten Wörtern. Die falschen Freunde gehören dabei getrennt behandelt: Wer **Р** einmal als P gelesen hat, liest es Monate später wieder falsch.',
-          { h3: '2. Echte Stimmen statt Computerstimme' },
-          'Russisch hat eine Eigenheit, die auf dem Papier unsichtbar ist: Jedes Wort hat genau eine betonte Silbe, und nur dort klingt ein **о** wie o. Überall sonst wird es zum a. *молоко* schreibt sich mit drei o und spricht sich „malakó". Eine synthetische Stimme bekommt das oft hin, aber den Rhythmus eines echten Satzes nicht. Wer von Anfang an Muttersprachler hört, nimmt die Melodie nebenbei mit.',
+          { h3: '2. Von Anfang an hören' },
+          'Russisch hat eine Eigenheit, die auf dem Papier unsichtbar ist: Jedes Wort hat genau eine betonte Silbe, und nur dort klingt ein **о** wie o. Überall sonst wird es zum a. *молоко* schreibt sich mit drei o und spricht sich „malakó". Das lernst du nicht durch Lesen. Wer jedes neue Wort und jeden Satz von Anfang an hört, nimmt Betonung und Melodie nebenbei mit.',
           { h3: '3. Einen Vokabeltrainer mit Gedächtnis' },
           'Wörter, die du sicher kannst, sollen seltener kommen. Wörter, bei denen du gezögert hast, öfter. Das klingt banal, ist aber der Unterschied zwischen zwanzig Minuten Lernen und zwanzig Minuten Beschäftigung. Mehr dazu im Beitrag über das [Vokabellernen mit wachsenden Abständen](/ratgeber/russische-vokabeln-lernen/).',
           { h3: '4. Grammatik erklären, nicht nur abfragen' },
@@ -95,7 +95,7 @@ export const BEITRAEGE = [
         h2: 'Wie Davaigo das löst',
         inhalt: [
           'Davaigo ist genau an diesen Punkten entlang gebaut worden. Der Kurs umfasst **180 Lektionen in zehn Modulen**, vom ersten Buchstaben bis zur Schwelle zu B2. Die ersten 18 Lektionen drehen sich nur um das Lesen des kyrillischen Alphabets – mit echten Wörtern von der ersten Minute an, nie mit Umschrift.',
-          'Gesprochen wird alles von russischen Muttersprachlern: **4.178 Aufnahmen**, jedes Wort, jeder Beispielsatz, jede Dialogzeile. Der Vokabeltrainer rechnet für jedes Wort einen eigenen Abstand aus, statt stur eine Liste durchzugehen. Und in der Mediathek holst du dir echte YouTube-Videos mit mitlaufenden Untertiteln, bei denen du jedes unbekannte Wort antippen und in deinen Trainer übernehmen kannst.',
+          'Alles ist vertont, mit natürlich klingenden russischen KI-Stimmen: **4.178 Aufnahmen**, jedes Wort, jeder Beispielsatz, jede Dialogzeile. Der Vokabeltrainer rechnet für jedes Wort einen eigenen Abstand aus, statt stur eine Liste durchzugehen. Und in der Mediathek holst du dir echte YouTube-Videos mit mitlaufenden Untertiteln, bei denen du jedes unbekannte Wort antippen und in deinen Trainer übernehmen kannst.',
           'Der Einstieg kostet nichts, und du brauchst für die ersten Lektionen kein Konto.',
         ],
       },
@@ -201,7 +201,7 @@ export const BEITRAEGE = [
       {
         h2: 'Was Davaigo kostenlos bietet',
         inhalt: [
-          'Alle 180 Lektionen sind kostenlos nutzbar, mit echten Aufnahmen von Muttersprachlern und dem vollen Vokabeltrainer. Auch die Mediathek mit Videos und Liedern ist offen. Es gibt keine Werbung und keinen Weiterverkauf von Daten – das steht auch so in der [Datenschutzerklärung](/?recht=datenschutz).',
+          'Alle 180 Lektionen sind kostenlos nutzbar, mit vertonten Wörtern und Sätzen und dem vollen Vokabeltrainer. Auch die Mediathek mit Videos und Liedern ist offen. Es gibt keine Werbung und keinen Weiterverkauf von Daten – das steht auch so in der [Datenschutzerklärung](/?recht=datenschutz).',
           'Geld kostet nur Premium, und zwar für die Dinge, die bei uns echte Rechenkosten verursachen: unbegrenzte KI-Vokabellisten zu eigenen Themen und selbst erzeugte zweisprachige E-Books. Wer das nicht braucht, lernt kostenlos weiter.',
         ],
       },
@@ -311,7 +311,7 @@ export const BEITRAEGE = [
       {
         h2: 'Wie Davaigo das umsetzt',
         inhalt: [
-          'Der Kurs bringt **1.797 Vokabeln** mit, jede in einem Beispielsatz und von Muttersprachlern gesprochen. Der Trainer rechnet für jedes Wort einen eigenen Abstand aus, genau nach dem Prinzip oben – vier Bewertungsknöpfe, und das Wort verschwindet so lange aus dem Stapel, wie es sitzt.',
+          'Der Kurs bringt **1.797 Vokabeln** mit, jede in einem Beispielsatz und vertont. Der Trainer rechnet für jedes Wort einen eigenen Abstand aus, genau nach dem Prinzip oben – vier Bewertungsknöpfe, und das Wort verschwindet so lange aus dem Stapel, wie es sitzt.',
           'Wörter kommen nicht nur aus den Lektionen: Jedes Wort, das du in einem Video oder Lesetext antippst, landet mit einem Tipp im selben Kasten – samt Übersetzung und der Stelle, an der du es gefunden hast.',
         ],
       },
@@ -411,7 +411,7 @@ export const BEITRAEGE = [
         h2: 'Was Davaigo anders macht',
         inhalt: [
           'Davaigo ist für genau den zweiten Schritt gebaut – und deckt den ersten gleich mit ab. Die **180 Lektionen** sind nach einem festen Lehrplan geordnet, und jede bringt neben den Übungen Erklärkarten mit: nicht nur *dass* der Instrumental hier steht, sondern wofür er da ist.',
-          'Dazu Dinge, die eine reine Übersetzungs-App nicht hat: Alles ist von **russischen Muttersprachlern** gesprochen, es gibt Hör- und Diktatübungen, und in der Mediathek arbeitest du mit echten YouTube-Videos und Liedern statt mit Lehrbuchsätzen.',
+          'Dazu Dinge, die eine reine Übersetzungs-App nicht hat: Alles ist mit natürlich klingenden russischen **KI-Stimmen** vertont, es gibt Hör- und Diktatübungen, und in der Mediathek arbeitest du mit echten YouTube-Videos und Liedern statt mit Lehrbuchsätzen.',
           'Und beim Dranbleiben hat Davaigo sich bei den guten Ideen bedient: Tagesziel, Serie, Punkte – aber ohne dich dafür zu bestrafen, dass du einen Tag ausgelassen hast.',
         ],
       },
