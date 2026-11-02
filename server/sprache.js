@@ -73,6 +73,7 @@ const FEHLER_EN = {
   'Ohne Anmeldung geht das nicht.': 'Please sign in to do that.',
   'Sammle erst ein paar Wörter, dann kann ich dir passende Vorschläge machen.': 'Collect a few words first, then I can make suggestions that fit.',
   'Suche fehlgeschlagen.': 'Search failed.',
+  'Gerade zu viele Übersetzungen. Bitte versuch es später noch einmal.': 'Too many translations right now. Please try again later.',
   'Wähle ein Thema oder eine Form – dann lege ich los.': 'Pick a topic or a form and I will get started.',
   'Zusammenfassung konnte nicht erstellt werden.': 'The summary could not be created.',
   'Für dieses Konto gibt es kein Abo.': 'There is no subscription on this account.',
