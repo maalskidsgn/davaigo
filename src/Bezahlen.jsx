@@ -26,7 +26,7 @@ import {
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
-import { tr, gebiet } from './sprache.js'
+import { tr, gebiet, sprache } from './sprache.js'
 
 // ---------------------------------------------------------------
 //  Davaigo-Aussehen für die Stripe-Felder
@@ -99,6 +99,7 @@ let stripeLader = null
 function stripeHolen(schluessel) {
   if (!stripeLader) {
     stripeLader = loadStripe(schluessel, {
+      locale: sprache(),
       // Stripes "Testing Assistant" abschalten: ein schwarzes
       // Entwickler-Fenster unten rechts, das Stripe von sich aus
       // einblendet, solange der Testmodus läuft. Es erscheint nicht

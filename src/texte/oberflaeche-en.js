@@ -338,7 +338,7 @@ export default {
  "Bitte ein Bild auswählen.": "Please select an image.",
  "Bitte gib ein Passwort ein.": "Please enter a password.",
  "Bitte wähl einen Grund aus.": "Please select a reason.",
- "Bitte zuerst anmelden.": "Please log in first.",
+ "Bitte zuerst anmelden.": "Please sign in first.",
  "Bitte zuerst mit Spotify verbinden.": "Please connect with Spotify first.",
  "Blitzrunde": "Lightning round",
  "Blockieren": "Block",
@@ -1342,5 +1342,16 @@ export default {
  "Zwölf neue Wörter, ein Dialog, ein paar Übungen – acht bis zehn Minuten. Mehr braucht ein Tag nicht. Die Reiseroute zeigt dir immer genau die eine Lektion, die als Nächstes dran ist. Suchen musst du nichts.": "Twelve new words, a dialogue, a few exercises – eight to ten minutes. That's all a day needs. The itinerary always shows you the one lesson that's next. No need to search.",
  "Давай – los geht’s!": "Давай – let's go!",
  "Давай! Los geht’s": "Давай! Let's go",
- "Самые важные слова": "Самые важные слова"
+ "Самые важные слова": "Самые важные слова",
+ "Das geht gerade nicht.": "That's not possible right now.",
+ "Diesen Benutzernamen gibt es nicht.": "That username doesn't exist.",
+ "Dieses Duell gibt es nicht mehr.": "This duel no longer exists.",
+ "Du hast dieses Duell schon gespielt.": "You've already played this duel.",
+ "Du spielst in diesem Duell nicht mit.": "You're not part of this duel.",
+ "Euer letztes Duell laeuft noch.": "Your last duel is still running.",
+ "Gegen sich selbst spielt es sich schlecht.": "You can't duel yourself.",
+ "Ihr seid noch keine Freunde.": "You're not friends yet.",
+ "Nicht angemeldet.": "Not signed in.",
+ "Sich selbst kann man nicht blockieren.": "You can't block yourself.",
+ "Sich selbst zu melden ergibt keinen Sinn.": "You can't report yourself."
 }

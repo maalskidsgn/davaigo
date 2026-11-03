@@ -96,7 +96,7 @@ export async function duellStarten(gegner) {
   const fragen = baueFragen()
   if (!fragen.length) throw new Error(tr('Gerade keine Fragen verfügbar.'))
   const { data, error } = await db.rpc('duell_starten', { gegner, fragen })
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   window.dispatchEvent(new CustomEvent('duelle'))
   return data
 }
@@ -121,14 +121,14 @@ export async function duellAbgeben(id, punkte, zeit) {
     // weglegt, soll keine absurde Zahl in der Tabelle hinterlassen.
     zeit: Math.min(zeit, FRAGEN * SEKUNDEN * 1000),
   })
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   window.dispatchEvent(new CustomEvent('duelle'))
 }
 
 /** Ein angefangenes Duell wegräumen oder ein fertiges ausblenden. */
 export async function duellLoeschen(id) {
   const { error } = await db.from('duelle').delete().eq('id', id)
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   window.dispatchEvent(new CustomEvent('duelle'))
 }
 

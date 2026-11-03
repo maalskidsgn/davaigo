@@ -20,6 +20,10 @@ export function spracheAusAnfrage(req, res, next) {
       if (daten && typeof daten.error === 'string' && FEHLER_EN[daten.error]) {
         return original({ ...daten, error: FEHLER_EN[daten.error] })
       }
+      const ANFANG = 'Transkript konnte nicht geladen werden: '
+      if (daten && typeof daten.error === 'string' && daten.error.startsWith(ANFANG)) {
+        return original({ ...daten, error: 'Could not load the subtitles: ' + daten.error.slice(ANFANG.length) })
+      }
       return original(daten)
     }
   }
@@ -107,6 +111,7 @@ const FEHLER_EN = {
   'Keine Zeilen übergeben.': 'No lines provided.',
   'Kontingent konnte nicht geprüft werden.': 'Could not check your daily limit.',
   'Nicht angemeldet.': 'Not signed in.',
+  'Leere Antwort': 'No translation found.',
   'Nicht berechtigt.': 'Not allowed.',
   'Ohne Anmeldung geht das nicht.': 'Please sign in to do that.',
   'Sammle erst ein paar Wörter, dann kann ich dir passende Vorschläge machen.': 'Collect a few words first, then I can make suggestions that fit.',

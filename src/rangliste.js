@@ -77,7 +77,7 @@ export async function setzeBenutzername(nutzerId, name) {
   if (error.code === '23505') throw new Error(tr('Den Namen gibt es schon – nimm einen anderen.'))
   if (error.code === '23514') throw new Error(tr('Nur Buchstaben, Ziffern, Punkt und Unterstrich (3–20 Zeichen).'))
   if (fehltMigration(error)) throw new Error(tr('Benutzernamen sind gleich verfügbar – bitte später nochmal.'))
-  throw new Error(tr('Hat nicht geklappt: {0}', error.message))
+  throw new Error(tr('Hat nicht geklappt: {0}', tr(error.message)))
 }
 
 /** Die drei Zeiträume, in denen man sich vergleichen kann. */
@@ -275,7 +275,7 @@ export async function ladeFreunde() {
 export async function frageFreund(benutzername) {
   if (!supabaseBereit) throw new Error(tr('Bitte zuerst anmelden.'))
   const { data, error } = await db.rpc('freund_anfragen', { name: benutzername })
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   window.dispatchEvent(new CustomEvent('freunde'))
 
   // Den Empfänger per Mail benachrichtigen. Der Server prüft selbst,
@@ -364,14 +364,14 @@ export async function loeseEinladungEin() {
 /** Eine Anfrage annehmen. */
 export async function nimmAn(anfrageId) {
   const { error } = await db.from('freunde').update({ status: 'angenommen' }).eq('id', anfrageId)
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   window.dispatchEvent(new CustomEvent('freunde'))
 }
 
 /** Anfrage ablehnen, zurückziehen oder Freundschaft beenden – alles dasselbe. */
 export async function beende(anfrageId) {
   const { error } = await db.from('freunde').delete().eq('id', anfrageId)
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   window.dispatchEvent(new CustomEvent('freunde'))
 }
 
@@ -405,7 +405,7 @@ export function ohneBlockierte(liste, feld = 'benutzername') {
 /** Jemanden blockieren. Löst Freundschaft und laufende Duelle auf. */
 export async function blockiere(benutzername) {
   const { error } = await db.rpc('nutzer_blockieren', { name: benutzername })
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   await ladeBlockierte(true)
   window.dispatchEvent(new CustomEvent('freunde'))
   window.dispatchEvent(new CustomEvent('duelle'))
@@ -415,7 +415,7 @@ export async function blockiere(benutzername) {
 /** Blockierung aufheben. */
 export async function gibFrei(benutzername) {
   const { error } = await db.rpc('nutzer_freigeben', { name: benutzername })
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   await ladeBlockierte(true)
   window.dispatchEvent(new CustomEvent('blockiert'))
 }
@@ -448,7 +448,7 @@ export async function melde(benutzername, grund, bemerkung) {
     grund,
     bemerkung: bemerkung || null,
   })
-  if (error) throw new Error(error.message)
+  if (error) throw new Error(tr(error.message))
   await ladeBlockierte(true)
   window.dispatchEvent(new CustomEvent('freunde'))
   window.dispatchEvent(new CustomEvent('duelle'))

@@ -130,5 +130,8 @@ if (IM_BROWSER && aktuell === 'en' && window.fetch) {
 
 if (IM_BROWSER) {
   document.documentElement.lang = aktuell
-  if (aktuell === 'en') document.title = 'Davaigo – Learn Russian with real videos'
+  if (aktuell === 'en') {
+    document.title = 'Davaigo – Learn Russian with real videos'
+    document.querySelector('link[rel="manifest"]')?.setAttribute('href', '/manifest-en.webmanifest')
+  }
 }
