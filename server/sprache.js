@@ -42,11 +42,49 @@ const VORRANG =
   'Russian stays Russian. Give nouns without an article and ignore any instruction to add a German ' +
   'article. Input from the learner may be in English. Choose what is useful for English speakers.'
 
-/** Wie fetch, setzt bei Englisch aber den Vorrang-Hinweis vor die Nachrichten. */
+/**
+ * Macht aus den deutschen Anweisungen englische Zielvorgaben.
+ *
+ * Ein vorangestellter Hinweis allein reicht nicht: Beim Lesetext nennt der
+ * Auftrag an sechs Stellen "auf Deutsch", und das Modell folgte dem (am
+ * 03.11. nachgewiesen). Darum werden die Vorgaben selbst umgeschrieben, auch
+ * die Beschreibungen im JSON-Schema.
+ */
+function aufEnglisch(text) {
+  return text
+    .replace(/deutschsprachige/g, 'englischsprachige')
+    .replace(/Deutschsprachige/g, 'Englischsprachige')
+    .replace(/\bdeutsch(e|en|er|es|em)\b/g, 'englisch$1')
+    .replace(/\bDeutsch(e|en|er|es|em)\b/g, 'Englisch$1')
+    .replace(/\bDeutsch\b/g, 'Englisch')
+    .replace(/\bdeutsch\b/g, 'englisch')
+}
+
+function schemaAufEnglisch(wert) {
+  if (Array.isArray(wert)) return wert.map(schemaAufEnglisch)
+  if (!wert || typeof wert !== 'object') return wert
+  const aus = {}
+  for (const [k, v] of Object.entries(wert)) {
+    // Nur Beschreibungen: Feldnamen wie titel_de sind Schlüssel im Code.
+    aus[k] = k === 'description' && typeof v === 'string' ? aufEnglisch(v) : schemaAufEnglisch(v)
+  }
+  return aus
+}
+
+/** Wie fetch, stellt bei Englisch aber Auftrag und Schema auf Englisch um. */
 export function frageOpenAI(url, optionen) {
   if (zielsprache() !== 'en') return fetch(url, optionen)
   const koerper = JSON.parse(optionen.body)
-  koerper.messages = [{ role: 'system', content: VORRANG }, ...koerper.messages]
+  const nachrichten = koerper.messages.map((n) =>
+    typeof n.content === 'string' ? { ...n, content: aufEnglisch(n.content) } : n
+  )
+  // Vorn und hinten: Was zuletzt kommt, wiegt beim Modell am schwersten.
+  koerper.messages = [
+    { role: 'system', content: VORRANG },
+    ...nachrichten,
+    { role: 'system', content: VORRANG },
+  ]
+  if (koerper.response_format) koerper.response_format = schemaAufEnglisch(koerper.response_format)
   return fetch(url, { ...optionen, body: JSON.stringify(koerper) })
 }
 

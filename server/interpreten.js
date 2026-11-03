@@ -10,7 +10,6 @@
 // Die Namen gehen als reine Liste raus – keine Nutzerdaten, keine
 // Kennungen, kein Hörverlauf.
 
-import { frageOpenAI } from './sprache.js'
 
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions'
 const MODELL = 'gpt-4o-mini'
@@ -61,7 +60,7 @@ export async function findeRussischeInterpreten(kuenstler) {
 
   if (namen.length === 0) return { interpreten: [], geprueft: 0 }
 
-  const antwort = await frageOpenAI(OPENAI_URL, {
+  const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -159,7 +158,7 @@ export async function ergaenzeSongs(namen) {
   if (!schluessel) throw new Error('Auf dem Server fehlt der OpenAI-Schlüssel.')
   if (!namen?.length) return { interpreten: [] }
 
-  const antwort = await frageOpenAI(OPENAI_URL, {
+  const antwort = await fetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
