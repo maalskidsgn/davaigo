@@ -59,6 +59,7 @@ export default {
  "{0} in Folge": "{0} in a row",
  "{0} Kapitel · ": "{0} chapters · ",
  "{0} Künstler gefunden – die KI prüft die Sprache …": "{0} artists found – the AI is checking the language …",
+ "{0} melden": "Report {0}",
  "{0} Min · {1} Kapitel": "{0} min · {1} chapters",
  "{0} Mon.": "{0} mos.",
  "{0} neue Karten – Russisch zum Durchwischen": "{0} new cards – Swipe through Russian",

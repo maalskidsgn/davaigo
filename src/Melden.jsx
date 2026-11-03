@@ -59,7 +59,7 @@ export default function Melden({ benutzername, onSchliessen, onFertig }) {
   return (
     <div className="md-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
       <div className="md-karte" onClick={(e) => e.stopPropagation()}>
-        <h2 className="md-titel">{benutzername} melden</h2>
+        <h2 className="md-titel">{tr('{0} melden', benutzername)}</h2>
         <p className="md-text">
           {tr('Was stimmt hier nicht? Wir sehen uns jede Meldung an.')}
         </p>
