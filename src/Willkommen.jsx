@@ -275,7 +275,11 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
         </div>
         <div className="lp-hero-text">
           <h1>
-            {tr('Die unterhaltsamste Art,')} <span className="lp-akzent">{tr('Russisch')}</span> {tr('zu lernen!')}
+            {sprache() === 'en' ? (
+              <>The most entertaining way to learn <span className="lp-akzent">Russian</span>!</>
+            ) : (
+              <>Die unterhaltsamste Art, <span className="lp-akzent">Russisch</span> zu lernen!</>
+            )}
           </h1>
           <div className="lp-hero-knoepfe">
             <button className="lp-knopf-gold" onClick={onStarten}>
