@@ -46,6 +46,24 @@ const SEITEN = {
   },
 }
 
+const SEITEN_EN = {
+  impressum: {
+    pfad: 'legal-notice',
+    titel: 'Legal notice – Davaigo',
+    beschreibung: 'Provider identification for davaigo.de.',
+  },
+  datenschutz: {
+    pfad: 'privacy',
+    titel: 'Privacy policy – Davaigo',
+    beschreibung: 'What data Davaigo processes, who receives it and what rights you have.',
+  },
+  agb: {
+    pfad: 'terms',
+    titel: 'Terms and right of withdrawal – Davaigo',
+    beschreibung: 'Terms and conditions and right of withdrawal for Davaigo.',
+  },
+}
+
 const e = (s) =>
   String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
@@ -100,10 +118,11 @@ async function stilAusApp() {
   return regeln.join('\n')
 }
 
-function huelle({ titel, beschreibung, pfad, inhalt, stil }) {
+function huelle({ titel, beschreibung, pfad, gegenstueck, inhalt, stil, en = false }) {
   const adresse = 'https://davaigo.de' + pfad
+  const andere = 'https://davaigo.de' + gegenstueck
   return `<!doctype html>
-<html lang="de">
+<html lang="${en ? 'en' : 'de'}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -157,20 +176,29 @@ body{
 /* Ab hier aus src/App.css übernommen – nicht hier ändern. */
 ${stil}
 </style>
+<link rel="alternate" hreflang="${en ? 'de' : 'en'}" href="${andere}">
 </head>
 <body>
 <header class="kopf">
   <a class="marke" href="/"><span class="marke-zeichen">Д</span><span>Davaigo</span></a>
-  <a class="kopf-knopf" href="/">Zur App</a>
+  <a class="kopf-knopf" href="/">${en ? 'Open the app' : 'Zur App'}</a>
 </header>
 ${inhalt}
 <footer class="fuss">
   <p>
-    <a href="/impressum/">Impressum</a>
+    ${
+      en
+        ? `<a href="/en/legal-notice/">Legal notice</a>
+    <a href="/en/privacy/">Privacy policy</a>
+    <a href="/en/terms/">Terms &amp; withdrawal</a>
+    <a href="${gegenstueck}" hreflang="de">Deutsch</a>`
+        : `<a href="/impressum/">Impressum</a>
     <a href="/datenschutz/">Datenschutz</a>
     <a href="/agb/">AGB &amp; Widerruf</a>
+    <a href="${gegenstueck}" hreflang="en">English</a>`
+    }
   </p>
-  <p><a href="/">Davaigo – Russisch lernen</a> · <a href="/ratgeber/">Ratgeber</a></p>
+  <p><a href="/">${en ? 'Davaigo – Learn Russian' : 'Davaigo – Russisch lernen'}</a>${en ? '' : ' · <a href="/ratgeber/">Ratgeber</a>'}</p>
 </footer>
 </body>
 </html>
@@ -190,32 +218,49 @@ await build({
   },
 })
 
-// ---- 2. Rendern ----
-const { seiten } = await import(new URL('recht.mjs', TEMP).href)
-const fertig = seiten()
+// ---- 2. Rendern, einmal je Sprache ----
+// Die Sprache steht fest, sobald das Modul geladen ist. Der Zusatz an der
+// Adresse lädt es für Englisch ein zweites Mal frisch.
 const stil = await stilAusApp()
 
-for (const [name, kopfdaten] of Object.entries(SEITEN)) {
-  let inhalt = fertig[name]
+const { seiten } = await import(new URL('recht.mjs', TEMP).href)
+const deutsch = seiten()
+globalThis.__SPRACHE_BEIM_BAUEN = 'en'
+const { seiten: seitenEn } = await import(new URL('recht.mjs?en', TEMP).href)
+const englisch = seitenEn()
 
+function aufraeumen(html, verweis) {
   // Der Zurück-Knopf stammt aus der App und führt hier nirgendwohin.
-  inhalt = inhalt.replace(/<button class="recht-zurueck">.*?<\/button>/s, '')
-
   // Was in der App ein Zustandswechsel ist, muss hier ein Link sein.
-  inhalt = inhalt
-    .replace(/href="\/\?recht=impressum"/g, 'href="/impressum/"')
-    .replace(/href="\/\?recht=datenschutz"/g, 'href="/datenschutz/"')
-    .replace(/href="\/\?recht=agb"/g, 'href="/agb/"')
+  return html
+    .replace(/<button class="recht-zurueck">.*?<\/button>/s, '')
+    .replace(/<button class="btn-zurueck">.*?<\/button>/s, '')
+    .replace(/href="\/\?recht=(impressum|datenschutz|agb)"/g, (_, n) => `href="${verweis(n)}"`)
+}
 
-  const ordner = new URL(`public/${name}/`, WURZEL)
+async function schreibe(pfad, html) {
+  const ordner = new URL(`public${pfad}`, WURZEL)
   await mkdir(ordner, { recursive: true })
-  await writeFile(
-    new URL('index.html', ordner),
-    huelle({ ...kopfdaten, pfad: `/${name}/`, inhalt, stil })
+  await writeFile(new URL('index.html', ordner), html)
+}
+
+for (const [name, kopfdaten] of Object.entries(SEITEN)) {
+  const en = SEITEN_EN[name]
+  const pfadDe = `/${name}/`
+  const pfadEn = `/en/${en.pfad}/`
+
+  const inhalt = aufraeumen(deutsch[name], (n) => `/${n}/`)
+  await schreibe(pfadDe, huelle({ ...kopfdaten, pfad: pfadDe, gegenstueck: pfadEn, inhalt, stil }))
+
+  const inhaltEn = aufraeumen(englisch[name], (n) => `/en/${SEITEN_EN[n].pfad}/`)
+  await schreibe(
+    pfadEn,
+    huelle({ titel: en.titel, beschreibung: en.beschreibung, pfad: pfadEn, gegenstueck: pfadDe, inhalt: inhaltEn, stil, en: true })
   )
 
   const woerter = inhalt.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length
-  console.log(`  /${name.padEnd(13)} ${woerter} Wörter, ohne JavaScript lesbar`)
+  const woerterEn = inhaltEn.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length
+  console.log(`  /${name.padEnd(13)} ${woerter} Wörter | ${pfadEn.padEnd(20)} ${woerterEn} words`)
 }
 
 await rm(TEMP, { recursive: true, force: true })

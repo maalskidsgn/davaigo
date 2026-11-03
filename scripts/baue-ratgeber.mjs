@@ -238,6 +238,9 @@ const adressen = [
   { loc: SEITE.basis + '/impressum/', prio: '0.3' },
   { loc: SEITE.basis + '/datenschutz/', prio: '0.3' },
   { loc: SEITE.basis + '/agb/', prio: '0.3' },
+  { loc: SEITE.basis + '/en/legal-notice/', prio: '0.3' },
+  { loc: SEITE.basis + '/en/privacy/', prio: '0.3' },
+  { loc: SEITE.basis + '/en/terms/', prio: '0.3' },
 ]
 await writeFile(
   new URL('../sitemap.xml', ZIEL),

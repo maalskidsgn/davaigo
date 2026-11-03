@@ -39,7 +39,9 @@ const IM_BROWSER = typeof window !== 'undefined'
  * eher als Deutsch, und eine dritte Sprache gibt es nicht.
  */
 function ermittle() {
-  if (!IM_BROWSER) return 'de' // Prüfskripte beim Bauen laufen auf Deutsch
+  // Ohne Browser: Prüfskripte laufen auf Deutsch, scripts/baue-recht.mjs
+  // legt für die englischen Pflichtseiten die Sprache vorher fest.
+  if (!IM_BROWSER) return globalThis.__SPRACHE_BEIM_BAUEN ?? 'de'
   try {
     const gewaehlt = localStorage.getItem(SCHLUESSEL)
     if (gewaehlt === 'de' || gewaehlt === 'en') return gewaehlt
