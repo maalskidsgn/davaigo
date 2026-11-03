@@ -22,7 +22,7 @@ export default {
  "– mittels einer eindeutigen Erklärung (z. B. per E-Mail) über deinen Entschluss informieren. Zur Wahrung der Frist reicht es, dass du die Mitteilung vor Ablauf der Frist absendest.": "– by means of a clear statement (e.g., by email) of your decision. To meet the deadline, it is sufficient for you to send the communication before the withdrawal period has expired.",
  ". Deinen gesamten Lernstand kannst du außerdem jederzeit selbst unter „Mehr → Backup erstellen“ als Datei herunterladen.": ". You can also download your entire learning progress at any time as a file under 'More → Create backup'.",
  ". Du kannst deine Auswahl jederzeit unter „Mehr\" ändern.": ". You can change your selection at any time under \"More\".",
- ". Einen Datenschutzbeauftragten haben wir nicht bestellt; dazu sind wir nicht verpflichtet.": "We have not appointed a data protection officer; we are not required to do so.",
+ ". Einen Datenschutzbeauftragten haben wir nicht bestellt; dazu sind wir nicht verpflichtet.": ". We have not appointed a data protection officer; we are not required to do so.",
  "… oder eigenes Thema, z. B. Arztbesuch": "… or your own topic, e.g., doctor's visit",
  "· nächstes Ziel {0}": "· next goal {0}",
  "„{0}“ ließ sich nicht übernehmen: {1}": "\"{0}\" couldn't be imported: {1}",
