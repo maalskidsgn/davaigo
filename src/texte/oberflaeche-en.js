@@ -1200,6 +1200,7 @@ export default {
  "Wähle aus, welche Vokabeln in deinen Trainer sollen:": "Select which vocabulary to add to your trainer:",
  "Wähle ein Thema, eine Grammatik – oder beides.": "Choose a topic, a grammar point – or both.",
  "Warten auf den Gegner": "Waiting for the opponent",
+ "wartet": "waiting",
  "Warum diese Wörter?": "Why these words?",
  "Warum es Level und Serien gibt": "Why there are levels and streaks",
  "Warum gerade jetzt: ": "Why right now: ",

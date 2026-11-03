@@ -195,7 +195,7 @@ function Zeile({ d, onSpielen, onWeg }) {
         {s === 'ich_dran' && (
           <button className="btn-small" onClick={onSpielen}>{tr('Spielen')}</button>
         )}
-        {s === 'er_dran' && <span className="du-marke">wartet</span>}
+        {s === 'er_dran' && <span className="du-marke">{tr('wartet')}</span>}
         {s === 'gewonnen' && <span className="du-marke du-gewonnen">{tr('gewonnen')}</span>}
         {s === 'verloren' && <span className="du-marke du-verloren">{tr('verloren')}</span>}
         {s === 'unentschieden' && <span className="du-marke">{tr('unentschieden')}</span>}
