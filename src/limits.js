@@ -11,6 +11,7 @@
 export const LISTEN_PRO_TAG = 10
 
 import { heute } from './datum.js'
+import { tr } from './sprache.js'
 
 /**
  * Der Zählerstand von heute. Ist der gespeicherte Tag ein anderer,
@@ -49,7 +50,7 @@ export function naechsteAuffuellung() {
   morgen.setDate(morgen.getDate() + 1)
   morgen.setHours(0, 0, 0, 0)
   const stunden = Math.ceil((morgen - Date.now()) / 3600000)
-  return stunden <= 1 ? 'in einer Stunde' : `in ${stunden} Stunden`
+  return stunden <= 1 ? tr('in einer Stunde') : tr('in {0} Stunden', stunden)
 }
 
 // Alte Namen, damit bestehender Code weiterläuft

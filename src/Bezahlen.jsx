@@ -175,7 +175,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
     p ? p.betrag.toLocaleString(gebiet(), { style: 'currency', currency: p.waehrung }) : null
   const preis = preise?.[tarif] ?? null
   const preisText = geld(preis)
-  const zeitraum = { monat: 'pro Monat', jahr: 'pro Jahr', lifetime: tr('einmalig') }[tarif]
+  const zeitraum = { monat: tr('pro Monat'), jahr: tr('pro Jahr'), lifetime: tr('einmalig') }[tarif]
   const abrechnung = {
     monat: tr('monatlich, jederzeit kündbar'),
     jahr: tr('jährlich, jederzeit kündbar'),
@@ -187,11 +187,11 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       ? Math.round((1 - preise.jahr.betrag / (preise.monat.betrag * 12)) * 100)
       : null
   const TARIF_KARTEN = [
-    { id: 'monat', name: tr('Monatlich'), unter: 'pro Monat' },
+    { id: 'monat', name: tr('Monatlich'), unter: tr('pro Monat') },
     {
       id: 'jahr',
       name: tr('Jährlich'),
-      unter: preise?.jahr ? `≈ ${geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })} / Monat` : 'pro Jahr',
+      unter: preise?.jahr ? tr('≈ {0} / Monat', geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })) : tr('pro Jahr'),
       marke: ersparnis > 0 ? `−${ersparnis} %` : tr('Beliebt'),
     },
     { id: 'lifetime', name: tr('Lifetime'), unter: tr('einmalig, für immer') },

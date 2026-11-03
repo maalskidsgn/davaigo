@@ -189,7 +189,7 @@ export function RanglistenKarte({ nutzerId, eigeneXp = 0 }) {
                 <b>{tr('Die Wertung läuft ab jetzt.')}</b>
               </p>
               <p className="rang-leer-klein">
-                {tr('Wer wann gelernt hat, wird erst seit heute festgehalten – vorher gab es nur den Gesamtstand. Die erste XP {0} bringt dich auf Platz 1.', zeitraum === 'monat' ? 'dieses Monats' : 'dieses Jahres')}
+                {tr('Wer wann gelernt hat, wird erst seit heute festgehalten – vorher gab es nur den Gesamtstand. Die erste XP {0} bringt dich auf Platz 1.', zeitraum === 'monat' ? tr('dieses Monats') : tr('dieses Jahres'))}
               </p>
             </>
           )}

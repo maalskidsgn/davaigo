@@ -268,7 +268,7 @@ export default function Settings({
                   <div className="konto-mail">{nutzer.email}</div>
                 </div>
                 <span className="konto-sync">
-                  {syncStatus === 'laeuft' ? '⏳ Gleicht ab…' : '✓ Gesichert'}
+                  {syncStatus === 'laeuft' ? tr('⏳ Gleicht ab…') : tr('✓ Gesichert')}
                 </span>
               </div>
               <p className="settings-hint">
@@ -462,7 +462,7 @@ export default function Settings({
             <div className="xp-bar-fill" style={{ width: zielProzent + '%' }} />
           </div>
           <span className="goal-text">
-            {tr('{0}/{1} XP heute {2}', heutigeXp, settings.tagesziel, zielProzent >= 100 && '– geschafft! 🎉')}
+            {tr('{0}/{1} XP heute {2}', heutigeXp, settings.tagesziel, zielProzent >= 100 && tr('– geschafft! 🎉'))}
           </span>
         </div>
       </div>

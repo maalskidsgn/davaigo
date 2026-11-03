@@ -556,7 +556,7 @@ export default function Trainer({
                   }}
                   disabled={tippStufe >= 2}
                 >
-                  {tippStufe === 0 ? '💡 Tipp' : tippStufe === 1 ? tr('💡 Ganzes Wort') : '💡 Aufgedeckt'}
+                  {tippStufe === 0 ? tr('💡 Tipp') : tippStufe === 1 ? tr('💡 Ganzes Wort') : tr('💡 Aufgedeckt')}
                 </button>
                 <button type="submit" disabled={!eingabe.trim()}>
                   {tr('Prüfen')}

@@ -840,7 +840,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
         {xpAnzeige}
         <SpielFertig
           text={
-            tr('{0} Punkte · {1} richtig, {2} falsch{3}', punkte, richtig, falsch, neuerRekord ? ' · Neuer Rekord!' : rekordVorher ? ` · Rekord ${rekordVorher}` : '')
+            tr('{0} Punkte · {1} richtig, {2} falsch{3}', punkte, richtig, falsch, neuerRekord ? tr(' · Neuer Rekord!') : rekordVorher ? tr(' · Rekord {0}', rekordVorher) : '')
           }
           woerter={woerter}
           onGespielt={onGespielt}
@@ -864,7 +864,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
           <span><b>{rest}</b> s</span>
           <span><b>{punkte}</b> {tr('Punkte')}</span>
           <span className={serie >= 3 ? 'blitz-serie heiss' : 'blitz-serie'}>
-            {serie >= 3 ? `${serie}er-Serie · ×2` : tr('Serie {0}', serie)}
+            {serie >= 3 ? tr('{0}er-Serie · ×2', serie) : tr('Serie {0}', serie)}
           </span>
         </div>
       </div>

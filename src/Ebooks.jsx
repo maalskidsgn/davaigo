@@ -386,7 +386,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
             ))}
           </div>
           <button className="btn" onClick={vokabelnUebernehmen} disabled={uebernommen}>
-            {uebernommen ? '✓ Im Trainer' : tr('＋ Alle in den Vokabeltrainer')}
+            {uebernommen ? tr('✓ Im Trainer') : tr('＋ Alle in den Vokabeltrainer')}
           </button>
         </div>
       )}
@@ -447,7 +447,7 @@ function BuchLeser({ buch, onZurueck, onAddVocab, vocab = {} }) {
           <span className="leser-stand">
             {fertig
               ? '✓'
-              : `${kapitelNr + 1}/${kapitel.length} · Noch ${restMin} Min`}
+              : tr('{0}/{1} · Noch {2} Min', kapitelNr + 1, kapitel.length, restMin)}
           </span>
         </div>
 

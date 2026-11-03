@@ -138,12 +138,12 @@ function nameVon(art) {
 
 function zeitraumVon(art) {
   return {
-    MONTHLY: 'pro Monat',
-    ANNUAL: 'pro Jahr',
+    MONTHLY: tr('pro Monat'),
+    ANNUAL: tr('pro Jahr'),
     LIFETIME: tr('einmalig, für immer'),
-    SIX_MONTH: 'pro Halbjahr',
-    THREE_MONTH: 'pro Quartal',
-    WEEKLY: 'pro Woche',
+    SIX_MONTH: tr('pro Halbjahr'),
+    THREE_MONTH: tr('pro Quartal'),
+    WEEKLY: tr('pro Woche'),
   }[art] || ''
 }
 

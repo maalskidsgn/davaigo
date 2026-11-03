@@ -934,7 +934,7 @@ function DialogChat({ dialog, onWeiter }) {
       {alleDa && (
         <div className="flash-actions dialog-actions">
           <button className="btn-plain" onClick={gespraech}>
-            {laeuft ? '⏹ Stopp' : tr('▶ Gespräch anhören')}
+            {laeuft ? tr('⏹ Stopp') : tr('▶ Gespräch anhören')}
           </button>
           <button className="btn-plain" onClick={() => setAlleDe(!alleDe)}>
             {alleDe ? tr('Übersetzung ausblenden') : tr('Übersetzung zeigen')}

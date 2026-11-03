@@ -50,7 +50,7 @@ export function tagesplan({ faellig = 0, lektion = null, woerter = 0, videoOffen
     schritte.push({
       art: 'lektion',
       titel: tr('Lektion „{0}“', lektion.titel),
-      hinweis: 'weitermachen',
+      hinweis: tr('weitermachen'),
       ziel: 'lektionen',
       sekunden: SEK_PRO_LEKTION,
     })

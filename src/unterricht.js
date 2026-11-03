@@ -64,11 +64,11 @@ export function stand(jetzt = new Date()) {
 /** "in 2 Tagen", "in 3 Std.", "in 12 Min." – kurz und ohne Sekunden. */
 export function restzeit(millisekunden) {
   const minuten = Math.max(0, Math.round(millisekunden / MINUTE))
-  if (minuten < 60) return `in ${minuten} Min.`
+  if (minuten < 60) return tr('in {0} Min.', minuten)
   const stunden = Math.round(minuten / 60)
-  if (stunden < 24) return `in ${stunden} Std.`
+  if (stunden < 24) return tr('in {0} Std.', stunden)
   const tage = Math.round(stunden / 24)
-  return tage === 1 ? 'morgen' : `in ${tage} Tagen`
+  return tage === 1 ? tr('morgen') : tr('in {0} Tagen', tage)
 }
 
 /** "Donnerstag, 19:00 Uhr" */

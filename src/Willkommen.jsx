@@ -96,7 +96,7 @@ function BildVideo() {
       <g className="lp-schwebt lp-tempo-2">
         <rect x="10" y="120" width="96" height="54" rx="14" fill="#fff" stroke="#ece3f8" strokeWidth="2" />
         <text x="58" y="144" textAnchor="middle" fontSize="16" fontWeight="900" fill="#241338">привет</text>
-        <text x="58" y="163" textAnchor="middle" fontSize="12" fontWeight="700" fill="#756a85">hallo</text>
+        <text x="58" y="163" textAnchor="middle" fontSize="12" fontWeight="700" fill="#756a85">{tr('hallo')}</text>
       </g>
     </svg>
   )
@@ -110,7 +110,7 @@ function BildKarten() {
       <rect x="58" y="56" width="184" height="124" rx="18" fill="#f3ecff" transform="rotate(3 150 118)" />
       <rect x="52" y="48" width="190" height="130" rx="18" fill="#fff" stroke="#ece3f8" strokeWidth="2" />
       <text x="147" y="102" textAnchor="middle" fontSize="26" fontWeight="900" fill="#241338">спасибо</text>
-      <text x="147" y="130" textAnchor="middle" fontSize="16" fontWeight="700" fill="#756a85">danke</text>
+      <text x="147" y="130" textAnchor="middle" fontSize="16" fontWeight="700" fill="#756a85">{tr('danke')}</text>
       {/* Stufen-Punkte des Karteikastens */}
       <g>
         <circle cx="117" cy="156" r="7" fill="#7c3aed" />

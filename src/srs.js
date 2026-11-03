@@ -8,7 +8,7 @@ import { tr, gebiet } from './sprache.js'
 export const INTERVALS_DAYS = [0, 1, 3, 7, 14, 30, 90]
 
 // Lesbare Namen für die Stufen (gleiche Reihenfolge wie oben)
-export const LEVEL_LABELS = [tr('Neu'), tr('1 Tag'), tr('3 Tage'), '1 Woche', '2 Wochen', '1 Monat', '3 Monate']
+export const LEVEL_LABELS = [tr('Neu'), tr('1 Tag'), tr('3 Tage'), tr('1 Woche'), tr('2 Wochen'), tr('1 Monat'), tr('3 Monate')]
 
 export const MAX_LEVEL = INTERVALS_DAYS.length - 1
 
@@ -135,7 +135,7 @@ export function review(entry, bewertung) {
 
 /** Wie lange dauert es bei dieser Bewertung bis zur Wiederholung? Für die Knöpfe. */
 export function vorschau(entry, bewertung) {
-  if (bewertung === 'nochmal') return '15 Min'
+  if (bewertung === 'nochmal') return tr('15 Min')
 
   const { intervall, leichtigkeit } = zustand(entry)
   let tage
@@ -151,11 +151,11 @@ export function vorschau(entry, bewertung) {
   if (tage < 7) {
     const gerundet = Math.round(tage * 10) / 10
     if (gerundet === 1) return tr('1 Tag')
-    return tr('{0} Tage', String(gerundet).replace('.', ','))
+    return tr('{0} Tage', gerundet.toLocaleString(gebiet()))
   }
   if (tage < 30) return tr('{0} Tage', Math.round(tage))
   if (tage < 365) return tr('{0} Mon.', Math.round(tage / 30))
-  return '1 Jahr'
+  return tr('1 Jahr')
 }
 
 // Ist die Vokabel gerade zum Üben fällig?
@@ -168,9 +168,9 @@ export function formatDue(entry) {
   if (entry.status === 'gewusst') return '—'
   const diff = (entry.due ?? 0) - Date.now()
   if (diff <= 0) return tr('jetzt fällig')
-  if (diff < DAY_MS) return 'heute'
+  if (diff < DAY_MS) return tr('heute')
   const days = Math.round(diff / DAY_MS)
-  if (days === 1) return 'morgen'
-  if (days < 31) return `in ${days} Tagen`
+  if (days === 1) return tr('morgen')
+  if (days < 31) return tr('in {0} Tagen', days)
   return new Date(entry.due).toLocaleDateString(gebiet())
 }

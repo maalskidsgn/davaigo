@@ -1609,7 +1609,7 @@ export default function App() {
                 </div>
                 {currentSaved ? (
                   <p className="row-hint">
-                    {tr('Dieses Video ist gespeichert{0}.', currentSaved.category ? ` – Kategorie „${currentSaved.category}“` : '')}
+                    {tr('Dieses Video ist gespeichert{0}.', currentSaved.category ? tr(' – Kategorie „{0}“', currentSaved.category) : '')}
                   </p>
                 ) : (
                   <div className="save-form">

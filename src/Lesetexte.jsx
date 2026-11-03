@@ -39,7 +39,7 @@ function wortSchluessel(wort) {
 const STUFEN = [
   ['a2', 'A2', tr('kurze Sätze')],
   ['b1', 'B1', tr('Alltagssprache')],
-  ['b2', 'B2', 'anspruchsvoll'],
+  ['b2', 'B2', tr('anspruchsvoll')],
 ]
 
 /**
@@ -135,7 +135,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
                   <span className="text-untertitel">{t.titelDe}</span>
                   <span className="text-meta">
                     {LEVEL_LABELS[t.level] ?? tr('Neu')} · {formatDue(t)}
-                    {t.gelesen ? ` · ${t.gelesen}× gelesen` : ''}
+                    {t.gelesen ? tr(' · {0}× gelesen', t.gelesen) : ''}
                   </span>
                 </button>
                 <button className="satz-weg" onClick={() => entfernen(t.id)} title={tr('Text entfernen')}>

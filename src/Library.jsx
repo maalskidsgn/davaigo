@@ -97,12 +97,12 @@ function ladeEmpfehlungsCache() {
 // russische Begriffe; Lernmaterial FÜR Anfänger ist dagegen meist
 // englisch betitelt ("learn russian", "comprehensible input").
 const VORSCHLAEGE = [
-  { label: '🎵 Musik', query: 'русские песни с текстом' },
+  { label: tr('🎵 Musik'), query: 'русские песни с текстом' },
   { label: tr('🐣 Für Anfänger'), query: 'russian comprehensible input for beginners' },
-  { label: '🎙️ Podcasts', query: 'подкаст на русском для изучающих' },
-  { label: '📰 Langsame Nachrichten', query: 'новости на русском медленно для изучающих' },
-  { label: '🍳 Kochen', query: 'простой рецепт на русском' },
-  { label: '✈️ Reisen', query: 'путешествие по России влог' },
+  { label: tr('🎙️ Podcasts'), query: 'подкаст на русском для изучающих' },
+  { label: tr('📰 Langsame Nachrichten'), query: 'новости на русском медленно для изучающих' },
+  { label: tr('🍳 Kochen'), query: 'простой рецепт на русском' },
+  { label: tr('✈️ Reisen'), query: 'путешествие по России влог' },
 ]
 
 function formatDuration(sec) {
@@ -486,7 +486,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
                     <span className="quer-dauer">{formatDuration(v.duration)}</span>
                   ) : null}
                   {fortschritt[v.videoId] > 0 && (
-                    <div className="video-fortschritt" title={`${fortschritt[v.videoId]} % geschaut`}>
+                    <div className="video-fortschritt" title={tr('{0} % geschaut', fortschritt[v.videoId])}>
                       <div
                         className={'video-fortschritt-balken' + (fortschritt[v.videoId] >= 95 ? ' fertig' : '')}
                         style={{ width: fortschritt[v.videoId] + '%' }}
@@ -732,7 +732,7 @@ function VideoZeile({ video, onOpen, fortschritt = 0 }) {
       <span className="zeile-bild">
         <img src={video.thumbnail} alt="" loading="lazy" />
         {fortschritt > 0 && (
-          <span className="video-fortschritt" title={`${fortschritt} % geschaut`}>
+          <span className="video-fortschritt" title={tr('{0} % geschaut', fortschritt)}>
             <span
               className={'video-fortschritt-balken' + (fortschritt >= 95 ? ' fertig' : '')}
               style={{ width: fortschritt + '%' }}
@@ -767,7 +767,7 @@ function VideoKarte({ video, onOpen, fortschritt = 0 }) {
       <div className="video-bild" onClick={() => onOpen(video.videoId)}>
         <img src={video.thumbnail} alt="" />
         {fortschritt > 0 && (
-          <div className="video-fortschritt" title={`${fortschritt} % geschaut`}>
+          <div className="video-fortschritt" title={tr('{0} % geschaut', fortschritt)}>
             <div
               className={'video-fortschritt-balken' + (fortschritt >= 95 ? ' fertig' : '')}
               style={{ width: fortschritt + '%' }}

@@ -34,7 +34,7 @@
 import { useEffect } from 'react'
 import { tr, sprache } from './sprache.js'
 
-const STAND = '23. August 2026'
+const STAND = tr('23. August 2026')
 
 /* ---------- Bausteine, damit alle drei Seiten gleich aussehen ---------- */
 
@@ -187,7 +187,7 @@ export function Datenschutz({ onZurueck }) {
         drittland={tr('Verarbeitung kann in den USA erfolgen; abgesichert über Standardvertragsklauseln.')}
       />
       <Empfaenger
-        name="Anthropic (nur Premium)"
+        name={tr('Anthropic (nur Premium)')}
         zweck={tr('Erzeugen zweisprachiger E-Books zu deinem Wunschthema')}
         daten={tr('Das von dir angegebene Thema und dein Niveau. Keine E-Mail-Adresse, keine Kontokennung.')}
         sitz={tr('Anthropic PBC, San Francisco, USA')}
@@ -226,7 +226,7 @@ export function Datenschutz({ onZurueck }) {
         grundlage={tr('Art. 6 Abs. 1 lit. b DSGVO')}
       />
       <Empfaenger
-        name="Spotify (nur wenn du es verbindest)"
+        name={tr('Spotify (nur wenn du es verbindest)')}
         zweck={tr('Songvorschläge auf Grundlage deines Musikgeschmacks')}
         daten={tr('Nach deiner Freigabe liest Davaigo deine gespeicherten Titel, deine privaten Playlists und deine meistgehörten Künstler (Berechtigungen: user-library-read, playlist-read-private, user-top-read). Die Verbindung kannst du jederzeit trennen.')}
         sitz={tr('Spotify AB, Stockholm, Schweden')}

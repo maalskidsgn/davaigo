@@ -6,8 +6,8 @@ import { tr } from './sprache.js'
 // Die Längen zur Auswahl
 const LAENGEN = [
   { wert: '', label: tr('Egal') },
-  { wert: 'kurz', label: '5–10 Min' },
-  { wert: 'mittel', label: '10–15 Min' },
+  { wert: 'kurz', label: tr('5–10 Min') },
+  { wert: 'mittel', label: tr('10–15 Min') },
   { wert: 'lang', label: tr('Über 15 Min') },
 ]
 
