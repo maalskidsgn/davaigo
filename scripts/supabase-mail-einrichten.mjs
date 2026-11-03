@@ -64,13 +64,13 @@ const GEWUENSCHT = {
   rate_limit_email_sent: 100,
 
   // Die vier Vorlagen im Davaigo-Design
-  mailer_subjects_confirmation: 'Willkommen bei Davaigo – bestätige deine Adresse',
+  mailer_subjects_confirmation: "{{ if .Data.englisch }}Welcome to Davaigo – confirm your email{{ else }}Willkommen bei Davaigo – bestätige deine Adresse{{ end }}",
   mailer_templates_confirmation_content: vorlage('1-registrierung-bestaetigen.html'),
-  mailer_subjects_magic_link: 'Dein Anmeldelink für Davaigo',
+  mailer_subjects_magic_link: "{{ if .Data.englisch }}Your sign-in link for Davaigo{{ else }}Dein Anmeldelink für Davaigo{{ end }}",
   mailer_templates_magic_link_content: vorlage('2-anmeldelink.html'),
-  mailer_subjects_recovery: 'Neues Passwort für Davaigo',
+  mailer_subjects_recovery: "{{ if .Data.englisch }}New password for Davaigo{{ else }}Neues Passwort für Davaigo{{ end }}",
   mailer_templates_recovery_content: vorlage('3-passwort-zuruecksetzen.html'),
-  mailer_subjects_email_change: 'Bestätige deine neue E-Mail-Adresse',
+  mailer_subjects_email_change: "{{ if .Data.englisch }}Confirm your new email address{{ else }}Bestätige deine neue E-Mail-Adresse{{ end }}",
   mailer_templates_email_change_content: vorlage('4-adresse-aendern.html'),
 }
 

@@ -21,8 +21,8 @@
         <!-- Inhalt -->
         <tr>
           <td style="padding:38px 40px 12px 40px;">
-            <h1 style="margin:0 0 14px 0;font-size:23px;line-height:1.3;font-weight:800;color:#2c2340;">Neue Adresse bestätigen</h1>
-            <p style="margin:0 0 26px 0;font-size:16px;line-height:1.65;color:#4a4160;">Du möchtest dein Davaigo-Konto künftig unter <strong style="color:#2c2340;">{{ .NewEmail }}</strong> führen. Bestätige den Wechsel mit einem Klick, dann ist er erledigt.</p>
+            <h1 style="margin:0 0 14px 0;font-size:23px;line-height:1.3;font-weight:800;color:#2c2340;">{{ if .Data.englisch }}Confirm your new address{{ else }}Neue Adresse bestätigen{{ end }}</h1>
+            <p style="margin:0 0 26px 0;font-size:16px;line-height:1.65;color:#4a4160;">{{ if .Data.englisch }}You'd like to use your Davaigo account with{{ else }}Du möchtest dein Davaigo-Konto künftig unter{{ end }} <strong style="color:#2c2340;">{{ .NewEmail }}</strong> {{ if .Data.englisch }}from now on. Confirm the change with one click and you're done.{{ else }}führen. Bestätige den Wechsel mit einem Klick, dann ist er erledigt.{{ end }}</p>
           </td>
         </tr>
 
@@ -32,7 +32,7 @@
             <table cellpadding="0" cellspacing="0" border="0">
               <tr>
                 <td align="center" style="background:#7c3aed;border-radius:14px;">
-                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:16px 40px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:14px;">Wechsel bestätigen</a>
+                  <a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:16px 40px;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;border-radius:14px;">{{ if .Data.englisch }}Confirm change{{ else }}Wechsel bestätigen{{ end }}</a>
                 </td>
               </tr>
             </table>
@@ -44,9 +44,9 @@
              abtippen würde ihn ohnehin niemand. -->
         <tr>
           <td style="padding:0 40px 34px 40px;">
-            <p style="margin:0 0 14px 0;font-size:14px;line-height:1.6;color:#6b6280;">Bis zur Bestätigung bleibt deine bisherige Adresse aktiv. Hast du den Wechsel nicht angestoßen, ignoriere diese Nachricht – dann ändert sich nichts.</p>
+            <p style="margin:0 0 14px 0;font-size:14px;line-height:1.6;color:#6b6280;">{{ if .Data.englisch }}Your current address stays active until you confirm. If you didn't request this change, ignore this message – nothing will change.{{ else }}Bis zur Bestätigung bleibt deine bisherige Adresse aktiv. Hast du den Wechsel nicht angestoßen, ignoriere diese Nachricht – dann ändert sich nichts.{{ end }}</p>
             <p style="margin:0;text-align:center;font-size:12px;line-height:1.6;color:#9a92ab;">
-              Der Knopf öffnet davaigo.de. Klappt das nicht, schreib uns kurz an
+              {{ if .Data.englisch }}The button opens davaigo.de. If that doesn't work, drop us a line at{{ else }}Der Knopf öffnet davaigo.de. Klappt das nicht, schreib uns kurz an{{ end }}
               <a href="mailto:lernen@davaigo.de" style="color:#9a92ab;">lernen@davaigo.de</a>.
             </p>
           </td>
@@ -55,8 +55,8 @@
         <!-- Fuß -->
         <tr>
           <td style="background:#faf7fe;border-top:1px solid #ede6f9;padding:22px 40px;">
-            <p style="margin:0 0 6px 0;font-size:13px;line-height:1.6;color:#8b849c;">Diese Nachricht ging an <span style="color:#6b6280;">{{ .Email }}</span>.</p>
-            <p style="margin:0;font-size:13px;line-height:1.6;color:#8b849c;">Давай! Auf geht's. &mdash; <a href="https://davaigo.de" style="color:#7c3aed;text-decoration:none;font-weight:600;">davaigo.de</a></p>
+            <p style="margin:0 0 6px 0;font-size:13px;line-height:1.6;color:#8b849c;">{{ if .Data.englisch }}This message was sent to{{ else }}Diese Nachricht ging an{{ end }} <span style="color:#6b6280;">{{ .Email }}</span>.</p>
+            <p style="margin:0;font-size:13px;line-height:1.6;color:#8b849c;">{{ if .Data.englisch }}Давай! Let's go.{{ else }}Давай! Auf geht's.{{ end }} &mdash; <a href="https://davaigo.de" style="color:#7c3aed;text-decoration:none;font-weight:600;">davaigo.de</a></p>
           </td>
         </tr>
 

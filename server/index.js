@@ -973,11 +973,13 @@ app.post('/api/freunde/melden', async (req, res) => {
     const u = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users/${anfrage.an}`, {
       headers: kopf,
     })
-    const ziel = (await u.json())?.email
+    const empfaenger = await u.json()
+    const ziel = empfaenger?.email
     if (!ziel) return res.json({ gesendet: false, grund: 'keine-adresse' })
+    const englisch = Boolean(empfaenger?.user_metadata?.englisch)
 
     const adresse = (req.body?.herkunft || 'https://davaigo.de').replace(/\/$/, '')
-    const ok = await schicke({ an: ziel, ...freundschaftsanfrage({ von, adresse }) })
+    const ok = await schicke({ an: ziel, ...freundschaftsanfrage({ von: englisch && von === 'Jemand' ? 'Someone' : von, adresse, englisch }) })
     res.json({ gesendet: ok })
   } catch (fehler) {
     console.error('Freundesmail:', fehler.message)

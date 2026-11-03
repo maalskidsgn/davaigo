@@ -8,7 +8,7 @@
 
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
-import { tr } from './sprache.js'
+import { tr, sprache } from './sprache.js'
 
 // ---------------------------------------------------------------
 //  Fehlermeldungen auf Deutsch
@@ -64,13 +64,32 @@ function uebersetzeFehler(fehler) {
 // zurück.
 const MAIL_RUECKKEHR = 'https://davaigo.de'
 
+/**
+ * Merkt im Konto, ob Mails auf Englisch kommen sollen.
+ *
+ * Die Mail-Vorlagen von Supabase und der Server lesen das Feld. Nur
+ * "englisch: true/false" statt der Sprache als Text: Alte Konten haben das
+ * Feld nicht, und bei einem Vergleich mit einem fehlenden Wert bricht die
+ * Vorlage ab. So ist "fehlt" einfach Deutsch, und die Mail geht trotzdem raus.
+ */
+let mailSpracheGemerkt = false
+function merkeMailSprache(nutzer) {
+  if (!nutzer || mailSpracheGemerkt) return
+  const englisch = sprache() === 'en'
+  if (Boolean(nutzer.user_metadata?.englisch) === englisch) return
+  mailSpracheGemerkt = true
+  // Setzen löst ein weiteres Anmelde-Ereignis aus, darum nur einmal.
+  // Klappt es nicht, ist das nicht schlimm: Dann kommt die Mail auf Deutsch.
+  setTimeout(() => db.auth.updateUser({ data: { englisch } }).catch(() => {}), 0)
+}
+
 /** Legt ein neues Konto an. */
 export async function registrieren(email, passwort, name) {
   const { data, error } = await db.auth.signUp({
     email: email.trim(),
     password: passwort,
     options: {
-      data: { name: name?.trim() || undefined },
+      data: { name: name?.trim() || undefined, englisch: sprache() === 'en' },
       // Fehlte bisher ganz – dadurch landete der Bestätigungslink auf
       // Supabases Site URL, und die stand auf localhost:3000.
       emailRedirectTo: MAIL_RUECKKEHR,
@@ -170,6 +189,7 @@ export function useNutzer() {
     const { data: beobachter } = db.auth.onAuthStateChange((ereignis, sitzung) => {
       setNutzer(sitzung?.user ?? null)
       setLaedt(false)
+      merkeMailSprache(sitzung?.user)
 
       // Der Klick in der "Passwort vergessen"-Mail meldet den Nutzer
       // an – aber das alte Passwort gilt weiter, und er hat das neue

@@ -64,9 +64,9 @@ export async function schicke({ an, betreff, text, html }) {
  * Gmail werfen `<style>`-Blöcke und moderne CSS-Eigenschaften raus,
  * und eine Mail, die nur in einem Postfach gut aussieht, ist keine.
  */
-function rahmen({ inhalt, fusszeile }) {
+function rahmen({ inhalt, fusszeile, lang = 'de' }) {
   return `<!doctype html>
-<html lang="de"><head><meta charset="utf-8">
+<html lang="${lang}"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light only"></head>
 <body style="margin:0;padding:0;background:#f5f0fc;
@@ -121,9 +121,51 @@ function knopf(text, adresse) {
  * Link mit Token, und ein Klick aus dem Postfach heraus soll keine
  * Freundschaft schließen können.
  */
-export function freundschaftsanfrage({ von, adresse }) {
+export function freundschaftsanfrage({ von, adresse, englisch = false }) {
   const name = String(von).slice(0, 40)
   const initiale = name.charAt(0).toUpperCase()
+
+  if (englisch) {
+    return {
+      betreff: `${name} wants to learn Russian with you`,
+      text:
+        `${name} sent you a friend request on Davaigo.\n\n` +
+        `Open the app and go to More → Friends.\n\n${adresse}\n`,
+      html: rahmen({
+        lang: 'en',
+        fusszeile: 'You received this message because someone on Davaigo wants to learn with you.',
+        inhalt: `
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"
+          style="margin:0 auto 22px">
+          <tr><td align="center" width="76" height="76" valign="middle"
+            style="width:76px;height:76px;background:#7c3aed;border-radius:38px;
+              color:#ffffff;font-size:32px;font-weight:800;line-height:76px;
+              text-align:center">${initiale}</td></tr>
+        </table>
+
+        <p style="margin:0 0 10px;font-size:21px;line-height:1.35;font-weight:800;
+          color:#241338;text-align:center;letter-spacing:-.3px">
+          ${name} wants to learn<br>Russian with you
+        </p>
+
+        <p style="margin:0 0 26px;font-size:15px;line-height:1.65;color:#756a85;
+          text-align:center">
+          Accept the request and you'll see each other on the leaderboard –
+          and find out who works harder.
+        </p>
+
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"
+          style="margin:0 auto">
+          <tr><td align="center">${knopf('View request', adresse)}</td></tr>
+        </table>
+
+        <p style="margin:26px 0 0;padding-top:20px;border-top:1px solid #f0ecf9;
+          font-size:13px;line-height:1.6;color:#9a90a8;text-align:center">
+          Or open the app and go to <b style="color:#756a85">More → Friends</b>.
+        </p>`,
+      }),
+    }
+  }
 
   return {
     betreff: `${name} möchte mit dir Russisch lernen`,
