@@ -21,7 +21,7 @@
 // gefestigt werden soll, wären zwölf neue Vokabeln verkehrt.
 
 import { LEKTIONEN, MODULE, lektionenVon, mischen, baueLuecke, baueSatzbau, kernwort } from './lektionen.js'
-import { lokalisiere } from './sprache.js'
+import { lokalisiere, tr } from './sprache.js'
 
 /**
  * Die sieben Stationen.
@@ -344,7 +344,7 @@ export function stationAlsLektion(station) {
     // Module tragen kein Niveau – das der letzten Lektion passt:
     // Die Station prüft alles bis dorthin.
     niveau: lektionenVon(modulVon(station) ?? {}).slice(-1)[0]?.niveau ?? '',
-    beschreibung: 'Alles aus dem Modul – ohne neue Wörter',
+    beschreibung: tr('Alles aus dem Modul – ohne neue Wörter'),
     items: woerterVon(station),
     wissen: station.rueckblick,
     dialog: null,
@@ -352,9 +352,9 @@ export function stationAlsLektion(station) {
     // Ohne sie stuende dort eine leere Aufzaehlung – und eine
     // Station "lernt" ja auch nichts Neues, sie prueft.
     ziele: [
-      'Zeigen, was aus dem Modul wirklich sitzt',
-      'Rund 25 Aufgaben – keine neuen Wörter',
-      'Ab 80 % gilt das Modul als bestanden',
+      tr('Zeigen, was aus dem Modul wirklich sitzt'),
+      tr('Rund 25 Aufgaben – keine neuen Wörter'),
+      tr('Ab 80 % gilt das Modul als bestanden'),
     ],
     istStation: true,
   }

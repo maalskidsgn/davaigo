@@ -1353,5 +1353,9 @@ export default {
  "Ihr seid noch keine Freunde.": "You're not friends yet.",
  "Nicht angemeldet.": "Not signed in.",
  "Sich selbst kann man nicht blockieren.": "You can't block yourself.",
- "Sich selbst zu melden ergibt keinen Sinn.": "You can't report yourself."
+ "Sich selbst zu melden ergibt keinen Sinn.": "You can't report yourself.",
+ "Alles aus dem Modul – ohne neue Wörter": "Everything from the module – no new words",
+ "Zeigen, was aus dem Modul wirklich sitzt": "Show what has really stuck from this module",
+ "Rund 25 Aufgaben – keine neuen Wörter": "Around 25 tasks – no new words",
+ "Ab 80 % gilt das Modul als bestanden": "80 % or more and you pass the module"
 }
