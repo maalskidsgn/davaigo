@@ -430,6 +430,13 @@ export default function Trainer({
     const current = withSrsDefaults(vocab[wort] ?? {})
     const loesung = current.translation || '(keine Übersetzung gespeichert)'
     const dieseArt = artFuer(art, position)
+    // Karteikarten fragen in beide Richtungen: jede zweite Karte zeigt
+    // Deutsch vorne und will das russische Wort wissen (Manuels Wunsch
+    // vom 03.11.). Ohne gespeicherte Übersetzung bleibt es bei
+    // Russisch vorne, sonst stünde der Platzhalter auf der Karte.
+    const umgekehrt = dieseArt === 'karten' && position % 2 === 1 && !!current.translation
+    const vorderseite = umgekehrt ? loesung : wort
+    const rueckseite = umgekehrt ? wort : loesung
 
     return (
       <div className="trainer training-stage">
@@ -456,10 +463,10 @@ export default function Trainer({
             className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <div className="flash-word">{wort}</div>
+            <div className="flash-word">{vorderseite}</div>
             {revealed ? (
               <div className="flash-back">
-                <div className="flash-translation">{loesung}</div>
+                <div className="flash-translation">{rueckseite}</div>
                 <div className="bewertungen">
                   {[
                     { wert: 'nochmal', text: 'Nochmal' },
