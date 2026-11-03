@@ -25,14 +25,14 @@
 	# Die App-Seite NIE cachen – sonst sehen Nutzer nach einem Update die
 	# alte App. Nicht "/index.html" als Pfad: Die Startseite wird als "/"
 	# angefragt, und dort griff die alte Regel nie (wie in Habloo).
-	@seite not path /assets/* /audio/* /manifest.webmanifest /apple-touch-icon*.png /icon-*.png /favicon.svg /ratgeber/* /sitemap.xml /robots.txt
+	@seite not path /assets/* /audio/* /manifest.webmanifest /manifest-en.webmanifest /apple-touch-icon*.png /icon-*.png /favicon.svg /ratgeber/* /sitemap.xml /robots.txt
 	header @seite Cache-Control "no-cache"
 
 	# Das Web-App-Manifest braucht seinen eigenen Typ. Go kennt die
 	# Endung .webmanifest nicht, Caddy würde sonst raten – und Chrome
 	# meckert dann in der Konsole herum. Kurz cachen, damit ein neues
 	# Symbol nicht tagelang unentdeckt bleibt.
-	header /manifest.webmanifest {
+	header /manifest*.webmanifest {
 		Content-Type "application/manifest+json"
 		Cache-Control "public, max-age=3600"
 	}
