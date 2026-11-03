@@ -21,7 +21,7 @@ main,.titelblock{max-width:720px;margin:0 auto;padding:0 20px}
 .marke{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.3rem;color:var(--navy);text-decoration:none}
 .marke-zeichen{
   display:grid;place-items:center;width:38px;height:38px;border-radius:11px;
-  background:linear-gradient(135deg,#ffd23f,var(--gold));color:var(--navy);font-size:1.4rem;font-weight:900;
+  background:linear-gradient(145deg,#8b5cf6,#6d28d9);font-size:1.4rem;font-weight:900;
 }
 .kopf-knopf{
   background:var(--primary);color:#fff;text-decoration:none;font-weight:800;

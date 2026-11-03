@@ -159,7 +159,7 @@ body{
 .marke{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.3rem;color:var(--navy);text-decoration:none}
 .marke-zeichen{
   display:grid;place-items:center;width:38px;height:38px;border-radius:11px;
-  background:linear-gradient(135deg,#ffd23f,var(--gold));color:var(--navy);
+  background:linear-gradient(145deg,#8b5cf6,#6d28d9);
   font-size:1.4rem;font-weight:900;
 }
 .kopf-knopf{
@@ -180,7 +180,7 @@ ${stil}
 </head>
 <body>
 <header class="kopf">
-  <a class="marke" href="/"><span class="marke-zeichen">Д</span><span>Davaigo</span></a>
+  <a class="marke" href="/"><span class="marke-zeichen"><svg viewBox="0 0 44 44" width="80%" height="80%" aria-hidden="true"><path fill="#f9c74f" fill-rule="evenodd" d="M15 8h19.5v20H38v11h-6.5v-5h-19v5H6V28h3.5c3-4.5 5-11 5.5-20zm5.8 6c-.4 5.2-1.7 10-3.7 14h10.9V14z"/></svg></span><span>Davaigo</span></a>
   <a class="kopf-knopf" href="/">${en ? 'Open the app' : 'Zur App'}</a>
 </header>
 ${inhalt}

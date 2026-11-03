@@ -11,5 +11,5 @@
     </linearGradient>
   </defs>
   <rect width="48" height="48" rx="12" fill="url(#bg)"/>
-  <text x="24" y="35" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="900" text-anchor="middle" fill="url(#gold)">Д</text>
+  <path transform="translate(4.8 4.8) scale(.873)" fill="url(#gold)" fill-rule="evenodd" d="M15 8h19.5v20H38v11h-6.5v-5h-19v5H6V28h3.5c3-4.5 5-11 5.5-20zm5.8 6c-.4 5.2-1.7 10-3.7 14h10.9V14z"/>
 </svg>
