@@ -707,7 +707,7 @@ export default {
  "Jetzt Texte wiederholen": "Repeat texts now",
  "Kalender · {0} {1}": "Calendar · {0} {1}",
  "Kapitel {0}": "Chapter {0}",
- "Karte": "Card",
+ "Karte": "Map",
  "Karte {0} von {1}": "Card {0} of {1}",
  "Karten": "Cards",
  "Kategorie, z.B. Musik": "Category, e.g. Music",

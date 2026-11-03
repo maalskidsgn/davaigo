@@ -215,7 +215,8 @@ main {
   padding: 0 5px;
   animation: pulse 2.2s ease infinite;
 }
-.tab-active .due-badge { background: #fff; color: var(--primary-dark); }
+.tab-active .due-badge { background: #fff; color: var(--primary-dark); box-shadow: 0 0 0 1.5px var(--primary); }
+.tab:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 2px; }
 
 /* ---------- Punkte, Level & Streak (wie Duolingo) ---------- */
 
@@ -6137,8 +6138,8 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   margin-top: 16px;
   padding: 10px 0 4px;
   border-radius: 20px;
-  background: #faf7f2;
-  border: 1px solid var(--line);
+  background: #ece5f8;
+  border: none;
   overflow: hidden;
 }
 
@@ -6152,13 +6153,13 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 }
 .route-belag {
   fill: none;
-  stroke: #e7ded0;
+  stroke: #d8cdf0;
   stroke-width: 9;
   stroke-linecap: round;
 }
 .route-geschafft {
   fill: none;
-  stroke: var(--success);
+  stroke: #a78bfa;
   stroke-width: 9;
   stroke-linecap: round;
 }
@@ -6189,11 +6190,11 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #ece3d5;
-  border: 4px solid #faf7f2;
+  background: #cbbdea;
+  border: 4px solid #ece5f8;
   color: #fff;
 }
-.punkt-fertig { background: var(--success); }
+.punkt-fertig { background: var(--primary); }
 .punkt-dran {
   background: var(--primary);
   width: 34px;
@@ -6869,7 +6870,9 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
 .deck {
   display: flex;
   gap: 6px;
-  background: var(--flaeche);
+  /* --flaeche ist auf dem violetten Seitengrund praktisch unsichtbar:
+     Die Leiste verschwand, und nur der weisse Reiter schwebte frei. */
+  background: #e7dff6;
   border-radius: 14px;
   padding: 5px;
   margin: 0 0 18px;
@@ -6883,15 +6886,16 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   font-family: inherit;
   font-size: 14.5px;
   font-weight: 800;
-  color: var(--muted);
+  color: #5b4e70;
   box-shadow: none;
   cursor: pointer;
 }
+.deck button:hover:not(.deck-aktiv) { background: rgba(255, 255, 255, .45); filter: none; }
 .deck button:active { transform: none; }
 .deck .deck-aktiv {
   background: var(--card);
-  color: var(--navy);
-  box-shadow: 0 1px 4px rgba(0, 0, 65, .1);
+  color: var(--primary-dark);
+  box-shadow: 0 2px 8px rgba(76, 29, 149, .16);
 }
 .deck-zahl {
   display: inline-block;
@@ -12199,4 +12203,24 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
   font-weight: 600;
   line-height: 1.35;
   color: var(--muted);
+}
+
+/* Der große Anhören-Knopf: eindeutig gefüllt, Zeichen und Schrift weiß.
+   Vorher sorgte die Sammelregel ".hoeren-knopf *" für ein dunkles Symbol
+   auf Violett. */
+.hoeren-knopf,
+.hoeren-knopf:hover {
+  background: var(--primary);
+  border-color: var(--primary);
+  filter: none;
+  box-shadow: 0 4px 0 var(--primary-dark, #6d28d9);
+}
+.hoeren-knopf,
+.hoeren-knopf * { color: #fff; }
+.hoeren-knopf:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-dark, #6d28d9); }
+
+/* Auf breiten Bildschirmen steht das Wort neben dem Symbol: Die Zahl sitzt
+   deshalb links oben, sonst liegt sie über dem Wort. */
+@media (min-width: 801px) {
+  .due-badge { right: auto; left: -10px; top: -9px; }
 }
