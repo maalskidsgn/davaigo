@@ -1430,4 +1430,11 @@ export default {
  "KI wertet alles aus": "AI reviews everything",
  "Level steigern": "Level up",
  "Du sprichst mit einer KI. Katja korrigiert dich im Gespräch, wertet alles aus und merkt sich deine Fehler. So steigerst du langfristig dein Level.": "You talk to an AI. Katja corrects you as you go, reviews everything and remembers your mistakes, so you level up over time.",
+ "Diesen Monat noch {0} von {1} Minuten · bis zu {2} Minuten pro Gespräch": "{0} of {1} minutes left this month · up to {2} minutes per call",
+ "Mehr Minuten mit Premium": "More minutes with Premium",
+ "2 Stunden im Monat statt 10 Minuten. Dazu alles andere in Premium.": "2 hours a month instead of 10 minutes. Plus everything else in Premium.",
+ "Abo abschließen": "Subscribe",
+ "Deine Freiminuten für diesen Monat sind aufgebraucht.": "You have used your free minutes for this month.",
+ "Deine Minuten für diesen Monat sind aufgebraucht.": "You have used your minutes for this month.",
+ "+{0} XP in diesem Gespräch": "+{0} XP in this call",
 }

@@ -41,6 +41,12 @@ function lies(schluessel, ersatz) {
 function merke(schluessel, wert) {
   try { localStorage.setItem(schluessel, wert) } catch { /* gilt dann nur jetzt */ }
 }
+
+// Sprechen bringt XP: je Minute, in der wirklich gesprochen wurde.
+const XP_PRO_MINUTE = 90
+// So lange vor dem Ende der Freiminuten kommt der Hinweis aufs Abo.
+const HINWEIS_VOR_ENDE = 60
+
 const zeit = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`
 
 // Die Karte wandert mit jedem Wechsel zwischen Woertern, Saetzen und
@@ -81,7 +87,7 @@ export function SprechenTuer() {
   )
 }
 
-export default function Sprechen({ onZurueck }) {
+export default function Sprechen({ onZurueck, addXp }) {
   const [stand, setStand] = useState(null)
   const [phase, setPhase] = useState('start') // start | verbindet | laeuft | wertet | fertig
   const [fehler, setFehler] = useState('')
@@ -92,9 +98,14 @@ export default function Sprechen({ onZurueck }) {
   const [sekunden, setSekunden] = useState(0)
   const [ergebnis, setErgebnis] = useState(null)
 
-  const leitung = useRef(null) // { pc, stream, audio, id, max }
+  const [xpFlug, setXpFlug] = useState(null)
+  const [xpSumme, setXpSumme] = useState(0)
+  const [hinweisAbo, setHinweisAbo] = useState(false)
+
+  const leitung = useRef(null) // { pc, stream, audio, kanal, id, max, premium, gesprochen, hinweis }
   const zeilenRef = useRef([])
   const ende = useRef(null)
+  const werRef = useRef('hoert')
 
   async function ladeStand() {
     try {
@@ -115,13 +126,50 @@ export default function Sprechen({ onZurueck }) {
   useEffect(() => {
     if (phase !== 'laeuft') return
     const beginn = Date.now()
+    let letzteMinute = 0
     const uhr = setInterval(() => {
       const s = Math.floor((Date.now() - beginn) / 1000)
       setSekunden(s)
-      if (s >= (leitung.current?.max ?? 10) * 60) auflegen()
+      const l = leitung.current
+      if (!l) return
+      const minute = Math.floor(s / 60)
+      if (minute > letzteMinute) {
+        letzteMinute = minute
+        // Nur wer in dieser Minute gesprochen hat, bekommt XP.
+        if (l.gesprochen) {
+          addXp?.(XP_PRO_MINUTE)
+          setXpSumme((n) => n + XP_PRO_MINUTE)
+          setXpFlug(minute)
+        }
+        l.gesprochen = false
+      }
+      if (!l.premium && !l.hinweis && s >= l.max - HINWEIS_VOR_ENDE) {
+        l.hinweis = 'offen'
+        setHinweisAbo(true)
+        sagAboHinweis()
+      }
+      if (s >= l.max) auflegen()
     }, 500)
     return () => clearInterval(uhr)
   }, [phase])
+
+  // Katja sagt selbst, dass die Freiminuten enden. Spricht sie gerade,
+  // wartet der Hinweis bis zum Ende des Satzes.
+  function sagAboHinweis() {
+    const l = leitung.current
+    if (!l || l.hinweis !== 'offen' || werRef.current === 'habla' || l.kanal?.readyState !== 'open') return
+    l.hinweis = 'gesagt'
+    const muttersprache = sprache() === 'en' ? 'English' : 'German'
+    l.kanal.send(JSON.stringify({
+      type: 'response.create',
+      response: {
+        instructions:
+          'The free minutes of this learner end in about one minute. Say warmly, in one very short Russian sentence and then in ' + muttersprache +
+          ': the free minutes for this month are almost used up, and with a Premium subscription they get two hours a month instead of ten minutes, ' +
+          'so tap the button on the screen to keep going. Address the learner informally. Do not mention any price or website. Then carry on with the conversation.',
+      },
+    }))
+  }
 
   function setzeZeilen(aenderung) {
     zeilenRef.current = aenderung(zeilenRef.current)
@@ -155,15 +203,21 @@ export default function Sprechen({ onZurueck }) {
         break
       case 'input_audio_buffer.speech_started':
         setWer('ich')
+        werRef.current = 'ich'
+        if (leitung.current) leitung.current.gesprochen = true
         break
       case 'input_audio_buffer.speech_stopped':
         setWer('hoert')
+        werRef.current = 'hoert'
         break
       case 'output_audio_buffer.started':
         setWer('katja')
+        werRef.current = 'habla'
         break
       case 'output_audio_buffer.stopped':
         setWer('hoert')
+        werRef.current = 'hoert'
+        sagAboHinweis()
         break
       case 'error':
         console.error('[sprechen]', e.error)
@@ -186,6 +240,9 @@ export default function Sprechen({ onZurueck }) {
     setErgebnis(null)
     setSekunden(0)
     setWer('hoert')
+    werRef.current = 'hoert'
+    setXpSumme(0)
+    setHinweisAbo(false)
     zeilenRef.current = []
     setZeilen([])
     setPhase('verbindet')
@@ -214,6 +271,7 @@ export default function Sprechen({ onZurueck }) {
       }
 
       const kanal = pc.createDataChannel('oai-events')
+      leitung.current.kanal = kanal
       kanal.onmessage = (m) => {
         try { aufEreignis(JSON.parse(m.data)) } catch { /* ein kaputtes Ereignis stoert das Gespraech nicht */ }
       }
@@ -226,7 +284,8 @@ export default function Sprechen({ onZurueck }) {
 
       const sitzung = await api('/api/sprechen/start', { niveau, sprache: sprache() })
       leitung.current.id = sitzung.id
-      leitung.current.max = sitzung.maxMinuten
+      leitung.current.max = sitzung.maxSekunden
+      leitung.current.premium = sitzung.premium
 
       const angebot = await pc.createOffer()
       await pc.setLocalDescription(angebot)
@@ -267,6 +326,13 @@ export default function Sprechen({ onZurueck }) {
     ladeStand()
   }
 
+  async function zumAbo() {
+    await auflegen()
+    window.history.pushState({ kasse: true }, '', '/kasse')
+    window.dispatchEvent(new PopStateEvent('popstate', { state: { kasse: true } }))
+    window.scrollTo(0, 0)
+  }
+
   async function vergessen() {
     if (!confirm(tr('Soll Katja wirklich alles vergessen, was sie sich über dich gemerkt hat?'))) return
     try {
@@ -299,6 +365,7 @@ export default function Sprechen({ onZurueck }) {
             {phase === 'fertig' && ergebnis && (
               <section className="spr-karte spr-bericht">
                 <h2>{tr('Dein Gespräch')}</h2>
+                {xpSumme > 0 && <p className="spr-xp-bericht">{tr('+{0} XP in diesem Gespräch', xpSumme)}</p>}
                 {ergebnis.zuletzt && <p>{ergebnis.zuletzt}</p>}
                 {ergebnis.fehler?.length > 0 ? (
                   <ul className="spr-fehlerliste">
@@ -309,6 +376,17 @@ export default function Sprechen({ onZurueck }) {
                 ) : (
                   zeigeZeilen.some((z) => z.von === 'ich') && <p className="spr-klein">{tr('Keine Fehler notiert. Молодец!')}</p>
                 )}
+              </section>
+            )}
+
+            {!stand.premium && (stand.restMinuten <= 0 || phase === 'fertig') && (
+              <section className="spr-karte">
+                {stand.restMinuten <= 0 && <p className="spr-klein">{tr('Deine Freiminuten für diesen Monat sind aufgebraucht.')}</p>}
+                <div className="spr-abo">
+                <b>{tr('Mehr Minuten mit Premium')}</b>
+                <span>{tr('2 Stunden im Monat statt 10 Minuten. Dazu alles andere in Premium.')}</span>
+                {!istApp && <button className="btn" onClick={zumAbo}>{tr('Abo abschließen')}</button>}
+              </div>
               </section>
             )}
 
@@ -330,9 +408,9 @@ export default function Sprechen({ onZurueck }) {
               </label>
 
               <button className="btn spr-los" disabled={!einverstanden || stand.restMinuten <= 0} onClick={anrufen}>
-                {stand.restMinuten > 0 ? tr('Gespräch starten') : tr('Für heute sind deine Minuten aufgebraucht')}
+                {stand.restMinuten > 0 ? tr('Gespräch starten') : (stand.premium ? tr('Deine Minuten für diesen Monat sind aufgebraucht.') : tr('Deine Freiminuten für diesen Monat sind aufgebraucht.'))}
               </button>
-              <p className="spr-klein spr-mitte">{tr('Heute noch {0} Minuten · bis zu {1} Minuten pro Gespräch', stand.restMinuten, stand.maxMinuten)}</p>
+              <p className="spr-klein spr-mitte">{tr('Diesen Monat noch {0} von {1} Minuten · bis zu {2} Minuten pro Gespräch', stand.restMinuten, stand.kontingentMinuten, stand.maxMinuten)}</p>
             </section>
 
             <section className="spr-karte">
@@ -374,6 +452,9 @@ export default function Sprechen({ onZurueck }) {
               {phase === 'laeuft' && (wer === 'katja' ? tr('Katja spricht') : wer === 'ich' ? tr('Du sprichst') : tr('Katja hört zu'))}
             </p>
             {phase === 'laeuft' && <p className="spr-uhr">{zeit(sekunden)}</p>}
+            {xpFlug !== null && (
+              <span key={xpFlug} className="spr-xp-flug" aria-live="polite" onAnimationEnd={() => setXpFlug(null)}>+{XP_PRO_MINUTE} XP</span>
+            )}
 
             <div className="spr-verlauf">
               {zeigeZeilen.map((z) => (
@@ -382,6 +463,13 @@ export default function Sprechen({ onZurueck }) {
               <div ref={ende} />
             </div>
 
+            {phase === 'laeuft' && hinweisAbo && (
+              <div className="spr-abo">
+                <b>{tr('Mehr Minuten mit Premium')}</b>
+                <span>{tr('2 Stunden im Monat statt 10 Minuten. Dazu alles andere in Premium.')}</span>
+                {!istApp && <button className="btn" onClick={zumAbo}>{tr('Abo abschließen')}</button>}
+              </div>
+            )}
             {phase === 'laeuft' && <button className="spr-auflegen" onClick={auflegen}>{tr('Auflegen')}</button>}
           </section>
         )}

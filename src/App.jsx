@@ -1100,6 +1100,7 @@ export default function App() {
   if (sprechenOffen) {
     return (
       <Sprechen
+        addXp={addXp}
         onZurueck={() => {
           window.history.pushState({}, '', '/')
           setSprechenOffen(false)
