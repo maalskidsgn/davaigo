@@ -9,6 +9,7 @@ import { join } from 'path'
 import { findeRussischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { uebersetzeWort, uebersetzeZeilen } from './uebersetzen.js'
 import { erzeugeSatzliste, GRAMMATIK } from './saetze.js'
+import { zugang as lesekursZugang, video as lesekursVideo } from './lesekurs.js'
 import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende, vergiss as sprechVergiss } from './sprechen.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
@@ -1057,5 +1058,21 @@ app.get('/api/sprechen/status', sprechRoute((nutzer) => sprechStatus(nutzer)))
 app.post('/api/sprechen/start', sprechRoute(sprechStarte))
 app.post('/api/sprechen/ende', sprechRoute(sprechBeende))
 app.post('/api/sprechen/vergessen', sprechRoute(async (nutzer) => { await sprechVergiss(nutzer); return { ok: true } }))
+
+/* ------------------------------------------------------------------ *
+ *  Lesekurs: Adresse holen, dann streamen. Lektion 1 geht ohne Konto.
+ * ------------------------------------------------------------------ */
+app.get('/api/lesekurs/zugang', async (req, res) => {
+  try {
+    const token = (req.headers.authorization || '').replace('Bearer ', '')
+    const nutzer = token ? await nutzerAusToken(token).catch(() => null) : null
+    const { status, daten } = await lesekursZugang(nutzer, req.query)
+    res.status(status).json(daten)
+  } catch (fehler) {
+    console.error('[lesekurs]', fehler.message)
+    res.status(500).json({ error: fehler.message })
+  }
+})
+app.get('/api/lesekurs/video/:sprache/:nr', lesekursVideo)
 
 app.listen(PORT, () => console.log(`Transkript-Server läuft auf http://localhost:${PORT}`))

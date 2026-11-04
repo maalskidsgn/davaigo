@@ -1,3 +1,4 @@
+import Lesekurs, { LesekursKarte } from './Lesekurs.jsx'
 import { useState, useEffect } from 'react'
 import {
   MODULE,
@@ -177,6 +178,7 @@ function suchStelle(satz, ziel) {
 // Einleitung → Wörter → Wissen → Dialog → Übungen → Abschluss führt.
 export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
+  const [lesekursOffen, setLesekursOffen] = useState(false)
   // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
   // Sonst baut "Noch einmal" am Ende den Lektions-Ablauf ueber das
   // Stations-Objekt – mit 226 Vorstell-Schritten statt 25 Aufgaben.
@@ -612,6 +614,17 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   }
 
   // ---------- Lektionen eines Moduls ----------
+  if (lesekursOffen) {
+    return (
+      <Lesekurs
+        lessonProgress={lessonProgress}
+        addXp={addXp}
+        onLessonComplete={onLessonComplete}
+        onZurueck={() => setLesekursOffen(false)}
+      />
+    )
+  }
+
   if (modul) {
     const liste = lektionenVon(modul)
     const station = stationVon(modul)
@@ -771,6 +784,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
         {tr('Lerne Schritt für Schritt Russisch –')}<br />
         {tr('mit kurzen Videos, Übungen und echten Erfolgserlebnissen.')}
       </p>
+
+      <LesekursKarte lessonProgress={lessonProgress} onOeffnen={() => setLesekursOffen(true)} />
 
       {laufendesModul && (
         <WeiterlernenKarte
