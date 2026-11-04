@@ -114,7 +114,7 @@ export default function Home({
           bleibt die Antwort auf "Was mache ich jetzt?", der Vergleich
           kommt gleich danach. Ohne Konto und ohne die Migration in
           der Datenbank blendet sich die Karte selbst aus. */}
-      {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} />}
+      {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} eigeneSerie={progress.streak ?? 0} />}
 
       {/* ============ 3. DIE WOCHE ============ */}
       <section className="start-karte">
