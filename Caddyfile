@@ -10,8 +10,21 @@
 	encode gzip zstd
 
 	# Fertige Dateien (mit Prüfsumme im Namen) dürfen lange im Cache bleiben
-	@statisch path /assets/* /audio/*
+	# Nur was es wirklich gibt: Waehrend eines Deployments kann jemand
+	# schon die neue index.html haben, die neue JS-Datei aber noch nicht.
+	# Sonst merkt sich der Browser die index.html ein Jahr lang als
+	# JS-Datei, und die App bleibt weiss (bei Habloo am 04.11. passiert).
+	@statisch {
+		path /assets/* /audio/*
+		file
+	}
 	header @statisch Cache-Control "public, max-age=31536000, immutable"
+
+	@fehlt {
+		path /assets/* /audio/*
+		not file
+	}
+	header @fehlt Cache-Control "no-store"
 
 	# Die Store-App holt die Aufnahmen von hier, läuft dabei aber unter
 	# einer anderen Herkunft (capacitor/localhost). Das <audio>-Element
@@ -54,6 +67,11 @@
 
 	# {path}/index.html muss mit rein, sonst landet /ratgeber/foo/ bei
 	# der SPA-Regel und zeigt die App statt des Ratgebers.
-	try_files {path} {path}/index.html /index.html
+	#
+	# Nicht fuer /assets/ und /audio/: Eine fehlende Datei dort ist ein 404.
+	@seiten not path /assets/* /audio/*
+	route @seiten {
+		try_files {path} {path}/index.html /index.html
+	}
 	file_server
 }

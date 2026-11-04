@@ -11,6 +11,7 @@ import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB } from './Recht.jsx'
 import Bezahlen from './Bezahlen.jsx'
+import Sprechen from './Sprechen.jsx'
 import MeilensteinMeldung from './MeilensteinMeldung.jsx'
 import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './meilensteine.js'
 import { summeWiederholungen } from './aktivitaet.js'
@@ -300,6 +301,24 @@ export default function App() {
   const [kasseOffen, setKasseOffen] = useState(
     () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse'
   )
+
+  // Der Sprach-Trainer – eigene Seite unter /sprechen
+  const [sprechenOffen, setSprechenOffen] = useState(
+    () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen'
+  )
+  useEffect(() => {
+    const auf = () => {
+      window.history.pushState({}, '', '/sprechen')
+      setSprechenOffen(true)
+    }
+    const zurueck = () => setSprechenOffen(window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen')
+    window.addEventListener('sprechen-oeffnen', auf)
+    window.addEventListener('popstate', zurueck)
+    return () => {
+      window.removeEventListener('sprechen-oeffnen', auf)
+      window.removeEventListener('popstate', zurueck)
+    }
+  }, [])
 
   const [rechtSeite, setRechtSeite] = useState(() => {
     const gewuenscht = new URLSearchParams(window.location.search).get('recht')
@@ -1073,6 +1092,18 @@ export default function App() {
         onAddVocab={addVocabWords}
         vocab={vocab}
         addXp={addXp}
+      />
+    )
+  }
+
+  // ---------- Der Sprach-Trainer: eigene Seite ohne Tab-Leiste
+  if (sprechenOffen) {
+    return (
+      <Sprechen
+        onZurueck={() => {
+          window.history.pushState({}, '', '/')
+          setSprechenOffen(false)
+        }}
       />
     )
   }
