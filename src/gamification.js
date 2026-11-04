@@ -24,17 +24,28 @@ export const XP = {
   WORT_RICHTIG: 15,
 }
 
-// Titel für die Level (ab dem letzten bleibt man "Legende")
-export const LEVEL_NAMES = [
-  tr('Neuling'),
-  tr('Anfänger'),
-  tr('Entdecker'),
-  tr('Lerner'),
-  tr('Kenner'),
-  tr('Könner'),
-  tr('Profi'),
-  tr('Meister'),
-  tr('Legende'),
+// Die Stufen: Ab Level `ab` gilt Titel und Emblem (LevelEmblem.jsx), bis
+// die nächste Stufe beginnt. Legende erst ab 50, Вечное Солнце ab 100 – da
+// bleibt man dann.
+// Die Farben sind Pastell und laufen als Regenbogen durch; `farbe` ist
+// der dunklere Ton derselben Farbe. `funken` sind die Rangzeichen.
+// Übersetzt wird beim Anzeigen (levelName).
+export const LEVEL_STUFEN = [
+  { ab: 1, name: 'Neuling', symbol: 'keim', verlauf: ['#eae5ff', '#cbc2fa'], farbe: '#7866d4', funken: 0 },
+  { ab: 3, name: 'Anfänger', symbol: 'blatt', verlauf: ['#def6e6', '#b4e8c9'], farbe: '#3fa372', funken: 0 },
+  { ab: 5, name: 'Entdecker', symbol: 'kompass', verlauf: ['#d8f4f1', '#a9e3de'], farbe: '#2f9a96', funken: 0 },
+  { ab: 8, name: 'Lerner', symbol: 'buch', verlauf: ['#deedff', '#b6d5fb'], farbe: '#4a84d6', funken: 0 },
+  { ab: 12, name: 'Kenner', symbol: 'stern', verlauf: ['#ffeadb', '#ffd2b5'], farbe: '#df8450', funken: 0 },
+  { ab: 16, name: 'Könner', symbol: 'blitz', verlauf: ['#ffe5ef', '#fbc2d7'], farbe: '#d6648d', funken: 0 },
+  { ab: 20, name: 'Profi', symbol: 'haken', verlauf: ['#ffe6cc', '#ffc592'], farbe: '#d6762b', funken: 1 },
+  { ab: 25, name: 'Experte', symbol: 'diamant', verlauf: ['#ebf0f7', '#c8d3e6'], farbe: '#627499', funken: 1 },
+  { ab: 30, name: 'Meister', symbol: 'krone', verlauf: ['#fff3c9', '#ffdb85'], farbe: '#c58e0e', funken: 2 },
+  { ab: 40, name: 'Großmeister', symbol: 'grosseKrone', verlauf: ['#ffdfd5', '#ffb29d'], farbe: '#d65d44', funken: 2 },
+  { ab: 50, name: 'Legende', symbol: 'fluegel', verlauf: ['#f3e0ff', '#d4b2f8'], farbe: '#8850cc', funken: 3 },
+  { ab: 60, name: 'Mythos', symbol: 'komet', verlauf: ['#cfe6ff', '#e6caff'], farbe: '#6b5bd2', funken: 3 },
+  { ab: 70, name: 'Titan', symbol: 'berg', verlauf: ['#ffdcb8', '#ffb2c6'], farbe: '#d2566f', funken: 3 },
+  { ab: 85, name: 'Unsterblich', symbol: 'unendlich', verlauf: ['#c8f2ea', '#cfd8ff', '#f6caee'], farbe: '#6a5fc8', funken: 3 },
+  { ab: 100, name: 'Вечное Солнце', sol: true },
 ]
 
 // Gesamt-XP, ab denen ein Level erreicht ist.
@@ -50,8 +61,12 @@ export function levelFromXp(xp) {
   return level
 }
 
+export function levelStufe(level) {
+  return LEVEL_STUFEN.findLast((s) => level >= s.ab) ?? LEVEL_STUFEN[0]
+}
+
 export function levelName(level) {
-  return LEVEL_NAMES[Math.min(level - 1, LEVEL_NAMES.length - 1)]
+  return tr(levelStufe(level).name)
 }
 
 export function loadProgress() {

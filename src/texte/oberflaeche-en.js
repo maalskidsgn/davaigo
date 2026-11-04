@@ -1357,5 +1357,16 @@ export default {
  "Alles aus dem Modul – ohne neue Wörter": "Everything from the module – no new words",
  "Zeigen, was aus dem Modul wirklich sitzt": "Show what has really stuck from this module",
  "Rund 25 Aufgaben – keine neuen Wörter": "Around 25 tasks – no new words",
- "Ab 80 % gilt das Modul als bestanden": "80 % or more and you pass the module"
+ "Ab 80 % gilt das Modul als bestanden": "80 % or more and you pass the module",
+ "Experte": "Expert",
+ "Großmeister": "Grandmaster",
+ "Mythos": "Myth",
+ "Titan": "Titan",
+ "Unsterblich": "Immortal",
+ "Level-Stufen": "Level tiers",
+ "ab Level {0}": "from level {0}",
+ "Du bist hier": "You are here",
+ "Level {0}": "Level {0}",
+ "{0} Wörter": "{0} words",
+ "{0} Videos": "{0} videos",
 }

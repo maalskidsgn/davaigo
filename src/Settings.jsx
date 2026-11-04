@@ -3,6 +3,8 @@ import { IconPfeil } from './icons.jsx'
 import { API_URL, istApp } from './api.js'
 import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
+import LevelEmblem from './LevelEmblem.jsx'
+import Flamme from './Flamme.jsx'
 import { supabaseBereit, db } from './supabase.js'
 import { abmelden, anzeigename } from './auth.js'
 import { tonVonSelbst, setzeTonVonSelbst } from './audio.js'
@@ -244,11 +246,12 @@ export default function Settings({
     <div className="settings">
       {/* ---------- Profil-Übersicht ---------- */}
       <div className="profile-card">
-        <div className="profile-level">{level}</div>
+        <LevelEmblem level={level} groesse={64} />
         <div className="profile-info">
           <div className="profile-name">{levelName(level)}</div>
+          <div className="profile-rang">{tr('Level {0}', level)}</div>
           <div className="profile-stats">
-            {tr('{0} XP · 🔥 {1} Tage · {2} Wörter · {3} Videos', progress.xp, progress.streak, counts.woerter, counts.videos)}
+            {progress.xp} XP · <Flamme an={progress.streak > 0} groesse={16} /> {tr('{0} Tage', progress.streak)} · {tr('{0} Wörter', counts.woerter)} · {tr('{0} Videos', counts.videos)}
           </div>
         </div>
       </div>

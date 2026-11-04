@@ -12218,3 +12218,180 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 @media (min-width: 801px) {
   .due-badge { right: auto; left: -10px; top: -9px; }
 }
+
+/* ===================================================================
+   LEVEL-EMBLEME + STREAK-FLAMME
+   =================================================================== */
+.level-emblem {
+  display: block;
+  overflow: visible;
+  filter: drop-shadow(0 2px 4px var(--emblem-schein, transparent));
+}
+
+/* Вечное Солнце: zwei Kränze gegeneinander, pulsierender Schein, kreisende Funken */
+.level-emblem-sol {
+  filter: drop-shadow(0 0 6px rgba(255, 179, 0, .75)) drop-shadow(0 0 14px rgba(168, 85, 247, .55));
+}
+.sol-schein, .sol-kranz-lang, .sol-kranz-kurz, .sol-bahn {
+  transform-box: view-box;
+  transform-origin: 32px 32px;
+}
+.sol-schein { animation: sol-puls 2.6s ease-in-out infinite; }
+.sol-kranz-lang { animation: sol-dreh 18s linear infinite; }
+.sol-kranz-kurz { animation: sol-dreh 12s linear infinite reverse; }
+.sol-bahn { animation: sol-dreh 7s linear infinite; }
+.sol-funke { animation: sol-funkeln 2.6s ease-in-out infinite; }
+@keyframes sol-dreh { to { transform: rotate(360deg); } }
+@keyframes sol-puls {
+  0%, 100% { transform: scale(.92); opacity: .75; }
+  50% { transform: scale(1.14); opacity: 1; }
+}
+@keyframes sol-funkeln {
+  0%, 100% { opacity: .75; }
+  50% { opacity: 1; }
+}
+
+/* Level-Leiste bei den Meilensteinen: läuft bis an den Kartenrand,
+   damit man sieht, dass es weitergeht */
+.lvl-bereich { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.lvl-titel { margin: 0 0 10px; }
+.lvl-leiste {
+  display: flex;
+  gap: 10px;
+  margin: 0 -18px;
+  padding: 2px 18px 6px;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding: 0 18px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.lvl-leiste::-webkit-scrollbar { display: none; }
+.lvl-karte {
+  flex: 0 0 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 12px 6px;
+  border: 1.5px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  text-align: center;
+  scroll-snap-align: center;
+}
+.lvl-karte .level-emblem { margin-bottom: 6px; }
+.lvl-karte b { color: var(--navy); font-size: .85rem; line-height: 1.15; }
+.lvl-karte span { color: var(--muted); font-size: .74rem; font-weight: 700; }
+.lvl-karte small { color: var(--muted); font-size: .68rem; }
+.lvl-karte em {
+  margin-top: 5px;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: var(--primary);
+  color: #fff;
+  font-size: .64rem;
+  font-style: normal;
+  font-weight: 800;
+}
+.lvl-aktuell { border-color: var(--primary); background: #f5f0fc; }
+.lvl-offen .level-emblem { opacity: .55; }
+/* Das Ziel bleibt auch gesperrt voll sichtbar */
+.lvl-sol, .lvl-sol.lvl-aktuell {
+  border-color: #ffc800;
+  background: linear-gradient(160deg, #4c1d95, #241338 60%, #3d0a4f);
+}
+.lvl-sol.lvl-offen .level-emblem { opacity: 1; }
+.lvl-sol b { color: #ffd23c; }
+.lvl-sol span, .lvl-sol small { color: #e9e4ff; }
+
+/* Profile: Emblem mit Titel und Level als weiche Plakette */
+.level-plakette {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 8px 22px 8px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--plakette-ton, var(--primary)) 9%, #fff);
+  text-align: left;
+}
+.level-plakette span { display: flex; flex-direction: column; gap: 1px; line-height: 1.15; }
+.level-plakette b { color: var(--navy); font-size: 1.05rem; font-weight: 900; }
+.level-plakette small { color: var(--plakette-ton, var(--primary)); font-size: .8rem; font-weight: 800; }
+.level-plakette-sol { background: linear-gradient(160deg, #4c1d95, #241338 60%, #3d0a4f); }
+.level-plakette-sol b { color: #ffd23c; }
+.level-plakette-sol small { color: #e9e4ff; }
+
+/* Liga: eigene Spalte vor den XP, damit die Embleme untereinander stehen */
+.rang-emblem { flex: none; width: 28px; height: 28px; }
+
+/* Podest: Das Emblem steht auf dem Block, die Platzziffer darunter */
+.rang-podest .rs-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 17px;
+  line-height: 1;
+}
+.rs-block .level-emblem { filter: drop-shadow(0 3px 5px rgba(60, 20, 110, .3)); }
+.rs-block .level-emblem-sol {
+  filter: drop-shadow(0 0 6px rgba(255, 179, 0, .75)) drop-shadow(0 0 14px rgba(168, 85, 247, .55));
+}
+.rang-podest .rang-erster .rs-block { height: 92px; }
+.rang-podest .rang-zweiter .rs-block { height: 76px; }
+.rang-podest .rang-dritter .rs-block { height: 64px; }
+
+.levelup-emoji { display: grid; place-items: center; }
+.levelup-sol { background: linear-gradient(160deg, #4c1d95, #241338 60%, #3d0a4f); }
+.levelup-sol h2 { color: #ffd23c; }
+.levelup-sol p { color: #e9e4ff; }
+
+/* Flamme */
+.streak { display: inline-flex; align-items: center; gap: 3px; }
+.zahl-flamme { display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
+.flamme { flex: none; overflow: visible; filter: grayscale(1); opacity: .45; }
+.flamme-an { filter: drop-shadow(0 2px 5px rgba(124, 58, 237, .35)); opacity: 1; }
+.flamme path, .flamme ellipse, .flamme circle { transform-box: fill-box; transform-origin: 50% 100%; }
+.flamme-an .flamme-aussen { animation: flamme-a 1.7s ease-in-out infinite; }
+.flamme-an .flamme-mitte { animation: flamme-b 1.3s ease-in-out infinite; }
+.flamme-an .flamme-kern { animation: flamme-c 1s ease-in-out infinite; }
+.flamme-an .flamme-schein { transform-origin: center; animation: flamme-schein 1.7s ease-in-out infinite; }
+.flamme-funke { opacity: 0; }
+.flamme-an .flamme-funke-1 { animation: flamme-funke 2.3s ease-out infinite; }
+.flamme-an .flamme-funke-2 { animation: flamme-funke 2.9s ease-out .9s infinite; }
+@keyframes flamme-a {
+  0%, 100% { transform: scale(1, 1) skewX(0); }
+  30% { transform: scale(.97, 1.04) skewX(-2deg); }
+  65% { transform: scale(1.03, .97) skewX(2deg); }
+}
+@keyframes flamme-b {
+  0%, 100% { transform: scale(1, 1) skewX(0); }
+  40% { transform: scale(1.05, .95) skewX(3deg); }
+  70% { transform: scale(.95, 1.07) skewX(-3deg); }
+}
+@keyframes flamme-c {
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(.9, 1.12); }
+}
+@keyframes flamme-schein {
+  0%, 100% { opacity: .18; transform: scale(1); }
+  50% { opacity: .32; transform: scale(1.12); }
+}
+@keyframes flamme-funke {
+  0% { opacity: 0; transform: translateY(8px); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-14px); }
+}
+/* Die Flamme flackert selbst – das alte Wackeln der Kachel wäre doppelt */
+.streak-an svg { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  .flamme *, .level-emblem-sol * { animation: none !important; }
+}
+
+/* Eigenes Profil: Emblem auf der dunklen Karte, Flamme in der Zeile */
+.profile-rang { margin-bottom: 4px; font-size: .85rem; font-weight: 800; color: #ffc800; }
+.profile-stats .flamme { display: inline; vertical-align: -3px; }

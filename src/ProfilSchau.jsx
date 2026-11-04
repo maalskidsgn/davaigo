@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { ladeProfil, blockiere } from './rangliste.js'
 import Melden from './Melden.jsx'
 import { Bildnis } from './Rangliste.jsx'
-import { levelFromXp, levelName } from './gamification.js'
+import { levelFromXp } from './gamification.js'
+import { LevelPlakette } from './LevelEmblem.jsx'
+import Flamme from './Flamme.jsx'
 import { tr, gebiet } from './sprache.js'
 
 /** "seit 2. September 2026" – ausgeschrieben, das liest sich wärmer. */
@@ -87,11 +89,10 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
           <>
             <span className="ps-rahmen">
               <Bildnis name={profil.benutzername} bild={profil.bild} klasse="ps-bild" />
-              <span className="ps-level">{level}</span>
             </span>
 
             <h2 className="ps-name">{profil.benutzername}</h2>
-            <p className="ps-rang">{levelName(level)}</p>
+            <LevelPlakette level={level} />
 
             <div className="ps-platz">{tr('Platz {0}', profil.platz)}</div>
 
@@ -101,7 +102,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                 <dt>{tr('XP gesamt')}</dt>
               </div>
               <div>
-                <dd>{profil.serie}</dd>
+                <dd className="zahl-flamme"><Flamme an={profil.serie > 0} groesse={20} />{profil.serie}</dd>
                 <dt>{tr('Tage am Stück')}</dt>
               </div>
               <div>

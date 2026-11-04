@@ -70,6 +70,8 @@ import { ladeBenutzername } from './rangliste.js'
 import { baueBrueckenPlayer } from './ytBruecke.js'
 import Gespraech from './Gespraech.jsx'
 import { tr, sprache, geradeGewechselt } from './sprache.js'
+import LevelEmblem from './LevelEmblem.jsx'
+import Flamme from './Flamme.jsx'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -1148,8 +1150,8 @@ export default function App() {
       {/* Feier-Einblendung beim Level-Aufstieg */}
       {levelUp && (
         <div className="levelup-overlay" onClick={() => setLevelUp(null)}>
-          <div className="levelup-card">
-            <div className="levelup-emoji">🎉</div>
+          <div className={'levelup-card' + (levelUp >= 100 ? ' levelup-sol' : '')}>
+            <div className="levelup-emoji"><LevelEmblem level={levelUp} groesse={levelUp >= 100 ? 150 : 96} /></div>
             <h2>{tr('Level {0} erreicht!', levelUp)}</h2>
             <p>{tr('Du bist jetzt: {0}', levelName(levelUp))}</p>
           </div>
@@ -1205,7 +1207,7 @@ export default function App() {
         <div className="stats">
           {progress.streak > 0 && (
             <span className="streak" title={tr('{0} Tage in Folge gelernt', progress.streak)}>
-              🔥 {progress.streak}
+              <Flamme groesse={22} /> {progress.streak}
             </span>
           )}
           <div
