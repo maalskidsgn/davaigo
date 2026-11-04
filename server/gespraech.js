@@ -74,7 +74,7 @@ const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
 // sonst zahlt niemand, und jeder darf unbegrenzt die KI nutzen.
 // Der Code darunter bleibt unverändert und liest dann wieder das
 // Abo aus der Datenbank.
-const TESTPHASE_ALLES_FREI = true
+const TESTPHASE_ALLES_FREI = false
 
 export async function istPremium(nutzerId) {
   if (TESTPHASE_ALLES_FREI) return true

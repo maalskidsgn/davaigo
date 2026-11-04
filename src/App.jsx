@@ -11,6 +11,8 @@ import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
 import { Impressum, Datenschutz, AGB } from './Recht.jsx'
 import Bezahlen from './Bezahlen.jsx'
+import KaufNativ from './KaufNativ.jsx'
+import { kaufMoeglich, kaufVorbereiten, kaufBeenden } from './kauf.js'
 import Sprechen from './Sprechen.jsx'
 import MeilensteinMeldung from './MeilensteinMeldung.jsx'
 import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './meilensteine.js'
@@ -373,6 +375,16 @@ export default function App() {
       })
 
     return () => { abgebrochen = true }
+  }, [nutzer])
+
+  // Der Store-Kauf gehoert zum Konto, nicht zum Geraet.
+  useEffect(() => {
+    if (!kaufMoeglich()) return
+    if (!nutzer) {
+      kaufBeenden()
+      return
+    }
+    kaufVorbereiten(nutzer.id)
   }, [nutzer])
 
   // Beim Abmelden wieder auf reinen Browser-Betrieb umstellen
@@ -1101,6 +1113,7 @@ export default function App() {
     return (
       <Sprechen
         addXp={addXp}
+        onAddVocab={addVocabWords}
         onZurueck={() => {
           window.history.pushState({}, '', '/')
           setSprechenOffen(false)
@@ -1113,10 +1126,17 @@ export default function App() {
   // Einstellungen. Wer bezahlt, soll sehen, was er kauft – und keine
   // Tab-Leiste danebenhaben, die zum Wegklicken einlädt.
   if (kasseOffen) {
+    // In der App muss der Kauf ueber Apple bzw. Google laufen, beide
+    // verlangen das fuer digitale Inhalte. Im Browser bleibt Stripe.
+    const Kasse = kaufMoeglich() ? KaufNativ : Bezahlen
     return (
-      <Bezahlen
+      <Kasse
         onAbbrechen={() => setKasseOffen(false)}
-        onFertig={() => setKasseOffen(false)}
+        onFertig={() => {
+          setKasseOffen(false)
+          // Die Anzeige haengt an "abos": nach dem Kauf neu fragen.
+          window.dispatchEvent(new CustomEvent('premium-neu'))
+        }}
       />
     )
   }

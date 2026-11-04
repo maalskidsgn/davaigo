@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react'
 import { IconPfeil } from './icons.jsx'
 import { API_URL, istApp } from './api.js'
 import { usePremium, zurKasse, aboVerwalten, bezahlungBereit } from './premium.js'
+import { kaufMoeglich } from './kauf.js'
 import { levelFromXp, levelName, xpHeute } from './gamification.js'
 import LevelEmblem from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
@@ -386,6 +387,8 @@ export default function Settings({
                 </button>
               )}
             </>
+          ) : istApp && kaufMoeglich() ? (
+            <button onClick={onKasse}>{tr('Premium holen')}</button>
           ) : istApp ? (
             /* Kein Kauf und kein Link nach draussen – nur der neutrale
                Hinweis, dass ein bestehendes Abo hier ankommt. */

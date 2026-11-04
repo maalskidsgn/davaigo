@@ -11,6 +11,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { API_URL, istApp, kiKopf } from './api.js'
+import { kaufMoeglich } from './kauf.js'
 import { spiele } from './audio.js'
 import { XP } from './gamification.js'
 import { KURS, GLYPHEN } from './lesekurs-daten.js'
@@ -284,9 +285,9 @@ function Lektion({ lektion, fertig, onFertig, onWeiter, onZurueck }) {
         {gesperrt && (
           <div className="lk-schloss">
             <b>{tr('Diese Lektion gehört zu Premium')}</b>
-            {!istApp && !zugang.anmelden && <button className="btn" onClick={zurKasse}>{tr('Premium ansehen')}</button>}
+            {(!istApp || kaufMoeglich()) && !zugang.anmelden && <button className="btn" onClick={zurKasse}>{tr('Premium ansehen')}</button>}
             {zugang.anmelden && <span>{tr('Bitte melde dich zuerst an.')}</span>}
-            {istApp && !zugang.anmelden && <span>{tr('Ein bestehendes Premium-Abo wird nach der Anmeldung automatisch erkannt.')}</span>}
+            {istApp && !kaufMoeglich() && !zugang.anmelden && <span>{tr('Ein bestehendes Premium-Abo wird nach der Anmeldung automatisch erkannt.')}</span>}
           </div>
         )}
       </div>

@@ -13,10 +13,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { API_URL, istApp } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
-import { tr, sprache } from './sprache.js'
+import { tr, sprache, gebiet } from './sprache.js'
+import { spiele } from './audio.js'
 import Logo from './Logo.jsx'
 
-const EINWILLIGUNG = 'sprechen-einwilligung'
+// -2: Seit das Protokoll gespeichert wird, braucht es eine neue Einwilligung.
+const EINWILLIGUNG = 'sprechen-einwilligung-2'
 const NIVEAU_SPEICHER = 'sprechen-niveau'
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2', 'C1']
 
@@ -87,7 +89,96 @@ export function SprechenTuer() {
   )
 }
 
-export default function Sprechen({ onZurueck, addXp }) {
+
+/** Die gespeicherten Gespräche: nachlesen, anhören, Wörter übernehmen. */
+function Archiv({ onAddVocab, aktualisiert }) {
+  const [liste, setListe] = useState(null)
+  const [offen, setOffen] = useState(null)
+  const [meldung, setMeldung] = useState('')
+
+  useEffect(() => {
+    api('/api/sprechen/gespraeche').then((d) => setListe(d.liste)).catch(() => setListe([]))
+  }, [aktualisiert])
+
+  async function oeffne(id) {
+    setMeldung('')
+    setOffen(await api('/api/sprechen/gespraech/' + id))
+  }
+
+  async function loesche() {
+    if (!confirm(tr('Dieses Gespräch wirklich löschen?'))) return
+    await api(`/api/sprechen/gespraech/${offen.id}/loeschen`, {})
+    setListe((l) => l.filter((g) => g.id !== offen.id))
+    setOffen(null)
+  }
+
+  async function nimmWort(roh, satz) {
+    const wort = roh.replace(/[^\p{L}\p{M}'’-]/gu, '')
+    if (!wort) return
+    try {
+      const d = await api(`/api/translate?q=${encodeURIComponent(wort)}&satz=${encodeURIComponent(satz.slice(0, 280))}&sprache=${sprache()}`)
+      if (!d.translation) throw new Error('leer')
+      onAddVocab?.([{ wort, uebersetzung: d.translation, quelle: tr('Sprach-Trainer') }])
+      setMeldung(tr('„{0}“ liegt im Trainer: {1}', wort, d.translation))
+    } catch {
+      setMeldung(tr('„{0}“ ließ sich nicht übersetzen.', wort))
+    }
+  }
+
+  const datum = (x) => new Date(x).toLocaleDateString(gebiet(), { day: 'numeric', month: 'short', year: 'numeric' })
+
+  if (offen) {
+    return (
+      <section className="spr-karte">
+        <button className="btn-plain" onClick={() => setOffen(null)}>‹ {tr('Alle Gespräche')}</button>
+        <h2 className="spr-archiv-titel">{datum(offen.beginn)}</h2>
+        <p className="spr-klein">{offen.zusammenfassung}</p>
+        <p className="spr-klein">{tr('Tippe ein Wort an, um es in den Trainer zu legen. Der Lautsprecher liest den Satz vor.')}</p>
+        {meldung && <p className="spr-archiv-meldung">{meldung}</p>}
+        <div className="spr-archiv-verlauf">
+          {offen.verlauf.map((z, i) => (
+            <div key={i} className={'spr-archiv-zeile' + (z.von === 'learner' ? ' ist-ich' : '')}>
+              <button className="spr-archiv-ton" aria-label={tr('Vorlesen')} onClick={() => spiele(z.text)}>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" /><path d="M15.5 9a4 4 0 0 1 0 6" /></svg>
+              </button>
+              <p>
+                {z.text.split(/\s+/).map((w, k) => (
+                  <button key={k} className="spr-archiv-wort" onClick={() => nimmWort(w, z.text)}>{w}</button>
+                ))}
+              </p>
+            </div>
+          ))}
+        </div>
+        {offen.fehler?.length > 0 && (
+          <ul className="spr-fehlerliste">
+            {offen.fehler.map((f, i) => <li key={i}><s>{f.falsch}</s> <b>{f.richtig}</b><small>{f.erklaerung}</small></li>)}
+          </ul>
+        )}
+        <button className="btn-plain spr-vergessen" onClick={loesche}>{tr('Gespräch löschen')}</button>
+      </section>
+    )
+  }
+
+  return (
+    <section className="spr-karte">
+      <h2>{tr('Deine Gespräche')}</h2>
+      {!liste?.length ? (
+        <p className="spr-klein">{tr('Hier stehen deine Gespräche, sobald du das erste geführt hast.')}</p>
+      ) : (
+        <div className="spr-archiv-liste">
+          {liste.map((g) => (
+            <button key={g.id} onClick={() => oeffne(g.id)}>
+              <small>{datum(g.beginn)}</small>
+              <span>{g.zusammenfassung}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
   const [stand, setStand] = useState(null)
   const [phase, setPhase] = useState('start') // start | verbindet | laeuft | wertet | fertig
   const [fehler, setFehler] = useState('')
@@ -101,7 +192,11 @@ export default function Sprechen({ onZurueck, addXp }) {
   const [xpFlug, setXpFlug] = useState(null)
   const [xpSumme, setXpSumme] = useState(0)
   const [hinweisAbo, setHinweisAbo] = useState(false)
+  const [woerterLive, setWoerterLive] = useState([]) // { wort, bedeutung }
+  const [abgewaehlt, setAbgewaehlt] = useState(() => new Set())
+  const [woerterGespeichert, setWoerterGespeichert] = useState(false)
 
+  const [archivStand, setArchivStand] = useState(0)
   const leitung = useRef(null) // { pc, stream, audio, kanal, id, max, premium, gesprochen, hinweis }
   const zeilenRef = useRef([])
   const ende = useRef(null)
@@ -119,6 +214,28 @@ export default function Sprechen({ onZurueck, addXp }) {
   // Tab zu oder Seite verlassen: Die Leitung darf nicht weiterlaufen,
   // jede offene Minute kostet Geld.
   useEffect(() => () => trenne(), [])
+
+  // Tab zu: Der Server legt sofort auf, statt bis zur Grenze zu warten.
+  useEffect(() => {
+    function weg() {
+      const l = leitung.current
+      if (!l?.id || !l.token) return
+      fetch(API_URL + '/api/sprechen/ende', {
+        method: 'POST',
+        keepalive: true,
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + l.token },
+        body: JSON.stringify({
+          id: l.id,
+          sprache: sprache(),
+          tokens: l.tokens,
+          vokabeln: l.woerter,
+          verlauf: zeilenRef.current.slice(-60).map(({ von, text }) => ({ von, text })),
+        }),
+      }).catch(() => {})
+    }
+    window.addEventListener('pagehide', weg)
+    return () => window.removeEventListener('pagehide', weg)
+  }, [])
 
   useEffect(() => { ende.current?.scrollIntoView({ block: 'end' }) }, [zeilen])
 
@@ -171,6 +288,78 @@ export default function Sprechen({ onZurueck, addXp }) {
     }))
   }
 
+  // Der Knopf im Gespräch: sofort zurück in die eigene Sprache.
+  function erklaeren() {
+    const k = leitung.current?.kanal
+    if (k?.readyState !== 'open') return
+    const muttersprache = sprache() === 'en' ? 'English' : 'German'
+    if (werRef.current === 'habla') {
+      k.send(JSON.stringify({ type: "response.cancel" }))
+      k.send(JSON.stringify({ type: "output_audio_buffer.clear" }))
+    }
+    setTimeout(() => {
+      if (k.readyState !== 'open') return
+      k.send(JSON.stringify({
+        type: "response.create",
+        response: { instructions: `The learner did not understand. Explain what you just said, simply and briefly, in ${muttersprache}. Then ask one easy question and continue at a level they can follow.` },
+      }))
+    }, 200)
+  }
+
+  // Was die KI während des Gesprächs auslöst.
+  function antworteWerkzeug(callId, ergebnis) {
+    leitung.current?.kanal?.send(JSON.stringify({
+      type: "conversation.item.create",
+      item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(ergebnis) },
+    }))
+  }
+
+  async function aufWerkzeug(e) {
+    const l = leitung.current
+    if (!l) return
+    let args = {}
+    try { args = JSON.parse(e.arguments || '{}') } catch { /* dann eben leer */ }
+    if (e.name === 'merke_vokabel') {
+      const wort = String(args.wort ?? '').trim()
+      if (wort) {
+        l.woerter = [...(l.woerter ?? []).filter((w) => w.wort !== wort), { wort, bedeutung: String(args.bedeutung ?? '') }]
+        setWoerterLive(l.woerter)
+      }
+      antworteWerkzeug(e.call_id, { ok: true })
+    } else if (e.name === 'suche_gespraeche') {
+      l.suchen = (l.suchen ?? 0) + 1
+      const ergebnis = await api('/api/sprechen/suche', { suchbegriff: args.suchbegriff }).catch(() => ({ treffer: [] }))
+      l.suchen -= 1
+      antworteWerkzeug(e.call_id, ergebnis)
+      // Die Antwort der KI kam vor dem Suchergebnis: jetzt weitersprechen.
+      if (l.schweigt) {
+        l.schweigt = false
+        l.kanal?.send(JSON.stringify({ type: "response.create" }))
+      }
+    }
+  }
+
+  function aufAntwortFertig(antwort) {
+    const l = leitung.current
+    if (!l || !antwort) return
+    const u = antwort.usage
+    if (u) {
+      const d = u.input_token_details ?? {}
+      const c = d.cached_tokens_details ?? {}
+      const o = u.output_token_details ?? {}
+      const summe = l.tokens ?? {}
+      const dazu = { ein_audio: d.audio_tokens, ein_text: d.text_tokens, ein_cache_audio: c.audio_tokens, ein_cache_text: c.text_tokens, aus_audio: o.audio_tokens, aus_text: o.text_tokens }
+      for (const k in dazu) summe[k] = (summe[k] ?? 0) + (dazu[k] ?? 0)
+      l.tokens = summe
+    }
+    // Nur ein Werkzeug benutzt und nichts gesagt: sonst bliebe es still.
+    const teile = antwort.output ?? []
+    if (teile.length && teile.every((x) => x.type === 'function_call')) {
+      if (l.suchen) l.schweigt = true
+      else l.kanal?.send(JSON.stringify({ type: "response.create" }))
+    }
+  }
+
   function setzeZeilen(aenderung) {
     zeilenRef.current = aenderung(zeilenRef.current)
     setZeilen(zeilenRef.current)
@@ -219,6 +408,12 @@ export default function Sprechen({ onZurueck, addXp }) {
         werRef.current = 'hoert'
         sagAboHinweis()
         break
+      case 'response.function_call_arguments.done':
+        aufWerkzeug(e)
+        break
+      case 'response.done':
+        aufAntwortFertig(e.response)
+        break
       case 'error':
         console.error('[sprechen]', e.error)
         break
@@ -243,6 +438,9 @@ export default function Sprechen({ onZurueck, addXp }) {
     werRef.current = 'hoert'
     setXpSumme(0)
     setHinweisAbo(false)
+    setWoerterLive([])
+    setAbgewaehlt(new Set())
+    setWoerterGespeichert(false)
     zeilenRef.current = []
     setZeilen([])
     setPhase('verbindet')
@@ -272,6 +470,10 @@ export default function Sprechen({ onZurueck, addXp }) {
 
       const kanal = pc.createDataChannel('oai-events')
       leitung.current.kanal = kanal
+      // Der Server legt am Ende des Kontingents selbst auf.
+      kanal.onclose = () => {
+        if (leitung.current?.kanal === kanal) auflegen()
+      }
       kanal.onmessage = (m) => {
         try { aufEreignis(JSON.parse(m.data)) } catch { /* ein kaputtes Ereignis stoert das Gespraech nicht */ }
       }
@@ -282,20 +484,17 @@ export default function Sprechen({ onZurueck, addXp }) {
         setPhase('laeuft')
       }
 
-      const sitzung = await api('/api/sprechen/start', { niveau, sprache: sprache() })
+      const angebot = await pc.createOffer()
+      await pc.setLocalDescription(angebot)
+      const sitzungDaten = await db.auth.getSession()
+      leitung.current.token = sitzungDaten.data?.session?.access_token
+      // Der Server baut die Verbindung auf: Nur so kann er am Ende des
+      // Kontingents selbst auflegen.
+      const sitzung = await api('/api/sprechen/start', { niveau, sprache: sprache(), sdp: angebot.sdp })
       leitung.current.id = sitzung.id
       leitung.current.max = sitzung.maxSekunden
       leitung.current.premium = sitzung.premium
-
-      const angebot = await pc.createOffer()
-      await pc.setLocalDescription(angebot)
-      const r = await fetch('https://api.openai.com/v1/realtime/calls', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + sitzung.schluessel, 'Content-Type': 'application/sdp' },
-        body: angebot.sdp,
-      })
-      if (!r.ok) throw new Error(tr('Die Verbindung kam nicht zustande. Versuch es gleich noch einmal.'))
-      await pc.setRemoteDescription({ type: 'answer', sdp: await r.text() })
+      await pc.setRemoteDescription({ type: 'answer', sdp: sitzung.sdp })
     } catch (f) {
       const id = leitung.current?.id
       trenne()
@@ -310,6 +509,7 @@ export default function Sprechen({ onZurueck, addXp }) {
   async function auflegen() {
     const id = leitung.current?.id
     if (!id) return
+    const { tokens, woerter } = leitung.current
     trenne()
     setPhase('wertet')
     try {
@@ -317,8 +517,11 @@ export default function Sprechen({ onZurueck, addXp }) {
         id,
         sprache: sprache(),
         verlauf: zeilenRef.current.map(({ von, text }) => ({ von, text })),
+        tokens,
+        vokabeln: woerter,
       })
       setErgebnis(a)
+      setArchivStand((n) => n + 1)
     } catch (f) {
       setFehler(f.message)
     }
@@ -379,6 +582,46 @@ export default function Sprechen({ onZurueck, addXp }) {
               </section>
             )}
 
+            {phase === 'fertig' && ergebnis?.vokabeln?.length > 0 && (
+              <section className="spr-karte">
+                <h2>{tr('Neue Wörter aus dem Gespräch')}</h2>
+                {woerterGespeichert ? (
+                  <p className="spr-klein">{tr('Liegt jetzt in deinem Trainer.')}</p>
+                ) : (
+                  <>
+                    <p className="spr-klein">{tr('Abwählen, was du nicht lernen willst.')}</p>
+                    <div className="spr-vokabeln">
+                      {ergebnis.vokabeln.map((v) => (
+                        <label key={v.wort}>
+                          <input
+                            type="checkbox"
+                            checked={!abgewaehlt.has(v.wort)}
+                            onChange={() => setAbgewaehlt((alt) => {
+                              const neu = new Set(alt)
+                              if (neu.has(v.wort)) neu.delete(v.wort)
+                              else neu.add(v.wort)
+                              return neu
+                            })}
+                          />
+                          <span><b>{v.wort}</b><small>{v.bedeutung}</small></span>
+                        </label>
+                      ))}
+                    </div>
+                    <button
+                      className="btn spr-los"
+                      disabled={ergebnis.vokabeln.every((v) => abgewaehlt.has(v.wort))}
+                      onClick={() => {
+                        onAddVocab?.(ergebnis.vokabeln.filter((v) => !abgewaehlt.has(v.wort)).map((v) => ({ wort: v.wort, uebersetzung: v.bedeutung, quelle: tr('Sprach-Trainer') })))
+                        setWoerterGespeichert(true)
+                      }}
+                    >
+                      {tr('{0} Wörter in den Trainer', ergebnis.vokabeln.filter((v) => !abgewaehlt.has(v.wort)).length)}
+                    </button>
+                  </>
+                )}
+              </section>
+            )}
+
             {!stand.premium && (stand.restMinuten <= 0 || phase === 'fertig') && (
               <section className="spr-karte">
                 {stand.restMinuten <= 0 && <p className="spr-klein">{tr('Deine Freiminuten für diesen Monat sind aufgebraucht.')}</p>}
@@ -404,7 +647,7 @@ export default function Sprechen({ onZurueck, addXp }) {
 
               <label className="spr-einwilligung">
                 <input type="checkbox" checked={einverstanden} onChange={(e) => setEinverstanden(e.target.checked)} />
-                <span>{tr('Ich bin einverstanden, dass meine Stimme und das Gespräch zur Verarbeitung an OpenAI gehen und dass Davaigo das Protokoll auswertet und sich Fehler und Ziele merkt.')}</span>
+                <span>{tr('Ich bin einverstanden, dass meine Stimme und das Gespräch zur Verarbeitung an OpenAI gehen. Davaigo speichert das Gesprächsprotokoll und ein Lernprofil, bis ich sie lösche. Meine Stimme wird nicht gespeichert.')}</span>
               </label>
 
               <button className="btn spr-los" disabled={!einverstanden || stand.restMinuten <= 0} onClick={anrufen}>
@@ -420,6 +663,15 @@ export default function Sprechen({ onZurueck, addXp }) {
               ) : (
                 <>
                   <p className="spr-klein">{g.gespraeche === 1 ? tr('1 Gespräch') : tr('{0} Gespräche', g.gespraeche)}{g.zuletzt ? ' · ' + g.zuletzt : ''}</p>
+                  {g.profil?.niveau_geschaetzt && g.profil.niveau_geschaetzt !== 'unklar' && (
+                    <p className="spr-niveau-schaetzung">{tr('Geschätztes Niveau')}: <b>{g.profil.niveau_geschaetzt}</b></p>
+                  )}
+                  {[[tr('Deine Ziele'), g.profil?.ziele], [tr('Deine Interessen'), g.profil?.interessen], [tr('Daran arbeiten wir'), g.profil?.schwache_themen], [tr('Das klappt schon'), g.profil?.kann_schon]].map(([titel, punkte]) => punkte?.length > 0 && (
+                    <div key={titel}>
+                      <p className="spr-abschnitt">{titel}</p>
+                      <ul className="spr-merken">{punkte.map((m, i) => <li key={i}>{m}</li>)}</ul>
+                    </div>
+                  ))}
                   {g.fehler?.length > 0 && (
                     <>
                       <p className="spr-abschnitt">{tr('Deine häufigsten Fehler')}</p>
@@ -440,6 +692,8 @@ export default function Sprechen({ onZurueck, addXp }) {
                 </>
               )}
             </section>
+
+            <Archiv onAddVocab={onAddVocab} aktualisiert={archivStand} />
           </>
         )}
 
@@ -463,6 +717,12 @@ export default function Sprechen({ onZurueck, addXp }) {
               <div ref={ende} />
             </div>
 
+            {phase === 'laeuft' && woerterLive.length > 0 && (
+              <div className="spr-live-woerter">
+                <small>{tr('Für deinen Trainer gemerkt')}</small>
+                <div>{woerterLive.map((w) => <span key={w.wort}><b>{w.wort}</b> {w.bedeutung}</span>)}</div>
+              </div>
+            )}
             {phase === 'laeuft' && hinweisAbo && (
               <div className="spr-abo">
                 <b>{tr('Mehr Minuten mit Premium')}</b>
@@ -470,6 +730,7 @@ export default function Sprechen({ onZurueck, addXp }) {
                 {!istApp && <button className="btn" onClick={zumAbo}>{tr('Abo abschließen')}</button>}
               </div>
             )}
+            {phase === 'laeuft' && <button className="btn-plain spr-erklaeren" onClick={erklaeren}>{tr('Erklär’s auf Deutsch')}</button>}
             {phase === 'laeuft' && <button className="spr-auflegen" onClick={auflegen}>{tr('Auflegen')}</button>}
           </section>
         )}

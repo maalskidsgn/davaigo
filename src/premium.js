@@ -80,10 +80,15 @@ export function usePremium() {
 
   useEffect(() => {
     neuLaden()
-    if (!supabaseBereit) return
+    const frisch = () => neuLaden()
+    window.addEventListener('premium-neu', frisch)
+    if (!supabaseBereit) return () => window.removeEventListener('premium-neu', frisch)
     // Nach einer Anmeldung erneut fragen
     const { data } = db.auth.onAuthStateChange(() => neuLaden())
-    return () => data?.subscription?.unsubscribe()
+    return () => {
+      window.removeEventListener('premium-neu', frisch)
+      data?.subscription?.unsubscribe()
+    }
   }, [])
 
   return { ...stand, neuLaden }
