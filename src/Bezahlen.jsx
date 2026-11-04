@@ -195,7 +195,6 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       unter: preise?.jahr ? tr('≈ {0} / Monat', geld({ ...preise.jahr, betrag: preise.jahr.betrag / 12 })) : tr('pro Jahr'),
       marke: ersparnis > 0 ? `−${ersparnis} %` : tr('Beliebt'),
     },
-    { id: 'lifetime', name: tr('Lifetime'), unter: tr('einmalig, für immer') },
   ].filter((k) => preise?.[k.id])
 
   return (
