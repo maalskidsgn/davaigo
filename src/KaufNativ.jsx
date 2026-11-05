@@ -144,6 +144,10 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
         <p className="kn-klein">
           {tr('Abrechnung über dein {0}-Konto. Abos verlängern sich automatisch, bis du sie dort kündigst – das geht jederzeit in den Einstellungen deines Geräts.', laden)}
         </p>
+        <p className="kn-rechtliches">
+          <a href="https://davaigo.de/agb" target="_blank" rel="noreferrer">{tr('Nutzungsbedingungen')}</a>
+          <a href="https://davaigo.de/datenschutz" target="_blank" rel="noreferrer">{tr('Datenschutz')}</a>
+        </p>
       </div>
     </div>
   )

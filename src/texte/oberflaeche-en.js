@@ -374,6 +374,7 @@ export default {
  "Das Wort ist gemerkt – die Bedeutung kannst du im Trainer nachtragen.": "The word is remembered – you can add the meaning in the trainer.",
  "Das Wort selbst eintippen": "Type the word yourself",
  "Datenschutz": "Privacy",
+ "Nutzungsbedingungen": "Terms of Use",
  "Datenschutzerklärung": "Privacy policy",
  "Dativ": "Dative",
  "Davaigo – {0}": "Davaigo – {0}",
