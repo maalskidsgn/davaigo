@@ -258,6 +258,9 @@ export default function App() {
   const [intro, setIntro] = useState(null)
   const [rundgangNr, setRundgangNr] = useState(null)
 
+  // Jeder Tab beginnt oben, nicht an der Scrollstelle des vorigen.
+  useEffect(() => { window.scrollTo(0, 0) }, [view])
+
   useEffect(() => {
     if (rundgangNr !== null) return // der Rundgang zeigt selbst an
     if (BEREICHE[view] && !gesehene()[view]) setIntro(view)
