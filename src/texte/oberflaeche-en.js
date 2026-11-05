@@ -1498,4 +1498,12 @@ export default {
  "Zustellung deiner Nachricht an uns per E-Mail": "Delivering your message to us by email",
  "Deine Nachricht, deine E-Mail-Adresse falls angegeben, die Kennung deines Kontos, Sprache und Geräte-Angaben des Browsers bzw. der App": "Your message, your email address if provided, your account identifier, language and device details of the browser or app",
  "ALL-INKL.COM – Neue Medien Münnich, Friedersdorf, Deutschland": "ALL-INKL.COM – Neue Medien Münnich, Friedersdorf, Germany",
+ "Danke! Du bist jetzt Premium.": "Thank you! You're Premium now.",
+ "Das ist ab sofort für dich freigeschaltet:": "Here's what you just unlocked:",
+ "2 Stunden mit Katja sprechen, jeden Monat": "2 hours of talking with Katja, every month",
+ "Der Lesekurs mit allen 16 Videos": "The reading course with all 16 videos",
+ "Unbegrenzte Übungssätze und zweisprachige E-Books": "Unlimited practice sentences and bilingual e-books",
+ "Die Freischaltung kann noch einen Moment dauern. Öffne die App sonst kurz neu.": "Unlocking can take a moment. If needed, reopen the app.",
+ "Jetzt mit Katja sprechen": "Talk with Katja now",
+ "Weiter lernen": "Keep learning",
 }

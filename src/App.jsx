@@ -14,6 +14,7 @@ import Bezahlen from './Bezahlen.jsx'
 import KaufNativ from './KaufNativ.jsx'
 import { kaufMoeglich, kaufVorbereiten, kaufBeenden } from './kauf.js'
 import Sprechen from './Sprechen.jsx'
+import PremiumDanke from './PremiumDanke.jsx'
 import MeilensteinMeldung from './MeilensteinMeldung.jsx'
 import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './meilensteine.js'
 import { summeWiederholungen } from './aktivitaet.js'
@@ -305,6 +306,10 @@ export default function App() {
   )
 
   // Der Sprach-Trainer – eigene Seite unter /sprechen
+  // Stripe schickt nach der Zahlung mit ?bezahlt=ja zurück
+  const [dankeOffen, setDankeOffen] = useState(
+    () => new URLSearchParams(window.location.search).get('bezahlt') === 'ja'
+  )
   const [sprechenOffen, setSprechenOffen] = useState(
     () => window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen'
   )
@@ -1117,6 +1122,18 @@ export default function App() {
         onZurueck={() => {
           window.history.pushState({}, '', '/')
           setSprechenOffen(false)
+        }}
+      />
+    )
+  }
+
+  if (dankeOffen) {
+    return (
+      <PremiumDanke
+        onWeiter={() => {
+          setDankeOffen(false)
+          window.history.replaceState(null, '', window.location.pathname)
+          window.dispatchEvent(new CustomEvent('premium-neu'))
         }}
       />
     )
