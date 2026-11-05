@@ -11,9 +11,8 @@ Premium und „Italienisch Grundlagen" – die habe ich nicht angefasst.
 
 | Preis | Zeitraum | Kennung (`lookup_key`) |
 | --- | --- | --- |
-| 6,99 € | pro Monat | `davaigo_monat` |
-| 49,99 € | pro Jahr | `davaigo_jahr` |
-| 99,99 € | einmalig | `davaigo_lifetime` |
+| 12,99 € | pro Monat | `davaigo_monat` |
+| 89,99 € | pro Jahr | `davaigo_jahr` |
 
 **Die Kennungen sind der entscheidende Teil.** `server/bezahlung.js`
 sucht die Preise ausschließlich darüber (`prices.list({lookup_keys})`),
