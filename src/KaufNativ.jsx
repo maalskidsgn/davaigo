@@ -101,7 +101,7 @@ export default function KaufNativ({ onFertig, onAbbrechen }) {
       <div className="kn">
         <h1 className="kn-titel">{tr('Davaigo Premium')}</h1>
         <p className="kn-unter">
-          {tr('Alle Lektionen, 2 Stunden Sprach-Trainer im Monat, eigene Texte und Sätze.')}
+          {tr('Alle Lektionen, unbegrenzte KI-Vokabellisten, eigene Texte und Sätze.')}
         </p>
 
         {angebote === null ? (

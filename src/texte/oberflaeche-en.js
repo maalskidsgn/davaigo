@@ -1493,7 +1493,7 @@ export default {
  "Sag mir, was gut war und was stört. Ich lese jede Nachricht selbst.": "Tell me what worked and what bothers you. I read every message myself.",
  "Feedback und Kritik": "Feedback and criticism",
  "Sag mir, was gut ist und was besser werden soll.": "Tell me what works and what should get better.",
- "Alle Lektionen, 2 Stunden Sprach-Trainer im Monat, eigene Texte und Sätze.": "All lessons, 2 hours of voice trainer per month, your own texts and sentences.",
+ "Alle Lektionen, unbegrenzte KI-Vokabellisten, eigene Texte und Sätze.": "All lessons, unlimited AI vocabulary lists, your own texts and sentences.",
  "All-Inkl (nur beim Feedback-Formular)": "All-Inkl (feedback form only)",
  "Zustellung deiner Nachricht an uns per E-Mail": "Delivering your message to us by email",
  "Deine Nachricht, deine E-Mail-Adresse falls angegeben, die Kennung deines Kontos, Sprache und Geräte-Angaben des Browsers bzw. der App": "Your message, your email address if provided, your account identifier, language and device details of the browser or app",

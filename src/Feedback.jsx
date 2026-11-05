@@ -5,7 +5,7 @@ import { supabaseBereit, db } from './supabase.js'
 import { plattform } from './kauf.js'
 import { tr, sprache } from './sprache.js'
 
-const ARTEN = ['idee', 'kritik', 'fehler', 'sprechen']
+const ARTEN = ['idee', 'kritik', 'fehler']
 
 /**
  * Knopf samt Formular: Die Nachricht geht ins Postfach, das Manuel

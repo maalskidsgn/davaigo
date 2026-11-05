@@ -25,7 +25,7 @@ const ZUGABE_SEKUNDEN = 20
 
 // Zum Testen: Diese Konten rechnen wie Premium, auch ohne Abo.
 const PREMIUM_TESTER = (process.env.SPRECH_PREMIUM || 'manuel').toLowerCase().split(',').map((s) => s.trim())
-const TESTER = (process.env.SPRECH_TESTER || 'alle').toLowerCase().split(',').map((s) => s.trim())
+const TESTER = (process.env.SPRECH_TESTER || 'manuel').toLowerCase().split(',').map((s) => s.trim())
 
 
 let verbindung = null
