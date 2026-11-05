@@ -242,6 +242,13 @@ export function Datenschutz({ onZurueck }) {
         drittland={tr('USA, abgesichert über Standardvertragsklauseln.')}
       />
       <Empfaenger
+        name={tr('All-Inkl (nur beim Feedback-Formular)')}
+        zweck={tr('Zustellung deiner Nachricht an uns per E-Mail')}
+        daten={tr('Deine Nachricht, deine E-Mail-Adresse falls angegeben, die Kennung deines Kontos, Sprache und Geräte-Angaben des Browsers bzw. der App')}
+        sitz={tr('ALL-INKL.COM – Neue Medien Münnich, Friedersdorf, Deutschland')}
+        grundlage={tr('Art. 6 Abs. 1 lit. f DSGVO')}
+      />
+      <Empfaenger
         name={tr('Spotify (nur wenn du es verbindest)')}
         zweck={tr('Songvorschläge auf Grundlage deines Musikgeschmacks')}
         daten={tr('Nach deiner Freigabe liest Davaigo deine gespeicherten Titel, deine privaten Playlists und deine meistgehörten Künstler (Berechtigungen: user-library-read, playlist-read-private, user-top-read). Die Verbindung kannst du jederzeit trennen.')}

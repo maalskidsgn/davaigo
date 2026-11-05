@@ -1,3 +1,4 @@
+import FeedbackKnopf from './Feedback.jsx'
 import { useRef, useState, useEffect } from 'react'
 import { IconPfeil } from './icons.jsx'
 import { API_URL, istApp } from './api.js'
@@ -608,6 +609,16 @@ export default function Settings({
           </div>
         </>
       )}
+
+      <div className="settings-card">
+        <div className="settings-row">
+          <div>
+            <div className="row-title">{tr('Feedback und Kritik')}</div>
+            <div className="row-hint">{tr('Sag mir, was gut ist und was besser werden soll.')}</div>
+          </div>
+          <FeedbackKnopf />
+        </div>
+      </div>
 
       {/* ---------- Rechtliches ---------- */}
       {/* Auch hier erreichbar, nicht nur im Fuß der Startseite: Wer

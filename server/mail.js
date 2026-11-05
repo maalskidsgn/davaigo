@@ -36,7 +36,7 @@ function verbindung() {
 }
 
 /** Schickt eine Mail. Wirft nicht – meldet nur, ob es geklappt hat. */
-export async function schicke({ an, betreff, text, html }) {
+export async function schicke({ an, antwortAn, betreff, text, html }) {
   if (!mailBereit()) return false
   try {
     await verbindung().sendMail({
@@ -46,6 +46,7 @@ export async function schicke({ an, betreff, text, html }) {
       // kaeme nie an - oder laendete im Spam.
       from: `${process.env.SMTP_ABSENDER || 'Davaigo'} <${process.env.SMTP_USER}>`,
       to: an,
+      replyTo: antwortAn,
       subject: betreff,
       text,
       html,
