@@ -317,6 +317,30 @@ export function Datenschutz({ onZurueck }) {
    AGB
    ================================================================ */
 
+export function KontoLoeschen({ onZurueck }) {
+  return (
+    <Seite titel={tr('Dein Konto und deine Daten löschen')} onZurueck={onZurueck} kinder={<>
+      <P>{tr('Du kannst dein Davaigo-Konto jederzeit selbst löschen. Dafür gibt es zwei Wege.')}</P>
+
+      <H2>{tr('In der App')}</H2>
+      <P>{tr('Öffne „Mehr“ und scrolle nach unten zu „Konto löschen“. Nach zwei Rückfragen ist das Konto weg. Das ist der schnellste Weg.')}</P>
+
+      <H2>{tr('Per E-Mail')}</H2>
+      <P>
+        {tr('Wenn du die App schon gelöscht hast oder nicht mehr hineinkommst, schreib von der Adresse, mit der du dich angemeldet hast, an')}{' '}
+        <a href="mailto:lernen@davaigo.de?subject=Konto%20l%C3%B6schen">lernen@davaigo.de</a>.{' '}
+        {tr('Wir löschen das Konto innerhalb von 30 Tagen und bestätigen es dir.')}
+      </P>
+
+      <H2>{tr('Was gelöscht wird')}</H2>
+      <div className="recht-kasten">
+        <P><b>{tr('Sofort und vollständig:')}</b> {tr('dein Konto und die Anmeldedaten, dein Anzeigename, alle gesammelten Vokabeln samt Lernstand, dein Lektionsfortschritt, gespeicherte Videos, Punktestand und Tagesserie.')}</P>
+        <P><b>{tr('Was bleibt:')}</b> {tr('Rechnungsdaten zu einem bezahlten Abo. Die müssen wir nach § 147 AO und § 257 HGB zehn Jahre aufbewahren. Sie werden für nichts anderes verwendet.')}</P>
+      </div>
+    </>} />
+  )
+}
+
 export function AGB({ onZurueck }) {
   return (
     <Seite titel={tr('Allgemeine Geschäftsbedingungen')} onZurueck={onZurueck} kinder={<>

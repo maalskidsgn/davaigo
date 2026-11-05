@@ -9,7 +9,7 @@ import {
 } from './sync.js'
 import Login from './Login.jsx'
 import NeuesPasswort from './NeuesPasswort.jsx'
-import { Impressum, Datenschutz, AGB } from './Recht.jsx'
+import { Impressum, Datenschutz, AGB, KontoLoeschen } from './Recht.jsx'
 import Bezahlen from './Bezahlen.jsx'
 import KaufNativ from './KaufNativ.jsx'
 import { kaufMoeglich, kaufVorbereiten, kaufBeenden } from './kauf.js'
@@ -329,7 +329,7 @@ export default function App() {
 
   const [rechtSeite, setRechtSeite] = useState(() => {
     const gewuenscht = new URLSearchParams(window.location.search).get('recht')
-    return ['impressum', 'datenschutz', 'agb'].includes(gewuenscht) ? gewuenscht : null
+    return ['impressum', 'datenschutz', 'agb', 'konto-loeschen'].includes(gewuenscht) ? gewuenscht : null
   })
 
   // Der Einwilligungs-Hinweis hängt neben <App/> im Baum (App steigt
@@ -1166,6 +1166,7 @@ export default function App() {
     if (rechtSeite === 'impressum') return <Impressum onZurueck={zu} />
     if (rechtSeite === 'datenschutz') return <Datenschutz onZurueck={zu} />
     if (rechtSeite === 'agb') return <AGB onZurueck={zu} />
+    if (rechtSeite === 'konto-loeschen') return <KontoLoeschen onZurueck={zu} />
   }
 
   // "?willkommen" in der Adresse zeigt die Startseite auch ohne
