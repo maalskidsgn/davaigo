@@ -21,7 +21,8 @@ import Logo from './Logo.jsx'
 
 // -2: Seit das Protokoll gespeichert wird, braucht es eine neue Einwilligung.
 const EINWILLIGUNG = 'sprechen-einwilligung-2'
-const NIVEAU_SPEICHER = 'sprechen-niveau'
+// Neuer Name: Alle starten einmal bei A1, auch wer zuvor A2 stehen hatte.
+const NIVEAU_SPEICHER = 'sprechen-niveau-a1'
 const NIVEAUS = ['A1', 'A2', 'B1', 'B2', 'C1']
 
 async function api(pfad, body) {
@@ -186,7 +187,7 @@ export default function Sprechen({ onZurueck, addXp, onAddVocab }) {
   const [stand, setStand] = useState(null)
   const [phase, setPhase] = useState('start') // start | verbindet | laeuft | wertet | fertig
   const [fehler, setFehler] = useState('')
-  const [niveau, setNiveau] = useState(() => lies(NIVEAU_SPEICHER, 'A2'))
+  const [niveau, setNiveau] = useState(() => lies(NIVEAU_SPEICHER, 'A1'))
   const [einverstanden, setEinverstanden] = useState(() => lies(EINWILLIGUNG, '') === 'ja')
   const [zeilen, setZeilen] = useState([]) // { id, von, text }
   const [wer, setWer] = useState('hoert') // hoert | ich | katja
