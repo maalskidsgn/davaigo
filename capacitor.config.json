@@ -2,7 +2,6 @@
   "appId": "de.davaigo.app",
   "appName": "Davaigo",
   "webDir": "dist",
-  "includePlugins": [],
   "android": {
     "backgroundColor": "#f5f0fc"
   },

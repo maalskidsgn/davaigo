@@ -8,3 +8,4 @@
 #
 # Enthält keine Geheimnisse und darf ins Git.
 VITE_API_URL=https://api.davaigo.de
+VITE_REVENUECAT_APPLE_KEY=appl_qmIbZaAQEIJjjZHgNViEpvkzOSx
