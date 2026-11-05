@@ -234,6 +234,14 @@ export function Datenschutz({ onZurueck }) {
         grundlage={tr('Art. 6 Abs. 1 lit. b DSGVO')}
       />
       <Empfaenger
+        name={tr('RevenueCat (nur bei Käufen in der App)')}
+        zweck={tr('Verwaltung von Abos, die du in der App über Apple oder Google abschließt')}
+        daten={tr('Eine Kennung deines Kontos, Kaufdaten wie Produkt, Zeitpunkt und Laufzeit sowie technische Angaben zu Gerät und App. Deine Zahlungsdaten gibst du direkt bei Apple oder Google ein; wir sehen und speichern sie nicht.')}
+        sitz={tr('RevenueCat, Inc., San Francisco, USA')}
+        grundlage={tr('Art. 6 Abs. 1 lit. b DSGVO')}
+        drittland={tr('USA, abgesichert über Standardvertragsklauseln.')}
+      />
+      <Empfaenger
         name={tr('Spotify (nur wenn du es verbindest)')}
         zweck={tr('Songvorschläge auf Grundlage deines Musikgeschmacks')}
         daten={tr('Nach deiner Freigabe liest Davaigo deine gespeicherten Titel, deine privaten Playlists und deine meistgehörten Künstler (Berechtigungen: user-library-read, playlist-read-private, user-top-read). Die Verbindung kannst du jederzeit trennen.')}
