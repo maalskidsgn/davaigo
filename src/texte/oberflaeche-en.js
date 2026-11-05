@@ -1464,4 +1464,10 @@ export default {
  "Was der Sprach-Trainer speichert": "What the speaking trainer stores",
  "Deine Stimme speichern wir nicht. Wir speichern das Gesprächsprotokoll als Text, eine Zusammenfassung, erkannte Fehler und neue Wörter sowie ein Lernprofil mit deinen Zielen, Interessen, deinem geschätzten Niveau und deinen Fortschritten. Das dient dazu, dass der Trainer sich auf frühere Gespräche beziehen kann und du sie nachlesen kannst. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit widerrufen, indem du einzelne Gespräche oder das gesamte Gedächtnis auf der Seite des Trainers löschst und den Trainer nicht mehr nutzt. Mit deinem Konto werden auch diese Daten gelöscht. Dauer und Beginn jedes Gesprächs behalten wir, um dein Minutenkontingent berechnen zu können. Die Auswertung ist automatisiert und kann Fehler enthalten. Sie hat keine rechtliche Wirkung für dich.": "We do not store your voice. We store the conversation as text, a summary, detected mistakes and new words, and a learning profile with your goals, interests, estimated level and progress. This lets the trainer refer to earlier calls and lets you read them again. The legal basis is your consent (Art. 6(1)(a) GDPR). You can withdraw it at any time by deleting individual conversations or the whole memory on the trainer page and no longer using the trainer. This data is also deleted with your account. We keep the start and duration of each call to calculate your minutes. The analysis is automated and may contain errors. It has no legal effect on you.",
  "Art. 6 Abs. 1 lit. a DSGVO": "Art. 6(1)(a) GDPR",
+ "Rabattcode": "Discount code",
+ "Code eingeben": "Enter code",
+ "Einlösen": "Apply",
+ "Code {0} ist aktiv": "Code {0} applied",
+ "Entfernen": "Remove",
+ "Dieser Code gilt leider nicht.": "This code is not valid.",
 }

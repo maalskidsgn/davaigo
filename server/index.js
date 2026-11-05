@@ -10,6 +10,7 @@ import { findeRussischeInterpreten, ergaenzeSongs } from './interpreten.js'
 import { uebersetzeWort, uebersetzeZeilen } from './uebersetzen.js'
 import { erzeugeSatzliste, GRAMMATIK } from './saetze.js'
 import { zugang as lesekursZugang, video as lesekursVideo } from './lesekurs.js'
+import { zaehleKlick } from './partner.js'
 import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende, vergiss as sprechVergiss, gespraeche as sprechGespraeche, gespraech as sprechGespraech, loesche as sprechLoesche, suche as sprechSuche, starteAufsicht as sprechAufsicht } from './sprechen.js'
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
@@ -1079,5 +1080,10 @@ app.get('/api/lesekurs/zugang', async (req, res) => {
   }
 })
 app.get('/api/lesekurs/video/:sprache/:nr', lesekursVideo)
+
+// Partner-Link: nur ein Zaehler pro Tag, keine Personendaten.
+app.post('/api/partner/klick', async (req, res) => {
+  res.json(await zaehleKlick(req.body?.code).catch(() => ({ ok: false })))
+})
 
 app.listen(PORT, () => console.log(`Transkript-Server läuft auf http://localhost:${PORT}`))
