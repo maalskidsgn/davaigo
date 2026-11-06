@@ -26,6 +26,10 @@ import Flamme from './Flamme.jsx'
 // unten erhalten: Diese eine Zeile holt sie zurueck.
 const PRAXIS_ZEIGEN = false
 
+// Die Weiterlernen-Karte ist ausgeblendet (Manuel, 06.11.): Die
+// Funktions-Karten oben führen schon in die Lektionen. true holt sie zurück.
+const LEKTIONSKARTE_ZEIGEN = false
+
 export default function Home({
   progress,
   counts,
@@ -111,6 +115,7 @@ export default function Home({
       <InstallKnopf app="Davaigo" />
 
       {/* ============ 1. WEITERLERNEN ============ */}
+      {LEKTIONSKARTE_ZEIGEN && (
       <section className="start-karte start-lektion">
         <MiniRoute fertig={!nextLesson} />
         <div className="start-lektion-text">
@@ -150,6 +155,7 @@ export default function Home({
           </button>
         </div>
       </section>
+      )}
 
       {/* ============ 2. DIE RANGLISTE ============ */}
       {/* Steht weit oben, aber nicht an erster Stelle: Weiterlernen
