@@ -754,7 +754,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                     </span>
                   </span>
                   {gesperrt(l) && !geschafft ? (
-                    <span className="plan-premium">{tr('Premium')}</span>
+                    <span className="lek-premium">{tr('Premium')}</span>
                   ) : geschafft ? (
                     <span className="plan-haken">✓</span>
                   ) : dran ? (
