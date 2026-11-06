@@ -68,28 +68,40 @@ const aboMoeglich = !istApp || kaufMoeglich()
 /** Die Karte ueber dem Trainer. Erscheint nur, wenn das Konto freigeschaltet ist. */
 export function SprechenTuer() {
   const [erlaubt, setErlaubt] = useState(tuerFrei)
+  const [rest, setRest] = useState(null) // { minuten, premium }
   useEffect(() => {
     api('/api/sprechen/status')
       .then((d) => {
         tuerFrei = Boolean(d.erlaubt)
         merke(TUER_SPEICHER, tuerFrei ? 'ja' : 'nein')
         setErlaubt(tuerFrei)
+        if (Number.isFinite(d.restMinuten)) setRest({ minuten: d.restMinuten, premium: Boolean(d.premium) })
       })
       .catch(() => {})
   }, [])
   if (!erlaubt) return null
+  // Zwei Sprechblasen im Toon-Stil (Manuel, 06.11.): links spricht man,
+  // rechts tippt die Trainerin schon die Antwort.
   return (
     <button className="spr-tuer" onClick={() => window.dispatchEvent(new CustomEvent('sprechen-oeffnen'))}>
-      <span className="spr-tuer-kreis" aria-hidden="true"><i /></span>
-      <span className="spr-tuer-text">
-        <small>{tr('KI-Sprachtrainerin')}</small>
-        <b>{tr('Sprich mit Katja')}</b>
-        <span>{tr('Du sprichst mit einer KI. Sie wertet jedes Gespräch aus und merkt sich deine Fehler. So steigerst du langfristig dein Level.')}</span>
-        <span className="spr-tuer-punkte">
-          <i>{tr('Per Stimme sprechen')}</i>
-          <i>{tr('KI wertet alles aus')}</i>
-          <i>{tr('Level steigern')}</i>
+      <span className="spr-blasen" aria-hidden="true">
+        <span className="spr-blase spr-blase-du">
+          <i /><i /><i /><i /><i />
         </span>
+        <span className="spr-blase spr-blase-sie">
+          <i /><i /><i />
+        </span>
+      </span>
+      <span className="spr-tuer-text">
+        <b>{tr('Sprich mit Katja')}</b>
+        <span>{tr('Du redest, Katja antwortet – auf Russisch.')}</span>
+      </span>
+      <span className="spr-tuer-unten">
+        <span className="spr-tuer-knopf">
+          <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1z" fill="currentColor" /></svg>
+          {tr('Anrufen')}
+        </span>
+        {rest && <span className="spr-tuer-rest">{rest.premium ? tr('noch {0} Min. diesen Monat', rest.minuten) : tr('noch {0} Min. gratis', rest.minuten)}</span>}
       </span>
     </button>
   )
