@@ -358,6 +358,46 @@ function Serie({ serie, klasse }) {
   )
 }
 
+/**
+ * Violette Toon-Insel ohne Kontur: Plateau oben, runde Felsklumpen
+ * darunter, ein paar Wolken und Brocken. Je Platz eigene Töne,
+ * Platz 1 am kräftigsten (Davaigo-Violett).
+ */
+const INSEL_TOENE = {
+  erster: ['#e6d9ff', '#cbb2fb', '#b08cf6', '#9461ef', '#7c3aed', '#5b21b6'],
+  zweiter: ['#ece3ff', '#d8c6fd', '#c2a6f9', '#ab86f4', '#9566ee', '#7444d4'],
+  dritter: ['#f3edff', '#e5d9fe', '#d6c3fc', '#c4a8f8', '#b08ef3', '#8f68e0'],
+}
+function Insel({ stufe }) {
+  const [hell, oben, links, mitte, rechts, tief] = INSEL_TOENE[stufe]
+  return (
+    <svg className="rs-insel-bild" viewBox="-4 -12 108 158" aria-hidden="true" style={{ '--insel-tief': tief }}>
+      <path d="M4 30 Q8 54 22 62 Q30 66 34 60 L34 42 Z" fill={mitte} />
+      <path d="M22 62 Q22 86 34 96 Q42 102 46 94 L50 48 L34 44 L34 60 Q30 66 22 62 Z" fill={links} />
+      <path d="M46 94 Q46 118 52 128 Q58 118 60 98 Q62 84 66 78 L66 46 L50 48 Z" fill={mitte} />
+      <path d="M66 46 L66 78 Q74 84 80 76 Q92 62 96 30 Z" fill={rechts} />
+      <path d="M66 78 Q62 84 60 98 Q66 104 72 96 Q78 88 80 76 Q74 84 66 78 Z" fill={tief} />
+      <path d="M80 76 Q92 62 96 30 Q92 52 84 66 Z" fill={tief} />
+      <path d="M2 26 Q50 50 98 26 L96 33 Q50 57 4 33 Z" fill={rechts} />
+      <ellipse cx="50" cy="24" rx="48" ry="15" fill={oben} />
+      <ellipse cx="46" cy="20" rx="32" ry="8" fill={hell} />
+      <path d="M18 19 Q26 13 38 12" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" fill="none" opacity=".85" />
+      <ellipse cx="13" cy="24" rx="6" ry="4.4" fill={rechts} />
+      <ellipse cx="12" cy="22.6" rx="3.6" ry="2.4" fill={mitte} />
+      <ellipse cx="87" cy="25" rx="4.6" ry="3.4" fill={tief} />
+      <path d="M28 54 Q30 70 36 80" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" fill="none" opacity=".55" />
+      <g fill="#fff" opacity=".92">
+        <ellipse cx="14" cy="70" rx="12" ry="5" />
+        <ellipse cx="22" cy="66" rx="8" ry="5" />
+        <ellipse cx="84" cy="88" rx="11" ry="4.6" />
+        <ellipse cx="78" cy="85" rx="7" ry="4.4" />
+      </g>
+      <ellipse cx="30" cy="112" rx="4.4" ry="3.4" fill={rechts} />
+      <ellipse cx="74" cy="116" rx="3.4" ry="2.6" fill={mitte} />
+    </svg>
+  )
+}
+
 /** Eine Säule des Podests: Bild, Name, XP und der Block mit dem Platz. */
 function Saeule({ z, stufe, onOeffnen }) {
   return (
@@ -374,9 +414,14 @@ function Saeule({ z, stufe, onOeffnen }) {
       </span>
       <span className="rs-xp">{z.xp.toLocaleString(gebiet())} XP</span>
       <Serie serie={z.serie} klasse="rs-serie" />
-      <span className="rs-block">
-        {z.level && <LevelEmblem level={z.level} groesse={{ erster: 54, zweiter: 44, dritter: 36 }[stufe]} />}
-        {z.platz}
+      {/* Schwebende Insel statt Treppenstufe: Emblem steht auf dem
+          Plateau, die Platzziffer liegt darauf. */}
+      <span className="rs-insel">
+        <Insel stufe={stufe} />
+        <span className="rs-kopf">
+          {z.level && <LevelEmblem level={z.level} groesse={{ erster: 44, zweiter: 38, dritter: 32 }[stufe]} />}
+          <b className="rs-platz">{z.platz}</b>
+        </span>
       </span>
     </button>
   )
