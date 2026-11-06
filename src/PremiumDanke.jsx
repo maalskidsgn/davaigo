@@ -3,6 +3,7 @@ import { tr } from './sprache.js'
 
 // Als Funktion, damit die Texte in der gerade eingestellten Sprache kommen.
 const vorteile = () => [
+  tr('2 Stunden mit Katja sprechen, jeden Monat'),
   tr('Der Lesekurs mit allen 16 Videos'),
   tr('Unbegrenzte KI-Vokabellisten'),
   tr('Unbegrenzte Übungssätze und zweisprachige E-Books'),
@@ -13,6 +14,11 @@ const vorteile = () => [
  * Danke, zeigt, was jetzt freigeschaltet ist, und führt weiter.
  */
 export default function PremiumDanke({ verzoegert = false, onWeiter }) {
+  function zumTrainer() {
+    onWeiter?.()
+    window.dispatchEvent(new CustomEvent('sprechen-oeffnen'))
+  }
+
   return (
     <div className="kassen-seite">
       <div className="danke">
@@ -29,7 +35,8 @@ export default function PremiumDanke({ verzoegert = false, onWeiter }) {
           {vorteile().map((v) => <li key={v}>{v}</li>)}
         </ul>
         {verzoegert && <p className="danke-hinweis">{tr('Die Freischaltung kann noch einen Moment dauern. Öffne die App sonst kurz neu.')}</p>}
-        <button className="kn-kaufen" onClick={onWeiter}>{tr('Weiter lernen')}</button>
+        <button className="kn-kaufen" onClick={zumTrainer}>{tr('Jetzt mit Katja sprechen')}</button>
+        <button className="kn-wieder" onClick={onWeiter}>{tr('Weiter lernen')}</button>
       </div>
     </div>
   )
