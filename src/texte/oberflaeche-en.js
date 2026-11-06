@@ -1518,4 +1518,9 @@ export default {
  "dein Konto und die Anmeldedaten, dein Anzeigename, alle gesammelten Vokabeln samt Lernstand, dein Lektionsfortschritt, gespeicherte Videos, Punktestand und Tagesserie.": "your account and login details, your display name, all collected words and their learning progress, your lesson progress, saved videos, points and streak.",
  "Was bleibt:": "What remains:",
  "Rechnungsdaten zu einem bezahlten Abo. Die müssen wir nach § 147 AO und § 257 HGB zehn Jahre aufbewahren. Sie werden für nichts anderes verwendet.": "billing records for a paid subscription. We must keep them for ten years under § 147 AO and § 257 HGB. They are not used for anything else.",
+ "Profilbild ändern": "Change profile picture",
+ "Profilbild hinzufügen": "Add profile picture",
+ "Tippe auf dein Bild, um es zu ändern.": "Tap your picture to change it.",
+ "Tippe auf den Kreis, um ein Profilbild hinzuzufügen. Es erscheint in Rangliste und Freundesliste.": "Tap the circle to add a profile picture. It shows up in the leaderboard and your friends list.",
+ "Bild entfernen": "Remove picture",
 }

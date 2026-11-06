@@ -14,7 +14,7 @@ import { BenutzernameFeld } from './Rangliste.jsx'
 import Blockierte from './Blockierte.jsx'
 import Freunde from './Freunde.jsx'
 import DuellKasten from './Duell.jsx'
-import { ladeBenutzername } from './rangliste.js'
+import { ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse } from './rangliste.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
 // Benachrichtigungen, Daten-Sicherung und App-Infos.
@@ -47,6 +47,14 @@ export default function Settings({
   useEffect(() => {
     if (!nutzer?.id) return setRanglisteDa(false)
     ladeBenutzername(nutzer.id).then((n) => setRanglisteDa(n !== undefined))
+  }, [nutzer])
+  // Profilbild – erscheint in Rangliste, Freundesliste und Duellen
+  const [bild, setBild] = useState(null)
+  const [bildLaeuft, setBildLaeuft] = useState(false)
+  const bildFeld = useRef(null)
+  useEffect(() => {
+    if (!nutzer?.id) return setBild(null)
+    ladeProfilbild(nutzer.id).then(setBild)
   }, [nutzer])
   const [autoTon, setAutoTon] = useState(tonVonSelbst)
   const [bezahlbar, setBezahlbar] = useState(false)
@@ -265,9 +273,39 @@ export default function Settings({
           {nutzer ? (
             <>
               <div className="konto-karte">
-                <div className="konto-avatar">
-                  {anzeigename(nutzer).charAt(0).toUpperCase()}
-                </div>
+                <button
+                  className="konto-avatar konto-avatar-knopf"
+                  onClick={() => bildFeld.current?.click()}
+                  disabled={bildLaeuft}
+                  aria-label={bild ? tr('Profilbild ändern') : tr('Profilbild hinzufügen')}
+                >
+                  {bild ? (
+                    <img src={bildAdresse(bild)} alt="" />
+                  ) : (
+                    anzeigename(nutzer).charAt(0).toUpperCase()
+                  )}
+                  <span className="konto-avatar-stift" aria-hidden="true">{bildLaeuft ? '…' : '✎'}</span>
+                </button>
+                <input
+                  ref={bildFeld}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={async (e) => {
+                    const datei = e.target.files?.[0]
+                    e.target.value = ''
+                    if (!datei) return
+                    setBildLaeuft(true)
+                    try {
+                      await setzeProfilbild(nutzer.id, datei)
+                      setBild(await ladeProfilbild(nutzer.id))
+                    } catch (f) {
+                      alert(f.message)
+                    } finally {
+                      setBildLaeuft(false)
+                    }
+                  }}
+                />
                 <div className="konto-text">
                   <div className="konto-name">{anzeigename(nutzer)}</div>
                   <div className="konto-mail">{nutzer.email}</div>
@@ -276,6 +314,25 @@ export default function Settings({
                   {syncStatus === 'laeuft' ? tr('⏳ Gleicht ab…') : tr('✓ Gesichert')}
                 </span>
               </div>
+              <p className="settings-hint">
+                {bild
+                  ? tr('Tippe auf dein Bild, um es zu ändern.')
+                  : tr('Tippe auf den Kreis, um ein Profilbild hinzuzufügen. Es erscheint in Rangliste und Freundesliste.')}
+                {bild && (
+                  <>
+                    {' '}
+                    <button
+                      className="btn-plain konto-bild-weg"
+                      onClick={async () => {
+                        await loescheProfilbild(nutzer.id)
+                        setBild(null)
+                      }}
+                    >
+                      {tr('Bild entfernen')}
+                    </button>
+                  </>
+                )}
+              </p>
               <p className="settings-hint">
                 {tr('Dein Fortschritt wird automatisch gesichert und steht auf allen Geräten zur Verfügung.')}
               </p>
