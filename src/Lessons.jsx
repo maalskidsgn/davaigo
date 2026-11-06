@@ -2,6 +2,7 @@ import Lesekurs, { LesekursKarte } from './Lesekurs.jsx'
 import { useState, useEffect } from 'react'
 import {
   MODULE,
+  KURSFOLGE,
   baueSchritte,
   baueOptionen,
   lektionenVon,
@@ -29,6 +30,7 @@ import {
   nochOffen,
 } from './pruefstationen.js'
 import { tr } from './sprache.js'
+import { usePremium, LEKTIONEN_SPERRE, GRATIS_LEKTIONEN } from './premium.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -176,7 +178,10 @@ function suchStelle(satz, ziel) {
 // Der Lektionen-Bereich (wie bei Babbel):
 // Eine Übersicht mit freischaltbaren Lektionen und ein Player, der durch
 // Einleitung → Wörter → Wissen → Dialog → Übungen → Abschluss führt.
-export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
+// Die Lektionen, die ohne Premium offen bleiben (siehe premium.js)
+const GRATIS = new Set(KURSFOLGE.slice(0, GRATIS_LEKTIONEN).map((l) => l.id))
+
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse }) {
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   const [lesekursOffen, setLesekursOffen] = useState(false)
   // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
@@ -193,6 +198,15 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
   // Karte oder Liste? Die Karte macht Freude, die Liste laesst einen
   // in einem langen Modul schnell etwas wiederfinden.
   const [ansicht, setAnsicht] = useState('karte')
+  const { premium } = usePremium()
+  // Gilt erst, wenn LEKTIONEN_SPERRE an ist – bis zum offiziellen Start aus.
+  const sperreAn = LEKTIONEN_SPERRE && !premium
+  // Lektionen ab Nr. GRATIS_LEKTIONEN+1, Prüfstationen ab Modul 2
+  function gesperrt(l, station = null) {
+    if (!sperreAn) return false
+    if (station) return MODULE.indexOf(modul) > 0
+    return !GRATIS.has(l.id)
+  }
 
   // Waehrend einer laufenden Lektion ist die untere Menueleiste weg.
   // Vorher lag sie direkt unter den Antwortknoepfen: ein Fehltipp
@@ -248,6 +262,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
    * Oberflaeche waere eine zweite Stelle zum Kaputtgehen.
    */
   function starten(l, station = null) {
+    if (gesperrt(l, station)) {
+      onKasse?.()
+      return
+    }
     setLaufendeStation(station)
     const s = station ? baueSchritteStation(station) : baueSchritte(l)
     setLektion(l)
@@ -731,7 +749,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete }) {
                       {tr('{0} · {1} Wörter', l.grammatik?.[0] ?? l.beschreibung, l.items.length)}
                     </span>
                   </span>
-                  {geschafft ? (
+                  {gesperrt(l) && !geschafft ? (
+                    <span className="plan-premium">{tr('Premium')}</span>
+                  ) : geschafft ? (
                     <span className="plan-haken">✓</span>
                   ) : dran ? (
                     <span className="plan-knopf">{tr('Start')}</span>

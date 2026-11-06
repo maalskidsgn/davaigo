@@ -60,6 +60,20 @@ function gemerkterStand() {
   }
 }
 
+/**
+ * Lektionen hinter Premium.
+ *
+ * Gratis bleiben die ersten GRATIS_LEKTIONEN Lektionen des Kurses
+ * (nach kursNr) sowie die Prüfstation von Modul 1. Alles danach
+ * öffnet die Kasse.
+ *
+ * AUS bis zum offiziellen Start: Erst wenn die Store-Tests durch sind
+ * und die Abos laufen, schalten Manuel und Claude das gemeinsam ein.
+ * Gleicher Schalter in Habloo (spanisch-app/src/premium.js).
+ */
+export const LEKTIONEN_SPERRE = false
+export const GRATIS_LEKTIONEN = 10
+
 export function usePremium() {
   const [stand, setStand] = useState(() => ({
     premium: gemerkterStand(),
