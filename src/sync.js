@@ -176,6 +176,9 @@ export async function ladeStatistik(nutzerId) {
     level: data.level,
     streak: data.serie,
     lastDay: data.letzter_tag,
+    // Unter diesem Namen führt die App den letzten Lerntag (für die Serie).
+    // Nur setzen, wenn er bekannt ist – null würde die Serie zurücksetzen.
+    ...(data.letzter_tag ? { lastActive: data.letzter_tag } : {}),
     xpToday: data.xp_heute,
     verlauf: data.ki_nutzung?.verlauf ?? null,
   }
@@ -285,8 +288,13 @@ export async function zusammenfuehren(nutzerId, lokal) {
   // Statistik: der höhere XP-Stand gewinnt
   const dbStats = await ladeStatistik(nutzerId)
   const lokaleStats = lokal.stats ?? {}
-  const stats =
+  let stats =
     (dbStats?.xp ?? 0) >= (lokaleStats.xp ?? 0) ? (dbStats ?? lokaleStats) : lokaleStats
+  // Haben beide Seiten am selben Tag zuletzt gelernt, zählt die längere
+  // Serie – sonst überschreibt ein Gerät mit kurzer Serie die echte.
+  if (dbStats?.lastActive && dbStats.lastActive === lokaleStats.lastActive) {
+    stats = { ...stats, streak: Math.max(dbStats.streak ?? 0, lokaleStats.streak ?? 0) }
+  }
   await speichereStatistik(nutzerId, stats)
 
   // Lektionen: alles zusammen, was irgendwo erledigt ist

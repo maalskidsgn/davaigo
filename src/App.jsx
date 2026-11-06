@@ -63,6 +63,7 @@ import {
   levelFromXp,
   xpForLevel,
   levelName,
+  xpHeute,
 } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import './App.css'
@@ -611,8 +612,11 @@ export default function App() {
         xp: progress.xp,
         level: levelFromXp(progress.xp),
         streak: progress.streak,
-        lastDay: progress.lastDay,
-        xpToday: progress.xpToday,
+        // Der Fortschritt heißt lastActive, nicht lastDay – bis 06.11. ging
+        // hier immer null raus, und die Serie fing nach jedem Abgleich
+        // (anderes Gerät, neu angemeldet) wieder bei 1 an.
+        lastDay: progress.lastActive,
+        xpToday: xpHeute(progress),
       }).catch((f) => console.warn(tr('Statistik nicht gesichert:'), f.message))
     }, 1500)
     return () => clearTimeout(timer)
