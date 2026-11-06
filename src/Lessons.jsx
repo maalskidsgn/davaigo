@@ -19,6 +19,7 @@ import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
+import ModulBild from './ModulBild.jsx'
 import { IconLandkarte, IconListe } from './icons.jsx'
 import HoerKnopf from './HoerKnopf.jsx'
 import {
@@ -661,7 +662,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
         </button>
         <div className="modul-kopf">
           <span className="modul-kopf-ring" aria-hidden="true">
-            {modul.emoji}
+            <ModulBild modul={modul} />
           </span>
           <div className="modul-kopf-text">
             <h1>{modul.titel}</h1>
@@ -842,7 +843,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
               onClick={() => setModul(m)}
             >
               <span className="modul-ring" aria-hidden="true">
-                {bald ? '🔜' : offen ? m.emoji : '🔒'}
+                {bald ? '🔜' : offen ? <ModulBild modul={m} /> : '🔒'}
               </span>
 
               <span className="modul-text">
@@ -1231,7 +1232,7 @@ function WeiterlernenKarte({ modul, nummer, fortschritt, onOeffnen }) {
   return (
     <button className="weiterlernen" onClick={onOeffnen}>
       <span className="weiterlernen-ring" aria-hidden="true">
-        {modul.emoji}
+        <ModulBild modul={modul} />
       </span>
       <span className="weiterlernen-text">
         <span className="weiterlernen-marke">{tr('Weiterlernen')}</span>
