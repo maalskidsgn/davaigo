@@ -13338,3 +13338,12 @@ button.kal-monat-name:active { transform: none; opacity: .7; }
 @media (min-width: 900px) {
   .si-leiste { scroll-padding-inline: 2px; }
 }
+
+/* Nichts darf die Seite seitlich verschiebbar machen (06.11.): Slider und
+   Menüleiste ragten 2 px über den Rand, auf dem Handy ließ sich dadurch
+   die ganze Seite nach rechts ziehen. clip statt hidden: kein eigener
+   Scrollbereich, position: sticky bleibt intakt. */
+html, body { overflow-x: clip; }
+@supports not (overflow: clip) {
+  body { overflow-x: hidden; }
+}
