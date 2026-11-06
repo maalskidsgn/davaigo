@@ -48,6 +48,9 @@ function ermittle() {
   } catch {
     /* privater Modus – dann eben die Gerätesprache */
   }
+  // app.davaigo.com ist die englische Adresse der Web-App: dort startet
+  // jeder auf Englisch, umstellen geht wie überall in den Einstellungen.
+  if (location.hostname === 'app.davaigo.com') return 'en'
   return (navigator.language || 'de').toLowerCase().startsWith('de') ? 'de' : 'en'
 }
 

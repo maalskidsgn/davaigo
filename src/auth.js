@@ -62,7 +62,12 @@ function uebersetzeFehler(fehler) {
 // eingetragen sind (Authentication → URL Configuration). davaigo.de
 // muss dort stehen, sonst fällt Supabase still auf die Site URL
 // zurück.
-const MAIL_RUECKKEHR = 'https://davaigo.de'
+// Wer sich auf der englischen Adresse app.davaigo.com anmeldet, kommt
+// auch dorthin zurück (steht ebenfalls unter "Redirect URLs").
+const MAIL_RUECKKEHR =
+  typeof location !== 'undefined' && location.hostname === 'app.davaigo.com'
+    ? 'https://app.davaigo.com'
+    : 'https://davaigo.de'
 
 /**
  * Merkt im Konto, ob Mails auf Englisch kommen sollen.
