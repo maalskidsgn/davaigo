@@ -416,6 +416,7 @@ export default {
  "Deine Generierungen für heute sind aufgebraucht. Neue {0} gibt es {1} – bis dahin kannst du mit dem Gesammelten üben.": "You've used up your generations for today. New {0} will be available {1} – until then, you can practice with what you've collected.",
  "Deine gespeicherten Titel, deine Playlists und deine meistgehörten Künstler und Songs. Mehr fragt die App nicht an.": "Your saved titles, your playlists, and your most-listened artists and songs. The app doesn't ask for more.",
  "Deine Lernstreak": "Your learning streak",
+ "Katja-Min.": "Katja min.",
  "Analyse": "Analytics",
  "Serie": "Streak",
  "Deine Liste zu „{0}“ – wähle aus, was in den Trainer soll:": "Your list for \"{0}\" – choose what to add to the trainer:",

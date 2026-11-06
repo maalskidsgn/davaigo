@@ -14,6 +14,7 @@ const SERIEN = {
   lektionen: { name: tr('Lektionen'), farbe: '#1e9d85' },
   texte: { name: tr('Texte'), farbe: '#2e8fe8' },
   video: { name: tr('Video-Min.'), farbe: '#e5484d' },
+  habla: { name: tr('Katja-Min.'), farbe: '#d6409f' },
 }
 
 const ZEITRAEUME = [

@@ -13,7 +13,7 @@ import { gebiet } from './sprache.js'
 const SCHLUESSEL = 'lernkurve'
 // video = geschaute Video-Minuten (nur bei sichtbarem, wirklich
 // laufendem Player – siehe App.jsx)
-export const ARTEN = ['woerter', 'saetze', 'lektionen', 'texte', 'video']
+export const ARTEN = ['woerter', 'saetze', 'lektionen', 'texte', 'video', 'habla']
 
 function lade() {
   try {
@@ -45,7 +45,7 @@ export function merkeGelernt(art, menge = 1) {
 }
 
 function leer() {
-  return { woerter: 0, saetze: 0, lektionen: 0, texte: 0, video: 0 }
+  return { woerter: 0, saetze: 0, lektionen: 0, texte: 0, video: 0, habla: 0 }
 }
 
 /**

@@ -30,7 +30,7 @@ import {
   nochOffen,
 } from './pruefstationen.js'
 import { tr } from './sprache.js'
-import { usePremium, LEKTIONEN_SPERRE, GRATIS_LEKTIONEN } from './premium.js'
+import { usePremium, LEKTIONEN_SPERRE, GRATIS_ANTEIL } from './premium.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -179,7 +179,9 @@ function suchStelle(satz, ziel) {
 // Eine Übersicht mit freischaltbaren Lektionen und ein Player, der durch
 // Einleitung → Wörter → Wissen → Dialog → Übungen → Abschluss führt.
 // Die Lektionen, die ohne Premium offen bleiben (siehe premium.js)
-const GRATIS = new Set(KURSFOLGE.slice(0, GRATIS_LEKTIONEN).map((l) => l.id))
+const GRATIS = new Set(
+  KURSFOLGE.slice(0, Math.ceil(KURSFOLGE.length * GRATIS_ANTEIL)).map((l) => l.id)
+)
 
 export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse }) {
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
@@ -201,10 +203,11 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
   const { premium } = usePremium()
   // Gilt erst, wenn LEKTIONEN_SPERRE an ist – bis zum offiziellen Start aus.
   const sperreAn = LEKTIONEN_SPERRE && !premium
-  // Lektionen ab Nr. GRATIS_LEKTIONEN+1, Prüfstationen ab Modul 2
+  // Gratis: die ersten 20 % des Kurses; Station/Szene nur, wenn ihr
+  // ganzes Modul gratis ist.
   function gesperrt(l, station = null) {
     if (!sperreAn) return false
-    if (station) return MODULE.indexOf(modul) > 0
+    if (station) return lektionenVon(modul).some((x) => !GRATIS.has(x.id))
     return !GRATIS.has(l.id)
   }
 
