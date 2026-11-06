@@ -33,6 +33,9 @@ export default function Home({
 }) {
   // Kommt der Lernverlauf von einem anderen Gerät an, neu zeichnen
   const [, setVerlaufStand] = useState(0)
+  // Serie (Woche + Kalender) oder Analyse (Lernkurve) – beides
+  // untereinander machte die Startseite zu lang.
+  const [wocheTab, setWocheTab] = useState('serie')
   useEffect(() => {
     const neu = () => setVerlaufStand((n) => n + 1)
     window.addEventListener('aktivitaet', neu)
@@ -133,6 +136,29 @@ export default function Home({
         </div>
 
 
+        <div className="ansicht-schalter woche-tabs" role="tablist">
+          <button
+            role="tab"
+            aria-selected={wocheTab === 'serie'}
+            className={wocheTab === 'serie' ? 'aktiv' : ''}
+            onClick={() => setWocheTab('serie')}
+          >
+            {tr('Serie')}
+          </button>
+          <button
+            role="tab"
+            aria-selected={wocheTab === 'analyse'}
+            className={wocheTab === 'analyse' ? 'aktiv' : ''}
+            onClick={() => setWocheTab('analyse')}
+          >
+            {tr('Analyse')}
+          </button>
+        </div>
+
+        {/* Der Schlüssel lässt den Block beim Wechsel neu einblenden */}
+        <div className="wechsel" key={wocheTab}>
+        {wocheTab === 'serie' && (
+        <>
         <ol className="woche-reihe" aria-label={tr('{0} Einheiten diese Woche', wochenSumme)}>
           {woche.map((tag, i) => (
             <li key={i} className={'woche-punkt' + (tag.istHeute ? ' punkt-heute' : '')}>
@@ -157,9 +183,12 @@ export default function Home({
 
         {/* Der Kalender: ein Haken an jedem Tag, an dem etwas gelernt wurde */}
         <Kalender />
+        </>
+        )}
 
         {/* Lernkurve: was wovon gelernt wurde, als Linien je Bereich */}
-        <Lernkurve />
+        {wocheTab === 'analyse' && <Lernkurve />}
+        </div>
       </section>
 
       {/* Meilensteine: Abzeichen in sechs Stufen – jede gibt XP und

@@ -32,7 +32,8 @@ const UNTEN = 26
 
 export default function Lernkurve() {
   const [zeitraum, setZeitraum] = useState('woche')
-  const [aktiv, setAktiv] = useState(() => new Set(ARTEN))
+  // Am Anfang nur die Wörter – die anderen Linien schaltet man selbst dazu
+  const [aktiv, setAktiv] = useState(() => new Set(['woerter']))
   const [stand, setStand] = useState(0) // zählt hoch, wenn neu gelernt wurde
   const punkte = useMemo(() => verlauf(zeitraum), [zeitraum, stand])
   const [gewaehlt, setGewaehlt] = useState(null)
@@ -129,7 +130,11 @@ export default function Lernkurve() {
             onClick={() => umschalten(a)}
             aria-pressed={aktiv.has(a)}
           >
-            <span className="lk-chip-punkt" />
+            <span className="lk-chip-haken" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M5 12.5l4.5 4.5L19 7" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
             <span className="lk-chip-name">{SERIEN[a].name}</span>
             <b className="lk-chip-zahl">{summen[a]}</b>
           </button>
