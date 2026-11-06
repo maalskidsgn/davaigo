@@ -14,6 +14,7 @@ import { BenutzernameFeld } from './Rangliste.jsx'
 import Blockierte from './Blockierte.jsx'
 import Freunde from './Freunde.jsx'
 import DuellKasten from './Duell.jsx'
+import KlarwerkAbspann from './KlarwerkAbspann.jsx'
 import { ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse } from './rangliste.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
@@ -709,7 +710,7 @@ export default function Settings({
       </div>
 
       {/* ---------- Über ---------- */}
-      <p className="about-note">{tr('Mit Herz entwickelt von Klarwerk Digital')}</p>
+      <KlarwerkAbspann zeile={tr('Mit Herz entwickelt von Manuel Killert')} unter={tr('Websites & Apps · klarwerk-digital.com')} />
     </div>
   )
 }

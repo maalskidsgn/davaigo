@@ -416,6 +416,8 @@ export default {
  "Deine Generierungen für heute sind aufgebraucht. Neue {0} gibt es {1} – bis dahin kannst du mit dem Gesammelten üben.": "You've used up your generations for today. New {0} will be available {1} – until then, you can practice with what you've collected.",
  "Deine gespeicherten Titel, deine Playlists und deine meistgehörten Künstler und Songs. Mehr fragt die App nicht an.": "Your saved titles, your playlists, and your most-listened artists and songs. The app doesn't ask for more.",
  "Deine Lernstreak": "Your learning streak",
+ "Mit Herz entwickelt von Manuel Killert": "Lovingly crafted by Manuel Killert",
+ "Websites & Apps · klarwerk-digital.com": "Websites & apps · klarwerk-digital.com",
  "noch {0} Min. diesen Monat": "{0} min left this month",
  "noch {0} Min. gratis": "{0} free min left",
  "Anrufen": "Call",
