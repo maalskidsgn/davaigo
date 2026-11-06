@@ -9,6 +9,9 @@ import Lernkurve from './Lernkurve.jsx'
 import Meilensteine from './Meilensteine.jsx'
 import InstallKnopf from './InstallKnopf.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
+import { ladeBenutzername } from './rangliste.js'
+import StartInseln from './StartInseln.jsx'
+import { FARBEN_DAVAIGO } from './InselEmbleme.jsx'
 import { tr, gebiet } from './sprache.js'
 import Flamme from './Flamme.jsx'
 
@@ -36,6 +39,25 @@ export default function Home({
   // Serie (Woche + Kalender) oder Analyse (Lernkurve) – beides
   // untereinander machte die Startseite zu lang.
   const [wocheTab, setWocheTab] = useState('serie')
+  const faellig = counts?.faellig ?? 0
+
+  // Der Name für die Begrüßung: derselbe wie in der Rangliste
+  const [name, setName] = useState('')
+  useEffect(() => {
+    if (!nutzerId) return setName('')
+    ladeBenutzername(nutzerId).then((n) => setName(n || ''))
+  }, [nutzerId])
+
+  // Die Embleme springen auch in Unterbereiche: Trainer und Profil
+  // lesen das Ziel beim Öffnen aus dem Sitzungsspeicher.
+  function zuTrainer(ziel) {
+    try { sessionStorage.setItem('trainer-ziel', ziel) } catch { /* egal */ }
+    onNavigate('trainer')
+  }
+  function zuProfil(ziel) {
+    try { sessionStorage.setItem('profil-ziel', ziel) } catch { /* egal */ }
+    onNavigate('mehr')
+  }
   useEffect(() => {
     const neu = () => setVerlaufStand((n) => n + 1)
     window.addEventListener('aktivitaet', neu)
@@ -64,9 +86,26 @@ export default function Home({
   return (
     <div className="trainer home">
       <h1 className="trainer-titel start-gruss">
-        Привет<span className="accent">!</span>
+        Привет{name ? ', ' : ''}
+        {name && <span className="accent">{name}</span>}
+        <span className="accent">!</span>
       </h1>
-      <p className="intro">{tr('Bereit für deinen nächsten Schritt?')}</p>
+      <p className="intro">{tr("Wie geht's dir? Hier sind deine nächsten Schritte.")}</p>
+
+      {/* Die Funktionen als Toon-Embleme zum Durchwischen */}
+      <StartInseln
+        farben={FARBEN_DAVAIGO}
+        eintraege={[
+          { id: 'lektionen', titel: tr('Lektionen'), unter: nextLesson ? nextLesson.titel : tr('Alles geschafft'), info: tr('Kurze Lektionen Schritt für Schritt: neue Wörter, Grammatik und Hören. Am Ende jedes Moduls wartet eine Prüfstation.'), onClick: () => onNavigate('lektionen') },
+          { id: 'trainer', titel: tr('Vokabeltrainer'), unter: faellig > 0 ? tr('{0} fällig', faellig) : tr('Wörter üben'), info: tr('Deine gesammelten Wörter als Karteikarten. Der Trainer fragt sie genau dann ab, wenn du sie sonst vergessen würdest.'), onClick: () => onNavigate('trainer') },
+          { id: 'youtube', titel: 'YouTube', unter: tr('Videos ansehen'), info: tr('Echte russische Videos mit Untertiteln, die mitlaufen. Tipp ein Wort an, und es landet direkt im Trainer.'), onClick: () => onNavigate('videos') },
+          { id: 'spiele', titel: tr('Vokabelspiele'), unter: tr('Spiele mit deinen Wörtern'), info: tr('Memory, Blitzrunde, Galgenmännchen und mehr – mit deinen eigenen Wörtern. Üben, ohne dass es sich nach Lernen anfühlt.'), onClick: () => zuTrainer('spiele') },
+          { id: 'saetze', titel: tr('Satz-Trainer'), unter: tr('Sätze bauen und üben'), info: tr('Ganze Sätze bauen, Lücken füllen, Satzpaare finden. So wird aus Vokabeln echtes Sprechen.'), onClick: () => zuTrainer('saetze') },
+          { id: 'texte', titel: tr('Texte'), unter: tr('Lesen mit Übersetzung'), info: tr('Kurze Lesetexte auf deinem Niveau, Satz für Satz mit Übersetzung. Unbekannte Wörter tippst du einfach an.'), onClick: () => onNavigate('lesen') },
+          { id: 'habla', titel: 'Katja', unter: tr('Sprich mit Katja'), info: tr('Katja ist deine Gesprächspartnerin: Du sprichst mit deiner Stimme, sie antwortet auf Russisch und hilft dir weiter.'), onClick: () => window.dispatchEvent(new CustomEvent('sprechen-oeffnen')) },
+          { id: 'duell', titel: tr('Duell'), unter: tr('Fordere Freunde heraus'), info: tr('Fordere Freunde heraus: dieselben sieben Vokabeln, zehn Sekunden pro Frage. Wer mehr trifft, gewinnt.'), onClick: () => zuProfil('duell') },
+        ]}
+      />
 
       {/* Nur im Browser: App auf den Startbildschirm holen */}
       <InstallKnopf app="Davaigo" />

@@ -38,6 +38,17 @@ export default function Settings({
   onKasse,
   addXp,
 }) {
+  // Von den Start-Inseln: direkt zum Duell springen
+  useEffect(() => {
+    let ziel = null
+    try {
+      ziel = sessionStorage.getItem('profil-ziel')
+      sessionStorage.removeItem('profil-ziel')
+    } catch { /* egal */ }
+    if (ziel === 'duell') {
+      setTimeout(() => document.getElementById('profil-duell')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)
+    }
+  }, [])
   const { premium, bis, status: aboStatus, neuLaden } = usePremium()
   // Steht die Rangliste in der Datenbank schon? undefined heisst nein
   // (oder noch nicht geladen). Solange zeigen wir Freunde und Duell
@@ -373,7 +384,7 @@ export default function Settings({
           {/* ---------- Duell ----------
               Direkt unter den Freunden: Gegen wen man spielt, steht
               eine Kachel weiter oben. */}
-          <h2 className="settings-heading">{tr('Duell')}</h2>
+          <h2 className="settings-heading" id="profil-duell">{tr('Duell')}</h2>
           <div className="settings-card">
             <p className="settings-hint">
               {tr('Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr trifft, gewinnt.')}

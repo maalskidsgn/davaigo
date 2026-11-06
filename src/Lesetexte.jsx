@@ -88,7 +88,8 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
         },
       }
     })
-    addXp?.(XP.TEXT_RICHTIG)
+    // Die XP ploppen auf wie bei den Video-Minuten (Meldung in App.jsx)
+    addXp?.(XP.TEXT_RICHTIG, tr('Text gelesen'))
     merkeEinheit('wiederholung')
     merkeGelernt('texte')
     setOffenerText(null)
@@ -369,10 +370,6 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
       {fertig ? (
         <div className="leser-bewertung">
           <p className="leser-frage">{tr('Wie gut hast du den Text verstanden?')}</p>
-          {/* Was es dafür gibt, soll man vorher sehen – sonst klickt
-              man auf gut Glück und erfährt die Belohnung erst,
-              wenn sie schon verbucht ist. */}
-          <p className="leser-lohn">{tr('+{0} XP für diesen Text', XP.TEXT_RICHTIG)}</p>
           <div className="bewertungen">
             {[
               { wert: 'nochmal', text: tr('Kaum') },
