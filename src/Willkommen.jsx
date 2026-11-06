@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
+import FunktionenTabs from './FunktionenTabs.jsx'
 import { tr, sprache, setzeSprache } from './sprache.js'
 
 /**
@@ -301,6 +302,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
           </span>
         ))}
       </div>
+
+      <FunktionenTabs />
 
       {/* ---------- Die vier Stärken ---------- */}
       {STAERKEN.map((s, i) => (
