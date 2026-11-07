@@ -15,6 +15,7 @@ import Blockierte from './Blockierte.jsx'
 import Freunde from './Freunde.jsx'
 import DuellKasten from './Duell.jsx'
 import KlarwerkAbspann from './KlarwerkAbspann.jsx'
+import ProfilSozial from './ProfilSozial.jsx'
 import { ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, bildAdresse } from './rangliste.js'
 
 // Der Einstellungsbereich ("Mehr"): Profil-Übersicht, Abo, Lernziele,
@@ -38,6 +39,7 @@ export default function Settings({
   onRecht,
   onKasse,
   addXp,
+  onNavigate,
 }) {
   // Von den Start-Inseln: direkt zum Duell springen
   useEffect(() => {
@@ -47,6 +49,7 @@ export default function Settings({
       sessionStorage.removeItem('profil-ziel')
     } catch { /* egal */ }
     if (ziel === 'duell') {
+      setZeigeDuell(true)
       setTimeout(() => document.getElementById('profil-duell')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300)
     }
   }, [])
@@ -56,10 +59,18 @@ export default function Settings({
   // gar nicht erst – leere Kaesten, deren Knoepfe mit einer
   // Fehlermeldung antworten, sind schlimmer als keine Kaesten.
   const [ranglisteDa, setRanglisteDa] = useState(false)
+  const [benutzername, setBenutzername] = useState('')
   useEffect(() => {
     if (!nutzer?.id) return setRanglisteDa(false)
-    ladeBenutzername(nutzer.id).then((n) => setRanglisteDa(n !== undefined))
+    ladeBenutzername(nutzer.id).then((n) => {
+      setRanglisteDa(n !== undefined)
+      setBenutzername(n || '')
+    })
   }, [nutzer])
+  // Profil (persönlich, wie in sozialen Netzen) oder Einstellungen (technisch)
+  const [ansicht, setAnsicht] = useState('profil')
+  const [zeigeFreunde, setZeigeFreunde] = useState(false)
+  const [zeigeDuell, setZeigeDuell] = useState(false)
   // Profilbild – erscheint in Rangliste, Freundesliste und Duellen
   const [bild, setBild] = useState(null)
   const [bildLaeuft, setBildLaeuft] = useState(false)
@@ -266,16 +277,124 @@ export default function Settings({
 
   return (
     <div className="settings">
-      {/* ---------- Profil-Übersicht ---------- */}
-      <div className="profile-card">
-        <LevelEmblem level={level} groesse={64} />
-        <div className="profile-info">
-          <div className="profile-name">{levelName(level)}</div>
-          <div className="profile-rang">{tr('Level {0}', level)}</div>
-          <div className="profile-stats">
-            {progress.xp} XP · <Flamme an={progress.streak > 0} groesse={16} /> {tr('{0} Tage', progress.streak)} · {tr('{0} Wörter', counts.woerter)} · {tr('{0} Videos', counts.videos)}
-          </div>
+      {ansicht === 'profil' && (
+      <>
+      {/* ---------- Profilkopf (06.11.) ----------
+          Wie ein Social-Media-Profil: farbiges Banner, großes Bild als
+          3D-Kachel, Name, Level und Serie, darunter die Zahlen. Alles
+          Technische liegt hinter dem Zahnrad oben rechts. */}
+      <header className="pf-kopf pf-sozial">
+        <div className="pf-banner">
+          <button className="pf-zahnrad" onClick={() => { setAnsicht('einstellungen'); window.scrollTo(0, 0) }} aria-label={tr('Einstellungen')}>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></svg>
+          </button>
         </div>
+        <div className="pf-bildfeld">
+          <button
+            className="pf-bild"
+            onClick={() => bildFeld.current?.click()}
+            disabled={bildLaeuft || !nutzer}
+            aria-label={bild ? tr('Profilbild ändern') : tr('Profilbild hinzufügen')}
+          >
+            {bild ? <img src={bildAdresse(bild)} alt="" /> : <span aria-hidden="true">{(benutzername || (nutzer ? anzeigename(nutzer) : tr('Gast'))).charAt(0).toUpperCase()}</span>}
+            {nutzer && <span className="pf-bild-stift" aria-hidden="true">{bildLaeuft ? '…' : '✎'}</span>}
+          </button>
+                <input
+                  ref={bildFeld}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={async (e) => {
+                    const datei = e.target.files?.[0]
+                    e.target.value = ''
+                    if (!datei) return
+                    setBildLaeuft(true)
+                    try {
+                      await setzeProfilbild(nutzer.id, datei)
+                      setBild(await ladeProfilbild(nutzer.id))
+                    } catch (f) {
+                      alert(f.message)
+                    } finally {
+                      setBildLaeuft(false)
+                    }
+                  }}
+                />
+        </div>
+        <h1 className="pf-name">{(benutzername || (nutzer ? anzeigename(nutzer) : tr('Gast')))}</h1>
+        <div className="pf-pillen">
+          <span className="pf-pille-lvl">Lv {level} · {levelName(level)}</span>
+          <span className="pf-pille-serie"><Flamme an={progress.streak > 0} groesse={14} />{progress.streak}</span>
+        </div>
+        <dl className="pf-zahlen">
+          <div><dt>XP</dt><dd>{progress.xp.toLocaleString()}</dd></div>
+          <div><dt>{tr('Tage')}</dt><dd>{progress.streak}</dd></div>
+          <div><dt>{tr('Wörter')}</dt><dd>{counts.woerter}</dd></div>
+          <div><dt>{tr('Videos')}</dt><dd>{counts.videos}</dd></div>
+        </dl>
+      </header>
+
+      {supabaseBereit && nutzer && ranglisteDa && (
+        <ProfilSozial
+          nutzerName={benutzername || anzeigename(nutzer)}
+          onSpiel={(id) => {
+            try { sessionStorage.setItem('trainer-ziel', 'spiel:' + id) } catch { /* egal */ }
+            onNavigate?.('trainer')
+          }}
+          onAlleFreunde={() => {
+            setZeigeFreunde((x) => !x)
+            setTimeout(() => document.getElementById('profil-freunde')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+          }}
+          onDuell={() => {
+            setZeigeDuell(true)
+            setTimeout(() => document.getElementById('profil-duell')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+          }}
+        />
+      )}
+
+      {/* ---------- Freunde ----------
+          Gleich unter dem Konto: Das Soziale gehört zum eigenen
+          Konto, und ein sechster Reiter unten würde die Leiste
+          unübersichtlich machen. Ohne Konto gibt es nichts zu
+          zeigen – ohne Benutzername erst recht nicht. */}
+      {supabaseBereit && nutzer && ranglisteDa && (
+        <>
+          {zeigeFreunde && (
+            <>
+              <h2 className="settings-heading" id="profil-freunde">{tr('Freunde')}</h2>
+              <div className="settings-card">
+                <Freunde />
+              </div>
+            </>
+          )}
+
+          {/* ---------- Duell ----------
+              Direkt unter den Freunden: Gegen wen man spielt, steht
+              eine Kachel weiter oben. */}
+          {zeigeDuell && (
+            <>
+          <h2 className="settings-heading" id="profil-duell">{tr('Duell')}</h2>
+          <div className="settings-card">
+            <p className="settings-hint">
+              {tr('Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr trifft, gewinnt.')}
+            </p>
+            <DuellKasten addXp={addXp} />
+          </div>
+            </>
+          )}
+        </>
+      )}
+
+      </>
+      )}
+
+      {ansicht === 'einstellungen' && (
+      <>
+      {/* ---------- Einstellungen: alles Technische ---------- */}
+      <div className="pf-einst-kopf">
+        <button className="btn-plain back-link" onClick={() => { setAnsicht('profil'); window.scrollTo(0, 0) }}>
+          ← {tr('Zum Profil')}
+        </button>
+        <h1>{tr('Einstellungen')}</h1>
       </div>
 
       {/* ---------- Konto ---------- */}
@@ -367,31 +486,6 @@ export default function Settings({
               </button>
             </>
           )}
-        </>
-      )}
-
-      {/* ---------- Freunde ----------
-          Gleich unter dem Konto: Das Soziale gehört zum eigenen
-          Konto, und ein sechster Reiter unten würde die Leiste
-          unübersichtlich machen. Ohne Konto gibt es nichts zu
-          zeigen – ohne Benutzername erst recht nicht. */}
-      {supabaseBereit && nutzer && ranglisteDa && (
-        <>
-          <h2 className="settings-heading">{tr('Freunde')}</h2>
-          <div className="settings-card">
-            <Freunde />
-          </div>
-
-          {/* ---------- Duell ----------
-              Direkt unter den Freunden: Gegen wen man spielt, steht
-              eine Kachel weiter oben. */}
-          <h2 className="settings-heading" id="profil-duell">{tr('Duell')}</h2>
-          <div className="settings-card">
-            <p className="settings-hint">
-              {tr('Sieben Vokabeln, zehn Sekunden pro Frage. Ihr bekommt dieselben – wer mehr trifft, gewinnt.')}
-            </p>
-            <DuellKasten addXp={addXp} />
-          </div>
         </>
       )}
 
@@ -708,6 +802,9 @@ export default function Settings({
           </div>
         ))}
       </div>
+
+      </>
+      )}
 
       {/* ---------- Über ---------- */}
       <KlarwerkAbspann zeile={tr('Mit Herz entwickelt von Manuel Killert')} unter={tr('Websites & Apps · klarwerk-digital.com')} />

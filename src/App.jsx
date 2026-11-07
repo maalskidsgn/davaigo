@@ -1444,6 +1444,7 @@ export default function App() {
       {view === 'mehr' && (
         <main>
           <Settings
+            onNavigate={setView}
             onRecht={setRechtSeite}
             onLeitfaden={() => setView('leitfaden')}
             onRundgang={starteRundgang}
