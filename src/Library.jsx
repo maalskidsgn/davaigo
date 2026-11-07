@@ -337,17 +337,22 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
   return (
     <div className="library">
-      <h1 className="lib-kopf">
-        {tr('Lernen mit')} <span className="accent">YouTube</span>
-      </h1>
-      <p className="lib-unter">
-        {{
-          videos: tr('Finde russische Videos, die zu deinem Niveau passen.'),
-          songs: tr('Russische Songs mit mitlaufendem Text.'),
-          hoertexte: tr('Hörtexte mit Tonspur und Übersetzung daneben.'),
-          ebooks: tr('Buchzusammenfassungen auf Russisch – oder lass dir selbst eine schreiben.'),
-        }[bereich]}
-      </p>
+      {/* Bei den Videos sagt der Toon-Kopf schon alles (06.11.) */}
+      {bereich !== 'videos' && (
+        <>
+        <h1 className="lib-kopf">
+          {tr('Lernen mit')} <span className="accent">YouTube</span>
+        </h1>
+        <p className="lib-unter">
+          {{
+            videos: tr('Finde russische Videos, die zu deinem Niveau passen.'),
+            songs: tr('Russische Songs mit mitlaufendem Text.'),
+            hoertexte: tr('Hörtexte mit Tonspur und Übersetzung daneben.'),
+            ebooks: tr('Buchzusammenfassungen auf Russisch – oder lass dir selbst eine schreiben.'),
+          }[bereich]}
+        </p>
+        </>
+      )}
 
       {/* Der Umschalter – dieselbe Bauart wie Vokabeln|Grammatik im
           Trainer, damit die App an beiden Stellen gleich umschaltet. */}
