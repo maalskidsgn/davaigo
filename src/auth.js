@@ -6,6 +6,7 @@
  * Sicherung der Daten und Nutzung auf mehreren Geräten.
  */
 
+import { herkunft } from './herkunft.js'
 import { useState, useEffect } from 'react'
 import { db, supabaseBereit } from './supabase.js'
 import { tr, sprache } from './sprache.js'
@@ -77,6 +78,20 @@ const MAIL_RUECKKEHR =
  * Feld nicht, und bei einem Vergleich mit einem fehlenden Wert bricht die
  * Vorlage ab. So ist "fehlt" einfach Deutsch, und die Mail geht trotzdem raus.
  */
+// Konten über Google/Apple bekommen die Herkunft nachträglich – aber
+// nur frische (unter zwei Tagen), sonst stünde bei alten Konten die
+// Herkunft dieses Geräts statt der echten.
+let herkunftGemerkt = false
+function merkeHerkunftImKonto(nutzer) {
+  if (!nutzer || herkunftGemerkt || nutzer.user_metadata?.herkunft) return
+  const alter = Date.now() - new Date(nutzer.created_at).getTime()
+  if (!(alter < 2 * 86400000)) return
+  const h = herkunft()
+  if (!h) return
+  herkunftGemerkt = true
+  setTimeout(() => db.auth.updateUser({ data: { herkunft: h } }).catch(() => {}), 0)
+}
+
 let mailSpracheGemerkt = false
 function merkeMailSprache(nutzer) {
   if (!nutzer || mailSpracheGemerkt) return
@@ -94,7 +109,7 @@ export async function registrieren(email, passwort, name) {
     email: email.trim(),
     password: passwort,
     options: {
-      data: { name: name?.trim() || undefined, englisch: sprache() === 'en' },
+      data: { name: name?.trim() || undefined, englisch: sprache() === 'en', herkunft: herkunft() },
       // Fehlte bisher ganz – dadurch landete der Bestätigungslink auf
       // Supabases Site URL, und die stand auf localhost:3000.
       emailRedirectTo: MAIL_RUECKKEHR,
@@ -235,6 +250,7 @@ export function useNutzer() {
       setNutzer(sitzung?.user ?? null)
       setLaedt(false)
       merkeMailSprache(sitzung?.user)
+      merkeHerkunftImKonto(sitzung?.user)
 
       // Der Klick in der "Passwort vergessen"-Mail meldet den Nutzer
       // an – aber das alte Passwort gilt weiter, und er hat das neue
