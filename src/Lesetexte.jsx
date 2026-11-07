@@ -1,4 +1,6 @@
 import { useMemo, useState, useEffect } from 'react'
+import ZauberBild from './ZauberBild.jsx'
+import ThemaBild from './ThemaBild.jsx'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { createPortal } from 'react-dom'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
@@ -503,9 +505,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
   return (
     <div className="list-gen satz-gen">
       <div className="gen-kopf">
-        <span className="gen-symbol" aria-hidden="true">
-          <IconFunken groesse={24} />
-        </span>
+        <ZauberBild art="texte" />
         <div className="gen-text">
           <h2>{tr('Wissenstext erzeugen')}</h2>
           <p>{tr('Ein kurzer Text zum Lesen – und später Wiederlesen.')}</p>
@@ -529,6 +529,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
               disabled={laden}
               onClick={() => setGebiet(gebiet === wert ? '' : wert)}
             >
+              <ThemaBild name={wert} />
               {name}
             </button>
           ))}

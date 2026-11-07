@@ -1,4 +1,6 @@
 import { API_URL, istApp, kiKopf } from './api.js'
+import ZauberBild from './ZauberBild.jsx'
+import ThemaBild from './ThemaBild.jsx'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
@@ -106,9 +108,7 @@ export default function ListGenerator({ vocab, setVocab }) {
       {/* Gleicher Aufbau wie die anderen Bereiche: Überschrift,
           ein Satz zur Einordnung, dann der Inhalt */}
       <div className="gen-kopf">
-        <span className="gen-symbol" aria-hidden="true">
-          <IconFunken groesse={24} />
-        </span>
+        <ZauberBild art="woerter" />
         <div className="gen-text">
           <h2>{tr('KI-Listengenerator')}</h2>
           <p>{tr('Erstelle neue Wortlisten zu jedem Thema.')}</p>
@@ -135,6 +135,7 @@ export default function ListGenerator({ vocab, setVocab }) {
               disabled={laden}
               onClick={() => setThema(thema === v ? '' : v)}
             >
+              <ThemaBild name={v} />
               {v}
             </button>
           ))}
