@@ -1,4 +1,5 @@
 import { API_URL, istApp, kiKopf } from './api.js'
+import NavBild from './NavBild.jsx'
 import { holeVideoMitTranskript, supabaseBereit } from './supabase.js'
 import { useNutzer } from './auth.js'
 import {
@@ -1287,14 +1288,14 @@ export default function App() {
             className={'tab ' + (view === 'start' ? 'tab-active' : '')}
             onClick={() => setView('start')}
           >
-            <span className="tab-icon">{ICONS.start}</span>
+            <span className="tab-icon">{ICONS.start}<NavBild art="start" /></span>
             <span className="tab-label">{tr('Start')}</span>
           </button>
           <button
             className={'tab ' + (view === 'lektionen' ? 'tab-active' : '')}
             onClick={() => setView('lektionen')}
           >
-            <span className="tab-icon">{ICONS.lektionen}</span>
+            <span className="tab-icon">{ICONS.lektionen}<NavBild art="lektionen" /></span>
             <span className="tab-label">{tr('Lektionen')}</span>
           </button>
           <button
@@ -1302,7 +1303,7 @@ export default function App() {
             onClick={() => setView('trainer')}
           >
             <span className="tab-icon">
-              {ICONS.trainer}
+              {ICONS.trainer}<NavBild art="trainer" />
               {faellig > 0 && <span className="due-badge">{faellig}</span>}
             </span>
             <span className="tab-label">{tr('Trainer')}</span>
@@ -1311,14 +1312,14 @@ export default function App() {
             className={'tab ' + (view === 'videos' || view === 'lesen' ? 'tab-active' : '')}
             onClick={() => setView('videos')}
           >
-            <span className="tab-icon">{ICONS.bibliothek}</span>
+            <span className="tab-icon">{ICONS.bibliothek}<NavBild art="youtube" /></span>
             <span className="tab-label">YouTube</span>
           </button>
           <button
             className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}
             onClick={() => setView('mehr')}
           >
-            <span className="tab-icon">{ICONS.mehr}</span>
+            <span className="tab-icon">{ICONS.mehr}<NavBild art="profil" /></span>
             <span className="tab-label">{tr('Mehr')}</span>
           </button>
         </nav>

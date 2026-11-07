@@ -501,7 +501,6 @@ export default function Trainer({
             className={'flashcard' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <span className="fk-band">{tr('Vokabel')}</span>
             <div className="flash-word">{vorderseite}</div>
             {revealed ? (
               <div className="flash-back">
