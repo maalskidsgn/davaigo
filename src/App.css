@@ -4163,7 +4163,7 @@ body.liest-video .word-card {
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
-  background: linear-gradient(135deg, #f6f1fe, #ffe9d6);
+  background: linear-gradient(135deg, #f6f1fe, #efe6ff);
   border: 2px solid #e6d9fc;
 }
 .wiederholen-zahl {
@@ -7322,7 +7322,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #fdf1e6;
+  background: #f2ebff;
   font-size: 1.7rem;
   line-height: 1;
 }
