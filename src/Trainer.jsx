@@ -16,6 +16,7 @@ import InfoKnopf from './InfoKnopf.jsx'
 import Gespraech from './Gespraech.jsx'
 import { SprechenTuer } from './Sprechen.jsx'
 import Games, { spielbareVokabeln } from './Games.jsx'
+import SpielBild from './SpielBild.jsx'
 import Bausteine from './Bausteine.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
@@ -86,6 +87,9 @@ export default function Trainer({
     if (ziel === 'saetze') setDeck('saetze')
     if (ziel?.startsWith('spiel:')) setSpiel(ziel.slice(6))
     if (ziel === 'spiele') {
+      // Die Spiele stehen in der Auswahl der Übungsarten – erst öffnen
+      setDeck('woerter')
+      setArtWahl(true)
       // Mehrmals versuchen: Beim Seitenwechsel springt die App erst nach
       // oben, und die Spiele stehen ganz unten – ein einzelner Versuch
       // kam zu früh und wurde wieder überschrieben.
@@ -652,53 +656,37 @@ export default function Trainer({
         </div>
         <div className="spiel-paar">
           <button className="spiel-karte" onClick={() => setSpiel('memory')} disabled={!spielbar}>
-            <span className="spiel-bild" aria-hidden="true">
-              <i /><i /><i /><i />
-            </span>
+            <SpielBild id="memory" />
             <span className="spiel-name">{tr('Memory')}</span>
             <span className="spiel-hinweis">{tr('6 Paare aufdecken')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('paare')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-linien" aria-hidden="true">
-              <i /><i /><i />
-            </span>
+            <SpielBild id="paare" />
             <span className="spiel-name">{tr('Wortpaare')}</span>
             <span className="spiel-hinweis">{tr('5 Wörter verbinden')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('suche')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-gitter" aria-hidden="true">
-              <i /><i /><i /><i /><i /><i /><i /><i /><i />
-            </span>
+            <SpielBild id="suche" />
             <span className="spiel-name">{tr('Wortsuche')}</span>
             <span className="spiel-hinweis">{tr('5 Wörter im Gitter')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('fang')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-fang" aria-hidden="true">
-              <i /><i /><i />
-            </span>
+            <SpielBild id="fang" />
             <span className="spiel-name">{tr('Wortfang')}</span>
             <span className="spiel-hinweis">{tr('Richtige antippen')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('blitz')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="34" height="34">
-                <path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor" />
-              </svg>
-            </span>
+            <SpielBild id="blitz" />
             <span className="spiel-name">{tr('Blitzrunde')}</span>
             <span className="spiel-hinweis">{tr('60 Sekunden: passt oder nicht?')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('galgen')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <b>д_м_</b>
-            </span>
+            <SpielBild id="galgen" />
             <span className="spiel-name">{tr('Galgenmännchen')}</span>
             <span className="spiel-hinweis">{tr('Wort Buchstabe für Buchstabe raten')}</span>
           </button>
           <button className="spiel-karte" onClick={() => setSpiel('salat')} disabled={!spielbar}>
-            <span className="spiel-bild spiel-bild-text" aria-hidden="true">
-              <b>м о д</b>
-            </span>
+            <SpielBild id="salat" />
             <span className="spiel-name">{tr('Buchstabensalat')}</span>
             <span className="spiel-hinweis">{tr('Buchstaben ordnen')}</span>
           </button>
