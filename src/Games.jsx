@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, createContext, useContext, Fragment } from 'react'
+import { Sockel } from './StartInseln.jsx'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
@@ -64,7 +65,14 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
   // Die Auswahl EINMAL beim Öffnen festlegen. Vorher wurde sie bei
   // jedem Neuzeichnen neu gemischt – dadurch zeigte die linke Spalte
   // plötzlich andere Wörter als die rechte, und kein Paar passte mehr.
-  const [paare] = useState(() => spielbareVokabeln(vocab))
+  const [paare, setPaare] = useState(() => spielbareVokabeln(vocab))
+  // „Nochmal“ (06.11.): neue Runde mit frisch gewählten Wörtern – die
+  // gerade gespielten sind ja schon eine Stufe weiter.
+  const [runde, setRunde] = useState(0)
+  const nochmal = () => {
+    setPaare(spielbareVokabeln(vocab))
+    setRunde((r) => r + 1)
+  }
 
   if (paare.length < 4) {
     return (
@@ -103,6 +111,8 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
         </h2>
         <button className="sk-zu" onClick={onClose} aria-label="✕">✕</button>
       </div>
+      <NochmalKontext.Provider value={nochmal}>
+      <Fragment key={runde}>
       {spiel === 'memory' && (
         <Memory paare={paare.slice(0, 6)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
@@ -124,6 +134,8 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
       {spiel === 'salat' && (
         <Buchstabensalat paare={paare} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
       )}
+      </Fragment>
+      </NochmalKontext.Provider>
     </div>
   )
 }
@@ -132,6 +144,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
 // Hier rücken die gespielten Wörter im Karteikasten eine Stufe vor –
 // wer sie im Spiel wiedererkannt hat, kann sie eben.
 function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
+  const nochmal = useContext(NochmalKontext)
   const [gemeldet, setGemeldet] = useState(false)
 
   useEffect(() => {
@@ -140,20 +153,49 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
     setGemeldet(true)
   }, [gemeldet, woerter, onGespielt])
 
+  // Toon-Abschluss (06.11., Entwurf A): Pokal auf der Trommel, Konfetti,
+  // XP und Aufstieg als Pillen, dazu „Nochmal“.
   return (
-    <div className="flashcard done">
+    <div className="flashcard done sf-toon">
       <div className="confetti-burst" aria-hidden="true">
         {Array.from({ length: 14 }, (_, i) => (
           <span key={i} className="confetti" style={{ '--i': i }} />
         ))}
       </div>
-      <h2>{tr('Geschafft! 🎉')}</h2>
+      <span className="sf-bild" aria-hidden="true">
+        <Sockel />
+        <Pokal />
+      </span>
+      <h2>{tr('Geschafft! 🎉').replace(/\s*🎉/, '')}</h2>
       <p>{text}</p>
-      <p className="bonus-note">
-        {tr('+{0} Bonus-XP{1}', XP.SPIEL, woerter.length > 0 && tr(' · {0} Wörter eine Stufe weiter', woerter.length))}
-      </p>
-      <button onClick={onClose}>{tr('Zurück zum Trainer')}</button>
+      <div className="sf-pillen">
+        <span className="sf-pille sf-xp">+{XP.SPIEL} XP</span>
+        {woerter.length > 0 && <span className="sf-pille sf-stufe">↑ {tr(' · {0} Wörter eine Stufe weiter', woerter.length).replace(/^ · /, '')}</span>}
+      </div>
+      <div className="sf-knoepfe">
+        {nochmal && (
+          <button className="sf-nochmal" onClick={nochmal}>{tr('Nochmal')}</button>
+        )}
+        <button className="sf-zurueck" onClick={onClose}>{tr('Zurück zum Trainer')}</button>
+      </div>
     </div>
+  )
+}
+
+const NochmalKontext = createContext(null)
+
+function Pokal() {
+  return (
+    <svg className="sf-pokal" viewBox="0 0 80 80">
+      <rect x="26" y="60" width="28" height="10" rx="4" fill="#2e3192" />
+      <rect x="26" y="60" width="28" height="6" rx="3" fill="#4a4fc4" />
+      <rect x="35" y="48" width="10" height="14" fill="#e0a800" />
+      <path d="M18 18h-8a8 8 0 0 0 10 12M62 18h8a8 8 0 0 1-10 12" stroke="#ffc43d" strokeWidth="4" fill="none" />
+      <path d="M18 14h44v14a22 22 0 0 1-44 0z" fill="#ffc43d" />
+      <path d="M40 14h22v14a22 22 0 0 1-22 22z" fill="#f2a900" />
+      <path d="M40 20l3 6 6.5 1-4.7 4.5 1.1 6.5L40 35l-5.9 3 1.1-6.5L30.5 27l6.5-1z" fill="#fff" />
+      <path d="M24 20q0 10 6 16" stroke="#fff" strokeWidth="3" strokeLinecap="round" fill="none" opacity=".6" />
+    </svg>
   )
 }
 
