@@ -7357,7 +7357,7 @@ input[type="text"], input[type="search"], input:not([type]), select, textarea {
   min-width: 74px;
   padding: 9px 8px;
   border-radius: 15px;
-  background: #fdf1e6;
+  background: #f2ebff;
   line-height: 1.1;
 }
 .modul-zahl b {
@@ -14332,3 +14332,63 @@ html, body { overflow-x: clip; }
 .tp-rechts .tp-titel { left: calc(50% + var(--versatz) + 52px); text-align: left; }
 .tp-links .tp-titel { right: calc(50% - var(--versatz) + 52px); text-align: right; }
 .tp-knopf.ist-dran { --m: #c4a8ff; --r: #a78bfa; --t: #6d28d9; --o: #e4d6ff; }
+
+/* ---------- Listenansicht der Lektionen im Toon-Stil (07.11., Entwurf L1) ---------- */
+.kursplan-toon { display: flex; flex-direction: column; gap: 10px; padding: 0; list-style: none; }
+.kursplan-toon .plan-zeile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: 2.5px solid transparent;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 5px 0 var(--line);
+  text-align: left;
+}
+.kursplan-toon .plan-zeile:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 var(--line); }
+.kursplan-toon .plan-nr {
+  flex: none;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: #f3ece4;
+  color: #a89888;
+  font-size: 17px;
+  font-weight: 900;
+  box-shadow: 0 4px 0 #ddd0c2;
+}
+.kursplan-toon .plan-fertig .plan-nr { background: #1fb27a; color: #fff; font-size: 20px; box-shadow: 0 4px 0 #138a5f; }
+.kursplan-toon .plan-dran { border-color: var(--primary); box-shadow: 0 5px 0 color-mix(in srgb, var(--primary) 30%, #fff); }
+.kursplan-toon .plan-dran .plan-nr { background: var(--primary); color: #fff; box-shadow: 0 4px 0 var(--primary-dark); }
+.kursplan-toon .plan-text { flex: 1; min-width: 0; }
+.kursplan-toon .plan-titel { font-size: 15.5px; font-weight: 900; color: var(--navy); }
+.kursplan-toon .plan-lernst { font-size: 12.5px; font-weight: 800; color: var(--muted); }
+.kursplan-toon .plan-zu { opacity: 1; }
+.kursplan-toon .plan-zu .plan-titel { color: #a89888; }
+.plan-pille { flex: none; padding: 5px 10px; border-radius: 999px; background: #e6f7ef; color: #1d7a52; font-size: 11.5px; font-weight: 900; }
+.kursplan-toon .plan-knopf {
+  flex: none;
+  padding: 9px 13px;
+  border-radius: 14px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  box-shadow: 0 4px 0 var(--primary-dark);
+}
+.kursplan-toon .lek-premium { flex: none; padding: 5px 10px; border-radius: 999px; background: #fff3cc; color: #8a5200; font-size: 11.5px; font-weight: 900; box-shadow: none; }
+
+/* Davaigo (07.11.): die warmen Beige-Flächen der Toon-Bausteine in
+   sanftes Violett-Grau – Beige wirkt neben dem Violett fremd. */
+.tp-balken, .training-stage .lern-balken, .spiel-toon .lern-balken, .wiederholen-balken, .b-balken { background: #efe9fb; }
+.kursplan-toon .plan-nr { background: #f1ecfb; color: #9d93b8; box-shadow: 0 4px 0 #ddd4f0; }
+.tp-knopf { --m: #e7e1f3; --r: #dcd4ee; --t: #cbc1e2; --o: #f4f0fb; }
+.tp-kugel { color: #a59bc0; box-shadow: 0 4px 0 #ddd4f0; }
+.tp-weg-grund { stroke: #e7e0f5; }
+.streak-toon .woche-kreis, .streak-toon .kal-tag { background: #f3effb; }
+.streak-toon .woche-kreis { box-shadow: 0 4px 0 #e2daf2; }
+.memory-frage { box-shadow: 0 3px 0 #e2daf2; }
