@@ -14392,3 +14392,4 @@ html, body { overflow-x: clip; }
 .streak-toon .woche-kreis, .streak-toon .kal-tag { background: #f3effb; }
 .streak-toon .woche-kreis { box-shadow: 0 4px 0 #e2daf2; }
 .memory-frage { box-shadow: 0 3px 0 #e2daf2; }
+.tp-jetzt { margin-top: 4px; }
