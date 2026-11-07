@@ -14456,3 +14456,4 @@ html, body { overflow-x: clip; }
 .lk-toon .quiz-option.option-falsch { background: #ff5a6a; color: #fff; border-color: #ff5a6a; box-shadow: 0 6px 0 #c2334a; }
 .lk-toon .quiz-option.option-inaktiv { opacity: .5; }
 .lk-toon .player-bar { background: #efe9fb; }
+.lk-toon .word-step .lesson-hint { margin-bottom: 10px; }
