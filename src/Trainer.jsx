@@ -733,7 +733,6 @@ export default function Trainer({
           disabled={entries.length === 0}
         >
           {trainable.length > 0 ? tr('{0} Wörter üben', Math.min(LEKTION_GROESSE, trainable.length)) : tr('Nichts fällig')}
-          {trainable.length > 0 && <span className="wiederholen-pfeil" aria-hidden="true">›</span>}
         </button>
       </section>
 

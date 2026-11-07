@@ -161,6 +161,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
           im Vokabeltrainer. */}
       <section className="bereich bereich-wiederholen">
         <InfoKnopf thema="grammatik" />
+        <div className="wiederholen-reihe">
         <div className="wiederholen-zahl">
           <b>{faellig.length}</b>
           <span>{faellig.length === 1 ? tr('Baustein wartet') : tr('Bausteine warten')}</span>
@@ -176,6 +177,7 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
             <p>{tr('Schließe eine Lektion ab – dann wird die passende Regel hier zum Üben frei.')}</p>
           )}
         </div>
+            </div>
         <button className="btn wiederholen-los" onClick={() => starte(heute)} disabled={!heute}>
           {tr('{0} Aufgaben', RUNDE_GROESSE)}
         </button>
