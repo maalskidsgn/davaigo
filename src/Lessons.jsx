@@ -400,7 +400,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     const schritt = schritte[index]
 
     return (
-      <div className="lessons">
+      <div className="lessons lk-toon">
         {/* Fortschritt oben */}
         <div className="player-top">
           <button className="btn-plain" onClick={() => setLektion(null)}>
@@ -434,7 +434,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
         {/* --- Neues Wort mit Ton und hervorgehobenem Beispielsatz --- */}
         {schritt.typ === 'lernen' && (
           <div className="flashcard word-step" key={'s' + index}>
-            <p className="lesson-hint">{tr('📖 Neues Wort')}</p>
+            <p className="lesson-hint">{tr('📖 Neues Wort').replace(/^\S+\s+/, '')}</p>
+            {/* Bild auf der Trommel (07.11., Entwurf A) – vorerst das Modul-Emblem */}
+            <span className="lk-bild" aria-hidden="true"><ModulBild modul={modul} /></span>
             <div className="word-row">
               <div className="flash-word">{schritt.item.es}</div>
               {/* vonSelbst: Das Wort erklingt, sobald die Karte da
@@ -477,7 +479,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
         {schritt.typ === 'quiz' && (
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint">
-              ✏️ {schritt.richtung === 'es-de' ? tr('Was heißt…') : tr('Wie sagt man…')}
+              {schritt.richtung === 'es-de' ? tr('Was heißt…') : tr('Wie sagt man…')}
             </p>
             {schritt.richtung === 'es-de' ? (
               <div className="word-row">
