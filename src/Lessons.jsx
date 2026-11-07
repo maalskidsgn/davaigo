@@ -17,7 +17,7 @@ import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
-import { spiele, dialogAbspielen, stimmeImDialog } from './audio.js'
+import { spiele, vorladen, dialogAbspielen, stimmeImDialog } from './audio.js'
 import Reiseroute from './Reiseroute.jsx'
 import ModulBild from './ModulBild.jsx'
 import { IconLandkarte, IconListe } from './icons.jsx'
@@ -270,6 +270,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       onKasse?.()
       return
     }
+    vorladen(l) // alle Aufnahmen der Lektion schon mal holen
     setLaufendeStation(station)
     const s = station ? baueSchritteStation(station) : baueSchritte(l)
     setLektion(l)
