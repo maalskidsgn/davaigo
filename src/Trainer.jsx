@@ -11,7 +11,7 @@ import {
 import { XP } from './gamification.js'
 import { hakeAb } from './tagesplan.js'
 import { merkeEinheit } from './aktivitaet.js'
-import { merkeGelernt } from './lernkurve.js'
+import { merkeGelernt, heuteGelernt } from './lernkurve.js'
 import InfoKnopf from './InfoKnopf.jsx'
 import Gespraech from './Gespraech.jsx'
 import { SprechenTuer } from './Sprechen.jsx'
@@ -694,6 +694,7 @@ export default function Trainer({
   }
 
   // ---------- Übersichts-Ansicht ----------
+  const heute = heuteGelernt('woerter')
   return (
     <div className="trainer">
       {schalter}
@@ -706,6 +707,7 @@ export default function Trainer({
       {/* Das Wichtigste zuerst: was heute dran ist */}
       <section className="bereich bereich-wiederholen">
         <InfoKnopf thema="woerter" />
+        <div className="wiederholen-reihe">
         <div className="wiederholen-zahl">
           <b>{trainable.length}</b>
           <span>{trainable.length === 1 ? tr('Wort wartet') : tr('Wörter warten')}</span>
@@ -718,12 +720,20 @@ export default function Trainer({
               : tr('Alles erledigt. Neue Wörter sammelst du beim Video-Schauen oder unten mit der KI.')}
           </p>
         </div>
+        </div>
+        {/* Tagesziel (06.11.): eine Runde = {LEKTION_GROESSE} Karten */}
+        <div className={'wiederholen-ziel' + (heute >= LEKTION_GROESSE ? ' erreicht' : '')}>
+          <span>{tr('Tagesziel')}</span>
+          <span className="wiederholen-balken"><span style={{ width: Math.min(100, (heute / LEKTION_GROESSE) * 100) + '%' }} /></span>
+          <b>{Math.min(heute, LEKTION_GROESSE)} / {LEKTION_GROESSE}{heute >= LEKTION_GROESSE ? ' ✓' : ''}</b>
+        </div>
         <button
           className="btn wiederholen-los"
           onClick={() => setArtWahl(true)}
           disabled={entries.length === 0}
         >
-          {trainable.length > 0 ? tr('Üben') : tr('Nichts fällig')}
+          {trainable.length > 0 ? tr('{0} Wörter üben', Math.min(LEKTION_GROESSE, trainable.length)) : tr('Nichts fällig')}
+          {trainable.length > 0 && <span className="wiederholen-pfeil" aria-hidden="true">›</span>}
         </button>
       </section>
 
