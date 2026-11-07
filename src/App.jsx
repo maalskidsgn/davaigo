@@ -1,4 +1,5 @@
 import { API_URL, istApp, kiKopf } from './api.js'
+import { serieAusVerlauf } from './verlauf.js'
 import { ladeListen } from './videoListen.js'
 import NavBild from './NavBild.jsx'
 import { holeVideoMitTranskript, supabaseBereit } from './supabase.js'
@@ -299,6 +300,23 @@ export default function App() {
   const [lessonProgress, setLessonProgress] = useState(loadLessonProgress) // welche Lektionen geschafft sind
   const [levelUp, setLevelUp] = useState(null) // welches Level gerade erreicht wurde
   const prevLevelRef = useRef(levelFromXp(loadProgress().xp))
+
+  // Serie gegen die echten Lerntage prüfen (07.11.): Ist der Verlauf
+  // länger als der Zähler, gilt der Verlauf. Nur nach oben – nie
+  // kürzen, ältere Serien reichen weiter zurück als der Verlauf.
+  useEffect(() => {
+    const pruefe = () => {
+      const echt = serieAusVerlauf()
+      setProgress((p) => (echt > (p.streak || 0) ? { ...p, streak: echt } : p))
+    }
+    pruefe()
+    window.addEventListener('aktivitaet', pruefe)
+    window.addEventListener('lernkurve', pruefe)
+    return () => {
+      window.removeEventListener('aktivitaet', pruefe)
+      window.removeEventListener('lernkurve', pruefe)
+    }
+  }, [])
 
   // ---------- Konto & Abgleich ----------
   const { nutzer, laedt: nutzerLaedt, passwortNeuSetzen, passwortGesetzt } = useNutzer()
