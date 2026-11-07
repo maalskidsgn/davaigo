@@ -1,4 +1,6 @@
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { Pokal } from './Games.jsx'
+import { Sockel } from './StartInseln.jsx'
 import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
@@ -294,17 +296,21 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     if (queue.length === 0) {
       return (
         <div className="trainer">
-          <div className="flashcard done">
+          <div className="flashcard done sf-toon">
             <div className="confetti-burst" aria-hidden="true">
               {Array.from({ length: 14 }, (_, i) => (
                 <span key={i} className="confetti" style={{ '--i': i }} />
               ))}
             </div>
-            <h2>{tr('Runde geschafft! 🎉')}</h2>
+            <span className="sf-bild" aria-hidden="true">
+              <Sockel />
+              <Pokal />
+            </span>
+            <h2>{tr('Runde geschafft! 🎉').replace(/\s*🎉/, '')}</h2>
             <p>
               {tr('{0}× gewusst · {1}× nicht gewusst', result.richtig, result.falsch)}
             </p>
-            <button onClick={() => setQueue(null)}>{tr('Fertig')}</button>
+            <div className="sf-knoepfe"><button className="sf-zurueck" onClick={() => setQueue(null)}>{tr('Fertig')}</button></div>
           </div>
         </div>
       )

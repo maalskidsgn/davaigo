@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
+import { Pokal } from './Games.jsx'
+import { Sockel } from './StartInseln.jsx'
 import {
   vorschau,
   LEVEL_LABELS,
@@ -441,19 +443,23 @@ export default function Trainer({
     if (queue.length === 0) {
       return (
         <div className="trainer">
-          <div className="flashcard done">
+          <div className="flashcard done sf-toon">
             {/* Konfetti-Regen für die geschaffte Runde */}
             <div className="confetti-burst" aria-hidden="true">
               {Array.from({ length: 14 }, (_, i) => (
                 <span key={i} className="confetti" style={{ '--i': i }} />
               ))}
             </div>
-            <h2>{tr('Runde geschafft! 🎉')}</h2>
+            <span className="sf-bild" aria-hidden="true">
+              <Sockel />
+              <Pokal />
+            </span>
+            <h2>{tr('Runde geschafft! 🎉').replace(/\s*🎉/, '')}</h2>
             <p>
               {tr('{0}× gewusst · {1}× nicht gewusst', result.richtig, result.falsch)}
             </p>
-            <p className="bonus-note">{tr('+{0} Bonus-XP für die volle Runde!', XP.RUNDE)}</p>
-            <button onClick={() => setQueue(null)}>{tr('Zurück zur Übersicht')}</button>
+            <div className="sf-pillen"><span className="sf-pille sf-xp">{tr('+{0} Bonus-XP für die volle Runde!', XP.RUNDE)}</span></div>
+            <div className="sf-knoepfe"><button className="sf-zurueck" onClick={() => setQueue(null)}>{tr('Zurück zur Übersicht')}</button></div>
           </div>
         </div>
       )
