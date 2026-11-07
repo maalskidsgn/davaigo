@@ -1,4 +1,5 @@
 import { MODULE, lektionenVon } from './lektionen.js'
+import ToonFlamme from './ToonFlamme.jsx'
 import { istApp } from './api.js'
 import { UNTERRICHT, stand, restzeit, terminText } from './unterricht.js'
 import { usePremium } from './premium.js'
@@ -10,7 +11,7 @@ import Meilensteine from './Meilensteine.jsx'
 import InstallKnopf from './InstallKnopf.jsx'
 import { RanglistenKarte } from './Rangliste.jsx'
 import { ladeBenutzername } from './rangliste.js'
-import StartInseln from './StartInseln.jsx'
+import StartInseln, { Sockel } from './StartInseln.jsx'
 import { FARBEN_DAVAIGO } from './InselEmbleme.jsx'
 import { tr, gebiet } from './sprache.js'
 import Flamme from './Flamme.jsx'
@@ -165,11 +166,12 @@ export default function Home({
       {nutzerId && <RanglistenKarte nutzerId={nutzerId} eigeneXp={progress.xp ?? 0} eigeneSerie={progress.streak ?? 0} />}
 
       {/* ============ 3. DIE WOCHE ============ */}
-      <section className="start-karte">
+      <section className="start-karte streak-toon">
         {/* Die Serie als Hingucker: Flamme + große Zahl */}
         <div className="streak-kopf">
-          <span className={'streak-flamme' + (progress.streak > 0 ? ' streak-an' : '')} aria-hidden="true">
-            <Flamme an={progress.streak > 0} groesse={46} />
+          <span className={'streak-flamme streak-trommel' + (progress.streak > 0 ? ' streak-an' : '')} aria-hidden="true">
+            <Sockel />
+            <ToonFlamme klasse="streak-toon-flamme" />
           </span>
           <div className="streak-text">
             <b className="streak-zahl">{progress.streak}</b>
@@ -209,18 +211,7 @@ export default function Home({
             <li key={i} className={'woche-punkt' + (tag.istHeute ? ' punkt-heute' : '')}>
               <span className="woche-name">{tag.istHeute ? tr('Heute') : tag.label}</span>
               <span className={'woche-kreis' + stufe(tag.anzahl)}>
-                {tag.anzahl >= 2 && (
-                  <svg viewBox="0 0 24 24" width="13" height="13">
-                    <path
-                      d="M5 12.5l5 5L19 7"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3.4"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
+                {tag.anzahl > 0 ? <ToonFlamme weiss /> : tag.istHeute ? '+' : null}
               </span>
             </li>
           ))}
@@ -629,9 +620,7 @@ function Kalender() {
                 >
                   <span className="kal-zahl">{z.tag}</span>
                   {z.gesamt > 0 && (
-                    <svg className="kal-haken" viewBox="0 0 24 24" aria-hidden="true">
-                      <path d="M6 12.5l4 4 8-9" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <ToonFlamme klasse="kal-flamme" />
                   )}
                 </button>
               ))}

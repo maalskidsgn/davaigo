@@ -3,6 +3,7 @@ import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 import { tr } from './sprache.js'
+import SpielBild from './SpielBild.jsx'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare,
 // Wortsuche und Wortfang.
@@ -83,9 +84,10 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
   }
 
   return (
-    <div className="trainer training-stage">
-      <div className="player-top">
-        <button className="btn-plain" onClick={onClose}>✕</button>
+    <div className={'trainer training-stage spiel-toon spiel-' + spiel}>
+      {/* Toon-Kopf (06.11.): Spielfigur auf Mini-Trommel, Titel, Schließen rechts */}
+      <div className="player-top sk-kopf">
+        <span className="sk-bild"><SpielBild id={spiel} /></span>
         <h2 className="game-title">
           {
             {
@@ -99,6 +101,7 @@ export default function Games({ spiel, vocab, addXp, onClose, onGespielt }) {
             }[spiel]
           }
         </h2>
+        <button className="sk-zu" onClick={onClose} aria-label="✕">✕</button>
       </div>
       {spiel === 'memory' && (
         <Memory paare={paare.slice(0, 6)} addXp={addXp} onClose={onClose} onGespielt={onGespielt} />
@@ -267,7 +270,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
               }
               onClick={() => klick(k)}
             >
-              {istOffen ? k.text : '?'}
+              {istOffen ? k.text : <span className="memory-frage">?</span>}
             </button>
           )
         })}
