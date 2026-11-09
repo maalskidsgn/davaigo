@@ -15,7 +15,7 @@ import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende,
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
-import { KI_PRO_TAG, VIDEOS_PRO_WOCHE, wochenStand, nutzungHeute, zaehleNutzung, gibNutzungZurueck, naechsteAuffuellung } from './kontingent.js'
+import { KI_PRO_TAG, wochenStand, videoFreigabe, nutzungHeute, zaehleNutzung, naechsteAuffuellung } from './kontingent.js'
 import {
   antworte,
   istPremium,
@@ -221,27 +221,23 @@ app.get('/api/transcript', async (req, res) => {
   }
 
   // ---------- Wochenkontingent (seit 09.11.2026) ----------
-  // 1 neues YouTube-Video pro Woche gratis. Videos aus der Mediathek
-  // bleiben frei. Ohne Anmeldung (ältere App-Fassungen) vorerst keine
-  // Grenze – wie bei den Übersetzungen.
+  // 1 neues Video pro Woche gratis – jedes zum ersten Mal geöffnete
+  // zählt, auch aus der Mediathek. Musik bleibt frei. Ohne Anmeldung
+  // (ältere App-Fassungen) vorerst keine Grenze.
   const vNutzer = await nutzerAusToken((req.headers.authorization || '').replace('Bearer ', '')).catch(() => null)
-  let schonGezaehlt = false
-  if (vNutzer && !(await istPremium(vNutzer.id)) && !(await ausBibliothek(videoId))) {
-    const genutzt = await nutzungHeute(vNutzer.id, 'video')
-    if (genutzt >= VIDEOS_PRO_WOCHE) {
+  if (vNutzer && kategorie !== 'musik' && !(await istPremium(vNutzer.id))) {
+    const f = await videoFreigabe(vNutzer.id, videoId)
+    if (!f.ok) {
       const en = req.query.sprache === 'en'
       return res.status(429).json({
         error: en
-          ? `You've already added a new video this week. Your next one is free ${naechsteAuffuellung(true)} – or add as many as you like with Premium.`
-          : `Du hast diese Woche schon ein neues Video geholt. Das nächste gibt es ${naechsteAuffuellung()} gratis – oder sofort und ohne Grenze mit Premium.`,
+          ? `You've already opened a new video this week. Your next one is free ${naechsteAuffuellung(true)} – or watch as many as you like with Premium.`
+          : `Du hast diese Woche schon ein neues Video geöffnet. Das nächste gibt es ${naechsteAuffuellung()} gratis – oder sofort und ohne Grenze mit Premium.`,
         grund: 'kontingent',
         uebrig: 0,
       })
     }
-    await zaehleNutzung(vNutzer.id, 'video')
-    schonGezaehlt = true
   }
-  const zurueckgeben = () => (schonGezaehlt ? gibNutzungZurueck(vNutzer.id, 'video').catch(() => {}) : null)
 
   // Temporärer Ordner für die Untertitel-Datei
   const dir = await mkdtemp(join(tmpdir(), 'subs-'))
@@ -278,7 +274,6 @@ app.get('/api/transcript', async (req, res) => {
     }
 
     if (files.length === 0) {
-      zurueckgeben()
       return res.status(404).json({ error: 'Für dieses Video gibt es leider keine russischen Untertitel.' })
     }
 
@@ -303,7 +298,6 @@ app.get('/api/transcript', async (req, res) => {
     const gespeichert = await ausBibliothek(videoId)
     if (gespeichert) {
       console.log('aus der Bibliothek, kein Guthaben:', videoId)
-      zurueckgeben()
       return res.json({ ...gespeichert, qualitaet: pruefeQualitaet(gespeichert.lines) })
     }
 
@@ -319,12 +313,10 @@ app.get('/api/transcript', async (req, res) => {
         return res.json({ ...ergebnis, qualitaet: pruefeQualitaet(ergebnis.lines) })
       } catch (dienstFehler) {
         console.error('TubeAlfred:', dienstFehler.message)
-        zurueckgeben()
         return res.status(502).json({ error: dienstFehler.message })
       }
     }
     console.error(err.message)
-    zurueckgeben()
     res.status(500).json({ error: 'Transkript konnte nicht geladen werden: ' + err.message })
   } finally {
     // Temporären Ordner wieder aufräumen
@@ -640,6 +632,24 @@ app.post('/api/saetze', async (req, res) => {
 })
 
 // Kurzer zweisprachiger Wissenstext zum mehrmaligen Lesen.
+
+// Darf das Video geöffnet werden? Die App fragt VOR dem Öffnen –
+// auch für Videos aus der Mediathek, die sonst nie den Server sehen.
+app.post('/api/video/freigabe', async (req, res) => {
+  const videoId = String(req.body?.videoId || '').replace(/[^\w-]/g, '').slice(0, 20)
+  if (!videoId) return res.status(400).json({ error: 'Kein Video.' })
+  const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', '')).catch(() => null)
+  if (!nutzer || (await istPremium(nutzer.id))) return res.json({ ok: true })
+  const f = await videoFreigabe(nutzer.id, videoId)
+  if (f.ok) return res.json(f)
+  const en = req.body?.sprache === 'en'
+  res.status(429).json({
+    ok: false,
+    error: en
+      ? `You've already opened a new video this week. Your next one is free ${naechsteAuffuellung(true)} – or watch as many as you like with Premium.`
+      : `Du hast diese Woche schon ein neues Video geöffnet. Das nächste gibt es ${naechsteAuffuellung()} gratis – oder sofort und ohne Grenze mit Premium.`,
+  })
+})
 
 // Stand der Gratis-Grenzen für die Anzeige (seit 09.11.2026)
 app.get('/api/kontingent', async (req, res) => {

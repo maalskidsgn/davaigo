@@ -1,4 +1,4 @@
-import { holeKontingent, kontingentLeer, loginKopf } from './limits.js'
+import { holeKontingent, kontingentLeer, loginKopf, videoFreigeben } from './limits.js'
 import { API_URL, istApp, kiKopf } from './api.js'
 import { sichereMerker } from './kontoMerker.js'
 import { serieAusVerlauf } from './verlauf.js'
@@ -928,6 +928,11 @@ export default function App() {
     try {
       // 1) Mediathek
       const id = videoIdAusEingabe(input)
+      // 0) Gratis: 1 neues Video pro Woche (Musik ausgenommen)
+      if (id && art !== 'musik') {
+        const f = await videoFreigeben(id)
+        if (!f.ok) throw new Error(f.error)
+      }
       if (id && supabaseBereit) {
         const treffer = await holeVideoMitTranskript(id).catch(() => null)
         if (treffer?.transkript?.length) {

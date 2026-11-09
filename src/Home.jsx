@@ -98,8 +98,6 @@ export default function Home({
       </h1>
       <p className="intro">{tr("Wie geht's dir? Hier sind deine nächsten Schritte.")}</p>
 
-      <GratisUebersicht />
-
       {/* Die Funktionen als Toon-Embleme zum Durchwischen */}
       <StartInseln
         farben={FARBEN_DAVAIGO}
@@ -229,6 +227,9 @@ export default function Home({
         {wocheTab === 'analyse' && <Lernkurve />}
         </div>
       </section>
+
+      {/* Gratis-Paket weiter unten, nicht als Erstes (Manuel, 09.11.) */}
+      <GratisUebersicht />
 
       {/* Meilensteine: Abzeichen in sechs Stufen – jede gibt XP und
           meldet sich, wenn sie fällt. */}
