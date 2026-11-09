@@ -260,7 +260,10 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
   return (
     <div className="lp" ref={seite}>
       {/* Startbildschirm mit Postkarten (09.11., Entwurf C1) */}
-      <StartPostkarten onStarten={onStarten} onAnmelden={onAnmelden} />
+      {/* Web: Hero aus Startseite B (09.11.); in der App bleibt der Postkarten-Startbildschirm */}
+      {istApp
+        ? <StartPostkarten onStarten={onStarten} onAnmelden={onAnmelden} />
+        : <StartseiteB teil="hero" onStarten={onStarten} onAnmelden={onAnmelden} />}
 
       {/* Startseite B (09.11.2026): Videobereich + Toon-Bento – nur im Browser, wer die App hat, will sich anmelden */}
       {!istApp && <StartseiteB teil="oben" onStarten={onStarten} onAnmelden={onAnmelden} />}
