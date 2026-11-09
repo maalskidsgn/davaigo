@@ -442,7 +442,7 @@ export default function Settings({
                   <div className="konto-mail">{nutzer.email}</div>
                 </div>
                 <span className="konto-sync">
-                  {syncStatus === 'laeuft' ? tr('⏳ Gleicht ab…') : tr('✓ Gesichert')}
+                  {syncStatus === 'fertig' ? tr('✓ Gesichert') : syncStatus.startsWith('fehler') ? tr('⚠️ Nicht abgeglichen') : tr('⏳ Gleicht ab…')}
                 </span>
               </div>
               <p className="settings-hint">
