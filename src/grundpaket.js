@@ -434,6 +434,31 @@ export const GRUNDPAKET_SAETZE = [
     "satz": "Я не понимаю, повторите, пожалуйста.",
     "uebersetzung": "Ich verstehe nicht, wiederholen Sie bitte.",
     "schluessel": "понимаю"
+  },
+  {
+    "satz": "Сколько это стоит?",
+    "uebersetzung": "Wie viel kostet das?",
+    "schluessel": "сколько"
+  },
+  {
+    "satz": "Я учу русский язык.",
+    "uebersetzung": "Ich lerne Russisch.",
+    "schluessel": "учу"
+  },
+  {
+    "satz": "Спасибо, всё хорошо.",
+    "uebersetzung": "Danke, alles gut.",
+    "schluessel": "хорошо"
+  },
+  {
+    "satz": "Говорите медленнее, пожалуйста.",
+    "uebersetzung": "Sprechen Sie bitte langsamer.",
+    "schluessel": "медленнее"
+  },
+  {
+    "satz": "До завтра!",
+    "uebersetzung": "Bis morgen!",
+    "schluessel": "завтра"
   }
 ]
 

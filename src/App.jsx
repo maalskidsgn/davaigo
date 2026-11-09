@@ -420,7 +420,12 @@ export default function App() {
       })
 
     return () => { abgebrochen = true }
-  }, [nutzer, abgleichNr])
+    // Nur an der Nutzer-ID haengen (09.11.): Supabase meldet nach dem Login
+    // denselben Nutzer mehrfach neu (Schluessel erneuert). Das brach den
+    // laufenden Abgleich ab, ohne ihn neu zu starten – „wird abgeglichen …“
+    // blieb ewig stehen, und das Grundpaket kam nie.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nutzer?.id, abgleichNr])
 
   // Der Store-Kauf gehoert zum Konto, nicht zum Geraet.
   useEffect(() => {
@@ -432,7 +437,7 @@ export default function App() {
     kaufVorbereiten(nutzer.id)
   }, [nutzer])
 
-  // Grundpaket: einmal je Konto (bzw. Gast) 100 Wörter, 5 Sätze und
+  // Grundpaket: einmal je Konto (bzw. Gast) 100 Wörter, 10 Sätze und
   // der Text „So lernst du mit Davaigo“ – damit Trainer, Sätze und Texte
   // am ersten Tag nicht leer sind. Wer schon 50+ Wörter hat, bekommt
   // nur Sätze und Text. Doppeltes fällt über die Schlüssel weg.
