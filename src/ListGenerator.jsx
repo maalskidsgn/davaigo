@@ -1,10 +1,11 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import { API_URL, istApp, kiKopf } from './api.js'
 import ZauberBild from './ZauberBild.jsx'
 import ThemaBild from './ThemaBild.jsx'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
-import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
 import { tr } from './sprache.js'
@@ -28,7 +29,11 @@ export default function ListGenerator({ vocab, setVocab }) {
   // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
   // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
   useEffect(() => {
-    setUebrig(verbleibend(premium))
+    // Live: jede Buchung und der Abgleich mit dem Server (holeKontingent)
+    const neu = () => setUebrig(verbleibend(premium))
+    neu()
+    window.addEventListener('kontingent', neu)
+    return () => window.removeEventListener('kontingent', neu)
   }, [premium]) // freie Generierungen
   const [begruendung, setBegruendung] = useState('') // warum die KI diese Wörter wählte
   const [infoOffen, setInfoOffen] = useState(false) // Erklärung der Automatik
@@ -60,6 +65,7 @@ export default function ListGenerator({ vocab, setVocab }) {
         }),
       })
       const data = await res.json()
+      if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(data.nachricht || data.error)
       setListe(data.vokabeln.map((v) => ({ ...v, checked: true })))
       setBegruendung(data.begruendung || '')
@@ -117,11 +123,13 @@ export default function ListGenerator({ vocab, setVocab }) {
             Bei vollem Kontingent ist er nur Zierde – kurz vor dem
             Ende ist er die einzige Vorwarnung. */}
         {uebrig <= 2 && (
-          <span className="rest-zaehler" title={tr('Kostenlose Listen diesen Monat')}>
+          <span className="rest-zaehler" title={tr('Gratis-Erstellungen diese Woche')}>
             {uebrig}/{LISTEN_PRO_TAG}
           </span>
         )}
       </div>
+
+      <GratisHinweis art="ki" />
 
       <form className="wort-form" onSubmit={generieren}>
         {/* Schritt 1: Thema – nur auswählen, erzeugt wird unten */}

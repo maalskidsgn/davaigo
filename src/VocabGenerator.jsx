@@ -1,8 +1,9 @@
-import { API_URL, kiKopf } from './api.js'
+import GratisHinweis from './GratisHinweis.jsx'
+import { API_URL, kiKopf, istApp } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
-import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung } from './limits.js'
+import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { tr } from './sprache.js'
 
@@ -24,7 +25,11 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
   // Der Premium-Status kommt erst nach einer kurzen Abfrage an –
   // sobald er da ist, den Rest neu berechnen (Premium = unbegrenzt).
   useEffect(() => {
-    setUebrig(verbleibend(premium))
+    // Live: jede Buchung und der Abgleich mit dem Server (holeKontingent)
+    const neu = () => setUebrig(verbleibend(premium))
+    neu()
+    window.addEventListener('kontingent', neu)
+    return () => window.removeEventListener('kontingent', neu)
   }, [premium]) // freie Generierungen
 
   async function generate() {
@@ -42,6 +47,7 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
         }),
       })
       const data = await res.json()
+      if (res.status === 402) kontingentLeer()
       if (!res.ok) throw new Error(data.nachricht || data.error)
       setSuggestions(data.vokabeln.map((v) => ({ ...v, checked: true })))
       zaehleNutzung() // eine Generierung aus dem gemeinsamen Tageskontingent
@@ -88,12 +94,15 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
     <div className="vocab-gen">
       {!suggestions && (
         <>
+          <GratisHinweis art="ki" />
           <button onClick={generate} disabled={loading}>
             {loading ? tr('Analysiere Text…') : tr('Vokabeln generieren')}
           </button>
+{istApp && !premium && (
           <p className="free-hint">
-            {tr('Noch {0} von {1} heute', uebrig, LISTEN_PRO_TAG)}
+            {tr('Noch {0} von {1} diese Woche', uebrig, LISTEN_PRO_TAG)}
           </p>
+          )}
         </>
       )}
       {added && <p className="gen-success">{tr('Vokabeln wurden in den Trainer übernommen! ✓')}</p>}

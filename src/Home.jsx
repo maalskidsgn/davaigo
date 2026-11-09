@@ -1,3 +1,4 @@
+import { GratisUebersicht } from './GratisHinweis.jsx'
 import { MODULE, lektionenVon } from './lektionen.js'
 import ToonFlamme from './ToonFlamme.jsx'
 import { istApp } from './api.js'
@@ -96,6 +97,8 @@ export default function Home({
         <span className="accent">!</span>
       </h1>
       <p className="intro">{tr("Wie geht's dir? Hier sind deine nächsten Schritte.")}</p>
+
+      <GratisUebersicht />
 
       {/* Die Funktionen als Toon-Embleme zum Durchwischen */}
       <StartInseln

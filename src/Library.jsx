@@ -1,3 +1,4 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import { API_URL, kiKopf } from './api.js'
 import { ladeListen, neueListe } from './videoListen.js'
 import { holeBibliothek, supabaseBereit, zaehleSongs } from './supabase.js'
@@ -888,6 +889,8 @@ function VideoEngine({ wert, onWert, onSuche, bilder = [] }) {
         <li><b>↻</b> {tr('Wort antippen = übersetzt')}</li>
         <li><b>✦</b> {tr('Vokabeln per KI')}</li>
       </ul>
+
+      <GratisHinweis art="video" />
 
       <form className="engine-suche" onSubmit={absenden}>
         <svg className="engine-lupe" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">

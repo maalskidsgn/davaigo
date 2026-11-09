@@ -1,3 +1,4 @@
+import { holeKontingent, kontingentLeer, loginKopf } from './limits.js'
 import { API_URL, istApp, kiKopf } from './api.js'
 import { sichereMerker } from './kontoMerker.js'
 import { serieAusVerlauf } from './verlauf.js'
@@ -949,10 +950,13 @@ export default function App() {
       }
 
       // 2) Sonst direkt bei YouTube nachfragen (klappt nur lokal)
+      // Mit Anmeldung: Der Server zählt neue Videos (1 pro Woche gratis)
+      const zugang = await loginKopf()
       const res = await fetch(
         API_URL +
           '/api/transcript?url=' + encodeURIComponent(input) +
-          (art === 'musik' ? '&art=musik' : '')
+          (art === 'musik' ? '&art=musik' : '') + '&sprache=' + sprache(),
+        zugang.Authorization ? { headers: zugang } : undefined
       )
       const text = await res.text()
       let data
@@ -963,8 +967,10 @@ export default function App() {
           tr('Dieses Video ist noch nicht in der Davaigo-Mediathek und der Transkript-Dienst ist gerade nicht erreichbar.')
         )
       }
+      if (res.status === 429) kontingentLeer('video')
       if (!res.ok) throw new Error(data.error)
       setVideo(data)
+      holeKontingent() // ein neues Video zählt in den Wochentopf
     } catch (err) {
       setError(err.message)
     } finally {

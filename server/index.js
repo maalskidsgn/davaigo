@@ -15,7 +15,7 @@ import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende,
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
-import { KI_PRO_TAG, nutzungHeute, zaehleNutzung, naechsteAuffuellung } from './kontingent.js'
+import { KI_PRO_TAG, VIDEOS_PRO_WOCHE, wochenStand, nutzungHeute, zaehleNutzung, gibNutzungZurueck, naechsteAuffuellung } from './kontingent.js'
 import {
   antworte,
   istPremium,
@@ -220,6 +220,29 @@ app.get('/api/transcript', async (req, res) => {
     return res.status(400).json({ error: 'Das sieht nicht wie ein YouTube-Link aus.' })
   }
 
+  // ---------- Wochenkontingent (seit 09.11.2026) ----------
+  // 1 neues YouTube-Video pro Woche gratis. Videos aus der Mediathek
+  // bleiben frei. Ohne Anmeldung (ältere App-Fassungen) vorerst keine
+  // Grenze – wie bei den Übersetzungen.
+  const vNutzer = await nutzerAusToken((req.headers.authorization || '').replace('Bearer ', '')).catch(() => null)
+  let schonGezaehlt = false
+  if (vNutzer && !(await istPremium(vNutzer.id)) && !(await ausBibliothek(videoId))) {
+    const genutzt = await nutzungHeute(vNutzer.id, 'video')
+    if (genutzt >= VIDEOS_PRO_WOCHE) {
+      const en = req.query.sprache === 'en'
+      return res.status(429).json({
+        error: en
+          ? `You've already added a new video this week. Your next one is free ${naechsteAuffuellung(true)} – or add as many as you like with Premium.`
+          : `Du hast diese Woche schon ein neues Video geholt. Das nächste gibt es ${naechsteAuffuellung()} gratis – oder sofort und ohne Grenze mit Premium.`,
+        grund: 'kontingent',
+        uebrig: 0,
+      })
+    }
+    await zaehleNutzung(vNutzer.id, 'video')
+    schonGezaehlt = true
+  }
+  const zurueckgeben = () => (schonGezaehlt ? gibNutzungZurueck(vNutzer.id, 'video').catch(() => {}) : null)
+
   // Temporärer Ordner für die Untertitel-Datei
   const dir = await mkdtemp(join(tmpdir(), 'subs-'))
   try {
@@ -255,6 +278,7 @@ app.get('/api/transcript', async (req, res) => {
     }
 
     if (files.length === 0) {
+      zurueckgeben()
       return res.status(404).json({ error: 'Für dieses Video gibt es leider keine russischen Untertitel.' })
     }
 
@@ -279,6 +303,7 @@ app.get('/api/transcript', async (req, res) => {
     const gespeichert = await ausBibliothek(videoId)
     if (gespeichert) {
       console.log('aus der Bibliothek, kein Guthaben:', videoId)
+      zurueckgeben()
       return res.json({ ...gespeichert, qualitaet: pruefeQualitaet(gespeichert.lines) })
     }
 
@@ -294,10 +319,12 @@ app.get('/api/transcript', async (req, res) => {
         return res.json({ ...ergebnis, qualitaet: pruefeQualitaet(ergebnis.lines) })
       } catch (dienstFehler) {
         console.error('TubeAlfred:', dienstFehler.message)
+        zurueckgeben()
         return res.status(502).json({ error: dienstFehler.message })
       }
     }
     console.error(err.message)
+    zurueckgeben()
     res.status(500).json({ error: 'Transkript konnte nicht geladen werden: ' + err.message })
   } finally {
     // Temporären Ordner wieder aufräumen
@@ -614,6 +641,19 @@ app.post('/api/saetze', async (req, res) => {
 
 // Kurzer zweisprachiger Wissenstext zum mehrmaligen Lesen.
 
+// Stand der Gratis-Grenzen für die Anzeige (seit 09.11.2026)
+app.get('/api/kontingent', async (req, res) => {
+  try {
+    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', '')).catch(() => null)
+    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
+    const premium = await istPremium(nutzer.id)
+    res.json({ premium, ...(await wochenStand(nutzer.id)) })
+  } catch (err) {
+    console.error('Kontingent:', err.message)
+    res.status(500).json({ error: 'Kontingent konnte nicht geprüft werden.' })
+  }
+})
+
 /**
  * Türsteher für alles, was KI-Geld kostet.
  *
@@ -642,9 +682,9 @@ async function kiTuersteher(req, res, art) {
       error: 'limit',
       nachricht:
         zielsprache() === 'en'
-          ? `You've used the AI ${KI_PRO_TAG} times today. Your limit resets tomorrow – or get Premium now.`
-          : `Du hast heute ${KI_PRO_TAG} Mal die KI genutzt. ` +
-            `Neues Kontingent gibt es ${naechsteAuffuellung()} – oder sofort mit Premium.`,
+          ? `You've used your ${KI_PRO_TAG} free AI creations this week. New ones ${naechsteAuffuellung(true)} – or unlimited with Premium.`
+          : `Deine ${KI_PRO_TAG} Gratis-Erstellungen für diese Woche sind aufgebraucht. ` +
+            `Neue gibt es ${naechsteAuffuellung()} – oder sofort unbegrenzt mit Premium.`,
     })
     return null
   }
@@ -734,8 +774,10 @@ app.get('/api/ebook/kontingent', async (req, res) => {
     const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
     if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
 
-    const genutzt = await anzahlDiesenMonat(nutzer.id)
-    res.json({ genutzt, frei: Math.max(0, FREI_PRO_MONAT - genutzt), gesamt: FREI_PRO_MONAT })
+    // Seit 09.11.2026: E-Books zählen in den gemeinsamen KI-Wochentopf
+    if (await istPremium(nutzer.id)) return res.json({ genutzt: 0, frei: 9999, gesamt: 9999, premium: true })
+    const genutzt = await nutzungHeute(nutzer.id, 'ki')
+    res.json({ genutzt, frei: Math.max(0, KI_PRO_TAG - genutzt), gesamt: KI_PRO_TAG, woche: true })
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Kontingent konnte nicht geprüft werden.' })
@@ -749,25 +791,15 @@ app.post('/api/ebook', async (req, res) => {
 
   if (!thema) return res.status(400).json({ error: 'Bitte gib ein Thema an.' })
 
+  const tuerE = await kiTuersteher(req, res, 'ki')
+  if (!tuerE) return
   try {
-    const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
-    if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
-
-    // Freemium-Grenze prüfen
-    const genutzt = await anzahlDiesenMonat(nutzer.id)
-    if (genutzt >= FREI_PRO_MONAT) {
-      return res.status(402).json({
-        error: 'premium',
-        nachricht:
-          `Du hast diesen Monat schon ${FREI_PRO_MONAT} E-Books erstellt. ` +
-          'Mit Premium sind es unbegrenzt viele.',
-      })
-    }
-
+    const nutzer = tuerE.nutzer
     const buch = await erzeugeEbook(thema, niveau)
     const gespeichert = await speichereEbook(nutzer.id, buch)
-
-    res.json({ buch: gespeichert, frei: Math.max(0, FREI_PRO_MONAT - genutzt - 1) })
+    await zaehleNutzung(nutzer.id, 'ki')
+    const genutzt = await nutzungHeute(nutzer.id, 'ki')
+    res.json({ buch: gespeichert, frei: Math.max(0, KI_PRO_TAG - genutzt) })
   } catch (err) {
     console.error('E-Book:', err.message)
     res.status(500).json({ error: err.message })

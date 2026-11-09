@@ -1,3 +1,5 @@
+import GratisHinweis from './GratisHinweis.jsx'
+import { zaehleNutzung, kontingentLeer } from './limits.js'
 import { useState, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { uebersetzungsAdresse } from './satzUmfeld.js'
@@ -83,10 +85,12 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
       })
 
       const antwort = await res.json()
+      if (res.status === 402) { kontingentLeer(); setKontingent((k) => (k ? { ...k, frei: 0 } : k)) }
       if (!res.ok) throw new Error(antwort.nachricht || antwort.error)
 
       setBuecher((b) => [antwort.buch, ...(b ?? [])])
       setKontingent((k) => (k ? { ...k, frei: antwort.frei } : k))
+      zaehleNutzung() // gemeinsamer KI-Wochentopf
       setThema('')
       setOffenes(antwort.buch)
     } catch (f) {
@@ -114,7 +118,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
     )
   }
 
-  const aufgebraucht = kontingent && kontingent.frei === 0
+  const aufgebraucht = kontingent && !kontingent.premium && kontingent.frei === 0
 
   return (
     <>
@@ -123,10 +127,10 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
         <div className="bereich-kopf">
           <div className="kopf-zeile">
             <h2>{tr('Buch schreiben lassen')}</h2>
-            {kontingent && (
+            {kontingent && !kontingent.premium && (
               <span
                 className={'rest-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
-                title={tr('Kostenlose Bücher diesen Monat')}
+                title={tr('Gratis-Erstellungen diese Woche (gemeinsam mit Listen, Sätzen und Texten)')}
               >
                 {kontingent.frei}/{kontingent.gesamt}
               </span>
@@ -136,6 +140,8 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
             {tr('Nenn ein Thema, und die KI schreibt eine kurze Zusammenfassung auf Russisch – mit deutscher Fassung zum Umschalten.')}
           </p>
         </div>
+
+        <GratisHinweis art="ki" />
 
         <form className="wort-form" onSubmit={erstellen}>
           <input
@@ -172,8 +178,8 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
               {istApp
-                ? tr('Dein Monatskontingent ist aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.')
-                : tr('Dein Monatskontingent ist aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.')}
+                ? tr('Deine Gratis-Erstellungen für diese Woche sind aufgebraucht – ab Montag kannst du wieder neue Bücher schreiben.')
+                : tr('Deine 7 Gratis-Erstellungen für diese Woche sind aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.')}
             </p>
           )}
         </form>

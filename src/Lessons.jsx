@@ -1,3 +1,4 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import Lesekurs, { LesekursKarte } from './Lesekurs.jsx'
 import { useState, useEffect } from 'react'
 import {
@@ -686,6 +687,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
           </span>
         </div>
 
+        {liste.some((l) => gesperrt(l)) && <GratisHinweis art="lektionen" />}
+
         <div className="ansicht-schalter" role="tablist">
           <button
             role="tab"
@@ -809,6 +812,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       </p>
 
       <LesekursKarte lessonProgress={lessonProgress} onOeffnen={() => setLesekursOffen(true)} />
+
+      <GratisHinweis art="lektionen" />
 
       {laufendesModul && (
         <WeiterlernenKarte
