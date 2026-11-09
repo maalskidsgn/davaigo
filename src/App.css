@@ -14775,3 +14775,7 @@ html, body { overflow-x: clip; }
 .sp-fehler { margin: 0; color: #c2334a; font-size: 13.5px; font-weight: 800; text-align: center; }
 @media (min-width: 900px) { .sp-start { min-height: 92vh; } }
 .sp-start { width: 100%; box-sizing: border-box; overflow-x: clip; } .sp-start .sp-titel { overflow-wrap: anywhere; }
+
+/* In der App nur die Pflichtangaben, ruhig unter dem Startbildschirm (09.11.2026) */
+.lp-fuss.lp-fuss-app { background: none; display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; padding: 20px 16px 30px; }
+.lp-fuss-app button { background: none; border: 0; font: inherit; font-weight: 800; font-size: 14px; color: var(--muted); cursor: pointer; }

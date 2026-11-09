@@ -271,44 +271,16 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       {/* ---------- Großer Schluss (Startseite B) ---------- */}
       {!istApp && <StartseiteB teil="schluss" onStarten={onStarten} onAnmelden={onAnmelden} />}
 
-      {/* ---------- Fußbereich ---------- */}
-      <footer className="lp-fuss">
-        <div className="lp-fuss-spalten">
-          <div>
-            <h3>{tr('Lernen')}</h3>
-            <button onClick={onStarten}>{tr('Lektionen')}</button>
-            <button onClick={onStarten}>{tr('Vokabeltrainer')}</button>
-            <button onClick={onStarten}>{tr('Videos & Songs')}</button>
-            <button onClick={onStarten}>E-Books</button>
-          </div>
-          <div>
-            <h3>{tr('Konto')}</h3>
-            <button onClick={onStarten}>{tr('Kostenlos starten')}</button>
-            <button onClick={onAnmelden}>{tr('Anmelden')}</button>
-            {!istApp && <button onClick={onStarten}>{tr('Premium')}</button>}
-          </div>
-          <div>
-            <h3>{APP_NAME}</h3>
-            <span>{tr('Russisch lernen mit echten Videos, einem Karteikasten mit Gedächtnis und einer KI, die mitdenkt.')}</span>
-          </div>
-          {/* Pflichtangaben. Sie müssen von jeder Seite aus in zwei
-              Klicks erreichbar sein – und vor allem OHNE Konto,
-              sonst stünden sie hinter der Anmeldung. */}
-          <div>
-            <h3>{tr('Mehr')}</h3>
-            <a href="/ratgeber/">{tr('Ratgeber')}</a>
-            <button onClick={() => onRecht('impressum')}>{tr('Impressum')}</button>
-            <button onClick={() => onRecht('datenschutz')}>{tr('Datenschutz')}</button>
-            <button onClick={() => onRecht('agb')}>{tr('AGB & Widerruf')}</button>
-            <button onClick={() => setzeSprache(sprache() === 'en' ? 'de' : 'en')}>
-              {sprache() === 'en' ? 'Deutsch' : 'English'}
-            </button>
-          </div>
-        </div>
-        <p className="lp-fuss-zeile">
-          {tr('© {0} {1} · Сделано с любовью – mit Liebe gemacht 💜', new Date().getFullYear(), APP_NAME)}
-        </p>
-      </footer>
+      {/* ---------- Fußbereich (Startseite B, 09.11.) – in der App nur die Pflichtangaben ---------- */}
+      {istApp ? (
+        <footer className="lp-fuss lp-fuss-app">
+          <button onClick={() => onRecht('impressum')}>{tr('Impressum')}</button>
+          <button onClick={() => onRecht('datenschutz')}>{tr('Datenschutz')}</button>
+          <button onClick={() => onRecht('agb')}>{tr('AGB & Widerruf')}</button>
+        </footer>
+      ) : (
+        <StartseiteB teil="fuss" onStarten={onStarten} onAnmelden={onAnmelden} onRecht={onRecht} />
+      )}
     </div>
   )
 }
