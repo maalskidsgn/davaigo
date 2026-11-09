@@ -1,3 +1,4 @@
+import { XP } from './gamification.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { useState, useEffect } from 'react'
 import ZauberBild from './ZauberBild.jsx'
@@ -80,7 +81,7 @@ const ALLE_FORMEN = [['', tr('Gemischt'), tr('alles durcheinander')], ...GRUPPEN
  * Form. "Reisen" + "Instrumental" ergibt genau die Sätze, mit denen
  * man sagt, womit und mit wem man unterwegs ist.
  */
-export default function SatzGenerator({ saetze, setSaetze }) {
+export default function SatzGenerator({ saetze, setSaetze, addXp }) {
   const [thema, setThema] = useState('')
   const [offeneGruppe, setOffeneGruppe] = useState('')
   const [grammatik, setGrammatik] = useState('')
@@ -152,6 +153,7 @@ export default function SatzGenerator({ saetze, setSaetze }) {
       return neu
     })
     setErfolg(liste.filter((s) => s.checked).length)
+    if (liste.some((s) => s.checked)) addXp?.(XP.LISTE_ERSTELLT, tr('Satzliste übernommen')) // pauschal (09.11.)
     setListe(null)
     setThema('')
   }

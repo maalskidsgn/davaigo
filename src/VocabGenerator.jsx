@@ -1,3 +1,4 @@
+import { XP } from './gamification.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { API_URL, kiKopf, istApp } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
@@ -14,7 +15,7 @@ function cleanWord(word) {
 
 // Der Vokabelgenerator: schickt das Transkript an den Server, bekommt
 // Vokabel-Vorschläge zurück und lässt dich auswählen, welche in den Trainer sollen.
-export default function VocabGenerator({ video, vocab, setVocab }) {
+export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [suggestions, setSuggestions] = useState(null) // [{wort, uebersetzung, beispiel, checked}]
@@ -67,6 +68,9 @@ export default function VocabGenerator({ video, vocab, setVocab }) {
 
   // Ausgewählte Vokabeln in den Trainer übernehmen
   function addToTrainer() {
+    // Pauschal 50 XP für eine übernommene Liste (09.11.2026)
+    const neuZahl = (suggestions ?? []).filter((x) => x.checked && cleanWord(x.wort) && !vocab[cleanWord(x.wort)]).length
+    if (neuZahl) addXp?.(XP.LISTE_ERSTELLT, neuZahl === 1 ? tr('Wort hinzugefügt') : tr('{0} Wörter hinzugefügt', neuZahl))
     setVocab((v) => {
       const copy = { ...v }
       for (const s of suggestions) {

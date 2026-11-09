@@ -1591,4 +1591,6 @@ export default {
  "Deine Gratis-Erstellungen für diese Woche sind aufgebraucht – ab Montag kannst du wieder neue Bücher schreiben.": "You've used this week's free creations – on Monday you can write new books again.",
  "Deine 7 Gratis-Erstellungen für diese Woche sind aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.": "You've used your 7 free creations this week – with Premium, write unlimited books.",
  "Gratis: 20 % der Lektionen, 7 KI-Erstellungen pro Woche, alle Videos aus der Mediathek sowie 10 Minuten Sprach-Trainer im Monat. Premium schaltet alles ohne Limit frei: alle Lektionen, unbegrenzte Vokabellisten, Sätze, Texte und E-Books, eigene Videos und 120 Minuten Sprach-Trainer im Monat.": "Free: 20% of the lessons, 7 AI creations per week, every video in the library, plus 10 minutes of speaking practice per month. Premium unlocks everything without limits: all lessons, unlimited vocab lists, sentences, texts and e-books, your own videos and 120 minutes of speaking practice per month.",
+ "Satzliste übernommen": "Sentence list added",
+ "Text erstellt": "Text created",
 }

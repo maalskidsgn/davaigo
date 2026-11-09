@@ -746,7 +746,7 @@ export default function Trainer({
 
       {/* ============ 3. NEUE WÖRTER ============ */}
       <section className="bereich">
-        <ListGenerator vocab={vocab} setVocab={setVocab} />
+        <ListGenerator vocab={vocab} setVocab={setVocab} addXp={addXp} />
       </section>
 
       {/* ============ 4. ALLE WÖRTER ============ */}

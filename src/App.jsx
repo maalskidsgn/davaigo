@@ -1862,7 +1862,7 @@ export default function App() {
                     ✕
                   </button>
                 </div>
-                <VocabGenerator video={video} vocab={vocab} setVocab={setVocab} />
+                <VocabGenerator video={video} vocab={vocab} setVocab={setVocab} addXp={addXp} />
               </div>
             )}
           </>

@@ -202,6 +202,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
         <TextGenerator
           texte={texte}
           setTexte={setTexte}
+          addXp={addXp}
           onFertig={(id) => setOffenerText(id)}
         />
       </section>
@@ -449,7 +450,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
 //  Der Generator
 // ===============================================================
 
-function TextGenerator({ texte, setTexte, onFertig }) {
+function TextGenerator({ texte, setTexte, onFertig, addXp }) {
   const [gebiet, setGebiet] = useState('')
   const [thema, setThema] = useState('')
   const [stufe, setStufe] = useState('b1')
@@ -490,6 +491,7 @@ function TextGenerator({ texte, setTexte, onFertig }) {
       setTexte((alt) => ({ ...alt, [id]: neuerText(daten) }))
       zaehleNutzung()
       setUebrig(verbleibend(premium))
+      addXp?.(XP.LISTE_ERSTELLT, tr('Text erstellt')) // pauschal (09.11.)
       onFertig?.(id)
     } catch (f) {
       setFehler(f.message)

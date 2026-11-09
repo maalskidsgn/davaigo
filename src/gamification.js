@@ -6,6 +6,7 @@ import { tr } from './sprache.js'
 // Wie viele XP es für welche Aktion gibt
 export const XP = {
   WORT_NEU: 20, // ein neues Wort in den Trainer aufgenommen (je Wort nur einmal)
+  LISTE_ERSTELLT: 50, // KI-Liste/Satzliste/Text erstellt und übernommen – pauschal (09.11.2026)
   SAMMELN: 2, // ein Wort bewusst auf "Lernen" gesetzt
   SCHON_GEWUSST: 5, // ein Wort direkt als "Gewusst" markiert
   RICHTIG: 10, // eine Vokabel im Training gewusst
