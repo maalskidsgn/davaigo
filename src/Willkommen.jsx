@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
-import FunktionenTabs from './FunktionenTabs.jsx'
+import StartseiteB from './StartseiteB.jsx'
 import StartPostkarten from './StartPostkarten.jsx'
 import { tr, sprache, setzeSprache } from './sprache.js'
 
@@ -262,43 +262,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       {/* Startbildschirm mit Postkarten (09.11., Entwurf C1) */}
       <StartPostkarten onStarten={onStarten} onAnmelden={onAnmelden} />
 
-      {/* ---------- Wörter-Laufleiste ---------- */}
-      <div className="lp-woerter">
-        {WOERTER.map(([ru, de]) => (
-          <span key={ru} className="lp-wort">
-            <b>{ru}</b>
-            <i>{de}</i>
-          </span>
-        ))}
-      </div>
-
-      <FunktionenTabs />
-
-      {/* ---------- Die vier Stärken ---------- */}
-      {STAERKEN.map((s, i) => (
-        <section key={s.titel} className={'lp-staerke lp-zeig' + (i % 2 ? ' lp-getauscht' : '')}>
-          <div className="lp-staerke-bild">{s.bild}</div>
-          <div className="lp-staerke-text">
-            <h2>{s.titel}</h2>
-            <p>{s.text}</p>
-          </div>
-        </section>
-      ))}
-
-      {/* ---------- Überall lernen ---------- */}
-      <section className="lp-ueberall lp-zeig">
-        <span className="lp-kachel lp-k1">Д</span>
-        <span className="lp-kachel lp-k2">🔥</span>
-        <span className="lp-kachel lp-k3">Я</span>
-        <span className="lp-kachel lp-k4">🃏</span>
-        <span className="lp-kachel lp-k5">Б</span>
-        <span className="lp-kachel lp-k6">🎬</span>
-        <h2>{tr('Lerne jederzeit und überall')}</h2>
-        <p>
-          {tr('Im Browser, auf dem Handy oder Tablet – dein Fortschritt reist mit.')}
-        </p>
-        <span className="lp-bald">{tr('📱 Bald auch im App Store & bei Google Play')}</span>
-      </section>
+      {/* Startseite B (09.11.2026): Videobereich + Toon-Bento – nur im Browser, wer die App hat, will sich anmelden */}
+      {!istApp && <StartseiteB teil="oben" onStarten={onStarten} onAnmelden={onAnmelden} />}
 
       {/* ---------- Premium ---------- */}
       {!istApp && (
@@ -317,15 +282,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       </section>
       )}
 
-      {/* ---------- Großer Schluss ---------- */}
-      <section className="lp-schluss lp-zeig">
-        <h2>
-          {tr('Lerne Russisch')}<br />{tr('mit {0}', APP_NAME)}
-        </h2>
-        <button className="lp-knopf-gold" onClick={onStarten}>
-          {tr('Давай – los geht’s!')}
-        </button>
-      </section>
+      {/* ---------- Großer Schluss (Startseite B) ---------- */}
+      {!istApp && <StartseiteB teil="schluss" onStarten={onStarten} onAnmelden={onAnmelden} />}
 
       {/* ---------- Fußbereich ---------- */}
       <footer className="lp-fuss">
