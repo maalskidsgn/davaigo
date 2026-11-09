@@ -268,23 +268,6 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
       {/* Startseite B (09.11.2026): Videobereich + Toon-Bento – nur im Browser, wer die App hat, will sich anmelden */}
       {!istApp && <StartseiteB teil="oben" onStarten={onStarten} onAnmelden={onAnmelden} />}
 
-      {/* ---------- Premium ---------- */}
-      {!istApp && (
-<section className="lp-premium lp-zeig">
-        <div className="lp-premium-karte">
-          <span className="lp-premium-funke" aria-hidden="true">✦</span>
-          <p className="lp-premium-ueber">{tr('Power up mit')}</p>
-          <h2 className="lp-premium-titel">{tr('{0} Premium', APP_NAME)}</h2>
-          <p className="lp-premium-text">
-            {tr('Unbegrenzte KI-Vokabellisten und E-Books, Abgleich auf allen Geräten und Statistiken zu deinem Fortschritt.')}
-          </p>
-          <button className="lp-knopf-hell" onClick={onStarten}>
-            {tr('Kostenlos ausprobieren')}
-          </button>
-        </div>
-      </section>
-      )}
-
       {/* ---------- Großer Schluss (Startseite B) ---------- */}
       {!istApp && <StartseiteB teil="schluss" onStarten={onStarten} onAnmelden={onAnmelden} />}
 
