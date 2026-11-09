@@ -1,4 +1,5 @@
 import { API_URL, istApp, kiKopf } from './api.js'
+import { sichereMerker } from './kontoMerker.js'
 import { serieAusVerlauf } from './verlauf.js'
 import { ladeListen } from './videoListen.js'
 import NavBild from './NavBild.jsx'
@@ -19,7 +20,7 @@ import { kaufMoeglich, kaufVorbereiten, kaufBeenden } from './kauf.js'
 import Sprechen from './Sprechen.jsx'
 import PremiumDanke from './PremiumDanke.jsx'
 import MeilensteinMeldung from './MeilensteinMeldung.jsx'
-import { neueMeilensteine, meilensteineGleichsetzen, MEILENSTEIN_XP } from './meilensteine.js'
+import { neueMeilensteine, meilensteineGleichsetzen, meilensteineStillSetzen, MEILENSTEIN_XP } from './meilensteine.js'
 import { summeWiederholungen } from './aktivitaet.js'
 import { seitenaufruf } from './messung.js'
 import Feed from './Feed.jsx'
@@ -406,6 +407,8 @@ export default function App() {
       .then((vereint) => {
         if (abgebrochen) return
         setVocab(vereint.vokabeln)
+        // Der Sprung durch den Abgleich ist kein Aufstieg – keine Feier (09.11.)
+        prevLevelRef.current = Math.max(prevLevelRef.current, levelFromXp(vereint.stats?.xp ?? 0))
         setProgress((p) => ({ ...p, ...vereint.stats }))
         setLessonProgress(vereint.fortschritt)
         setSyncStatus('fertig')
@@ -1138,6 +1141,7 @@ export default function App() {
   // dazugekommen ist. Beim allerersten Mal wird nur gleichgesetzt,
   // ohne XP – sonst regnet es beim Update XP für alte Arbeit.
   const [neueAbzeichen, setNeueAbzeichen] = useState([])
+  const meilensteinAbgleichRef = useRef(null)
   useEffect(() => {
     const werte = {
       woerter: Object.keys(vocab).length,
@@ -1149,6 +1153,16 @@ export default function App() {
       streak: progress.streak ?? 0,
       wiederholungen: summeWiederholungen(),
     }
+    // Angemeldet: erst nach dem Abgleich prüfen. Was beim ersten Prüfen
+    // danach schon erreicht ist, kam vom Konto (anderes Gerät, frühere
+    // Sitzung) und wird still eingetragen – sonst gab es nach jedem
+    // Anmelden alle Meldungen samt XP noch einmal (09.11.).
+    if (nutzer && syncStatus !== 'fertig') return
+    if (nutzer && meilensteinAbgleichRef.current !== nutzer.id) {
+      meilensteinAbgleichRef.current = nutzer.id
+      meilensteineStillSetzen(werte)
+      return
+    }
     if (meilensteineGleichsetzen(werte)) return
     const neu = neueMeilensteine(werte)
     if (neu.length) {
@@ -1156,7 +1170,7 @@ export default function App() {
       setNeueAbzeichen(neu)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [vocab, texte, saetze, lessonProgress, progress.streak])
+  }, [vocab, texte, saetze, lessonProgress, progress.streak, nutzer, syncStatus])
   // Wie viele Vokabeln sind gerade zum Üben fällig? (für das rote Punkt-Badge im Tab)
   const faellig = Object.values(vocab).filter((v) => isDue(withSrsDefaults(v))).length
 

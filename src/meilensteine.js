@@ -92,5 +92,20 @@ export function meilensteineGleichsetzen(werte) {
   return true
 }
 
+/**
+ * Alles schon Erreichte als belohnt eintragen – ohne XP, ohne Meldung.
+ * Für den Stand, der nach dem Anmelden aus dem Konto kommt (09.11.).
+ */
+export function meilensteineStillSetzen(werte) {
+  const schon = belohnte()
+  for (const k of KATEGORIEN) {
+    const wert = werte[k.id] ?? 0
+    k.ziele.forEach((ziel, i) => {
+      if (wert >= ziel) schon.add(`${k.id}-${i}`)
+    })
+  }
+  merke(schon)
+}
+
 /** Name der Stufe (Bronze … Legende) – für die Meldung. */
 export const STUFEN_NAMEN = [tr('Bronze'), tr('Silber'), tr('Gold'), tr('Platin'), tr('Diamant'), tr('Legende')]

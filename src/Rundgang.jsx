@@ -20,6 +20,7 @@
 // KI-Tutor sind ausgeblendet (Schalter in Trainer.jsx) – kommen sie
 // zurück, gehören sie hier wieder in den Trainer-Text.
 
+import { sichereMerker } from './kontoMerker.js'
 import { useEffect } from 'react'
 import { IconLektion, IconKarten, IconMediathek, IconMehr, IconLandkarte } from './icons.jsx'
 import { tr } from './sprache.js'
@@ -37,6 +38,7 @@ export function gesehene() {
 export function merkeGesehen(bereich) {
   try {
     localStorage.setItem(SPEICHER, JSON.stringify({ ...gesehene(), [bereich]: true }))
+    sichereMerker()
   } catch {
     // Kein Speicher – dann kommt die Box eben noch einmal.
   }
