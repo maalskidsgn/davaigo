@@ -350,7 +350,13 @@ export default function App() {
       window.history.pushState({}, '', '/sprechen')
       setSprechenOffen(true)
     }
-    const zurueck = () => setSprechenOffen(window.location.pathname.replace(/^\/+|\/+$/g, '') === 'sprechen')
+    const zurueck = () => {
+      const pfad = window.location.pathname.replace(/^\/+|\/+$/g, '')
+      setSprechenOffen(pfad === 'sprechen')
+      // Premium-Knöpfe (Lesekurs, Gratis-Hinweise, Werbung) wechseln nur
+      // die Adresse auf /kasse – hier wird daraus die Kassenseite (09.11.).
+      setKasseOffen(pfad === 'kasse')
+    }
     window.addEventListener('sprechen-oeffnen', auf)
     window.addEventListener('popstate', zurueck)
     return () => {
@@ -1257,9 +1263,17 @@ export default function App() {
     const Kasse = kaufMoeglich() ? KaufNativ : Bezahlen
     return (
       <Kasse
-        onAbbrechen={() => setKasseOffen(false)}
+        onAbbrechen={() => {
+          setKasseOffen(false)
+          if (window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse') {
+            // Über einen Premium-Knopf gekommen: zurück dorthin. Direkt aufgerufen: zur Startseite.
+            if (window.history.state?.kasse) window.history.back()
+            else window.history.replaceState({}, '', '/')
+          }
+        }}
         onFertig={() => {
           setKasseOffen(false)
+          if (window.location.pathname.replace(/^\/+|\/+$/g, '') === 'kasse') window.history.replaceState({}, '', '/')
           // Die Anzeige haengt an "abos": nach dem Kauf neu fragen.
           window.dispatchEvent(new CustomEvent('premium-neu'))
         }}
