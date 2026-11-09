@@ -3,6 +3,7 @@ import { istApp } from './api.js'
 import { APP_NAME } from './App.jsx'
 import Logo from './Logo.jsx'
 import FunktionenTabs from './FunktionenTabs.jsx'
+import StartPostkarten from './StartPostkarten.jsx'
 import { tr, sprache, setzeSprache } from './sprache.js'
 
 /**
@@ -258,40 +259,8 @@ export default function Willkommen({ onStarten, onAnmelden, onRecht }) {
 
   return (
     <div className="lp" ref={seite}>
-      {/* ---------- Kopfleiste ---------- */}
-      <nav className="lp-nav">
-        <span className="lp-marke">
-          <Logo klasse="lp-logo" />
-          <span className="lp-name">{APP_NAME}</span>
-        </span>
-        <button className="lp-knopf-leise" onClick={onAnmelden}>
-          {tr('Anmelden')}
-        </button>
-      </nav>
-
-      {/* ---------- Hero ---------- */}
-      <header className="lp-hero">
-        <div className="lp-hero-bild">
-          <Maskottchen />
-        </div>
-        <div className="lp-hero-text">
-          <h1>
-            {sprache() === 'en' ? (
-              <>The most entertaining way to learn <span className="lp-akzent">Russian</span>!</>
-            ) : (
-              <>Die unterhaltsamste Art, <span className="lp-akzent">Russisch</span> zu lernen!</>
-            )}
-          </h1>
-          <div className="lp-hero-knoepfe">
-            <button className="lp-knopf-gold" onClick={onStarten}>
-              {tr('Loslegen')}
-            </button>
-            <button className="lp-knopf-rahmen" onClick={onAnmelden}>
-              {tr('Ich habe schon ein Konto')}
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Startbildschirm mit Postkarten (09.11., Entwurf C1) */}
+      <StartPostkarten onStarten={onStarten} onAnmelden={onAnmelden} />
 
       {/* ---------- Wörter-Laufleiste ---------- */}
       <div className="lp-woerter">
