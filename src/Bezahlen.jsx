@@ -26,7 +26,6 @@ import {
 import { API_URL } from './api.js'
 import { db, supabaseBereit } from './supabase.js'
 import Logo from './Logo.jsx'
-import { KassenComicKopf, KassenComicVorteile } from './KassenComic.jsx'
 import { gemerkterPartnerCode } from './partnerCode.js'
 import { tr, gebiet, sprache } from './sprache.js'
 
@@ -53,13 +52,13 @@ const AUSSEHEN = {
   },
   rules: {
     '.Input': {
-      border: '2px solid #241338',
+      border: '1px solid #ebe7f4',
       boxShadow: 'none',
       padding: '12px 14px',
       backgroundColor: '#ffffff',
     },
     '.Input:focus': {
-      border: '2px solid #7c3aed',
+      border: '1px solid #7c3aed',
       boxShadow: '0 0 0 3px rgba(124, 58, 237, .12)',
       outline: 'none',
     },
@@ -71,23 +70,28 @@ const AUSSEHEN = {
       marginBottom: '6px',
     },
     '.Tab': {
-      border: '2px solid #241338',
+      border: '1px solid #ebe7f4',
       boxShadow: 'none',
       backgroundColor: '#ffffff',
     },
-    '.Tab:hover': { border: '2px solid #7c3aed', color: '#7c3aed' },
+    '.Tab:hover': { border: '1px solid #7c3aed', color: '#7c3aed' },
     '.Tab--selected': {
-      border: '2px solid #7c3aed',
+      border: '1px solid #7c3aed',
       backgroundColor: '#f3ecff',
       color: '#7c3aed',
       boxShadow: 'none',
     },
-    '.AccordionItem': { border: '2px solid #241338', borderRadius: '16px', boxShadow: '3px 3px 0 #241338', padding: '14px 16px' },
-    '.AccordionItem--selected': { backgroundColor: '#f3ecff', boxShadow: '3px 3px 0 #7c3aed' },
     '.Error': { fontSize: '13px', fontWeight: '600' },
   },
 }
 
+// Was Premium kann – dieselbe Liste wie in den Einstellungen.
+const LEISTUNGEN = [
+  tr('Unbegrenzte KI-Vokabellisten'),
+  tr('Unbegrenzte Übungssätze nach Aspekt und Fall'),
+  tr('Zweisprachige E-Books zu deinem Wunschthema'),
+  tr('Wissenstexte zum Lesen ohne Tageslimit'),
+]
 
 // Stripe.js wird einmal geladen und dann wiederverwendet. Der
 // Schlüssel kommt vom Server (/api/bezahlung/status), damit
@@ -195,7 +199,7 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
   ].filter((k) => preise?.[k.id])
 
   return (
-    <div className="kassen-seite kasse-comic">
+    <div className="kassen-seite">
       {/* Eigener Kopf statt der Tab-Leiste: Auf einer Kassenseite
           soll man bezahlen, nicht weiterklicken. */}
       <header className="kassen-kopf">
@@ -211,7 +215,8 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
       <div className="kassen-raster">
         {/* ---------- Links: was man kauft ---------- */}
         <aside className="kassen-bestellung">
-          <KassenComicKopf en={gebiet().startsWith('en')} ersparnis={tarif === 'jahr' ? ersparnis : 0} />
+          <p className="kassen-label">{tarif === 'lifetime' ? tr('Dein Zugang') : tr('Dein Abo')}</p>
+          <h1 className="kassen-titel">{tr('Davaigo Premium')}</h1>
           {TARIF_KARTEN.length > 1 && (
             <div className="kassen-tarife" role="radiogroup" aria-label={tr('Tarif wählen')}>
               {TARIF_KARTEN.map((k) => (
@@ -238,7 +243,11 @@ export default function Bezahlen({ onFertig, onAbbrechen }) {
             </p>
           )}
 
-          <KassenComicVorteile en={gebiet().startsWith('en')} />
+          <ul className="kassen-leistungen">
+            {LEISTUNGEN.map((l) => (
+              <li key={l}>{l}</li>
+            ))}
+          </ul>
 
           {preisText && (
             <div className="kassen-summe">
