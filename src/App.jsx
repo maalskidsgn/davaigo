@@ -230,6 +230,24 @@ function loadYouTubeApi() {
   return ytApiPromise
 }
 
+
+/**
+ * Fertige Übersetzung einer Mediathek-Zeile für Zeile (09.11.2026).
+ * Liegt als public/uebersetzungen/<youtube_id>.<sprache>.json im Build –
+ * kostet nichts und ist sofort da. Fehlt sie: null, dann übersetzt der
+ * Server wie bisher beim Einschalten.
+ */
+async function ladeFertigeUebersetzung(id, laenge) {
+  try {
+    const r = await fetch(`/uebersetzungen/${encodeURIComponent(id)}.${sprache()}.json`)
+    if (!r.ok) return null
+    const z = await r.json()
+    return Array.isArray(z) && z.length === laenge ? z : null
+  } catch {
+    return null
+  }
+}
+
 export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -948,8 +966,13 @@ export default function App() {
           })
           // Die deutsche Fassung liegt fertig in der Datenbank – dadurch
           // lässt sie sich ohne Wartezeit ein- und ausblenden.
+          // Nur für Deutsch – englische Nutzer bekamen hier vorher die deutsche Fassung.
           if (sprache() === 'de' && treffer.transkript_de?.length === treffer.transkript.length) {
             setDeLines(treffer.transkript_de)
+          } else {
+            // Sonst die fertig abgelegte Übersetzung aus public/uebersetzungen (09.11.)
+            const laenge = treffer.transkript.length
+            ladeFertigeUebersetzung(treffer.youtube_id, laenge).then((z) => z && setDeLines(z))
           }
           return
         }
