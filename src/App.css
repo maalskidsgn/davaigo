@@ -15023,3 +15023,7 @@ html, body { overflow-x: clip; }
 }
 .engine-suche.engine-zu .engine-lupe { color: #e0a200; position: static; transform: none; flex: none; }
 .engine-suche.engine-zu:disabled { cursor: default; }
+
+/* Streak-Kalender: soft Violett statt kräftigem Lila (Manuel, 09.11.2026) */
+.streak-toon .kal-tag.kal-aktiv { background: linear-gradient(160deg, #e6dafe, #cdb6fb); box-shadow: 0 4px 0 #b59cec; }
+.streak-toon .kal-tag.kal-aktiv .kal-zahl { color: #5b21b6; }
