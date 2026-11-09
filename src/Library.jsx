@@ -1,5 +1,6 @@
-import GratisHinweis from './GratisHinweis.jsx'
-import { API_URL, kiKopf } from './api.js'
+import GratisHinweis, { zurKasse } from './GratisHinweis.jsx'
+import { usePremium } from './premium.js'
+import { API_URL, kiKopf, istApp } from './api.js'
 import { ladeListen, neueListe } from './videoListen.js'
 import { holeBibliothek, supabaseBereit, zaehleSongs } from './supabase.js'
 import VideoSuche from './VideoSuche.jsx'
@@ -26,7 +27,7 @@ import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
 import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
-import { tr } from './sprache.js'
+import { tr, sprache } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
 // Die Themen der Mediathek – man lernt Russisch nebenbei,
@@ -126,6 +127,9 @@ function ladeBuecher() {
 // Die Mediathek: Videos (Link laden, gespeichert, entdecken) und
 // Bücher (KI-Zusammenfassungen wie bei Blinkist)
 export default function Library({ savedVideos: alleGemerkten, setSavedVideos, onOpenVideo, onLoadUrl, onAddVocab, vocab = {} }) {
+  // Eigene YouTube-Videos: nur Premium (09.11.). Solange der Stand lädt: offen lassen.
+  const { premium: istPremium, laedt: premiumLaedt } = usePremium()
+  const videosGesperrt = !istPremium && !premiumLaedt
   // Songs werden im Songs-Bereich angezeigt, nicht hier.
   // Ältere Einträge haben noch kein "art" – die gelten als Video.
   const savedVideos = alleGemerkten.filter((v) => v.art !== 'musik')
@@ -460,6 +464,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           schon weiss, wonach er sucht, soll nicht erst ein Fenster
           oeffnen muessen. */}
       <VideoEngine
+        gesperrt={videosGesperrt}
         bilder={savedVideos.slice(-5).reverse().map((v) => v.videoId)}
         wert={suchFeld}
         onWert={setSuchFeld}
@@ -852,7 +857,7 @@ const ENGINE_THEMEN = [tr('Fußball'), tr('Kochen'), tr('Reisen'), tr('Musik'), 
  * Kein Formular, sondern das Aushängeschild der Mediathek: dunkle
  * Bühne mit Glühen, großem Suchfeld und Themen zum Antippen.
  */
-function VideoEngine({ wert, onWert, onSuche, bilder = [] }) {
+function VideoEngine({ wert, onWert, onSuche, bilder = [], gesperrt = false }) {
   function absenden(e) {
     e.preventDefault()
     if (wert.trim()) onSuche(wert)
@@ -892,29 +897,43 @@ function VideoEngine({ wert, onWert, onSuche, bilder = [] }) {
 
       <GratisHinweis art="video" />
 
-      <form className="engine-suche" onSubmit={absenden}>
-        <svg className="engine-lupe" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
-          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2.4" />
-          <path d="M20 20l-4-4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-        </svg>
-        <input
-          value={wert}
-          onChange={(e) => onWert(e.target.value)}
-          placeholder={tr('Worüber willst du ein Video sehen?')}
-          enterKeyHint="search"
-        />
-        </form>
-      <button type="button" className="engine-los" disabled={!wert.trim()} onClick={() => onSuche(wert)}>
-        ✦ {tr('Videos für mich finden')}
-      </button>
-
-      <div className="engine-themen">
-        {ENGINE_THEMEN.map((t) => (
-          <button key={t} type="button" onClick={() => { onWert(t); onSuche(t) }}>
-            {t}
-          </button>
-        ))}
-      </div>
+      {/* Eigene YouTube-Videos nur mit Premium (Manuel, 09.11.): Gratis
+          gibt es die Mediathek, Suche und Link sind gesperrt. */}
+      {gesperrt ? (
+        <button type="button" className="engine-suche engine-zu" onClick={() => !istApp && zurKasse()} disabled={istApp}>
+          <svg className="engine-lupe" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <rect x="5" y="10" width="14" height="10" rx="3" fill="currentColor" />
+            <path d="M8 10V8a4 4 0 0 1 8 0v2" stroke="currentColor" strokeWidth="2.6" fill="none" />
+          </svg>
+          <span>{sprache() === 'en' ? 'Search your own YouTube videos – with Premium' : 'Eigene YouTube-Videos suchen – mit Premium'}</span>
+        </button>
+      ) : (
+        <>
+        <form className="engine-suche" onSubmit={absenden}>
+          <svg className="engine-lupe" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2.4" />
+            <path d="M20 20l-4-4" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+          </svg>
+          <input
+            value={wert}
+            onChange={(e) => onWert(e.target.value)}
+            placeholder={tr('Worüber willst du ein Video sehen?')}
+            enterKeyHint="search"
+          />
+          </form>
+        <button type="button" className="engine-los" disabled={!wert.trim()} onClick={() => onSuche(wert)}>
+          ✦ {tr('Videos für mich finden')}
+        </button>
+  
+        <div className="engine-themen">
+          {ENGINE_THEMEN.map((t) => (
+            <button key={t} type="button" onClick={() => { onWert(t); onSuche(t) }}>
+              {t}
+            </button>
+          ))}
+        </div>
+        </>
+      )}
     </section>
   )
 }

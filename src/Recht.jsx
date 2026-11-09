@@ -364,7 +364,7 @@ export function AGB({ onZurueck }) {
 
       <H2>{tr('§ 4 Kostenlose Nutzung und Premium')}</H2>
       <P>
-        {tr('Gratis: 20 % der Lektionen, 7 KI-Erstellungen und 1 neues YouTube-Video pro Woche sowie 10 Minuten Sprach-Trainer im Monat. Premium schaltet alles ohne Limit frei: alle Lektionen, unbegrenzte Vokabellisten, Sätze, Texte und E-Books, eigene Videos und 120 Minuten Sprach-Trainer im Monat.')}
+        {tr('Gratis: 20 % der Lektionen, 7 KI-Erstellungen pro Woche, alle Videos aus der Mediathek sowie 10 Minuten Sprach-Trainer im Monat. Premium schaltet alles ohne Limit frei: alle Lektionen, unbegrenzte Vokabellisten, Sätze, Texte und E-Books, eigene Videos und 120 Minuten Sprach-Trainer im Monat.')}
       </P>
       <P>
         {tr('Der jeweils geltende Preis wird dir vor dem Kauf in der Anwendung angezeigt, zusammen mit dem Abrechnungszeitraum. Alle Preise verstehen sich inklusive gesetzlicher Umsatzsteuer. Maßgeblich ist der Preis, der dir im Bestellvorgang angezeigt wird.')}
