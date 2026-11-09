@@ -33,7 +33,10 @@ function useSichtbar() {
   const { premium, laedt } = usePremium()
   if (istApp) return { zeigen: false, premium }
   // Während der Premium-Stand lädt: lieber nichts als falsche Werbung
-  return { zeigen: !premium && !laedt, premium }
+  // Gemerkter Stand „kein Premium“: sofort zeigen, nicht erst nach der Abfrage
+  let gemerktGratis = false
+  try { gemerktGratis = localStorage.getItem('premium-stand') === 'nein' } catch { /* egal */ }
+  return { zeigen: !premium && (!laedt || gemerktGratis), premium }
 }
 
 const TEXT = {
