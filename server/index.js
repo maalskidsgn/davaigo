@@ -15,7 +15,7 @@ import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende,
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
-import { KI_PRO_TAG, wochenStand, nutzungHeute, zaehleNutzung, naechsteAuffuellung } from './kontingent.js'
+import { KI_PRO_TAG, monatsStand, nutzungHeute, zaehleNutzung, naechsteAuffuellung } from './kontingent.js'
 import {
   antworte,
   istPremium,
@@ -637,7 +637,7 @@ app.get('/api/kontingent', async (req, res) => {
     const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', '')).catch(() => null)
     if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
     const premium = await istPremium(nutzer.id)
-    res.json({ premium, ...(await wochenStand(nutzer.id)) })
+    res.json({ premium, ...(await monatsStand(nutzer.id)) })
   } catch (err) {
     console.error('Kontingent:', err.message)
     res.status(500).json({ error: 'Kontingent konnte nicht geprüft werden.' })
@@ -672,8 +672,8 @@ async function kiTuersteher(req, res, art) {
       error: 'limit',
       nachricht:
         zielsprache() === 'en'
-          ? `You've used your ${KI_PRO_TAG} free AI creations this week. New ones ${naechsteAuffuellung(true)} – or unlimited with Premium.`
-          : `Deine ${KI_PRO_TAG} Gratis-Erstellungen für diese Woche sind aufgebraucht. ` +
+          ? `You've used your ${KI_PRO_TAG} free AI creations this month. New ones ${naechsteAuffuellung(true)} – or unlimited with Premium.`
+          : `Deine ${KI_PRO_TAG} Gratis-Erstellungen für diesen Monat sind aufgebraucht. ` +
             `Neue gibt es ${naechsteAuffuellung()} – oder sofort unbegrenzt mit Premium.`,
     })
     return null
@@ -764,10 +764,10 @@ app.get('/api/ebook/kontingent', async (req, res) => {
     const nutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', ''))
     if (!nutzer) return res.status(401).json({ error: 'Bitte zuerst anmelden.' })
 
-    // Seit 09.11.2026: E-Books zählen in den gemeinsamen KI-Wochentopf
+    // Seit 09.11.2026: E-Books zählen in den gemeinsamen KI-Monatstopf
     if (await istPremium(nutzer.id)) return res.json({ genutzt: 0, frei: 9999, gesamt: 9999, premium: true })
     const genutzt = await nutzungHeute(nutzer.id, 'ki')
-    res.json({ genutzt, frei: Math.max(0, KI_PRO_TAG - genutzt), gesamt: KI_PRO_TAG, woche: true })
+    res.json({ genutzt, frei: Math.max(0, KI_PRO_TAG - genutzt), gesamt: KI_PRO_TAG, monat: true })
   } catch (err) {
     console.error(err.message)
     res.status(500).json({ error: 'Kontingent konnte nicht geprüft werden.' })

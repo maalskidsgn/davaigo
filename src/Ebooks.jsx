@@ -90,7 +90,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
 
       setBuecher((b) => [antwort.buch, ...(b ?? [])])
       setKontingent((k) => (k ? { ...k, frei: antwort.frei } : k))
-      zaehleNutzung() // gemeinsamer KI-Wochentopf
+      zaehleNutzung() // gemeinsamer KI-Monatstopf
       setThema('')
       setOffenes(antwort.buch)
     } catch (f) {
@@ -130,7 +130,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
             {kontingent && !kontingent.premium && (
               <span
                 className={'rest-zaehler' + (aufgebraucht ? ' zaehler-leer' : '')}
-                title={tr('Gratis-Erstellungen diese Woche (gemeinsam mit Listen, Sätzen und Texten)')}
+                title={tr('Gratis-Erstellungen diesen Monat (gemeinsam mit Listen, Sätzen und Texten)')}
               >
                 {kontingent.frei}/{kontingent.gesamt}
               </span>
@@ -178,8 +178,8 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
           {aufgebraucht && (
             <p className="studio-leer-hinweis">
               {istApp
-                ? tr('Deine Gratis-Erstellungen für diese Woche sind aufgebraucht – ab Montag kannst du wieder neue Bücher schreiben.')
-                : tr('Deine 7 Gratis-Erstellungen für diese Woche sind aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.')}
+                ? tr('Deine Gratis-Erstellungen für diesen Monat sind aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.')
+                : tr('Deine 10 Gratis-Erstellungen für diesen Monat sind aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.')}
             </p>
           )}
         </form>

@@ -127,7 +127,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
             Bei vollem Kontingent ist er nur Zierde – kurz vor dem
             Ende ist er die einzige Vorwarnung. */}
         {uebrig <= 2 && (
-          <span className="rest-zaehler" title={tr('Gratis-Erstellungen diese Woche')}>
+          <span className="rest-zaehler" title={tr('Gratis-Erstellungen diesen Monat')}>
             {uebrig}/{LISTEN_PRO_TAG}
           </span>
         )}

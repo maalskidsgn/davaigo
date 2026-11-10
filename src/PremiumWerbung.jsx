@@ -34,12 +34,12 @@ export default function PremiumWerbung({ was = tr('Generierungen') }) {
             </svg>
           </span>
           <div>
-            <p className="pw-ueber">{tr('Für diese Woche geschafft')}</p>
-            <h3 className="pw-titel">{tr('Am Montag geht\'s weiter')}</h3>
+            <p className="pw-ueber">{tr('Für diesen Monat geschafft')}</p>
+            <h3 className="pw-titel">{tr('Nächsten Monat geht\'s weiter')}</h3>
           </div>
         </div>
         <p className="pw-text">
-          {tr('Deine Gratis-Erstellungen für diese Woche sind aufgebraucht. Neue {0} gibt es {1} – bis dahin kannst du mit dem Gesammelten üben.', was, naechsteAuffuellung())}
+          {tr('Deine Gratis-Erstellungen für diesen Monat sind aufgebraucht. Neue {0} gibt es {1} – bis dahin kannst du mit dem Gesammelten üben.', was, naechsteAuffuellung())}
         </p>
       </div>
     )
@@ -60,7 +60,7 @@ export default function PremiumWerbung({ was = tr('Generierungen') }) {
           </svg>
         </span>
         <div>
-          <p className="pw-ueber">{tr('Wochenlimit erreicht')}</p>
+          <p className="pw-ueber">{tr('Monatslimit erreicht')}</p>
           <h3 className="pw-titel">
             {tr('Mehr lernen mit')} <span className="accent">{tr('Premium')}</span>
           </h3>
@@ -68,7 +68,7 @@ export default function PremiumWerbung({ was = tr('Generierungen') }) {
       </div>
 
       <p className="pw-text">
-        {tr('Deine {0} Gratis-Erstellungen für diese Woche sind aufgebraucht. Neue {1} gibt es {2} – oder sofort und ohne Grenze mit Premium.', LISTEN_PRO_TAG, was, naechsteAuffuellung())}
+        {tr('Deine {0} Gratis-Erstellungen für diesen Monat sind aufgebraucht. Neue {1} gibt es {2} – oder sofort und ohne Grenze mit Premium.', LISTEN_PRO_TAG, was, naechsteAuffuellung())}
       </p>
 
       <ul className="pw-vorteile">

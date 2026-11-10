@@ -179,7 +179,7 @@ export default function SatzGenerator({ saetze, setSaetze, addXp }) {
           <p>{tr('Wähle ein Thema, eine Grammatik – oder beides.')}</p>
         </div>
         {uebrig <= 2 && (
-          <span className="rest-zaehler" title={tr('Gratis-Erstellungen diese Woche')}>
+          <span className="rest-zaehler" title={tr('Gratis-Erstellungen diesen Monat')}>
             {uebrig}/{LISTEN_PRO_TAG}
           </span>
         )}

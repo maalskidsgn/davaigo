@@ -104,7 +104,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
           </button>
 {istApp && !premium && (
           <p className="free-hint">
-            {tr('Noch {0} von {1} diese Woche', uebrig, LISTEN_PRO_TAG)}
+            {tr('Noch {0} von {1} diesen Monat', uebrig, LISTEN_PRO_TAG)}
           </p>
           )}
         </>
