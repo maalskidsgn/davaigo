@@ -1,3 +1,4 @@
+import { pausierteSchluessel, MAX_VOKABELN } from './limits.js'
 import { usePremium } from './premium.js'
 import { loginKopf } from './limits.js'
 import { API_URL, istApp, kiKopf } from './api.js'
