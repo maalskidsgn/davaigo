@@ -1,3 +1,5 @@
+import { usePremium } from './premium.js'
+import GratisHinweis from './GratisHinweis.jsx'
 import { useEffect, useMemo, useState } from 'react'
 import { Pokal } from './Games.jsx'
 import { Sockel } from './StartInseln.jsx'
@@ -42,7 +44,7 @@ import {
 } from './uebungen.js'
 import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
-import { tr } from './sprache.js'
+import { tr, sprache } from './sprache.js'
 
 // Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
 //
@@ -131,12 +133,17 @@ export default function Trainer({
   const [gewaehlt, setGewaehlt] = useState(null) // Multiple Choice: angetippte Antwort
 
   // Alle Vokabeln als Liste, fehlende Felder ergänzen
+  // Gratis: nur die ersten MAX_VOKABELN im Training, der Rest pausiert (09.11.)
+  const { premium: trPremium } = usePremium()
+  const allesFrei = trPremium
+  const pausiert = pausierteSchluessel(vocab, MAX_VOKABELN, allesFrei, 'addedAt')
   const entries = Object.entries(vocab).map(([word, e]) => ({
     word,
     ...withSrsDefaults(e),
+    gesperrt: pausiert.has(word),
   }))
 
-  const dueEntries = entries.filter(isDue)
+  const dueEntries = entries.filter((e) => !e.gesperrt && isDue(e))
 
   // Wie viele Wörter stecken in jeder Stufe? (für die Filter-Knöpfe)
   const levelCounts = LEVEL_LABELS.map(
@@ -164,7 +171,7 @@ export default function Trainer({
       )
     : filtered
 
-  const trainable = filtered.filter(isDue)
+  const trainable = filtered.filter((e) => !e.gesperrt && isDue(e))
 
   // Wie viele Grammatik-Bausteine warten? Nur fuer die Zahl am
   // Umschalter – geuebt wird drueben in Bausteine.jsx.
@@ -176,11 +183,11 @@ export default function Trainer({
   // Wie viele Sätze und Texte warten? Die Zahl steht im Reiter, damit
   // man sieht, wo etwas liegt, ohne hineinzuklicken.
   const faelligeSaetze = useMemo(
-    () => Object.values(saetze).filter((s) => isDue(withSrsDefaults(s))).length,
-    [saetze]
+    () => { const p = pausierteSchluessel(saetze, MAX_SAETZE, allesFrei, 'erstelltAm'); return Object.entries(saetze).filter(([k, x]) => !p.has(k) && isDue(withSrsDefaults(x))).length },
+    [saetze, allesFrei]
   )
   const faelligeTexte = useMemo(
-    () => Object.values(texte).filter((x) => isDue(withSrsDefaults(x))).length,
+    () => { const p = pausierteSchluessel(texte, MAX_TEXTE, allesFrei, 'erstelltAm'); return Object.entries(texte).filter(([k, x]) => !p.has(k) && isDue(withSrsDefaults(x))).length },
     [texte]
   )
 
@@ -188,7 +195,7 @@ export default function Trainer({
     setArt(gewaehlteArt)
     // Eine Lektion sind 20 Woerter: erst die faelligen, dann
     // auffuellen – so ist die Runde immer gleich lang und ueberschaubar.
-    setQueue(baueLektion(entries, trainable))
+    setQueue(baueLektion(entries.filter((e) => !e.gesperrt), trainable))
     setPosition(0)
     setRevealed(false)
     setEingabe('')
@@ -812,6 +819,8 @@ export default function Trainer({
               </select>
             </div>
 
+            <GratisHinweis art="vokabeln" gesamt={entries.length} />
+
             {gefiltert.length === 0 ? (
               <p className="empty-hint">
                 {suchtext
@@ -833,7 +842,7 @@ export default function Trainer({
                   <tbody>
                     {gefiltert.slice(0, sichtbar).map((e) => (
                       <tr key={e.word} title={e.source ? tr('Aus: {0}', e.source) : undefined}>
-                        <td className="cell-word">{e.word}</td>
+                        <td className="cell-word">{e.word}{e.gesperrt && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</td>
                         <td>{e.translation || '–'}</td>
                         <td>
                           <span className={'level-badge lvl-' + e.level}>

@@ -1,3 +1,4 @@
+import { usePremium } from './premium.js'
 import { loginKopf } from './limits.js'
 import { API_URL, istApp, kiKopf } from './api.js'
 import { sichereMerker } from './kontoMerker.js'
@@ -249,6 +250,7 @@ async function ladeFertigeUebersetzung(id, laenge) {
 }
 
 export default function App() {
+  const { premium: appPremium } = usePremium()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [video, setVideo] = useState(null) // { videoId, title, lines }
@@ -1214,7 +1216,9 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [vocab, texte, saetze, lessonProgress, progress.streak, nutzer, syncStatus])
   // Wie viele Vokabeln sind gerade zum Üben fällig? (für das rote Punkt-Badge im Tab)
-  const faellig = Object.values(vocab).filter((v) => isDue(withSrsDefaults(v))).length
+  // Gratis: pausierte Vokabeln (über 500) zählen nicht als fällig (09.11.)
+  const pausiertApp = pausierteSchluessel(vocab, MAX_VOKABELN, appPremium, 'addedAt')
+  const faellig = Object.entries(vocab).filter(([k, v]) => !pausiertApp.has(k) && isDue(withSrsDefaults(v))).length
 
   // Level-Fortschritt für die Anzeige oben berechnen
   const level = levelFromXp(progress.xp)

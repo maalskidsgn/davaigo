@@ -1,13 +1,14 @@
+import { usePremium } from './premium.js'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Pokal } from './Games.jsx'
 import { Sockel } from './StartInseln.jsx'
-import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS } from './srs.js'
+import { review, isDue, formatDue, withSrsDefaults, vorschau, LEVEL_LABELS, wiederholReihenfolge } from './srs.js'
 import { XP } from './gamification.js'
 import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe, IconGemischt, IconSchreiben, IconLektion } from './icons.jsx'
-import { tr } from './sprache.js'
+import { tr, sprache } from './sprache.js'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
@@ -66,6 +67,9 @@ function baueAuswahl(richtig, alle, anzahl = 4) {
  * statt Wortpaaren gibt es Satzpaare mit 6 Sätzen untereinander (SatzPaare).
  */
 export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
+  // Gratis: nur die ersten MAX_SAETZE im Training (09.11.)
+  const { premium: stPremium } = usePremium()
+  const pausiert = pausierteSchluessel(saetze, MAX_SAETZE, stPremium, 'erstelltAm')
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [artWahl, setArtWahl] = useState(false)
   const [art, setArt] = useState('karten')
@@ -88,7 +92,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     [saetze]
   )
 
-  const faellig = entries.filter(isDue)
+  const faellig = entries.filter((e) => !pausiert.has(e.key) && isDue(e))
   const gewusst = entries.filter((e) => e.status === 'gewusst')
 
   const gefiltert = entries
@@ -104,9 +108,9 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
   function starten(gewaehlteArt) {
     if (gewaehlteArt === 'paare') {
       // Fällige zuerst, mit den übrigen auf sechs auffüllen
-      const mitText = entries.filter((e) => e.translation)
+      const mitText = entries.filter((e) => e.translation && !pausiert.has(e.key))
       const sortiert = [
-        ...mitText.filter(isDue).sort((a, b) => (a.due ?? 0) - (b.due ?? 0)),
+        ...mitText.filter(isDue).sort(wiederholReihenfolge),
         ...mitText.filter((e) => !isDue(e)).sort(() => Math.random() - 0.5),
       ]
       setArt('paare')
@@ -115,7 +119,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
       setArtWahl(false)
       return
     }
-    const liste = [...faellig].sort((a, b) => (a.due ?? 0) - (b.due ?? 0)).slice(0, RUNDE)
+    const liste = [...faellig].sort(wiederholReihenfolge).slice(0, RUNDE)
     setArt(gewaehlteArt)
     setQueue(liste.map((e) => e.key))
     setRevealed(false)
@@ -248,7 +252,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             {gefiltert.map((e) => (
               <div key={e.key} className="satz-zeile">
                 <div className="satz-zeile-text">
-                  <span className="satz-es">{e.satz}</span>
+                  <span className="satz-es">{e.satz}{pausiert.has(e.key) && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</span>
                   <span className="satz-de">{e.translation}</span>
                   <span className="satz-meta">
                     {LEVEL_LABELS[e.level] ?? tr('Neu')} · {formatDue(e)}
