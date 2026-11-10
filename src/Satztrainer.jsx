@@ -1,3 +1,4 @@
+import GratisHinweis from './GratisHinweis.jsx'
 import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
 import { usePremium } from './premium.js'
 import { useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -245,6 +246,8 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             </button>
           ))}
         </div>
+
+        <GratisHinweis art="saetze" gesamt={entries.length} />
 
         {gefiltert.length === 0 ? (
           <p className="empty-hint">{tr('Hier ist gerade nichts.')}</p>

@@ -1486,6 +1486,7 @@ export default function App() {
               // hat niemandem etwas beigebracht.
               texte: Object.values(texte).reduce((n, t) => n + (t.gelesen ?? 0), 0),
               saetze: Object.keys(saetze).length,
+              texteAnzahl: Object.keys(texte).length,
               videos: savedVideos.length,
             }}
             nextLesson={naechsteLektion(lessonProgress)}

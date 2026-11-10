@@ -235,7 +235,7 @@ export default function Home({
       </section>
 
       {/* Gratis-Paket weiter unten, nicht als Erstes (Manuel, 09.11.) */}
-      <GratisUebersicht />
+      <GratisUebersicht trainer={{ woerter: counts?.woerter ?? 0, saetze: counts?.saetze ?? 0, texte: counts?.texteAnzahl ?? 0 }} />
 
       {/* Meilensteine: Abzeichen in sechs Stufen – jede gibt XP und
           meldet sich, wenn sie fällt. */}
