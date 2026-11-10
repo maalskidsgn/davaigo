@@ -52,7 +52,7 @@ import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
 import { Kopf } from './MediathekUI.jsx'
-import { BuchFormular, BuchRegal, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
+import { BuchFormular, BuchZeilen, NiveauFilter, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
 import { tr, sprache } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -154,6 +154,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     SONGS_ZEIGEN && new URLSearchParams(window.location.search).get('code') ? 'songs' : 'videos'
   ) // 'videos', 'songs' oder 'ebooks'
   const [buecher, setBuecher] = useState(ladeBuecher)
+  const [buchNiveau, setBuchNiveau] = useState('alle') // Filter der Bibliothek
   const [offenesBuch, setOffenesBuch] = useState(null) // gerade geöffnete Zusammenfassung
 
   // ---------- Kuratierte Mediathek aus der Datenbank ----------
@@ -405,17 +406,18 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
               Zusammenfassungen sitzt dafuer schmal ueber der Liste. */}
           <BuchFormular onFertig={buchFertig} />
 
-          {/* Bibliothek darunter – aufgebaut wie die Video-Abschnitte */}
-          <section className="bereich">
-            <Kopf symbol={<IconBuch groesse={19} />} titel={tr('Bibliothek')} text={tr('6 Bücher, gratis für alle – Kapitel für Kapitel auf Russisch und Deutsch.')} zahl={BIBLIOTHEK.length} />
-            <BuchRegal bibliothek nackt buecher={BIBLIOTHEK} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
-          </section>
+          {/* Wie bei den Videos: erst die eigenen, dann die Bibliothek mit Filter */}
           {buecher.length > 0 && (
             <section className="bereich">
-              <Kopf symbol={<IconBuch groesse={19} />} titel={tr('Deine eigenen Bücher')} zahl={buecher.length} />
-              <BuchRegal nackt buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
+              <Kopf symbol={<IconLesezeichen groesse={19} />} titel={tr('Deine Bücher')} text={tr('Selbst erstellt – dort weiterlesen, wo du aufgehört hast.')} zahl={buecher.length} />
+              <BuchZeilen buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
             </section>
           )}
+          <section className="bereich">
+            <Kopf symbol={<IconBuch groesse={19} />} titel={tr('Bibliothek')} text={tr('6 Bücher, gratis für alle – Kapitel für Kapitel auf Russisch und Deutsch.')} zahl={BIBLIOTHEK.length} />
+            <NiveauFilter buecher={BIBLIOTHEK} wert={buchNiveau} onWert={setBuchNiveau} />
+            <BuchZeilen buecher={buchNiveau === 'alle' ? BIBLIOTHEK : BIBLIOTHEK.filter((b) => b.niveau === buchNiveau)} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
+          </section>
 
         </>
       )}

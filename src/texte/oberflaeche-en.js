@@ -5,6 +5,7 @@
  * erlaubt und bleiben stehen.
  */
 export default {
+ "Selbst erstellt – dort weiterlesen, wo du aufgehört hast.": "Created by you – continue where you left off.",
  "Mediathek": "Library",
  "Büchern": "books",
  "Bibliothek": "Library",
