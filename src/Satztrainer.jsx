@@ -1,3 +1,4 @@
+import { leiterName } from './srs.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
 import { usePremium } from './premium.js'
@@ -375,7 +376,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                       className={'bewertung bewertung-' + b.wert}
                       onClick={() => antworten(b.wert)}
                     >
-                      <span className="bewertung-text">{b.text}</span>
+                      <span className="bewertung-text">{leiterName(current, b.wert) ?? b.text}</span>
                       <span className="bewertung-zeit">{vorschau(current, b.wert)}</span>
                     </button>
                   ))}

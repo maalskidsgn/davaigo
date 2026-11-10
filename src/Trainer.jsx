@@ -1,3 +1,4 @@
+import { leiterName } from './srs.js'
 import { pausierteSchluessel, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
 import { usePremium } from './premium.js'
 import GratisHinweis from './GratisHinweis.jsx'
@@ -526,7 +527,7 @@ export default function Trainer({
                       className={'bewertung bewertung-' + b.wert}
                       onClick={() => answer(b.wert)}
                     >
-                      <span className="bewertung-text">{b.text}</span>
+                      <span className="bewertung-text">{leiterName(current, b.wert) ?? b.text}</span>
                       <span className="bewertung-zeit">{vorschau(current, b.wert)}</span>
                     </button>
                   ))}
