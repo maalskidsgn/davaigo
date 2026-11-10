@@ -1,3 +1,4 @@
+import SchnellUebersetzer from './SchnellUebersetzer.jsx'
 import { GratisUebersicht } from './GratisHinweis.jsx'
 import { MODULE, lektionenVon } from './lektionen.js'
 import ToonFlamme from './ToonFlamme.jsx'
@@ -39,6 +40,8 @@ export default function Home({
   lessonProgress = {},
   onNavigate,
   nutzerId,
+  vocab = {},
+  onAddVocab,
 }) {
   // Kommt der Lernverlauf von einem anderen Gerät an, neu zeichnen
   const [, setVerlaufStand] = useState(0)
@@ -97,6 +100,9 @@ export default function Home({
         <span className="accent">!</span>
       </h1>
       <p className="intro">{tr("Wie geht's dir? Hier sind deine nächsten Schritte.")}</p>
+
+      {/* Schnell-Übersetzer: Wort nachschlagen und direkt in den Trainer (09.11.) */}
+      <SchnellUebersetzer vocab={vocab} onAddVocab={onAddVocab} />
 
       {/* Die Funktionen als Toon-Embleme zum Durchwischen */}
       <StartInseln

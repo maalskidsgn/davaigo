@@ -1474,6 +1474,8 @@ export default function App() {
             lessonProgress={lessonProgress}
             onNavigate={setView}
             nutzerId={nutzer?.id}
+            onAddVocab={addVocabWords}
+            vocab={vocab}
           />
         </main>
       )}
