@@ -189,8 +189,8 @@ function anweisung(niveau) {
  * @param {string} niveau – grobe Selbsteinschätzung, z. B. "Anfänger"
  */
 export async function antworte(verlauf, niveau = 'Anfänger') {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   // Nur die letzten 20 Züge mitschicken. Ein Gespräch kann lang
   // werden; die ganze Geschichte jedes Mal zu senden, kostet unnötig

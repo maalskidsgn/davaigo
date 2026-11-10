@@ -139,8 +139,8 @@ function bekanntesAlsHinweis(bekannt) {
  * @param {string[]} bekannt – Titel schon vorhandener Texte
  */
 export async function erzeugeLesetext(gebiet = '', thema = '', stufe = 'b1', bekannt = []) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const stufenRegel = STUFEN[stufe] ?? STUFEN.b1
   const gebietName = GEBIETE[gebiet]

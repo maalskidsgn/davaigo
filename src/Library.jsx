@@ -1,6 +1,6 @@
 import GratisHinweis, { zurKasse } from './GratisHinweis.jsx'
 import { usePremium } from './premium.js'
-import { API_URL, kiKopf, istApp } from './api.js'
+import { API_URL, istApp } from './api.js'
 import { ladeListen, neueListe } from './videoListen.js'
 import { holeBibliothek, supabaseBereit, zaehleSongs } from './supabase.js'
 import VideoSuche from './VideoSuche.jsx'
@@ -51,7 +51,8 @@ import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { holeVerzeichnis } from './inhalte.js'
-import { Hero, Kopf, SuchFeld } from './MediathekUI.jsx'
+import { Kopf } from './MediathekUI.jsx'
+import { BuchFormular, BuchRegal, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
 import { tr, sprache } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -75,7 +76,8 @@ const HOERTEXTE_ZEIGEN = false
 // nur um Videos. Die Bereiche bleiben fertig im Code – die Schalter
 // holen sie zurück.
 const SONGS_ZEIGEN = false
-const EBOOKS_ZEIGEN = false
+// Buch-Generator + Bibliothek seit 10.11.2026 für alle sichtbar
+const EBOOKS_ZEIGEN = true
 
 const BEREICHE = [
   { wert: 'videos', label: tr('Videos') },
@@ -152,9 +154,6 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     SONGS_ZEIGEN && new URLSearchParams(window.location.search).get('code') ? 'songs' : 'videos'
   ) // 'videos', 'songs' oder 'ebooks'
   const [buecher, setBuecher] = useState(ladeBuecher)
-  const [buchTitel, setBuchTitel] = useState('')
-  const [buchLaden, setBuchLaden] = useState(false)
-  const [buchFehler, setBuchFehler] = useState('')
   const [offenesBuch, setOffenesBuch] = useState(null) // gerade geöffnete Zusammenfassung
 
   // ---------- Kuratierte Mediathek aus der Datenbank ----------
@@ -224,33 +223,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
     return () => { abgebrochen = true }
   }, [])
 
-  // Eine neue Buchzusammenfassung generieren lassen
-  async function generiereBuch(e) {
-    // Das Ereignis ist freiwillig: Das Suchfeld der Hauptkarte hat
-    // preventDefault() schon selbst erledigt und ruft ohne Argument.
-    e?.preventDefault()
-    if (!buchTitel.trim()) return
-    setBuchLaden(true)
-    setBuchFehler('')
-    try {
-      const res = await fetch(API_URL + '/api/buch', {
-        method: 'POST',
-        headers: await kiKopf(),
-        body: JSON.stringify({ titel: buchTitel.trim() }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.nachricht || data.error)
-      const buch = { ...data, id: Date.now(), erstellt: Date.now() }
-      const neu = [buch, ...buecher]
-      setBuecher(neu)
-      localStorage.setItem('buecher', JSON.stringify(neu))
-      setBuchTitel('')
-      setOffenesBuch(buch)
-    } catch (err) {
-      setBuchFehler(err.message)
-    } finally {
-      setBuchLaden(false)
-    }
+  // Ein neues Buch aus dem Generator (Buecher.jsx) ablegen und öffnen
+  function buchFertig(buch) {
+    const neu = [buch, ...buecher]
+    setBuecher(neu)
+    try { localStorage.setItem('buecher', JSON.stringify(neu)) } catch { /* voll */ }
+    setOffenesBuch(buch)
   }
 
   function loescheBuch(id) {
@@ -346,7 +324,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // ---------- Geöffnete Buchzusammenfassung ----------
   if (offenesBuch) {
     return (
-      <BuchView
+      <BuchLeser
         buch={offenesBuch}
         onClose={() => setOffenesBuch(null)}
         onAddVocab={onAddVocab}
@@ -360,7 +338,9 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       {bereich !== 'videos' && (
         <>
         <h1 className="lib-kopf">
-          {tr('Lernen mit')} <span className="accent">YouTube</span>
+          {bereich === 'ebooks'
+            ? <>{tr('Lernen mit')} <span className="accent">{tr('Büchern')}</span></>
+            : <>{tr('Lernen mit')} <span className="accent">YouTube</span></>}
         </h1>
         <p className="lib-unter">
           {{
@@ -423,38 +403,20 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           {/* Die Hauptkarte des Bereichs ist das Formular – genau wie
               bei den Videos die Suche. Der Filter fuer die fertigen
               Zusammenfassungen sitzt dafuer schmal ueber der Liste. */}
-          <Hero
-            symbol={<IconBuch groesse={26} />}
-            titel={tr('Ebook erstellen')}
-            text={tr('Nenn einen Buchtitel oder ein Thema – die KI schreibt eine Zusammenfassung auf Russisch.')}
-          >
-            <SuchFeld
-              rund
-              wert={buchTitel}
-              onWert={setBuchTitel}
-              onAbsenden={generiereBuch}
-              platzhalter={tr('z. B. „Ikigai“ oder „Besser schlafen“')}
-              knopf={tr('Ebook erstellen')}
-              laedt={buchLaden}
-            />
-          </Hero>
+          <BuchFormular onFertig={buchFertig} />
 
-          {buchFehler && <p className="error">{buchFehler}</p>}
-          {buchLaden && (
-            <p className="inhalt-hinweis">
-              {tr('Das dauert einen Moment – die KI schreibt gerade beide Fassungen.')}
-            </p>
-          )}
-
+          {/* Bibliothek darunter – aufgebaut wie die Video-Abschnitte */}
+          <section className="bereich">
+            <Kopf symbol={<IconBuch groesse={19} />} titel={tr('Bibliothek')} text={tr('6 Bücher, gratis für alle – Kapitel für Kapitel auf Russisch und Deutsch.')} zahl={BIBLIOTHEK.length} />
+            <BuchRegal bibliothek nackt buecher={BIBLIOTHEK} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
+          </section>
           {buecher.length > 0 && (
-            <EigeneEbooks
-              buecher={buecher}
-              onOeffnen={setOffenesBuch}
-              onLoeschen={loescheBuch}
-            />
+            <section className="bereich">
+              <Kopf symbol={<IconBuch groesse={19} />} titel={tr('Deine eigenen Bücher')} zahl={buecher.length} />
+              <BuchRegal nackt buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
+            </section>
           )}
 
-          <Inhalte art="lesetexte" onAddVocab={onAddVocab} vocab={vocab} ohneHero />
         </>
       )}
 
@@ -684,111 +646,6 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
 
 // Die Lese-Ansicht einer Buchzusammenfassung: einfache russische Absätze,
 // Übersetzung einblendbar, Vokabeln mit einem Klick in den Trainer
-/**
- * Die selbst erzeugten Ebooks.
- *
- * Sie liegen im Browser, nicht in der Bibliothek – deshalb stehen
- * sie in einem eigenen Abschnitt ueber den fertigen und tragen
- * einen Loeschknopf.
- */
-function EigeneEbooks({ buecher, onOeffnen, onLoeschen }) {
-  return (
-    <section className="bereich">
-      <Kopf
-        symbol={<IconBuch groesse={19} />}
-        titel={tr('Deine eigenen Ebooks')}
-        text={tr('Auf diesem Gerät gespeichert.')}
-        zahl={buecher.length}
-      />
-      <ul className="inhalt-liste ebook-eigene">
-        {buecher.map((b) => (
-          <li key={b.id}>
-            <button className="inhalt-zeile" onClick={() => onOeffnen(b)}>
-              <span className="inhalt-text">
-                <span className="inhalt-titel">{b.titel}</span>
-                <span className="inhalt-meta">
-                  {tr('selbst erstellt{0}', b.kapitel ? ` · ${b.kapitel.length} Kapitel` : '')}
-                </span>
-              </span>
-              <IconPfeil groesse={17} />
-            </button>
-            <button
-              className="btn-delete ebook-weg"
-              title={tr('Löschen')}
-              onClick={() => onLoeschen(b.id)}
-            >
-              ✕
-            </button>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-function BuchView({ buch, onClose, onAddVocab }) {
-  const [zeigeDe, setZeigeDe] = useState(false)
-  const [uebernommen, setUebernommen] = useState(false)
-
-  function vokabelnUebernehmen() {
-    onAddVocab(
-      buch.vokabeln.map((v) => ({
-        wort: v.wort,
-        uebersetzung: v.uebersetzung,
-        quelle: tr('Buch: {0}', buch.titel),
-      }))
-    )
-    setUebernommen(true)
-  }
-
-  return (
-    <div className="library buch-view">
-      <button className="btn-plain back-link" onClick={onClose}>
-        {tr('← Zur Mediathek')}
-      </button>
-      <h1>{buch.titel}</h1>
-      <p className="intro">
-        {tr('{0} · Niveau {1}', buch.autor, buch.niveau)}
-      </p>
-
-      <label className="autoscroll-toggle">
-        <input
-          type="checkbox"
-          checked={zeigeDe}
-          onChange={(e) => setZeigeDe(e.target.checked)}
-        />
-        {tr('Deutsche Übersetzung einblenden')}
-      </label>
-
-      {buch.absaetze.map((a, i) => (
-        <div key={i} className="buch-absatz">
-          <p className="buch-es">{a.es}</p>
-          {zeigeDe && <p className="buch-de">{a.de}</p>}
-        </div>
-      ))}
-
-      <h2 className="settings-heading">{tr('Vokabeln aus diesem Buch')}</h2>
-      <div className="settings-card">
-        {buch.vokabeln.map((v) => (
-          <div key={v.wort} className="settings-row">
-            <div>
-              <div className="row-title">{v.wort}</div>
-              <div className="row-hint">{v.uebersetzung}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      {uebernommen ? (
-        <p className="gen-success">{tr('Vokabeln sind im Trainer! ✓')}</p>
-      ) : (
-        <button className="hero-cta" onClick={vokabelnUebernehmen}>
-          {tr('Alle {0} Vokabeln in den Trainer übernehmen', buch.vokabeln.length)}
-        </button>
-      )}
-    </div>
-  )
-}
-
 // Eine Video-Karte mit Vorschaubild, Titel und Kanal
 /**
  * Ein Video als Zeile: Vorschaubild links, Text daneben, rechts der

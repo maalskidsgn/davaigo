@@ -49,7 +49,8 @@ import {
   FREI_PRO_MONAT,
   erzeugeVokabelliste,
   erzeugeVideoVokabeln,
-  erzeugeBuchzusammenfassung,
+  erzeugeBuchZusammenfassung,
+  BUECHER_PREMIUM_PRO_MONAT,
 } from './ebooks.js'
 import { spracheAusAnfrage, zielsprache } from './sprache.js'
 
@@ -751,25 +752,36 @@ app.post('/api/vokabelliste', async (req, res) => {
   }
 })
 
-// Erstellt eine Blinkist-artige Buchzusammenfassung in einfachem Russisch.
-//
-// Lief bis zum 30.10.2026 ueber Anthropic – als einzige Stelle im
-// ganzen Projekt. Jetzt gpt-4o-mini wie alles andere auch: ein
-// Anbieter, ein Schluessel, eine Rechnung.
+// Buch-Generator im Blinkist-Stil (10.11.2026): Titel oder eingefügter
+// Text → 8 Kapitel zweisprachig (A1 zeigt die App auch in Lautschrift).
+// Nur Premium (Fair-Use-Grenze). Gratis: die 6 Bücher der Bibliothek.
 app.post('/api/buch', async (req, res) => {
-  const titel = (req.body.titel || '').trim().slice(0, 120)
-  if (!titel) return res.status(400).json({ error: 'Kein Buchtitel angegeben.' })
-
+  const en = req.body?.sprache === 'en'
+  const titel = String(req.body?.titel || '').trim().slice(0, 160)
+  const text = String(req.body?.text || '')
+  const niveau = ['A1', 'A2', 'B1', 'B2', 'C1'].includes(req.body?.niveau) ? req.body.niveau : 'A2'
+  if (!titel && text.trim().length < 400) {
+    return res.status(400).json({ error: en ? 'Enter a book title or paste some text from the book.' : 'Gib einen Buchtitel ein oder füge Text aus dem Buch ein.' })
+  }
   const tuerB = await kiTuersteher(req, res, 'ki')
   if (!tuerB) return
-
+  // Seit 10.11.2026: eigene Bücher nur mit Premium – gratis gibt es die 6 der Bibliothek
+  if (!(await istPremium(tuerB.nutzer.id))) {
+    const nachricht = en ? 'Creating your own books is a Premium feature. The 6 library books are free.' : 'Eigene Bücher erstellst du mit Premium. Die 6 Bücher der Bibliothek sind gratis.'
+    return res.status(402).json({ error: nachricht, nachricht, grund: 'premium' })
+  }
+  if ((await nutzungHeute(tuerB.nutzer.id, 'buch')) >= BUECHER_PREMIUM_PRO_MONAT) {
+    return res.status(429).json({ error: en
+      ? `You've created ${BUECHER_PREMIUM_PRO_MONAT} books this month – new ones ${naechsteAuffuellung(true)}.`
+      : `Du hast diesen Monat schon ${BUECHER_PREMIUM_PRO_MONAT} Bücher erstellt – neue gibt es ${naechsteAuffuellung()}.` })
+  }
   try {
-    const buch = await erzeugeBuchzusammenfassung(titel)
-    await zaehleNutzung(tuerB.nutzer.id, 'ki')
+    const buch = await erzeugeBuchZusammenfassung({ titel, text, niveau, sprache: req.body?.sprache })
+    await zaehleNutzung(tuerB.nutzer.id, 'buch')
     res.json(buch)
   } catch (err) {
-    console.error('Buchzusammenfassung:', err.message)
-    res.status(500).json({ error: 'Zusammenfassung konnte nicht erstellt werden.' })
+    console.error('Buch-Generator:', err.message)
+    res.status(500).json({ error: en ? 'The summary could not be created.' : 'Die Zusammenfassung konnte nicht erstellt werden.' })
   }
 })
 

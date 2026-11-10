@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 /**
  * In welcher Sprache antwortet der Server gerade?
  *
@@ -75,9 +76,10 @@ function schemaAufEnglisch(wert) {
   return aus
 }
 
-/** Wie fetch, stellt bei Englisch aber Auftrag und Schema auf Englisch um. */
+/** Wie fetch, stellt bei Englisch aber Auftrag und Schema auf Englisch um.
+ *  Seit 10.11.2026 fragt das Claude (server/ki.js), nicht mehr OpenAI. */
 export function frageOpenAI(url, optionen) {
-  if (zielsprache() !== 'en') return fetch(url, optionen)
+  if (zielsprache() !== 'en') return claudeFetch(url, optionen)
   const koerper = JSON.parse(optionen.body)
   const nachrichten = koerper.messages.map((n) =>
     typeof n.content === 'string' ? { ...n, content: aufEnglisch(n.content) } : n
@@ -89,7 +91,7 @@ export function frageOpenAI(url, optionen) {
     { role: 'system', content: VORRANG },
   ]
   if (koerper.response_format) koerper.response_format = schemaAufEnglisch(koerper.response_format)
-  return fetch(url, { ...optionen, body: JSON.stringify(koerper) })
+  return claudeFetch(url, { ...optionen, body: JSON.stringify(koerper) })
 }
 
 /**

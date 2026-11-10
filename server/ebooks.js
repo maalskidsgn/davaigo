@@ -1,3 +1,4 @@
+import { kiChat, HAIKU } from './ki.js'
 /**
  * Bilinguale E-Books für Habloo.
  *
@@ -89,8 +90,8 @@ const SCHEMA = {
  * @param {string} niveau – A1 | A2 | B1 | B2
  */
 export async function erzeugeEbook(thema, niveau = 'A2') {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const vorgaben = {
     A1: 'sehr einfache Sätze, nur Präsens, Grundwortschatz; 4 Kapitel',
@@ -247,8 +248,8 @@ const WORTART_REGEL = {
 export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wortart = 'alle') {
   // Zwischen 5 und 50 Wörtern – das Onboarding bestellt z.B. 50.
   anzahl = Math.max(5, Math.min(50, Number(anzahl) || 10))
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   // Ohne Thema übernimmt die KI die Auswahl: sie schaut sich den
   // bisherigen Wortschatz an und schlägt den nächsten sinnvollen
@@ -349,8 +350,8 @@ async function frageListe(schluessel, auftrag, anzahl) {
  * @param {string[]} bekannt – schon gesammelte Wörter
  */
 export async function erzeugeVideoVokabeln(text, bekannt = []) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
@@ -505,57 +506,98 @@ const BUCH_SCHEMA = {
   additionalProperties: false,
 }
 
-/**
- * Eine Blinkist-artige Zusammenfassung zu einem Buchtitel.
- *
- * Lief bis zum 30.10.2026 über Anthropic (claude-opus-5) – als
- * einzige Stelle im ganzen Projekt. Alles andere, von den
- * Vokabellisten bis zum Tutor, nutzt gpt-4o-mini. Ein zweiter
- * Anbieter für eine einzige Funktion heißt: ein zweiter Vertrag,
- * eine zweite Rechnung und ein zweiter Schlüssel, der in Coolify
- * fehlen kann – und genau das war er auch.
- */
-export async function erzeugeBuchzusammenfassung(titel) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('OPENAI_API_KEY fehlt.')
+// ---------------------------------------------------------------
+//  Buch-Generator im Blinkist-Stil (10.11.2026)
+// ---------------------------------------------------------------
+// Ein echtes Buch (Titel/Autor oder eingefügter Text) → 8 Kapitel,
+// jeder Absatz auf Russisch UND in der Oberflächensprache. Läuft über
+// Claude Haiku (server/ki.js). Die Lautschrift für A1 rechnet die App
+// selbst (src/lautschrift.js). Gespeichert wird nie der Buchtext.
 
-  const antwort = await frageOpenAI(OPENAI_URL, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${schluessel}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODELL,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'Du schreibst kurze Buchzusammenfassungen im Stil von Blinkist für ' +
-            'deutschsprachige Russisch-Anfänger. Schreib ausschließlich in ' +
-            'kyrillischer Schrift, niemals in Umschrift, und setze keine ' +
-            'Betonungszeichen – die stehen in Lehrbüchern, nicht in echten Texten.',
+/** Premium: Fair-Use-Grenze im Monat. Gratis zählt in den KI-Topf. */
+export const BUECHER_PREMIUM_PRO_MONAT = 50
+export const BUCHTEXT_MAX = 300000
+
+const PAAR = (beschreibung, ziel) => ({
+  type: 'object',
+  properties: {
+    ru: { type: 'string', description: `${beschreibung} auf Russisch (kyrillisch)` },
+    de: { type: 'string', description: `${beschreibung} auf ${ziel}` },
+  },
+  required: ['ru', 'de'],
+  additionalProperties: false,
+})
+const buchSchema = (ziel) => ({
+  type: 'object',
+  properties: {
+    bekannt: { type: 'boolean', description: 'true nur, wenn du das Buch sicher kennst ODER ein Buchtext mitgeliefert wurde' },
+    titel: { type: 'string', description: 'Titel des Buches auf Russisch' },
+    titel_de: { type: 'string', description: `Titel auf ${ziel}` },
+    autor: { type: 'string', description: 'Autor in kyrillischer Schreibweise' },
+    kurz: PAAR('Ein Satz: worum es im Buch geht', ziel),
+    kapitel: {
+      type: 'array',
+      description: 'Genau 8 Kapitel: 1 Einführung, 6 Kernideen, 1 Fazit',
+      items: {
+        type: 'object',
+        properties: {
+          titel: PAAR('Kapitelüberschrift als Aussage, kein Etikett', ziel),
+          absaetze: { type: 'array', description: '3 kurze Absätze', items: PAAR('Absatz', ziel) },
+          kern: PAAR('Die Kernaussage des Kapitels in einem Satz', ziel),
+          vokabeln: {
+            type: 'array',
+            description: '5 nützliche russische Wörter aus diesem Kapitel (Grundform)',
+            items: {
+              type: 'object',
+              properties: { wort: { type: 'string' }, uebersetzung: { type: 'string' } },
+              required: ['wort', 'uebersetzung'],
+              additionalProperties: false,
+            },
+          },
         },
-        {
-          role: 'user',
-          content:
-            `Fasse das Buch "${titel}" zusammen: 5 bis 7 kurze Absätze in ` +
-            'EINFACHEM Russisch (kurze Sätze, Grundwortschatz, Niveau A2), jeder ' +
-            'Absatz mit deutscher Übersetzung. Dazu 8 nützliche russische Wörter ' +
-            'aus dem Text.\n\n' +
-            'Kennst du das Buch nicht sicher, sag das ehrlich im ersten Absatz und ' +
-            'fasse zusammen, wofür der Titel bekannt ist. Erfinde keine Inhalte und ' +
-            'keinen Autor.',
-        },
-      ],
-      response_format: {
-        type: 'json_schema',
-        json_schema: { name: 'buch', schema: BUCH_SCHEMA, strict: true },
+        required: ['titel', 'absaetze', 'kern', 'vokabeln'],
+        additionalProperties: false,
       },
-    }),
-  })
+    },
+  },
+  required: ['bekannt', 'titel', 'titel_de', 'autor', 'kurz', 'kapitel'],
+  additionalProperties: false,
+})
+const NIVEAU_TEXT = {
+  A1: 'sehr kurze Sätze (höchstens 10 Wörter), nur Präsens und einfache Vergangenheit, Grundwortschatz, keine Partizipien',
+  A2: 'kurze Sätze, Alltagswortschatz, einfache Fälle',
+  B1: 'natürliche Sprache, verschiedene Zeiten und Aspekte',
+  B2: 'anspruchsvolle, flüssige Sprache mit Redewendungen',
+  C1: 'Sprache wie in einem echten Sachbuch',
+}
 
-  if (!antwort.ok) {
-    const fehler = await antwort.text()
-    throw new Error(`OpenAI antwortet mit ${antwort.status}: ${fehler.slice(0, 200)}`)
-  }
-  const daten = await antwort.json()
-  return JSON.parse(daten.choices[0].message.content)
+/**
+ * @param {{ titel: string, text?: string, niveau?: string, sprache?: string }} eingabe
+ */
+export async function erzeugeBuchZusammenfassung({ titel, text = '', niveau = 'A2', sprache = 'de' }) {
+  const ziel = sprache === 'en' ? 'Englisch' : 'Deutsch'
+  const auszug = String(text || '').slice(0, BUCHTEXT_MAX).trim()
+  const daten = await kiChat({
+    messages: [
+      {
+        role: 'system',
+        content:
+          'Du schreibst Buchzusammenfassungen im Stil von Blinkist für Russischlernende. ' +
+          `Jeder Absatz steht auf Russisch (kyrillisch) und auf ${ziel}; die Fassung auf ${ziel} ist natürlich formuliert. ` +
+          'Genau 8 Kapitel: eine Einführung, sechs Kernideen des Buches, ein Fazit. Je Kapitel 3 kurze Absätze. ' +
+          'Fasse in eigenen Worten zusammen, zitiere keine längeren Passagen. ' +
+          'Erfinde nichts: Kennst du das Buch nicht sicher und liegt kein Buchtext vor, setze bekannt=false ' +
+          'und schreibe nur über das, was der Titel sicher erkennen lässt; sage das in der Einführung offen.',
+      },
+      {
+        role: 'user',
+        content:
+          `Buch: ${titel || '(ohne Titel)'}\nNiveau ${niveau}: ${NIVEAU_TEXT[niveau] ?? NIVEAU_TEXT.A2}.` +
+          (auszug ? `\n\nBuchtext oder Auszug (Grundlage der Zusammenfassung):\n"""\n${auszug}\n"""` : ''),
+      },
+    ],
+    response_format: { type: 'json_schema', json_schema: { name: 'buch', schema: buchSchema(ziel), strict: true } },
+  }, HAIKU, { maxTokens: 16000 })
+  const buch = JSON.parse(daten.choices[0].message.content)
+  return { ...buch, niveau, mitText: Boolean(auszug) }
 }

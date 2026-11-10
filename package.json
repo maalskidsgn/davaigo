@@ -19,6 +19,7 @@
     "build:app": "npm run build -- --mode app && rm -rf dist/audio && npx cap sync"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
     "@capacitor/android": "^8.5.0",
     "@capacitor/app": "^8.1.2",
     "@capacitor/browser": "^8.0.5",

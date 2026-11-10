@@ -213,8 +213,8 @@ function ohneBekannte(saetze, bekannt) {
  * @param {string[]} bekannt   – schon gesammelte Sätze
  */
 export async function erzeugeSatzliste(thema, grammatik = '', bekannt = []) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const regel = GRAMMATIK[grammatik]
   const automatisch = !thema?.trim()

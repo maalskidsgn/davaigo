@@ -1,3 +1,4 @@
+import { claudeFetch } from './ki.js'
 // Erkennt unter den Spotify-Künstlern eines Nutzers die
 // russischsprachigen.
 //
@@ -50,7 +51,7 @@ const SCHEMA = {
  * @returns {Promise<{interpreten: object[], geprueft: number}>}
  */
 export async function findeRussischeInterpreten(kuenstler) {
-  const schluessel = process.env.OPENAI_API_KEY
+  const schluessel = process.env.ANTHROPIC_API_KEY
   if (!schluessel) throw new Error('Auf dem Server fehlt der OpenAI-Schlüssel.')
 
   const namen = (kuenstler ?? [])
@@ -60,7 +61,7 @@ export async function findeRussischeInterpreten(kuenstler) {
 
   if (namen.length === 0) return { interpreten: [], geprueft: 0 }
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,
@@ -154,11 +155,11 @@ const SONG_SCHEMA = {
  * @param {string[]} namen – Künstler, denen Songs fehlen
  */
 export async function ergaenzeSongs(namen) {
-  const schluessel = process.env.OPENAI_API_KEY
+  const schluessel = process.env.ANTHROPIC_API_KEY
   if (!schluessel) throw new Error('Auf dem Server fehlt der OpenAI-Schlüssel.')
   if (!namen?.length) return { interpreten: [] }
 
-  const antwort = await fetch(OPENAI_URL, {
+  const antwort = await claudeFetch(OPENAI_URL, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${schluessel}`,

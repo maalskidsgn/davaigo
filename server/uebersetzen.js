@@ -65,8 +65,8 @@ function merke(schluessel, wert) {
 }
 
 async function frageModell(nachrichten, schema) {
-  const schluessel = process.env.OPENAI_API_KEY
-  if (!schluessel) throw new Error('Kein OpenAI-Schlüssel hinterlegt.')
+  const schluessel = process.env.ANTHROPIC_API_KEY
+  if (!schluessel) throw new Error('Kein KI-Schlüssel hinterlegt.')
 
   const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
