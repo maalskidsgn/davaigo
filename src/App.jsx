@@ -1421,7 +1421,7 @@ export default function App() {
             onClick={() => setView('videos')}
           >
             <span className="tab-icon">{ICONS.bibliothek}<NavBild art="youtube" /></span>
-            <span className="tab-label">YouTube</span>
+            <span className="tab-label">{tr('Mediathek')}</span>
           </button>
           <button
             className={'tab ' + (view === 'mehr' ? 'tab-active' : '')}

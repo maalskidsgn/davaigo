@@ -5578,7 +5578,7 @@ export const TEXTE = {
  "Du hörst „sat“ – schreibst aber *сад*. Genau diese Falle üben die neuen Diktat-Aufgaben: Ohr hört hart, Hand schreibt weich.": "You hear \"sat\" – but you write *сад*. These new dictation exercises practice exactly this trap: the ear hears hard, the hand writes soft.",
  "Du kannst erzählen, was war": "You can talk about what happened",
  "Du kannst jetzt sagen: WAS du tust (Verb), WEN oder WAS (Akkusativ) und WIE es ist (Adjektiv). Damit stehen die meisten Alltagssätze.": "You can now say: WHAT you do (verb), WHO or WHAT (accusative), and HOW it is (adjective). This covers most everyday sentences.",
- "Du kannst schon Russisch": "You Can Already Speak Some Russian",
+ "Wörter, die du schon kennst": "Words You Already Know",
  "Du kannst sie schon alle": "You already know them all",
  "Du kaufst ein (*килограмм яблок*), sagst was wehtut (*болит голова*), sagst ab (*к сожалению, не могу*) – und erzählst hinterher, was passiert ist (*я был, она была, мы решили*).": "You go shopping (*килограмм яблок*), say what hurts (*болит голова*), cancel (*к сожалению, не могу*) – and then recount what happened (*я был, она была, мы решили*).",
  "Du kennst ihn schon": "You already know it",

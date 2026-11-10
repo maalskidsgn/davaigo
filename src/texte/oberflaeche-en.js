@@ -5,6 +5,11 @@
  * erlaubt und bleiben stehen.
  */
 export default {
+ "Mediathek": "Library",
+ "Büchern": "books",
+ "Bibliothek": "Library",
+ "6 Bücher, gratis für alle – Kapitel für Kapitel auf Russisch und Deutsch.": "6 books, free for everyone – chapter by chapter in Russian and English.",
+ "Deine eigenen Bücher": "Your own books",
  " – Kategorie „{0}“": " – Category \"{0}\"",
  " · {0} Wörter eine Stufe weiter": " · {0} words advanced a level",
  " · {0}× gelesen": " · read {0}×",

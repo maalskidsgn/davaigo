@@ -33,7 +33,7 @@ export const LEKTIONEN = [
     wiederholt: [],
     vorher: [],
     kulturnotiz: 'Russisch sprechen rund 250 Millionen Menschen – es ist die meistgesprochene Muttersprache Europas.',
-    titel: 'Du kannst schon Russisch',
+    titel: 'Wörter, die du schon kennst',
     emoji: '🚪',
     beschreibung: 'Der Einstieg – und warum du mehr verstehst, als du denkst',
     ziele: [
