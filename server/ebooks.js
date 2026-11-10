@@ -1,3 +1,4 @@
+import { GRENZEN } from './grenzen.js'
 import { kiChat, HAIKU } from './ki.js'
 /**
  * Bilinguale E-Books für Habloo.
@@ -515,8 +516,8 @@ const BUCH_SCHEMA = {
 // selbst (src/lautschrift.js). Gespeichert wird nie der Buchtext.
 
 /** Premium: Fair-Use-Grenze im Monat. Gratis zählt in den KI-Topf. */
-export const BUECHER_PREMIUM_PRO_MONAT = 50
-export const BUCHTEXT_MAX = 300000
+export const BUECHER_PREMIUM_PRO_MONAT = GRENZEN.buecherPremiumMonat
+export const BUCHTEXT_MAX = GRENZEN.buchtextZeichen
 
 const PAAR = (beschreibung, ziel) => ({
   type: 'object',

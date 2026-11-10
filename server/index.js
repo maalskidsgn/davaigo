@@ -1,3 +1,5 @@
+import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
+import { createHash } from 'node:crypto'
 import { kiKontext } from './ki.js'
 // Kleiner Server, der das Transkript (Untertitel) eines YouTube-Videos holt.
 // Er benutzt dafür das Programm "yt-dlp" (per Homebrew installiert), weil das
@@ -407,6 +409,10 @@ app.get('/api/translate', async (req, res) => {
   const word = (req.query.q || '').trim().slice(0, 100)
   if (!word) return res.status(400).json({ error: 'Kein Wort angegeben.' })
   if (!(await uebersetzTuer(req, res, 'wort'))) return
+  if (!imSpeicherErlaubt('wort', anfrager(req), GRENZEN.wortTag)) {
+    const en = zielsprache() === 'en'
+    return res.status(429).json({ error: GRENZE_TEXT[en ? 'en' : 'de'](en ? 'word look-ups' : 'Wort-Übersetzungen', 'tag') })
+  }
   try {
     // Der Satz drumherum (optional) – damit mehrdeutige Wörter passend übersetzt werden
     const satz = String(req.query.satz || '').trim().slice(0, 300)
@@ -595,13 +601,23 @@ app.post('/api/generate-vocab', async (req, res) => {
 // Die Arbeit steckt in server/uebersetzen.js. Dort sieht das Modell
 // das ganze Paket auf einmal und trifft dadurch den Bezug, den eine
 // Zeile-für-Zeile-Übersetzung verfehlt.
+const UNTERTITEL = new Map() // Hash der Zeilen → Übersetzung
 app.post('/api/translate-batch', async (req, res) => {
   const lines = Array.isArray(req.body.lines) ? req.body.lines.slice(0, 500) : []
   if (lines.length === 0) return res.status(400).json({ error: 'Keine Zeilen übergeben.' })
+  // Schon einmal übersetzt? Dann kostet es nichts (10.11.2026)
+  const schluessel = createHash('sha1').update(zielsprache() + '\n' + lines.join('\n')).digest('hex')
+  if (UNTERTITEL.has(schluessel)) return res.json({ uebersetzungen: UNTERTITEL.get(schluessel) })
   if (!(await uebersetzTuer(req, res, 'zeilen'))) return
+  if (!imSpeicherErlaubt('untertitel', anfrager(req), GRENZEN.untertitelMonat, 'monat')) {
+    const en = zielsprache() === 'en'
+    return res.status(429).json({ error: GRENZE_TEXT[en ? 'en' : 'de'](en ? 'subtitle translations' : 'Untertitel-Übersetzungen', 'monat') })
+  }
 
   try {
     const uebersetzungen = await uebersetzeZeilen(lines)
+    if (UNTERTITEL.size > 500) UNTERTITEL.delete(UNTERTITEL.keys().next().value)
+    UNTERTITEL.set(schluessel, uebersetzungen)
     res.json({ uebersetzungen })
   } catch (err) {
     console.error(err.message)
@@ -650,9 +666,18 @@ app.get('/api/schnell', async (req, res) => {
   if (!nachschlagenErlaubt(nutzer.id)) {
     return res.status(429).json({ error: en ? 'That was a lot for one day – try again tomorrow.' : 'Das waren heute sehr viele – morgen geht es weiter.' })
   }
+  // Monatsgrenze (10.11.2026): Gratis 20, Premium 300 – der Übersetzer läuft über Sonnet
+  const schnellPremium = await istPremium(nutzer.id)
+  const schnellMax = schnellPremium ? GRENZEN.schnellPremiumMonat : GRENZEN.schnellFreiMonat
+  if ((await nutzungHeute(nutzer.id, 'schnell')) >= schnellMax) {
+    return res.status(429).json({ error: schnellPremium
+      ? GRENZE_TEXT[en ? 'en' : 'de'](en ? 'quick translations' : 'den Schnell-Übersetzer', 'monat')
+      : (en ? `You've used your ${schnellMax} free look-ups this month – Premium has ${GRENZEN.schnellPremiumMonat}.` : `Deine ${schnellMax} Gratis-Nachschläge für diesen Monat sind aufgebraucht – mit Premium sind es ${GRENZEN.schnellPremiumMonat}.`) })
+  }
   try {
     const daten = await schnellUebersetzen(req.query.q, en ? 'en' : 'de')
     if (!daten?.treffer?.length) return res.status(404).json({ error: en ? 'No match found.' : 'Dazu habe ich nichts gefunden.' })
+    await zaehleNutzung(nutzer.id, 'schnell')
     res.json(daten)
   } catch (err) {
     console.error('Schnell-Übersetzer:', err.message)
@@ -692,8 +717,15 @@ async function kiTuersteher(req, res, art) {
     res.status(401).json({ error: 'Bitte zuerst anmelden.' })
     return null
   }
-  // Premium kennt keine Grenze.
-  if (await istPremium(nutzer.id)) return { nutzer }
+  // Premium: großzügige Obergrenze (10.11.2026, siehe server/grenzen.js)
+  if (await istPremium(nutzer.id)) {
+    if ((await nutzungHeute(nutzer.id, art)) >= GRENZEN.kiPremiumMonat) {
+      const en = zielsprache() === 'en'
+      res.status(429).json({ error: GRENZE_TEXT[en ? 'en' : 'de'](en ? 'AI creations' : 'KI-Erstellungen', 'monat'), grund: 'obergrenze' })
+      return null
+    }
+    return { nutzer }
+  }
 
   const heute = await nutzungHeute(nutzer.id, art)
   if (heute >= KI_PRO_TAG) {
@@ -1008,6 +1040,10 @@ app.post('/api/gespraech', async (req, res) => {
     // antworten: Ein Aufruf, der ohnehin abgelehnt wird, soll kein
     // OpenAI-Geld kosten.
     const premium = await istPremium(nutzer.id)
+    if (premium && (await tutorNutzungHeute(nutzer.id)) >= GRENZEN.tutorPremiumTag) {
+      const en = zielsprache() === 'en'
+      return res.status(429).json({ error: 'limit', nachricht: GRENZE_TEXT[en ? 'en' : 'de'](en ? 'tutor messages' : 'Tutor-Nachrichten', 'tag') })
+    }
     if (!premium) {
       const heute = await tutorNutzungHeute(nutzer.id)
       if (heute >= GESPRAECHE_PRO_TAG) {
@@ -1025,10 +1061,8 @@ app.post('/api/gespraech', async (req, res) => {
 
     // Erst nach erfolgreicher Antwort verbuchen.
     let frei = null
-    if (!premium) {
-      const genutzt = await zaehleTutorNutzung(nutzer.id)
-      frei = Math.max(0, GESPRAECHE_PRO_TAG - genutzt)
-    }
+    const genutzt = await zaehleTutorNutzung(nutzer.id) // auch Premium – für die Obergrenze
+    if (!premium) frei = Math.max(0, GESPRAECHE_PRO_TAG - genutzt)
     res.json({ ...antwortObj, frei })
   } catch (err) {
     console.error('Gespraech:', err.message)
