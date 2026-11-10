@@ -1,3 +1,4 @@
+import SpielBild from './SpielBild.jsx'
 import { leiterName } from './srs.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
@@ -22,6 +23,10 @@ const PAARE = 6
 // Nur zwei Übungsarten – Schreiben und Gemischt gibt es hier
 // bewusst nicht: Einen ganzen Satz fehlerfrei abzutippen ist
 // Fleißarbeit, kein Lernfortschritt.
+// Auswahl im 3D-Toon-Stil wie bei den Vokabeln (10.11.2026)
+const SATZ_BILD = {"karten": "karten", "auswahl": "auswahl", "bauen": "schreiben", "luecke": "galgen", "paare": "paare"}
+const SATZ_HINWEIS = {"karten": "Klassisch wie Karteikarten", "auswahl": "Schnell zum Aufwärmen", "bauen": "Trainiert den Satzbau", "luecke": "Grammatik im Zusammenhang", "paare": "Spielerisch zum Abschluss"}
+
 const ARTEN = [
   {
     id: 'karten',
@@ -466,9 +471,8 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             {tr('{0} Sätze stehen an.', Math.min(RUNDE, faellig.length))}
           </p>
         </div>
-        <div className="art-liste">
+        <div className="art-liste art-toon">
           {ARTEN.map((a) => {
-            const Icon = a.icon
             // Multiple Choice braucht falsche Antworten zum Danebenlegen.
             // Mit weniger als vier Sätzen gibt es die nicht.
             const gesperrt =
@@ -482,19 +486,18 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
                 disabled={gesperrt}
                 title={gesperrt ? tr('Dafür brauchst du mindestens vier Sätze') : undefined}
               >
-                <span className="art-emoji" aria-hidden="true">
-                  <Icon groesse={24} />
-                </span>
+                <SpielBild id={SATZ_BILD[a.id]} />
                 <span className="art-text">
                   <span className="art-titel">{a.titel}</span>
                   <span className="art-beschreibung">{a.text}</span>
-                  {gesperrt && (
+                  {gesperrt ? (
                     <span className="art-hinweis">
                       {a.id === 'paare' ? tr('Ab drei gesammelten Sätzen') : tr('Ab vier gesammelten Sätzen')}
                     </span>
+                  ) : (
+                    <span className="art-hinweis">{tr(SATZ_HINWEIS[a.id])}</span>
                   )}
                 </span>
-                <span className="art-pfeil" aria-hidden="true">›</span>
               </button>
             )
           })}

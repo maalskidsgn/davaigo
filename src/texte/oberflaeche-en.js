@@ -1593,4 +1593,8 @@ export default {
  "Gratis: 20 % der Lektionen, 10 KI-Erstellungen im Monat, alle Videos aus der Mediathek sowie 10 Minuten Sprach-Trainer im Monat. Premium schaltet alles ohne Limit frei: alle Lektionen, unbegrenzte Vokabellisten, Sätze, Texte und E-Books, eigene Videos und 120 Minuten Sprach-Trainer im Monat.": "Free: 20% of the lessons, 10 AI creations per month, every video in the library, plus 10 minutes of speaking practice per month. Premium unlocks everything without limits: all lessons, unlimited vocab lists, sentences, texts and e-books, your own videos and 120 minutes of speaking practice per month.",
  "Satzliste übernommen": "Sentence list added",
  "Text erstellt": "Text created",
+ "Schnell zum Aufwärmen": "Quick warm-up",
+ "Trainiert den Satzbau": "Builds your word order",
+ "Grammatik im Zusammenhang": "Grammar in context",
+ "Spielerisch zum Abschluss": "A playful finish",
 }
