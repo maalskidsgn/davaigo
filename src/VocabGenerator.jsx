@@ -7,6 +7,7 @@ import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { tr } from './sprache.js'
+import KiMelden from './KiMelden.jsx'
 
 // Macht aus einem Wort eine saubere Kleinschreibung ohne Satzzeichen
 function cleanWord(word) {
@@ -129,6 +130,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
               {s.beispiel && <span className="gen-example">"{s.beispiel}"</span>}
             </label>
           ))}
+          <KiMelden bereich="vokabeln" inhalt={suggestions.map((x) => `${x.wort} – ${x.uebersetzung}`).join('\n')} className="ki-melden-rechts" />
           <div className="gen-actions">
             <button onClick={addToTrainer}>
               {tr('{0} Vokabeln übernehmen', suggestions.filter((s) => s.checked).length)}

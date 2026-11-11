@@ -16,6 +16,7 @@ import { XP } from './gamification.js'
 import { erfolgston } from './erfolgston.js'
 import { BIBLIOTHEK } from './bibliothekBuecher.js'
 import { THEMEN, KLASSIKER } from './buchKatalog.js'
+import KiMelden from './KiMelden.jsx'
 
 export { BIBLIOTHEK }
 
@@ -568,6 +569,7 @@ export function BuchLeser({ buch: roh, onClose, onAddVocab, addXp, vocab = {} })
                 {paar(k.kern, { gross: true, klickbar: false })}
               </figure>
             )}
+            <KiMelden bereich="buch" inhalt={`${buch.titel} – ${label(nr)}\n` + k.absaetze.map((a) => Object.values(a).join(' / ')).join('\n')} className="ki-melden-rechts" />
           </article>
 
           {k.vokabeln?.length > 0 && (() => {

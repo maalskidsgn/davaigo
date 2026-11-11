@@ -10,6 +10,7 @@ import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, kontingentLeer } from './li
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
 import { tr } from './sprache.js'
+import KiMelden from './KiMelden.jsx'
 
 // Themen wie beim Vokabelgenerator – dieselbe Sprache, dieselbe
 // Bedienung. Ein Tipp erzeugt sofort, ohne erst ein Feld zu füllen.
@@ -328,6 +329,7 @@ export default function SatzGenerator({ saetze, setSaetze, addXp }) {
               {s.schluessel && <span className="satz-schluessel">{s.schluessel}</span>}
             </label>
           ))}
+          <KiMelden bereich="saetze" inhalt={liste.map((x) => `${x.satz} – ${x.uebersetzung}`).join('\n')} className="ki-melden-rechts" />
           <div className="gen-actions">
             <button onClick={uebernehmen} disabled={!liste.some((s) => s.checked)}>
               {tr('{0} Sätze übernehmen', liste.filter((s) => s.checked).length)}
