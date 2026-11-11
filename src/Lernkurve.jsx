@@ -49,9 +49,12 @@ export default function Lernkurve() {
     }
   }, [])
 
-  // Beim Wechsel des Zeitraums wieder den jüngsten Punkt zeigen
+  // Beim Wechsel des Zeitraums wieder den jüngsten Punkt zeigen. Der Effekt
+  // kommt erst NACH dem Zeichnen – bis dahin kann ein alter Index (z. B. Tag 25
+  // im Monat) über das Ende der kürzeren Reihe (Jahr: 12) zeigen. Deshalb
+  // zusätzlich begrenzen, sonst ist punkte[index] undefined und die Seite stürzt ab.
   useEffect(() => setGewaehlt(null), [zeitraum])
-  const index = gewaehlt ?? punkte.length - 1
+  const index = Math.min(gewaehlt ?? punkte.length - 1, punkte.length - 1)
 
   const summen = useMemo(() => {
     const s = {}
@@ -113,7 +116,10 @@ export default function Lernkurve() {
               role="tab"
               aria-selected={zeitraum === id}
               className={'lk-zeit' + (zeitraum === id ? ' lk-zeit-aktiv' : '')}
-              onClick={() => setZeitraum(id)}
+              onClick={() => {
+                setGewaehlt(null)
+                setZeitraum(id)
+              }}
             >
               {name}
             </button>

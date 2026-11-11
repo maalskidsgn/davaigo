@@ -47,6 +47,12 @@ function supabaseKopf() {
 
 const BASIS = () => `${process.env.SUPABASE_URL}/rest/v1`
 
+// WICHTIG (11.11.2026): Beim Hochzählen muss PostgREST wissen, WORAN es
+// eine vorhandene Zeile erkennt. Ohne `on_conflict` nimmt es den
+// Primärschlüssel `id` – der fehlt im Body, also wird jedes Mal neu
+// eingefügt, die UNIQUE-Regel lehnt ab (409) und der Zähler blieb für
+// immer bei 1. Folge: Grenze griff nie, Anzeige sprang auf 9/10 zurück.
+
 /**
  * Der Schlüssel des Zeitraums als YYYY-MM-TT (Server-Ortszeit).
  * Seit 09.11.2026 zählt die KI monatsweise: Schlüssel ist der 1. des
@@ -120,7 +126,7 @@ export async function addiereNutzung(nutzerId, art, menge) {
 
   if (tabelleDa) {
     try {
-      const antwort = await fetch(`${BASIS()}/nutzung`, {
+      const antwort = await fetch(`${BASIS()}/nutzung?on_conflict=nutzer_id,tag,art`, {
         method: 'POST',
         headers: { ...supabaseKopf(), Prefer: 'resolution=merge-duplicates' },
         body: JSON.stringify({
@@ -175,7 +181,7 @@ export async function gibNutzungZurueck(nutzerId, art) {
 
   if (tabelleDa) {
     try {
-      await fetch(`${BASIS()}/nutzung`, {
+      await fetch(`${BASIS()}/nutzung?on_conflict=nutzer_id,tag,art`, {
         method: 'POST',
         headers: { ...supabaseKopf(), Prefer: 'resolution=merge-duplicates' },
         body: JSON.stringify({ nutzer_id: nutzerId, tag: heuteTag(), art, anzahl: neu }),
