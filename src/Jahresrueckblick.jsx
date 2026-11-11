@@ -19,7 +19,8 @@ import { sprache, gebiet } from './sprache.js'
 // ----- Was sich zwischen Habloo und Davaigo unterscheidet -----
 const APP = {
   name: 'Davaigo',
-  web: 'davaigo.de',
+  // Englische Nutzer kommen über davaigo.com (app.davaigo.com)
+  get web() { return sprache() === 'en' ? 'davaigo.com' : 'davaigo.de' },
   logo: '/favicon.svg',
   lernsprache: { de: 'Russisch', en: 'Russian' },
   farbe1: '#8b5cf6',
