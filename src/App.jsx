@@ -91,6 +91,7 @@ import Gespraech from './Gespraech.jsx'
 import { tr, sprache, geradeGewechselt } from './sprache.js'
 import LevelEmblem from './LevelEmblem.jsx'
 import Flamme from './Flamme.jsx'
+import { lebenszeichen } from './lernzeit.js'
 
 // Moderne Icons für die Menüleiste (schlanke SVG-Zeichnungen im Lucide-Stil)
 const ICONS = {
@@ -802,6 +803,7 @@ export default function App() {
       if (!spielt || document.hidden) return
 
       videoSekunden.current += 1
+      lebenszeichen() // Video läuft: zählt als Lernzeit, auch ohne Tippen
       if (videoSekunden.current >= 60) {
         videoSekunden.current -= 60
         addXp(XP.VIDEO_MINUTE, tr('Video-Minute'))

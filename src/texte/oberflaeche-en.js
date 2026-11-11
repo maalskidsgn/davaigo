@@ -459,6 +459,7 @@ export default {
  "Katja ist deine Gesprächspartnerin: Du sprichst mit deiner Stimme, sie antwortet auf Russisch und hilft dir weiter.": "Katja is your conversation partner: you speak with your voice, she answers in Russian and helps you along.",
  "Fordere Freunde heraus: dieselben sieben Vokabeln, zehn Sekunden pro Frage. Wer mehr trifft, gewinnt.": "Challenge your friends: the same seven words, ten seconds per question. Whoever gets more right wins.",
  "Katja-Min.": "Katja min.",
+ "Lern-Min.": "Study min.",
  "Analyse": "Analytics",
  "Serie": "Streak",
  "Deine Liste zu „{0}“ – wähle aus, was in den Trainer soll:": "Your list for \"{0}\" – choose what to add to the trainer:",

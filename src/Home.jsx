@@ -17,6 +17,7 @@ import StartInseln, { Sockel } from './StartInseln.jsx'
 import { FARBEN_DAVAIGO } from './InselEmbleme.jsx'
 import { tr, gebiet } from './sprache.js'
 import Flamme from './Flamme.jsx'
+import { RueckblickKarte } from './Jahresrueckblick.jsx'
 
 // Die Startseite.
 //
@@ -100,6 +101,9 @@ export default function Home({
         <span className="accent">!</span>
       </h1>
       <p className="intro">{tr("Wie geht's dir? Hier sind deine nächsten Schritte.")}</p>
+
+      {/* Jahresrückblick: nur 27.12.–15.01. oder mit ?rueckblick (11.11.) */}
+      <RueckblickKarte />
 
       {/* Schnell-Übersetzer: Wort nachschlagen und direkt in den Trainer (09.11.) */}
       <SchnellUebersetzer vocab={vocab} onAddVocab={onAddVocab} />

@@ -9,6 +9,7 @@ import { tr } from './sprache.js'
  */
 
 const SERIEN = {
+  minuten: { name: tr('Lern-Min.'), farbe: '#12a37a' },
   woerter: { name: tr('Wörter'), farbe: '#7c3aed' },
   saetze: { name: tr('Sätze'), farbe: '#f5a400' },
   lektionen: { name: tr('Lektionen'), farbe: '#1e9d85' },
@@ -33,8 +34,8 @@ const UNTEN = 26
 
 export default function Lernkurve() {
   const [zeitraum, setZeitraum] = useState('woche')
-  // Am Anfang nur die Wörter – die anderen Linien schaltet man selbst dazu
-  const [aktiv, setAktiv] = useState(() => new Set(['woerter']))
+  // Am Anfang nur die Lernzeit – die anderen Linien schaltet man selbst dazu
+  const [aktiv, setAktiv] = useState(() => new Set(['minuten']))
   const [stand, setStand] = useState(0) // zählt hoch, wenn neu gelernt wurde
   const punkte = useMemo(() => verlauf(zeitraum), [zeitraum, stand])
   const [gewaehlt, setGewaehlt] = useState(null)
