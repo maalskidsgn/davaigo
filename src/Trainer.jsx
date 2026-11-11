@@ -20,7 +20,6 @@ import { merkeEinheit } from './aktivitaet.js'
 import { merkeGelernt, heuteGelernt } from './lernkurve.js'
 import InfoKnopf from './InfoKnopf.jsx'
 import Gespraech from './Gespraech.jsx'
-import { SprechenTuer } from './Sprechen.jsx'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import SpielBild from './SpielBild.jsx'
 import Bausteine from './Bausteine.jsx'
@@ -296,7 +295,6 @@ export default function Trainer({
    */
   const schalter = (
     <>
-      <SprechenTuer />
       <h1 className="trainer-titel">
         {tr('Dein')}{' '}
         <span className="accent">
