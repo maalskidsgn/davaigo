@@ -1023,7 +1023,7 @@ function Galgenmaennchen({ paare, addXp, onClose, onGespielt }) {
     if (alleOffen) {
       setEnde('geloest')
       setGeloest((g) => [...g, wort.es])
-      belohne(XP.QUIZ_RICHTIG * 5, tr('Erraten!'))
+      belohne(XP.QUIZ_RICHTIG, tr('Erraten!'))
     } else if (neueFehler >= GALGEN_LEBEN) {
       setEnde('verloren')
     }
@@ -1136,7 +1136,7 @@ function Buchstabensalat({ paare, addXp, onClose, onGespielt }) {
           key={wort.es}
           wort={wort}
           onFertig={(ohneFehler) => {
-            belohne(XP.QUIZ_RICHTIG * (ohneFehler ? 5 : 3), ohneFehler ? tr('Fehlerfrei!') : tr('Richtig!'))
+            belohne(XP.QUIZ_RICHTIG, ohneFehler ? tr('Fehlerfrei!') : tr('Richtig!'))
             if (ohneFehler) setFertigWoerter((f) => [...f, wort.es])
             setTimeout(() => {
               if (nr + 1 >= runde.length) belohne(XP.SPIEL, tr('Geschafft!'))
