@@ -17,7 +17,8 @@
 // Apps nicht ohne Grund unterschiedlich anhoeren. Der ganze Klang
 // bleibt fertig im Code – diese eine Zeile holt ihn zurueck, und
 // dann erscheint auch der Schalter in den Einstellungen.
-const ERFOLGSTOENE_AKTIV = false
+// 12.11.2026: wieder AN, neuer Klang „Harfen-Lauf“ (Manuel testet in Davaigo).
+const ERFOLGSTOENE_AKTIV = true
 
 // Abstellbar: Der Schalter liegt in den Einstellungen unter "Ton".
 // Standard ist AN – wer ihn nicht mag, macht ihn einmal aus.
@@ -37,19 +38,40 @@ export function setzeErfolgstoene(an) {
 }
 
 let ctx = null
+let hall = null
 
 function context() {
   if (ctx) return ctx
   const AudioC = window.AudioContext || window.webkitAudioContext
   if (!AudioC) return null
   ctx = new AudioC()
+  // Kleiner heller Raum (0,7 s) – lässt die Harfe ausklingen, ohne zu hallen
+  try {
+    const n = Math.floor(ctx.sampleRate * 0.7)
+    const ir = ctx.createBuffer(2, n, ctx.sampleRate)
+    for (let k = 0; k < 2; k++) {
+      const d = ir.getChannelData(k)
+      for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 5)
+    }
+    hall = ctx.createConvolver()
+    hall.buffer = ir
+  } catch {
+    hall = null
+  }
   return ctx
 }
 
+// Harfen-Klangfarbe: Teiltöne [Faktor, Lautstärke, Anteil am Ausklang]
+const HARFE = [[1, 1, 1], [2, 0.4, 0.6], [3, 0.15, 0.35], [4, 0.06, 0.25]]
+// Gezupfter Lauf nach oben: C5 – E5 – G5 – C6 – E6
+const LAUF = [523.25, 659.25, 783.99, 1046.5, 1318.51]
+
 /**
- * Spielt den Erfolgston. Tut nichts, wenn der Browser kein Web-Audio
- * kann oder der Klang (noch) nicht erlaubt ist – ein fehlender Ton
- * darf nie eine Aktion blockieren.
+ * Spielt den Erfolgston „Harfen-Lauf“ (gewählt 12.11.2026): fünf
+ * weich gezupfte Töne nach oben, gedämpft, mit kurzem Raum.
+ * Tut nichts, wenn der Browser kein Web-Audio kann oder der Klang
+ * (noch) nicht erlaubt ist – ein fehlender Ton darf nie eine Aktion
+ * blockieren.
  */
 export function erfolgston() {
   try {
@@ -58,30 +80,39 @@ export function erfolgston() {
     if (!c) return
     if (c.state === 'suspended') c.resume()
 
-    const jetzt = c.currentTime
-    // Zwei weiche Töne, A5 hoch zur Terz C#6 – kürzer und leiser als
-    // die erste Fassung (die war Manuel zu aufdringlich).
-    const toene = [
-      { hz: 880, start: 0, dauer: 0.09 },
-      { hz: 1109, start: 0.07, dauer: 0.14 },
-    ]
-
-    for (const t of toene) {
-      const osc = c.createOscillator()
-      const lautstaerke = c.createGain()
-      osc.type = 'sine' // die weichste Wellenform – ein Tupfer, kein Piepser
-      osc.frequency.value = t.hz
-
-      // Schnell an, sanft aus – ein „Pling", kein Piepser.
-      const a = jetzt + t.start
-      lautstaerke.gain.setValueAtTime(0, a)
-      lautstaerke.gain.linearRampToValueAtTime(0.11, a + 0.02)
-      lautstaerke.gain.exponentialRampToValueAtTime(0.0001, a + t.dauer)
-
-      osc.connect(lautstaerke).connect(c.destination)
-      osc.start(a)
-      osc.stop(a + t.dauer + 0.02)
+    const t0 = c.currentTime + 0.003
+    const bus = c.createGain()
+    const samt = c.createBiquadFilter()
+    samt.type = 'lowpass'
+    samt.frequency.value = 6000
+    const begrenzer = c.createDynamicsCompressor()
+    begrenzer.threshold.value = -16
+    begrenzer.ratio.value = 4
+    begrenzer.attack.value = 0.003
+    begrenzer.release.value = 0.15
+    bus.connect(samt).connect(begrenzer).connect(c.destination)
+    if (hall) {
+      const hallLaut = c.createGain()
+      hallLaut.gain.value = 0.22
+      samt.connect(hall).connect(hallLaut).connect(c.destination)
     }
+
+    LAUF.forEach((hz, i) => {
+      const a = t0 + i * 0.038
+      for (const [faktor, anteil, ausklang] of HARFE) {
+        const osc = c.createOscillator()
+        const g = c.createGain()
+        osc.type = 'sine'
+        osc.frequency.value = hz * faktor
+        const dauer = Math.max(0.03, 0.5 * ausklang)
+        g.gain.setValueAtTime(0.0001, a)
+        g.gain.exponentialRampToValueAtTime(0.17 * anteil, a + 0.003)
+        g.gain.exponentialRampToValueAtTime(0.0001, a + dauer)
+        osc.connect(g).connect(bus)
+        osc.start(a)
+        osc.stop(a + dauer + 0.05)
+      }
+    })
   } catch {
     // Kein Ton ist kein Fehler.
   }

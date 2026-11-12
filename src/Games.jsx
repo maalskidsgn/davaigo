@@ -5,6 +5,7 @@ import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 import { tr } from './sprache.js'
 import SpielBild from './SpielBild.jsx'
+import { erfolgston } from './erfolgston.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare,
 // Wortsuche und Wortfang.
@@ -866,6 +867,7 @@ function Blitzrunde({ paare, addXp, onClose, onGespielt }) {
       setRichtig((x) => x + 1)
       gewusst.current.add(frage.es)
       addXp(XP.QUIZ_RICHTIG)
+      erfolgston()
     } else {
       setSerie(0)
       setFalsch((x) => x + 1)
