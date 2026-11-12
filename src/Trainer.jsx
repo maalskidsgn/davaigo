@@ -689,11 +689,7 @@ export default function Trainer({
             <span className="spiel-name">{tr('Wortfang')}</span>
             <span className="spiel-hinweis">{tr('Richtige antippen')}</span>
           </button>
-          <button className="spiel-karte" onClick={() => setSpiel('blitz')} disabled={!spielbar}>
-            <SpielBild id="blitz" />
-            <span className="spiel-name">{tr('Blitzrunde')}</span>
-            <span className="spiel-hinweis">{tr('60 Sekunden: passt oder nicht?')}</span>
-          </button>
+          {/* Blitzrunde (12.11.2026) nur noch im Freundschaftsspiel */}
           <button className="spiel-karte" onClick={() => setSpiel('galgen')} disabled={!spielbar}>
             <SpielBild id="galgen" />
             <span className="spiel-name">{tr('Galgenmännchen')}</span>
