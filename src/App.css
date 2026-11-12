@@ -16122,3 +16122,28 @@ body.lektion-laeuft .lessons > .spiel-xp {
 .pf-sozial.pf-lv .pf-pille-lvl { background: var(--lv-farbe); color: #fff; box-shadow: 0 3px 0 color-mix(in srgb, var(--lv-farbe) 70%, #000); }
 .pf-kopf.pf-sozial.pf-lv { box-shadow: 0 14px 34px -24px color-mix(in srgb, var(--lv-farbe) 60%, transparent); }
 @media (prefers-reduced-motion: reduce) { .lvb * { animation: none !important; } }
+
+/* ===== Einheitlicher 3D-Comic-Stil (12.11.2026) =====
+   Keine weichen, farbig getönten Schatten mehr unter Containern –
+   stattdessen die feste 3D-Kante wie bei den Toon-Karten. */
+.bereich,
+.lk-block,
+.lk-karte,
+.lk-zeile.ist-dran,
+.pf-kopf.pf-sozial,
+.ps-kasten,
+.si-karte,
+.si-karte:hover,
+.sp-buehne,
+.spr-karte,
+.trainer .bereich,
+.video-hero,
+.weiterlernen,
+.wk-tarif-beste,
+body.liest-video .player-wrap,
+body.liest-video .video-kopf {
+  box-shadow: 0 6px 0 var(--line);
+}
+/* „Wort nachschlagen“: neutrale Kante statt Pfirsich-Rand */
+.schnell { box-shadow: 0 0 0 2px var(--line) inset, 0 6px 0 var(--line); }
+.pf-kopf.pf-sozial.pf-lv { box-shadow: 0 6px 0 var(--line); }
