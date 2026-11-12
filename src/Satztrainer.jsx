@@ -308,6 +308,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           onGeloest={paarGeloest}
           onFertig={() => merkeEinheit('wiederholung')}
           onClose={() => setQueue(null)}
+          onNochmal={() => starten('paare')}
         />
       </div>
     )
@@ -625,7 +626,7 @@ function SatzAuswahl({ loesung, alle, gewaehlt, onWahl }) {
  * Untereinander statt nebeneinander – zwei Spalten mit ganzen Sätzen
  * werden auf dem Handy zu schmal.
  */
-function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
+function SatzPaare({ paare, onGeloest, onFertig, onClose, onNochmal }) {
   // Die Reihenfolge leitet sich aus den Daten ab (wie bei den Wortpaaren),
   // damit sie bei einem Abgleich im Hintergrund nicht durcheinandergerät
   const unten = [...paare].sort((a, b) => a.de.localeCompare(b.de, 'de'))
@@ -656,18 +657,27 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
   }
 
   if (fertig) {
+    // Abschluss im Spiel-Look (12.11.2026): Pokal auf der Trommel wie bei den Spielen
     return (
-      <div className="flashcard done">
+      <div className="flashcard done sf-toon">
         <div className="confetti-burst" aria-hidden="true">
           {Array.from({ length: 14 }, (_, i) => (
             <span key={i} className="confetti" style={{ '--i': i }} />
           ))}
         </div>
-        <h2>{tr('Alle {0} Satzpaare verbunden! 🎉', paare.length)}</h2>
-        <p>
-          {tr('{0}× auf Anhieb · {1}× mit zweitem Versuch', paare.length - daneben.length, daneben.length)}
-        </p>
-        <button onClick={onClose}>{tr('Fertig')}</button>
+        <span className="sf-bild" aria-hidden="true">
+          <Sockel />
+          <Pokal />
+        </span>
+        <h2>{tr('Geschafft! 🎉').replace(/\s*🎉/, '')}</h2>
+        <p>{tr('Alle {0} Satzpaare verbunden! 🎉', paare.length).replace(/\s*🎉/, '')}</p>
+        <div className="sf-pillen">
+          <span className="sf-pille sf-stufe">{tr('{0}× auf Anhieb · {1}× mit zweitem Versuch', paare.length - daneben.length, daneben.length)}</span>
+        </div>
+        <div className="sf-knoepfe">
+          {onNochmal && <button className="sf-nochmal" onClick={onNochmal}>{tr('Nochmal')}</button>}
+          <button className="sf-zurueck" onClick={onClose}>{tr('Fertig')}</button>
+        </div>
       </div>
     )
   }
@@ -813,9 +823,10 @@ function SatzBauen({ satz, onFertig }) {
       else fehlerton()
       if (ok) setTimeout(() => onFertig(true), 900)
       else {
-        // Erst kurz zeigen, was falsch steht, dann an den richtigen Platz schieben
+        // Erst kurz zeigen, was falsch steht, dann an den richtigen Platz
+        // schieben. Danach bleibt die Korrektur stehen, bis man selbst
+        // auf „Weiter“ tippt (12.11.2026).
         setTimeout(() => korrigiere(neu), 900)
-        setTimeout(() => onFertig(false), 3600)
       }
     }
   }
@@ -846,6 +857,11 @@ function SatzBauen({ satz, onFertig }) {
         <p className="satzbau-loesung">
           {tr('Richtig wäre:')} <b>{satz}</b>
         </p>
+      )}
+      {korrigiert && (
+        <button className="btn satzbau-weiter" onClick={() => onFertig(false)}>
+          {tr('Weiter')}
+        </button>
       )}
       <div className="satzbau-vorrat">
         {kacheln.map((k, n) => (
