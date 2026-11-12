@@ -102,7 +102,7 @@ const EMPFEHLUNGS_SUCHEN = [
 // Gespeicherte Empfehlungen aus dem Browser-Speicher laden
 function ladeEmpfehlungsCache() {
   try {
-    return JSON.parse(localStorage.getItem('vorschlaege2'))
+    return JSON.parse(localStorage.getItem('vorschlaege3'))
   } catch {
     return null
   }
@@ -266,7 +266,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       if (res.ok && data.results?.length) {
         const videos = data.results.slice(0, 6)
         setEmpfehlungen(videos)
-        localStorage.setItem('vorschlaege2', JSON.stringify({ zeit: Date.now(), videos }))
+        localStorage.setItem('vorschlaege3', JSON.stringify({ zeit: Date.now(), videos }))
       }
     } catch {
       // klappt es nicht, bleibt der Bereich einfach leer
@@ -554,7 +554,7 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         <section className="bereich">
           <Kopf
             symbol={<IconGesundheit groesse={19} />}
-            titel={tr('Für dich')}
+            titel={tr('Kostenlose Videos')}
             aktion={
               kategorie !== 'alle' ? (
                 <button

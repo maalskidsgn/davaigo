@@ -633,6 +633,7 @@ export default {
  "Freunde einladen": "Invite friends",
  "Freundschaft": "Friendship",
  "Für Auskunft und Löschung genügt eine E-Mail an": "For access and erasure, simply send an email to",
+ "Kostenlose Videos": "Free videos",
  "Für dich": "For you",
  "Für die Nutzung ist ein Konto erforderlich. Du musst mindestens 16 Jahre alt sein; jüngere Nutzer brauchen die Einwilligung der Eltern. Halte dein Passwort geheim und gib dein Konto nicht weiter.": "An account is required to use the service. You must be at least 16 years old; younger users need parental consent. Keep your password secret and do not share your account.",
  "Für die Verbindung fehlt noch die Spotify-Client-ID. Sobald sie hinterlegt ist, erscheint hier der Verbinden-Knopf.": "The Spotify client ID is still missing. Once it's entered, the connect button will appear here.",

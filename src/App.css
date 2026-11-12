@@ -15917,3 +15917,10 @@ body.lektion-laeuft .lessons > .spiel-xp {
   background: var(--card);
   box-shadow: 0 4px 0 var(--line);
 }
+
+/* Kopfzeile (Desktop): Knöpfe im gleichen Stil wie die Tabs (12.11.2026) */
+@media (min-width: 801px) {
+  .tabs .tab { border-radius: 15px; }
+  .tabs .tab.tab-active { box-shadow: 0 4px 0 var(--primary-press); }
+  .tabs .tab.tab-active:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--primary-press); }
+}
