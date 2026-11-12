@@ -31,7 +31,8 @@ import {
   baueSchritteStation,
   nochOffen,
 } from './pruefstationen.js'
-import { tr } from './sprache.js'
+import { tr, sprache } from './sprache.js'
+import { lautschrift } from './lautschrift.js'
 import { usePremium, LEKTIONEN_SPERRE, GRATIS_ANTEIL } from './premium.js'
 import { erfolgston, fehlerton } from './erfolgston.js'
 
@@ -197,6 +198,17 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
   const [schritte, setSchritte] = useState([])
   const [index, setIndex] = useState(0)
   const [feedback, setFeedback] = useState(null) // { gewaehlt, richtig } nach einer Antwort
+  // Lautschrift zum Antippen (12.11.2026): zeigt Wort und Beispielsatz in
+  // lateinischen Buchstaben. Die Wahl bleibt für die nächsten Karten.
+  const [laut, setLaut] = useState(() => {
+    try { return localStorage.getItem('lektion-lautschrift') === 'an' } catch { return false }
+  })
+  function lautUmschalten() {
+    setLaut((an) => {
+      try { localStorage.setItem('lektion-lautschrift', an ? 'aus' : 'an') } catch { /* egal */ }
+      return !an
+    })
+  }
   const [richtige, setRichtige] = useState(0)
   const [optionen, setOptionen] = useState([])
   const [fertig, setFertig] = useState(false)
@@ -447,13 +459,25 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                   Abschaltbar in den Einstellungen. */}
               <HoerKnopf text={schritt.item.es} vonSelbst />
             </div>
+            {laut && <div className="laut-wort">{lautschrift(schritt.item.es, sprache())}</div>}
             <div className="flash-translation">{schritt.item.de}</div>
+            <div className="laut-zeile">
+              <button
+                type="button"
+                className={'laut-schalter' + (laut ? ' an' : '')}
+                onClick={lautUmschalten}
+                aria-pressed={laut}
+              >
+                <b>Aa</b> {tr('Lautschrift')}
+              </button>
+            </div>
             {schritt.item.beispielEs && (
               <div className="example-box">
                 <div className="example-es">
                   {hebeHervor(schritt.item.beispielEs, schritt.item.es)}
                   <HoerKnopf text={schritt.item.beispielEs} titel={tr('Satz anhören')} klein />
                 </div>
+                {laut && <div className="laut-satz">{lautschrift(schritt.item.beispielEs, sprache())}</div>}
                 <div className="example-de">{schritt.item.beispielDe}</div>
               </div>
             )}
