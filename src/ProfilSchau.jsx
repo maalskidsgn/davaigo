@@ -38,6 +38,13 @@ function dauer(datum) {
  * nicht zu einem weiteren Netzwerk werden.
  */
 export default function ProfilSchau({ benutzername, onSchliessen }) {
+  // Weich ausblenden statt schlagartig weg (12.11.)
+  const [geht, setGeht] = useState(false)
+  const zu = () => {
+    if (geht) return
+    setGeht(true)
+    setTimeout(() => onSchliessen?.(), 230)
+  }
   const [profil, setProfil] = useState(undefined) // undefined = lädt
   // Melden und Blockieren liegen hinter einem Klick: Sie gehören
   // nicht neben die XP-Zahlen, sondern dorthin, wo man sie sucht,
@@ -54,7 +61,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
 
   // Mit Escape schließen – auf dem Rechner erwartet man das
   useEffect(() => {
-    const taste = (e) => { if (e.key === 'Escape') onSchliessen?.() }
+    const taste = (e) => { if (e.key === 'Escape') zu() }
     window.addEventListener('keydown', taste)
     return () => window.removeEventListener('keydown', taste)
   }, [onSchliessen])
@@ -74,9 +81,9 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
   }
 
   return (
-    <div className="ps-schicht" role="dialog" aria-modal="true" onClick={onSchliessen}>
+    <div className={'ps-schicht' + (geht ? ' ps-geht' : '')} role="dialog" aria-modal="true" onClick={zu}>
       <div className={'ps-karte' + (profil ? ' ps-lv' : '')} style={profil ? stufeStil(level) : undefined} onClick={(e) => e.stopPropagation()}>
-        <button className="ps-zu" onClick={onSchliessen} aria-label={tr('Schließen')}>
+        <button className="ps-zu" onClick={zu} aria-label={tr('Schließen')}>
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.6"
                   strokeLinecap="round" />
