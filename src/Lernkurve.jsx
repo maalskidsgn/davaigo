@@ -18,6 +18,9 @@ const SERIEN = {
   habla: { name: tr('Katja-Min.'), farbe: '#d6409f' },
 }
 
+// Reihenfolge der Chips: Lernzeit (Minuten) ganz am Ende (12.11.2026)
+const REIHE = [...ARTEN.filter((a) => a !== 'minuten'), 'minuten']
+
 const ZEITRAEUME = [
   ['woche', tr('Woche')],
   ['monat', tr('Monat')],
@@ -35,7 +38,8 @@ const UNTEN = 26
 export default function Lernkurve() {
   const [zeitraum, setZeitraum] = useState('woche')
   // Am Anfang nur die Lernzeit – die anderen Linien schaltet man selbst dazu
-  const [aktiv, setAktiv] = useState(() => new Set(['minuten']))
+  // Am wichtigsten sind die Vokabel-Wiederholungen: die sind am Anfang an (12.11.2026)
+  const [aktiv, setAktiv] = useState(() => new Set(['woerter']))
   const [stand, setStand] = useState(0) // zählt hoch, wenn neu gelernt wurde
   const punkte = useMemo(() => verlauf(zeitraum), [zeitraum, stand])
   const [gewaehlt, setGewaehlt] = useState(null)
@@ -129,7 +133,7 @@ export default function Lernkurve() {
       </div>
 
       <div className="lk-chips">
-        {ARTEN.map((a) => (
+        {REIHE.map((a) => (
           <button
             key={a}
             type="button"
