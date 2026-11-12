@@ -73,6 +73,7 @@ import { newEntry, withSrsDefaults, isDue } from './srs.js'
 import {
   XP,
   loadProgress,
+  serieAufraeumen,
   applyXp,
   levelFromXp,
   xpForLevel,
@@ -322,7 +323,7 @@ export default function App() {
   }
   const [savedVideos, setSavedVideos] = useState(loadSavedVideos)
   const [categoryInput, setCategoryInput] = useState('')
-  const [progress, setProgress] = useState(loadProgress) // XP, Streak, letzter Lerntag
+  const [progress, setProgress] = useState(() => serieAufraeumen(loadProgress())) // XP, Streak, letzter Lerntag
   const [settings, setSettings] = useState(loadSettings) // Tagesziel, Erinnerungen …
   const [lessonProgress, setLessonProgress] = useState(loadLessonProgress) // welche Lektionen geschafft sind
   const [levelUp, setLevelUp] = useState(null) // welches Level gerade erreicht wurde
@@ -334,7 +335,10 @@ export default function App() {
   useEffect(() => {
     const pruefe = () => {
       const echt = serieAusVerlauf()
-      setProgress((p) => (echt > (p.streak || 0) ? { ...p, streak: echt } : p))
+      setProgress((p) => {
+        const q = serieAufraeumen(p) // gerissene Serie auf 0
+        return echt > (q.streak || 0) ? { ...q, streak: echt } : q
+      })
     }
     pruefe()
     window.addEventListener('aktivitaet', pruefe)
