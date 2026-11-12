@@ -15687,3 +15687,20 @@ button.ki-melden.ki-melden-klein { padding: 2px 4px; font-size: 0.7rem; margin-t
 .ki-melden-karte .ki-melden-danke { color: var(--success); font-weight: 700; font-size: 0.95rem; padding: 8px 0; }
 @keyframes ki-melden-ein { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .ki-melden-schleier { animation: none; } }
+
+/* Wortsuche: falsch gestrichen – kurz rot aufleuchten und wackeln (12.11.2026) */
+.gitter-feld.feld-falsch,
+.spiel-toon .gitter-feld.feld-falsch {
+  background: #f0849a;
+  color: #fff;
+  box-shadow: 0 3px 0 #d1637a;
+  animation: feld-falsch-wackeln 0.35s ease;
+}
+@keyframes feld-falsch-wackeln {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gitter-feld.feld-falsch { animation: none; }
+}
