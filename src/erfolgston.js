@@ -119,129 +119,81 @@ export function erfolgston() {
 }
 
 // ---------------------------------------------------------------------------
-// Klickton „Watte sanft“ (gewählt 12.11.2026): weiches Einsinken wie in
-// Trittschaum, darunter ein tiefer Boden und am Ende ein leiser Plopp.
-// Spielt beim Runterdrücken jedes Knopfs (pointerdown), beim Loslassen
-// kommen ein paar weiche Flocken. Hängt am selben Ton-Schalter wie der
-// Erfolgston. Ein Knopf mit data-kein-klick (oder darin) bleibt stumm.
+// Klickton „Thock“ (gewählt 12.11.2026, ersetzt „Watte sanft“): kurzer,
+// satter Tastenanschlag – tiefer Sinus 260 → 150 Hz plus ein winziger
+// Anschlag bei 1,2 kHz, zusammen unter 50 ms. Gilt universell: Navigation,
+// Übungen, Spiele, alle Knöpfe. Spielt beim Runterdrücken (pointerdown).
+// Hängt am selben Ton-Schalter wie Erfolg und Fehler. Ein Knopf mit
+// data-kein-klick (oder darin) bleibt stumm.
 
-function huelle(g, t, spitze, dauer, anstieg) {
-  g.gain.setValueAtTime(0.0001, t)
-  g.gain.exponentialRampToValueAtTime(spitze, t + anstieg)
-  g.gain.exponentialRampToValueAtTime(0.0001, t + dauer)
-}
-
-function sinusFahrt(c, ziel, t, von, bis, fahrt, laut, dauer, anstieg) {
-  const o = c.createOscillator()
-  const g = c.createGain()
-  o.type = 'sine'
-  o.frequency.setValueAtTime(von, t)
-  o.frequency.exponentialRampToValueAtTime(bis, t + fahrt)
-  huelle(g, t, laut, dauer, anstieg)
-  o.connect(g).connect(ziel)
-  o.start(t)
-  o.stop(t + dauer + 0.02)
-}
-
-// Schaum: viele winzige, runde Körnchen, selten ein lauteres
-function schaum(c, ziel, t, { laut, dauer, proMs, hp, tp, mitte, korn, raus = false }) {
-  const sr = c.sampleRate
-  const n = Math.floor(sr * dauer)
-  const puffer = c.createBuffer(1, n, sr)
-  const d = puffer.getChannelData(0)
-  const chance = proMs / (sr / 1000)
-  for (let i = 0; i < n; i++) {
-    const x = i / n
-    const dichte = raus ? 1 - x : x < 0.15 ? x / 0.15 : Math.pow(1 - (x - 0.15) / 0.85, 1.6)
-    if (Math.random() < chance * dichte) {
-      const laenge = Math.floor((sr * (korn[0] + Math.random() * (korn[1] - korn[0]))) / 1000)
-      const staerke = Math.pow(Math.random(), 3.5) * (Math.random() < 0.5 ? -1 : 1)
-      for (let k = 0; k < laenge && i + k < n; k++) {
-        d[i + k] += staerke * Math.sin((Math.PI * k) / laenge) * (Math.random() * 0.4 + 0.6)
-      }
-    }
-  }
-  const quelle = c.createBufferSource()
-  quelle.buffer = puffer
-  const h = c.createBiquadFilter()
-  h.type = 'highpass'
-  h.frequency.value = hp
-  const l = c.createBiquadFilter()
-  l.type = 'lowpass'
-  l.frequency.value = tp
-  const m = c.createBiquadFilter()
-  m.type = 'peaking'
-  m.Q.value = 0.7
-  m.gain.value = 6
-  m.frequency.setValueAtTime(mitte, t)
-  m.frequency.exponentialRampToValueAtTime(mitte * 0.6, t + dauer)
-  const g = c.createGain()
-  g.gain.value = laut
-  quelle.connect(h).connect(l).connect(m).connect(g).connect(ziel)
-  quelle.start(t)
-}
-
-function klickAusgang(c) {
-  const bus = c.createGain()
-  bus.gain.value = 1.1
-  const samt = c.createBiquadFilter()
-  samt.type = 'lowpass'
-  samt.frequency.value = 2600
-  samt.Q.value = 0.5
-  const begrenzer = c.createDynamicsCompressor()
-  begrenzer.threshold.value = -14
-  begrenzer.ratio.value = 8
-  begrenzer.attack.value = 0.002
-  begrenzer.release.value = 0.06
-  bus.connect(samt).connect(begrenzer).connect(c.destination)
-  return bus
-}
-
-export function klickton(phase = 'runter') {
+export function klickton() {
   try {
     if (!erfolgstoeneAn()) return
     const c = context()
     if (!c) return
     if (c.state === 'suspended') c.resume()
-    const t = c.currentTime + 0.003
-    const z = klickAusgang(c)
-    if (phase === 'runter') {
-      sinusFahrt(c, z, t, 150, 95, 0.096, 0.32, 0.12, 0.01)
-      schaum(c, z, t, { laut: 1.1, dauer: 0.12, proMs: 9, hp: 600, tp: 2800, mitte: 1600, korn: [0.6, 1.6] })
-      sinusFahrt(c, z, t + 0.06, 220, 400, 0.028, 0.25, 0.07, 0.007)
-    } else {
-      schaum(c, z, t, { laut: 0.25, dauer: 0.045, proMs: 3, hp: 500, tp: 2400, mitte: 1500, korn: [0.8, 2], raus: true })
-    }
+    const t = c.currentTime + 0.002
+
+    const bus = c.createGain()
+    const weich = c.createBiquadFilter()
+    weich.type = 'lowpass'
+    weich.frequency.value = 7000
+    const begrenzer = c.createDynamicsCompressor()
+    begrenzer.threshold.value = -12
+    begrenzer.ratio.value = 6
+    begrenzer.attack.value = 0.001
+    begrenzer.release.value = 0.05
+    bus.connect(weich).connect(begrenzer).connect(c.destination)
+
+    // Körper: tiefer Ton, der schnell absackt
+    const o = c.createOscillator()
+    const g = c.createGain()
+    o.type = 'sine'
+    o.frequency.setValueAtTime(260, t)
+    o.frequency.exponentialRampToValueAtTime(150, t + 0.027)
+    g.gain.setValueAtTime(0.0001, t)
+    g.gain.exponentialRampToValueAtTime(0.45, t + 0.002)
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.045)
+    o.connect(g).connect(bus)
+    o.start(t)
+    o.stop(t + 0.065)
+
+    // Anschlag: 6 ms gefiltertes Rauschen
+    const n = Math.max(32, Math.floor(c.sampleRate * 0.006))
+    const puffer = c.createBuffer(1, n, c.sampleRate)
+    const d = puffer.getChannelData(0)
+    for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, 4)
+    const quelle = c.createBufferSource()
+    quelle.buffer = puffer
+    const f = c.createBiquadFilter()
+    f.type = 'bandpass'
+    f.frequency.value = 1200
+    f.Q.value = 1.5
+    const gk = c.createGain()
+    gk.gain.value = 0.35
+    quelle.connect(f).connect(gk).connect(bus)
+    quelle.start(t)
   } catch {
     // Kein Ton ist kein Fehler.
   }
 }
 
-const KNOPF = 'button, .btn, [role="button"], .quiz-option'
+const KNOPF = 'button, .btn, [role="button"], [role="tab"], .quiz-option'
 
 /** Einmal beim Start aufrufen: hängt den Klickton an alle Knöpfe der App. */
 export function klicktoeneStarten() {
   if (typeof document === 'undefined' || klicktoeneStarten.laeuft) return
   klicktoeneStarten.laeuft = true
-  let gedrueckt = false
   document.addEventListener(
     'pointerdown',
     (e) => {
       if (e.button > 0) return
       const el = typeof e.target?.closest === 'function' ? e.target.closest(KNOPF) : null
       if (!el || el.disabled || el.getAttribute('aria-disabled') === 'true' || el.closest('[data-kein-klick]')) return
-      gedrueckt = true
-      klickton('runter')
+      klickton()
     },
     { capture: true, passive: true },
   )
-  const los = () => {
-    if (!gedrueckt) return
-    gedrueckt = false
-    klickton('hoch')
-  }
-  document.addEventListener('pointerup', los, { capture: true, passive: true })
-  document.addEventListener('pointercancel', () => { gedrueckt = false }, { capture: true, passive: true })
 }
 
 // ---------------------------------------------------------------------------

@@ -12,7 +12,7 @@ import { klicktoeneStarten } from './erfolgston.js'
 
 merkeHerkunft()
 starteLernzeit()
-klicktoeneStarten() // weicher „Watte“-Klick auf allen Knöpfen
+klicktoeneStarten() // „Thock“-Klick auf allen Knöpfen
 rueckkehrHoeren()
 merkePartnerLink()
 
