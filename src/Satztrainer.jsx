@@ -690,46 +690,54 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose, onNochmal }) {
         <button className="sk-zu" onClick={onClose} aria-label="✕">✕</button>
       </div>
       <div className="sp-buehne">
-        <div className="sp-fortschritt">
-          <div className="sp-balken"><i style={{ width: (geloest.length / paare.length) * 100 + '%' }} /></div>
-          <span>{tr('{0}/{1} verbunden', geloest.length, paare.length)}</span>
-        </div>
-        <p className="sp-tipp">
-          {wahl ? tr('Jetzt rechts die Übersetzung antippen') : tr('Tippe links einen Satz an, dann rechts die Übersetzung')}
-        </p>
-        <div className="sp-paare sp-satzpaare">
-          <div className="sp-paare-spalte">
-            {paare.map((p) => (
-              <button
-                key={p.key}
-                className={
-                  'sp-paar sp-paar-links' +
-                  (geloest.includes(p.key) ? ' richtig' : '') +
-                  (wahl === p.key ? ' gewaehlt' : '')
-                }
-                disabled={geloest.includes(p.key)}
-                onClick={() => setWahl(p.key)}
-              >
-                {p.es}
-              </button>
-            ))}
+        {/* Satzpaare, Variante A „Farbpaare“ (12.11.2026): gelöste Paare
+            bleiben stehen und bekommen dieselbe Farbe + Nummer */}
+        <div className="spa-fort">
+          <div className="spa-punkte">
+            {paare.map((p, i) => <i key={p.key} className={i < geloest.length ? 'an' : ''} />)}
           </div>
-          <div className="sp-paare-spalte">
-            {unten.map((p) => (
-              <button
-                key={p.key}
-                className={
-                  'sp-paar' +
-                  (geloest.includes(p.key) ? ' richtig' : '') +
-                  (fehler === p.key ? ' falsch' : '') +
-                  (wahl && !geloest.includes(p.key) ? ' bereit' : '')
-                }
-                disabled={geloest.includes(p.key)}
-                onClick={() => klickUnten(p)}
-              >
-                {p.de}
-              </button>
-            ))}
+          <span>{geloest.length}/{paare.length}</span>
+        </div>
+        <p className="sp-tipp">{wahl ? tr('Jetzt rechts die Übersetzung antippen') : tr('Tippe links einen Satz an, dann rechts die Übersetzung')}</p>
+        <div className="spa-gitter">
+          <div className="spa-spalte">
+            <span className="spa-kopf">{sprache() === 'en' ? 'Russian' : 'Russisch'}</span>
+            {paare.map((p) => {
+              const nr = geloest.indexOf(p.key)
+              return (
+                <button
+                  key={p.key}
+                  className={'spa-karte spa-links' + (nr >= 0 ? ' paar spa-f' + nr : '') + (wahl === p.key ? ' gewaehlt' : '')}
+                  disabled={nr >= 0}
+                  onClick={() => setWahl(p.key)}
+                >
+                  {nr >= 0 && <span className="spa-nr">{nr + 1}</span>}
+                  <span>{p.es}</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className="spa-spalte">
+            <span className="spa-kopf">{sprache() === 'en' ? 'English' : 'Deutsch'}</span>
+            {unten.map((p) => {
+              const nr = geloest.indexOf(p.key)
+              return (
+                <button
+                  key={p.key}
+                  className={
+                    'spa-karte' +
+                    (nr >= 0 ? ' paar spa-f' + nr : '') +
+                    (fehler === p.key ? ' falsch' : '') +
+                    (wahl && nr < 0 ? ' bereit' : '')
+                  }
+                  disabled={nr >= 0}
+                  onClick={() => klickUnten(p)}
+                >
+                  {nr >= 0 && <span className="spa-nr">{nr + 1}</span>}
+                  <span>{p.de}</span>
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
