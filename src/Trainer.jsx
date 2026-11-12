@@ -22,6 +22,8 @@ import InfoKnopf from './InfoKnopf.jsx'
 import Gespraech from './Gespraech.jsx'
 import Games, { spielbareVokabeln } from './Games.jsx'
 import SpielBild from './SpielBild.jsx'
+import UebTabs, { useUebTab } from './UebTabs.jsx'
+
 import Bausteine from './Bausteine.jsx'
 import { faelligeBausteine } from './bausteine.js'
 import ListGenerator from './ListGenerator.jsx'
@@ -47,6 +49,8 @@ import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
 import { tr, sprache } from './sprache.js'
 import { erfolgston, fehlerton } from './erfolgston.js'
+
+const SPIELE_ANZAHL = 6 // Karten im Tab „Spielen“ (12.11.2026)
 
 // Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
 //
@@ -127,6 +131,7 @@ export default function Trainer({
   // die Kacheln gesperrt, statt in eine leere Seite zu fuehren.
   const spielbar = useMemo(() => spielbareVokabeln(vocab).length >= 4, [vocab])
   const [artWahl, setArtWahl] = useState(false) // Auswahl der Uebungsart offen?
+  const [uebTab, setUebTab] = useUebTab() // 'ueben' | 'spielen' (12.11.2026)
   const [art, setArt] = useState('karten')      // gewaehlte Uebungsart
   const [position, setPosition] = useState(0)   // fuer "gemischt": welcher Durchgang
   const [eingabe, setEingabe] = useState('')    // Schreiben: getippter Text
@@ -645,6 +650,9 @@ export default function Trainer({
           </p>
         </div>
 
+        <UebTabs tab={uebTab} onTab={setUebTab} ueben={ARTEN.length} spielen={SPIELE_ANZAHL} />
+
+        {uebTab === 'ueben' && (
         <div className="art-liste art-toon">
           {ARTEN.map((a) => (
             <button key={a.id} className="art-karte" onClick={() => startTraining(a.id)}>
@@ -657,11 +665,12 @@ export default function Trainer({
                           </button>
           ))}
         </div>
+        )}
 
-      {/* Die vier Spiele als spielerische Alternative zur Abfrage */}
-      <section className="bereich bereich-spiele" id="trainer-spiele">
+      {/* Die Spiele als spielerische Alternative zur Abfrage – eigener Tab */}
+      {uebTab === 'spielen' && (
+      <section className="bereich bereich-spiele ueb-spiele" id="trainer-spiele">
         <div className="bereich-kopf">
-          <h2>{tr('Oder lieber spielen?')}</h2>
           <p>
             {spielbar
               ? tr('Alle Spiele nehmen die Wörter, die als Nächstes dran sind. Wer sie wiedererkennt, schiebt sie eine Stufe weiter.')
@@ -702,6 +711,7 @@ export default function Trainer({
           </button>
         </div>
       </section>
+      )}
       </div>
     )
   }

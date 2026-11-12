@@ -1,4 +1,5 @@
 import SpielBild from './SpielBild.jsx'
+import UebTabs, { useUebTab } from './UebTabs.jsx'
 import { leiterName } from './srs.js'
 import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
 import { pausierteSchluessel, MAX_SAETZE } from './limits.js'
@@ -19,7 +20,7 @@ import { erfolgston, fehlerton } from './erfolgston.js'
 const RUNDE = 10
 
 /** Satzpaare: so viele Paare auf einmal – mehr wird auf dem Handy unübersichtlich */
-const PAARE = 6
+const PAARE = 4 // 12.11.2026: 4 statt 6 – passt im Spiel-Look auf einen Blick
 
 // Nur zwei Übungsarten – Schreiben und Gemischt gibt es hier
 // bewusst nicht: Einen ganzen Satz fehlerfrei abzutippen ist
@@ -27,6 +28,9 @@ const PAARE = 6
 // Auswahl im 3D-Toon-Stil wie bei den Vokabeln (10.11.2026)
 const SATZ_BILD = {"karten": "karten", "auswahl": "auswahl", "bauen": "schreiben", "luecke": "galgen", "paare": "paare"}
 const SATZ_HINWEIS = {"karten": "Klassisch wie Karteikarten", "auswahl": "Schnell zum Aufwärmen", "bauen": "Trainiert den Satzbau", "luecke": "Grammatik im Zusammenhang", "paare": "Spielerisch zum Abschluss"}
+
+// Diese zwei stehen im Tab „Spielen“, der Rest unter „Üben“ (12.11.2026)
+const SATZ_SPIELE = ['bauen', 'paare']
 
 const ARTEN = [
   {
@@ -81,6 +85,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
   const pausiert = pausierteSchluessel(saetze, MAX_SAETZE, stPremium, 'erstelltAm')
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [artWahl, setArtWahl] = useState(false)
+  const [uebTab, setUebTab] = useUebTab() // 'ueben' | 'spielen'
   const [art, setArt] = useState('karten')
   const [queue, setQueue] = useState(null)
   const [revealed, setRevealed] = useState(false)
@@ -290,7 +295,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
   // ---------- Satzpaare ----------
   if (queue !== null && art === 'paare') {
     return (
-      <div className="trainer training-stage">
+      <div className="trainer training-stage spiel-toon sp-neu">
         {xpPopup && (
           <span key={xpPopup.key} className="xp-popup">
             +{xpPopup.amount} XP
@@ -474,8 +479,14 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             {tr('{0} Sätze stehen an.', Math.min(RUNDE, faellig.length))}
           </p>
         </div>
-        <div className="art-liste art-toon">
-          {ARTEN.map((a) => {
+        <UebTabs
+          tab={uebTab}
+          onTab={setUebTab}
+          ueben={ARTEN.filter((a) => !SATZ_SPIELE.includes(a.id)).length}
+          spielen={SATZ_SPIELE.length}
+        />
+        <div className={'art-liste art-toon' + (uebTab === 'spielen' ? ' ueb-spiele-liste' : '')}>
+          {ARTEN.filter((a) => SATZ_SPIELE.includes(a.id) === (uebTab === 'spielen')).map((a) => {
             // Multiple Choice braucht falsche Antworten zum Danebenlegen.
             // Mit weniger als vier Sätzen gibt es die nicht.
             const gesperrt =
@@ -628,12 +639,14 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
   function klickUnten(p) {
     if (!wahl || geloest.includes(p.key)) return
     if (p.key === wahl) {
+      erfolgston()
       setGeloest((g) => [...g, p.key])
       onGeloest(p.key, !daneben.includes(p.key))
       setWahl(null)
       if (geloest.length + 1 === paare.length) onFertig()
     } else {
       setFehler(p.key)
+      fehlerton()
       setDaneben((d) => (d.includes(wahl) ? d : [...d, wahl]))
       setTimeout(() => {
         setFehler(null)
@@ -661,52 +674,55 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose }) {
 
   return (
     <>
-      <div className="lern-fortschritt">
-        <div className="lern-balken">
-          <div className="lern-balken-voll" style={{ width: (geloest.length / paare.length) * 100 + '%' }} />
+      <div className="player-top sk-kopf">
+        <span className="sk-bild"><SpielBild id="paare" /></span>
+        <h2 className="game-title">{tr('Satzpaare')}</h2>
+        <button className="sk-zu" onClick={onClose} aria-label="✕">✕</button>
+      </div>
+      <div className="sp-buehne">
+        <div className="sp-fortschritt">
+          <div className="sp-balken"><i style={{ width: (geloest.length / paare.length) * 100 + '%' }} /></div>
+          <span>{tr('{0}/{1} verbunden', geloest.length, paare.length)}</span>
         </div>
-        <p className="training-progress">
-          {tr('{0}/{1} verbunden – erst den Satz, dann die Übersetzung', geloest.length, paare.length)}
+        <p className="sp-tipp">
+          {wahl ? tr('Jetzt rechts die Übersetzung antippen') : tr('Tippe links einen Satz an, dann rechts die Übersetzung')}
         </p>
-      </div>
-      <div className="satzpaare">
-        <div className="satzpaare-gruppe">
-          {paare.map((p) => (
-            <button
-              key={p.key}
-              className={
-                'quiz-option satzpaar' +
-                (geloest.includes(p.key) ? ' option-richtig' : '') +
-                (wahl === p.key ? ' pair-gewaehlt' : '')
-              }
-              disabled={geloest.includes(p.key)}
-              onClick={() => setWahl(p.key)}
-            >
-              {p.es}
-            </button>
-          ))}
+        <div className="sp-paare sp-satzpaare">
+          <div className="sp-paare-spalte">
+            {paare.map((p) => (
+              <button
+                key={p.key}
+                className={
+                  'sp-paar sp-paar-links' +
+                  (geloest.includes(p.key) ? ' richtig' : '') +
+                  (wahl === p.key ? ' gewaehlt' : '')
+                }
+                disabled={geloest.includes(p.key)}
+                onClick={() => setWahl(p.key)}
+              >
+                {p.es}
+              </button>
+            ))}
+          </div>
+          <div className="sp-paare-spalte">
+            {unten.map((p) => (
+              <button
+                key={p.key}
+                className={
+                  'sp-paar' +
+                  (geloest.includes(p.key) ? ' richtig' : '') +
+                  (fehler === p.key ? ' falsch' : '') +
+                  (wahl && !geloest.includes(p.key) ? ' bereit' : '')
+                }
+                disabled={geloest.includes(p.key)}
+                onClick={() => klickUnten(p)}
+              >
+                {p.de}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="satzpaare-trenner" aria-hidden="true" />
-        <div className="satzpaare-gruppe">
-          {unten.map((p) => (
-            <button
-              key={p.key}
-              className={
-                'quiz-option satzpaar satzpaar-de' +
-                (geloest.includes(p.key) ? ' option-richtig' : '') +
-                (fehler === p.key ? ' option-falsch' : '')
-              }
-              disabled={geloest.includes(p.key) || !wahl}
-              onClick={() => klickUnten(p)}
-            >
-              {p.de}
-            </button>
-          ))}
-        </div>
       </div>
-      <button className="btn-plain" onClick={onClose}>
-        {tr('Runde abbrechen')}
-      </button>
     </>
   )
 }

@@ -1058,6 +1058,7 @@ export default {
  "{0}/{1} verbunden": "{0}/{1} matched",
  "Jetzt rechts die Übersetzung antippen": "Now tap the translation on the right",
  "Tippe links ein Wort an, dann rechts die Übersetzung": "Tap a word on the left, then its translation on the right",
+ "Tippe links einen Satz an, dann rechts die Übersetzung": "Tap a sentence on the left, then its translation on the right",
  "Satz anhören": "Listen to the sentence",
  "Lautschrift": "Pronunciation",
  "Satz bauen": "Build the sentence",
