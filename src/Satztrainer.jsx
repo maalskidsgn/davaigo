@@ -13,7 +13,7 @@ import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe, IconGemischt, IconSchreiben, IconLektion } from './icons.jsx'
 import { tr, sprache } from './sprache.js'
-import { erfolgston } from './erfolgston.js'
+import { erfolgston, fehlerton } from './erfolgston.js'
 
 /** Wie viele Sätze stecken in einer Runde? */
 const RUNDE = 10
@@ -147,6 +147,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
     const richtig = bewertung !== 'nochmal'
     merkeGelernt('saetze') // für die Lernkurve
     if (richtig) erfolgston()
+    else fehlerton()
 
     setExiting(richtig ? 'richtig' : 'falsch')
 
@@ -793,6 +794,7 @@ function SatzBauen({ satz, onFertig }) {
       const ok = gebaut === ziel
       setErgebnis(ok ? 'richtig' : 'falsch')
       if (ok) erfolgston()
+      else fehlerton()
       if (ok) setTimeout(() => onFertig(true), 900)
       else {
         // Erst kurz zeigen, was falsch steht, dann an den richtigen Platz schieben

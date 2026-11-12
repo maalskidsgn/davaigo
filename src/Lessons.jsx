@@ -33,7 +33,7 @@ import {
 } from './pruefstationen.js'
 import { tr } from './sprache.js'
 import { usePremium, LEKTIONEN_SPERRE, GRATIS_ANTEIL } from './premium.js'
-import { erfolgston } from './erfolgston.js'
+import { erfolgston, fehlerton } from './erfolgston.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -315,6 +315,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     // russische Lösung – richtig oder falsch, der Klang soll sitzen.
     const s = schritte[index]
     if (s?.typ === 'quiz' && s.richtung === 'de-es' && s.item?.es) spiele(s.item.es)
+    if (!korrekt) fehlerton()
     if (korrekt) {
       erfolgston()
       setRichtige((r) => r + 1)

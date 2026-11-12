@@ -243,3 +243,54 @@ export function klicktoeneStarten() {
   document.addEventListener('pointerup', los, { capture: true, passive: true })
   document.addEventListener('pointercancel', () => { gedrueckt = false }, { capture: true, passive: true })
 }
+
+// ---------------------------------------------------------------------------
+// Fehlerton „Gedämpftes Duo“ (gewählt 12.11.2026): zwei dumpfe
+// Kalimba-Töne nach unten (C5 → A4), leise und kurz – sagt „nicht ganz“,
+// ohne zu bestrafen. Gleicher Ton-Schalter wie Erfolg und Klick.
+
+const KALIMBA = [[1, 1, 1], [3.01, 0.12, 0.25], [5.9, 0.05, 0.12]]
+
+export function fehlerton() {
+  try {
+    if (!erfolgstoeneAn()) return
+    const c = context()
+    if (!c) return
+    if (c.state === 'suspended') c.resume()
+
+    const t0 = c.currentTime + 0.003
+    const dumpf = c.createBiquadFilter()
+    dumpf.type = 'lowpass'
+    dumpf.frequency.value = 1500
+    const begrenzer = c.createDynamicsCompressor()
+    begrenzer.threshold.value = -16
+    begrenzer.ratio.value = 4
+    begrenzer.attack.value = 0.003
+    begrenzer.release.value = 0.15
+    dumpf.connect(begrenzer).connect(c.destination)
+    if (hall) {
+      const hallLaut = c.createGain()
+      hallLaut.gain.value = 0.22
+      dumpf.connect(hall).connect(hallLaut).connect(c.destination)
+    }
+
+    ;[[523.25, 0, 0.32, 0.25], [440, 0.1, 0.3, 0.4]].forEach(([hz, ab, laut, lang]) => {
+      const a = t0 + ab
+      for (const [faktor, anteil, ausklang] of KALIMBA) {
+        const osc = c.createOscillator()
+        const g = c.createGain()
+        osc.type = 'sine'
+        osc.frequency.value = hz * faktor
+        const dauer = Math.max(0.03, lang * ausklang)
+        g.gain.setValueAtTime(0.0001, a)
+        g.gain.exponentialRampToValueAtTime(laut * anteil, a + 0.01)
+        g.gain.exponentialRampToValueAtTime(0.0001, a + dauer)
+        osc.connect(g).connect(dumpf)
+        osc.start(a)
+        osc.stop(a + dauer + 0.05)
+      }
+    })
+  } catch {
+    // Kein Ton ist kein Fehler.
+  }
+}

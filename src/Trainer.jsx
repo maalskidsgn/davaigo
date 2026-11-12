@@ -46,7 +46,7 @@ import {
 import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
 import { tr, sprache } from './sprache.js'
-import { erfolgston } from './erfolgston.js'
+import { erfolgston, fehlerton } from './erfolgston.js'
 
 // Der Trainer hat zwei Karteikästen: Wörter und Grammatik.
 //
@@ -230,6 +230,7 @@ export default function Trainer({
     if (exiting) return // nicht doppelt klicken, während die Karte fliegt
     setExiting(bewertung)
     if (bewertung !== 'nochmal') erfolgston() // sofort beim Tippen, nicht erst nach der Animation
+    else fehlerton()
 
     setTimeout(() => {
       const word = queue[0]
