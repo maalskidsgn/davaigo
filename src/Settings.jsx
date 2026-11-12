@@ -25,6 +25,7 @@ import { ladeBenutzername, ladeProfilbild, setzeProfilbild, loescheProfilbild, b
 // irgendwann von dem ab, was tatsaechlich abgebucht wird.
 import { einwilligungsStand, setzeEinwilligung, messungMoeglich } from './messung.js'
 import { tr, gebiet, sprache, setzeSprache, SPRACHEN } from './sprache.js'
+import { RueckblickKarte } from './Jahresrueckblick.jsx'
 
 export default function Settings({
   onLeitfaden,
@@ -332,6 +333,9 @@ export default function Settings({
           <div><dt>{tr('Videos')}</dt><dd>{counts.videos}</dd></div>
         </dl>
       </header>
+
+      {/* Jahresrückblick im Profil – zum Ansehen und Teilen (12.11.2026) */}
+      <RueckblickKarte imProfil />
 
       {supabaseBereit && nutzer && ranglisteDa && (
         <ProfilSozial
