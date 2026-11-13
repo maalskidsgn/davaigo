@@ -16,7 +16,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const ANZAHL = 16
-const FREI = new Set([1])
+// Seit 13.11.2026 ist der ganze Lesekurs gratis (Manuel). Wer ihn wieder
+// teilweise sperren will: hier die freien Nummern eintragen, z. B. new Set([1]),
+// und in src/lesekurs-daten.js das Feld frei passend setzen.
+const FREI = new Set(Array.from({ length: ANZAHL }, (_, i) => i + 1))
 const GUELTIG_SEKUNDEN = 3 * 3600
 const SPRACHEN = ['de', 'en']
 

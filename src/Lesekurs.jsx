@@ -1,8 +1,8 @@
 /**
  * Der Lesekurs: Kyrillisch in 16 Videos.
  *
- * Der Einstieg für Anfänger, oben im Lernpfad. Lektion 1 ist frei, der
- * Rest gehört zu Premium. Ob ein Video läuft, entscheidet der Server:
+ * Der Einstieg für Anfänger, oben im Lernpfad. Seit 13.11.2026 ist der
+ * ganze Kurs gratis (server/lesekurs.js FREI, lesekurs-daten.js frei). Ob ein Video läuft, entscheidet der Server:
  * Die Adressen liegen nicht im Paket und laufen nach drei Stunden ab.
  *
  * In der Store-App steht hier bewusst kein Preis und kein Weg zur

@@ -4,7 +4,7 @@ import { tr } from './sprache.js'
 // Als Funktion, damit die Texte in der gerade eingestellten Sprache kommen.
 const vorteile = () => [
   tr('2 Stunden mit Katja sprechen, jeden Monat'),
-  tr('Der Lesekurs mit allen 16 Videos'),
+  tr('Alle Module und Lektionen'),
   tr('Unbegrenzte KI-Vokabellisten'),
   tr('Unbegrenzte Übungssätze und zweisprachige E-Books'),
 ]
