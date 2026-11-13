@@ -48,6 +48,7 @@ import {
 import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
 import { tr, sprache } from './sprache.js'
+import { useLautschrift, Laut, LautSchalter } from './lautAn.jsx'
 import { erfolgston, fehlerton } from './erfolgston.js'
 
 const SPIELE_ANZAHL = 6 // Karten im Tab „Spielen“ (12.11.2026)
@@ -85,6 +86,7 @@ export default function Trainer({
   setTexte,
   onAddVocab,
 }) {
+  const [laut, lautUmschalten] = useLautschrift()
   // 'woerter' | 'saetze' | 'lesen' | 'grammatik'
   const [deck, setDeck] = useState('woerter')
   // Von den Start-Inseln: direkt zu den Sätzen oder zu den Spielen
@@ -510,6 +512,8 @@ export default function Trainer({
           </p>
         </div>
 
+        <div className="laut-zeile laut-oben"><LautSchalter an={laut} onClick={lautUmschalten} /></div>
+
         {/* ---------- Art 1: Karteikarten ---------- */}
         {dieseArt === 'karten' && (
           <div
@@ -517,10 +521,13 @@ export default function Trainer({
             key={wort + queue.length}
           >
             <div className="flash-word">{vorderseite}</div>
+            <Laut text={vorderseite} an={laut} />
             {revealed ? (
               <div className="flash-back">
                 <div className="flash-translation">{rueckseite}</div>
+                <Laut text={rueckseite} an={laut} />
                 {current.beispiel && <div className="fk-beispiel">„{current.beispiel}“</div>}
+                <Laut text={current.beispiel} an={laut} art="satz" />
                 <div className="bewertungen">
                   {[
                     { wert: 'nochmal', text: tr('Nochmal') },
@@ -553,6 +560,7 @@ export default function Trainer({
           >
             <p className="lesson-hint">{tr('Was heißt …')}</p>
             <div className="flash-word">{wort}</div>
+            <Laut text={wort} an={laut} />
             <AuswahlKnoepfe
               key={wort}
               loesung={loesung}
@@ -584,6 +592,7 @@ export default function Trainer({
                 {tippStufe === 1 ? tippText : wort}
               </div>
             )}
+            {tippStufe === 2 && <Laut text={wort} an={laut} />}
 
             <form
               className="schreib-form"
@@ -791,6 +800,7 @@ export default function Trainer({
                 }}
                 placeholder={tr('Wort oder Übersetzung suchen…')}
               />
+              <LautSchalter an={laut} onClick={lautUmschalten} className="laut-liste" />
             </div>
 
             {/* Filter: die drei wichtigsten als Knöpfe, die sieben
@@ -846,7 +856,7 @@ export default function Trainer({
                   <tbody>
                     {gefiltert.slice(0, sichtbar).map((e) => (
                       <tr key={e.word} title={e.source ? tr('Aus: {0}', e.source) : undefined}>
-                        <td className="cell-word">{e.word}{(e.source === 'Startgeschenk' || e.source === 'Grundpaket') && <span className="geschenk-chip">{sprache() === 'en' ? 'Gift' : 'Geschenk'}</span>}{e.gesperrt && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</td>
+                        <td className="cell-word">{e.word}<Laut text={e.word} an={laut} art="klein" />{(e.source === 'Startgeschenk' || e.source === 'Grundpaket') && <span className="geschenk-chip">{sprache() === 'en' ? 'Gift' : 'Geschenk'}</span>}{e.gesperrt && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</td>
                         <td>{e.translation || '–'}</td>
                         <td>
                           <span className={'level-badge lvl-' + e.level}>

@@ -14,6 +14,7 @@ import { merkeGelernt } from './lernkurve.js'
 import SatzGenerator from './SatzGenerator.jsx'
 import { IconKarten, IconAuswahl, IconListe, IconGemischt, IconSchreiben, IconLektion } from './icons.jsx'
 import { tr, sprache } from './sprache.js'
+import { useLautschrift, Laut, LautSchalter } from './lautAn.jsx'
 import { erfolgston, fehlerton } from './erfolgston.js'
 
 /** Wie viele Sätze stecken in einer Runde? */
@@ -80,6 +81,7 @@ function baueAuswahl(richtig, alle, anzahl = 4) {
  * statt Wortpaaren gibt es Satzpaare mit 6 Sätzen untereinander (SatzPaare).
  */
 export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
+  const [laut, lautUmschalten] = useLautschrift()
   // Gratis: nur die ersten MAX_SAETZE im Training (09.11.)
   const { premium: stPremium } = usePremium()
   const pausiert = pausierteSchluessel(saetze, MAX_SAETZE, stPremium, 'erstelltAm')
@@ -259,6 +261,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               {text}
             </button>
           ))}
+          <LautSchalter an={laut} onClick={lautUmschalten} className="laut-liste" />
         </div>
 
         <GratisHinweis art="saetze" gesamt={entries.length} />
@@ -271,6 +274,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
               <div key={e.key} className="satz-zeile">
                 <div className="satz-zeile-text">
                   <span className="satz-es">{e.satz}{pausiert.has(e.key) && <span className="pausiert">{sprache() === 'en' ? 'Paused · Premium' : 'Pausiert · Premium'}</span>}</span>
+                  <Laut text={e.satz} an={laut} art="klein" />
                   <span className="satz-de">{e.translation}</span>
                   <span className="satz-meta">
                     {LEVEL_LABELS[e.level] ?? tr('Neu')} · {formatDue(e)}
@@ -363,6 +367,8 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           </p>
         </div>
 
+        <div className="laut-zeile laut-oben"><LautSchalter an={laut} onClick={lautUmschalten} /></div>
+
         {/* ---------- Karten ---------- */}
         {art === 'karten' && (
           <div
@@ -370,6 +376,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             key={key + queue.length}
           >
             <div className="flash-satz">{satz}</div>
+            <Laut text={satz} an={laut} art="satz" />
             {revealed ? (
               <div className="flash-back">
                 <div className="flash-translation">{loesung}</div>
@@ -410,6 +417,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
           >
             <p className="lesson-hint">{tr('Was heißt …')}</p>
             <div className="flash-satz">{satz}</div>
+            <Laut text={satz} an={laut} art="satz" />
             <SatzAuswahl
               key={key}
               loesung={loesung}
@@ -435,6 +443,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             <SatzBauen
               key={key + queue.length}
               satz={satz}
+              laut={laut}
               onFertig={(richtig) => antworten(richtig ? 'gut' : 'nochmal')}
             />
           </div>
@@ -774,7 +783,7 @@ function mische(liste) {
  * Angetippte Kacheln wandern nach oben; dort antippen legt sie zurück.
  * Sind alle verbaut, wird geprüft – ohne Groß/Klein und Satzzeichen.
  */
-function SatzBauen({ satz, onFertig }) {
+function SatzBauen({ satz, onFertig, laut = false }) {
   const woerter = woerterVon(satz)
   // Kacheln über ihre Position merken – gleiche Wörter kommen öfter vor
   const [kacheln] = useState(() => {
@@ -866,6 +875,7 @@ function SatzBauen({ satz, onFertig }) {
           {tr('Richtig wäre:')} <b>{satz}</b>
         </p>
       )}
+      {korrigiert && <Laut text={satz} an={laut} art="satz" />}
       {korrigiert && (
         <button className="btn satzbau-weiter" onClick={() => onFertig(false)}>
           {tr('Weiter')}

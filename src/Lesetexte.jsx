@@ -16,6 +16,7 @@ import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, kontingentLeer, pausierteSc
 import { usePremium } from './premium.js'
 import { IconFunken, IconListe, IconPfeil } from './icons.jsx'
 import { tr, sprache } from './sprache.js'
+import { useLautschrift, Laut, LautSchalter } from './lautAn.jsx'
 import KiMelden from './KiMelden.jsx'
 
 // Dieselben Gebiete wie auf dem Server (server/lesetexte.js).
@@ -242,6 +243,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
  */
 function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
   const [sprache, setSprache] = useState('es')
+  const [laut, lautUmschalten] = useLautschrift()
   const [fertig, setFertig] = useState(false)
   const [gesammelt, setGesammelt] = useState([])
   const [wort, setWort] = useState(null) // angetipptes Wort: { text, de, laedt }
@@ -317,11 +319,15 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
 
       <article className="leser-text">
         <h1 className="leser-titel">{sprache === 'es' ? text.titelEs : text.titelDe}</h1>
+        {sprache === 'es' && <Laut text={text.titelEs} an={laut} art="satz" />}
 
         {(text.absaetze ?? []).map((a, i) => (
-          <p key={i} className="leser-absatz">
-            {sprache === 'es' ? alsWoerter(a.es) : a.de}
-          </p>
+          <div key={i} className="leser-block">
+            <p className="leser-absatz">
+              {sprache === 'es' ? alsWoerter(a.es) : a.de}
+            </p>
+            {sprache === 'es' && <Laut text={a.es} an={laut} art="satz" />}
+          </div>
         ))}
 
         {/* Die Wörter zum Mitnehmen – ein Tipp legt sie in den Trainer */}
@@ -340,6 +346,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
                     disabled={schonDa}
                   >
                     <b>{w.wort}</b>
+                    <Laut text={w.wort} an={laut} art="klein" />
                     <span>{w.uebersetzung}</span>
                     {schonDa && <i aria-hidden="true">✓</i>}
                   </button>
@@ -378,6 +385,7 @@ function Leser({ text, onFertig, onZurueck, onAddVocab, vocab = {} }) {
             </button>
           ))}
         </div>
+        {sprache === 'es' && <LautSchalter an={laut} onClick={lautUmschalten} className="laut-leser" />}
       </div>
 
       {/* Am Ende: Wie gut kamst du zurecht? Daraus folgt der nächste Termin. */}

@@ -33,6 +33,7 @@ import {
 } from './pruefstationen.js'
 import { tr, sprache } from './sprache.js'
 import { lautschrift } from './lautschrift.js'
+import { useLautschrift } from './lautAn.jsx'
 import { usePremium, LEKTIONEN_SPERRE, GRATIS_ANTEIL } from './premium.js'
 import { erfolgston, fehlerton } from './erfolgston.js'
 
@@ -200,15 +201,8 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
   const [feedback, setFeedback] = useState(null) // { gewaehlt, richtig } nach einer Antwort
   // Lautschrift zum Antippen (12.11.2026): zeigt Wort und Beispielsatz in
   // lateinischen Buchstaben. Die Wahl bleibt für die nächsten Karten.
-  const [laut, setLaut] = useState(() => {
-    try { return localStorage.getItem('lektion-lautschrift') === 'an' } catch { return false }
-  })
-  function lautUmschalten() {
-    setLaut((an) => {
-      try { localStorage.setItem('lektion-lautschrift', an ? 'aus' : 'an') } catch { /* egal */ }
-      return !an
-    })
-  }
+  // Seit 13.11. eine Wahl für die ganze App (lautAn.jsx): Trainer, Sätze, Texte, Lektionen.
+  const [laut, lautUmschalten] = useLautschrift()
   const [richtige, setRichtige] = useState(0)
   const [optionen, setOptionen] = useState([])
   const [fertig, setFertig] = useState(false)

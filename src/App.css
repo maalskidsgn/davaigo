@@ -16415,3 +16415,24 @@ body.liest-video .video-kopf {
 .bereich.bereich-wiederholen,
 .weiterlernen { border-color: transparent; box-shadow: 0 6px 0 var(--line); }
 .engine.engine-toon.engine-toon { box-shadow: 0 6px 0 var(--line); }
+
+/* ===== Lautschrift überall ein-/ausblendbar (13.11.2026, lautAn.jsx) ===== */
+.laut-klein { display: block; font-size: .82rem; font-weight: 700; font-style: italic; color: var(--primary); opacity: .9; line-height: 1.3; }
+.laut-zeile.laut-oben { margin: -6px 0 12px; }
+.laut-zeile.laut-oben .laut-schalter { margin: 0; }
+.liste-werkzeuge .laut-liste { margin: 10px 0 0; }
+.satz-filter .laut-liste { margin: 0 0 0 auto; }
+.flashcard .laut-satz { margin: 4px 0 8px; }
+.satzbau .laut-satz, .satzkarte .laut-satz { text-align: center; }
+/* Texte: unter jedem Absatz die Lautschrift; Schalter läuft neben dem Sprachumschalter mit */
+.leser-block { margin-bottom: 18px; }
+.leser-block .leser-absatz { margin-bottom: 0; }
+.leser-block .laut-satz { font-size: 1rem; line-height: 1.6; margin-top: 4px; }
+.leser-titel + .laut-satz { margin: -14px 0 20px; }
+.leser-schiene { gap: 8px; align-items: center; }
+.leser-schiene .laut-leser {
+  margin: 0; pointer-events: auto; padding: 12px 14px; border-radius: 14px; white-space: nowrap;
+  background: var(--card); box-shadow: 0 6px 20px rgba(0, 0, 65, .12), inset 0 0 0 1px var(--line);
+}
+.leser-schiene .laut-leser.an { background: var(--primary); color: #fff; box-shadow: 0 6px 20px rgba(0, 0, 65, .12); }
+.leser-wort .laut-klein { display: inline; font-size: 12px; }
