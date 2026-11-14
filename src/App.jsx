@@ -1,4 +1,5 @@
 import { pausierteSchluessel, MAX_VOKABELN } from './limits.js'
+import { pushEinrichten } from './push.js'
 import { usePremium } from './premium.js'
 import { loginKopf } from './limits.js'
 import { API_URL, istApp, kiKopf } from './api.js'
@@ -353,6 +354,16 @@ export default function App() {
 
   // ---------- Konto & Abgleich ----------
   const { nutzer, laedt: nutzerLaedt, passwortNeuSetzen, passwortGesetzt } = useNutzer()
+
+  // Push-Benachrichtigungen (14.11.2026): nach der Anmeldung Gerät beim
+  // Server anmelden. Bleibt aus, bis VITE_PUSH_AKTIV=1 (siehe push.js).
+  useEffect(() => {
+    if (!nutzer?.id) return
+    pushEinrichten(nutzer.id, (link) => {
+      window.history.pushState({}, '', link)
+      window.dispatchEvent(new PopStateEvent('popstate'))
+    })
+  }, [nutzer?.id])
 
   // Welche Pflichtseite gerade offen ist – oder null.
   //
