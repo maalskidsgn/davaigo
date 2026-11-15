@@ -49,6 +49,7 @@ import { GRUNDPAKET_VERSION, STARTGESCHENK_WOERTER, GRUNDPAKET_SAETZE } from './
 import { geschenkWoerter, geschenkSaetze, geschenkText, woerterInSprache, saetzeInSprache, textInSprache } from './geschenkSprache.js'
 import StartGeschenk from './StartGeschenk.jsx'
 import Einrichtung from './Einrichtung.jsx'
+import Einfuehrung from './Einfuehrung.jsx'
 import Willkommen from './Willkommen.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
@@ -1238,6 +1239,23 @@ export default function App() {
   })
   const einrichtungRef = useRef(false)
   const [ersteLektion, setErsteLektion] = useState(0) // > 0: Lektionen öffnen sofort die erste offene Lektion
+  // Einführungs-Lektion (15.11.2026): nach der Einrichtung einmal durch die
+  // ganze App. Zum Ansehen jederzeit mit ?einfuehrung.
+  const [einfuehrungOffen, setEinfuehrungOffen] = useState(() => {
+    try { return new URLSearchParams(window.location.search).has('einfuehrung') } catch { return false }
+  })
+  function einfuehrungZu(weiterLektion) {
+    setEinfuehrungOffen(false)
+    try {
+      if (nutzer) localStorage.setItem('einfuehrung:' + nutzer.id, 'fertig')
+      const u = new URL(window.location.href)
+      if (u.searchParams.has('einfuehrung')) { u.searchParams.delete('einfuehrung'); window.history.replaceState(null, '', u) }
+    } catch { /* egal */ }
+    if (weiterLektion) {
+      setView('lektionen')
+      setErsteLektion(Date.now())
+    } else setView('start')
+  }
   useEffect(() => {
     if (!nutzer) return
     try {
@@ -1258,12 +1276,9 @@ export default function App() {
       const u = new URL(window.location.href)
       if (u.searchParams.has('einrichtung')) { u.searchParams.delete('einrichtung'); window.history.replaceState(null, '', u) }
     } catch { /* egal */ }
-    // Ohne Trainer-Wahl geht es direkt in die erste Lektion (15.11.2026)
+    // Ohne Trainer-Wahl geht es in die Einführungs-Lektion, danach in Lektion 1 (15.11.2026)
     if (trainer) setView('trainer')
-    else {
-      setView('lektionen')
-      setErsteLektion(Date.now())
-    }
+    else setEinfuehrungOffen(true)
   }
   useEffect(() => {
     const werte = {
@@ -1313,6 +1328,22 @@ export default function App() {
   const levelPercent = Math.round(
     ((progress.xp - levelStartXp) / (nextLevelXp - levelStartXp)) * 100
   )
+
+  // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
+  if (einfuehrungOffen) {
+    return (
+      <>
+        <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
+        <Einfuehrung
+          onFertig={einfuehrungZu}
+          onAddVocab={addVocabWords}
+          addXp={addXp}
+          vocab={vocab}
+          navLabels={{ start: tr('Start'), lektionen: tr('Lektionen'), trainer: tr('Trainer'), mediathek: tr('Mediathek'), profil: tr('Mehr') }}
+        />
+      </>
+    )
+  }
 
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------
   // ---------- Der Feed: Vollbild, ohne Tab-Leiste ----------
