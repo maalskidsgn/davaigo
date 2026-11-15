@@ -36,7 +36,7 @@ import { lautschrift } from './lautschrift.js'
 import { useLautschrift } from './lautAn.jsx'
 import { GRATIS_LEKTIONEN, istPremiumModul } from './gratisModule.js'
 import { usePremium, LEKTIONEN_SPERRE } from './premium.js'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
@@ -195,7 +195,7 @@ const KRONE = (
   </svg>
 )
 
-export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse }) {
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet }) {
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   const [lesekursOffen, setLesekursOffen] = useState(false)
   // Laeuft gerade eine Pruefstation? Das muss die App sich merken:
@@ -253,6 +253,22 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, schritte])
 
+  // Direkt nach der Registrierung (15.11.2026, Manuel): sofort in die
+  // erste offene Lektion statt auf die Modul-Übersicht. Über die Hälfte
+  // der neuen Konten hat vorher gar nichts gelernt. Das Modul wird mit
+  // geöffnet, damit „✕“ in dessen Lektionsliste zurückführt.
+  useEffect(() => {
+    if (!sofortStart) return
+    onSofortGestartet?.()
+    const offen = (l) => !lessonProgress[l.id]?.fertig
+    const m = MODULE.find((x, i) => modulOffen(i, lessonProgress) && !kommtBald(x) && lektionenVon(x).some(offen))
+    const l = m && lektionenVon(m).find(offen)
+    if (!l || gesperrt(l)) return
+    setModul(m)
+    starten(l)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sofortStart])
+
   function brauchtOptionen(schritt) {
     return (
       schritt.typ === 'quiz' ||
@@ -308,6 +324,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     if (next >= schritte.length) {
       // Lektion geschafft! Bonus-XP und Wörter in den Trainer übernehmen
       addXp(XP.LEKTION)
+      lektionTon() // die Lektion ist geschafft – eigener, größerer Klang (15.11.)
       hakeAb('lektion') // Schritt im Tagesplan erledigt
       merkeEinheit('lektion') // zaehlt als Lektion
       merkeGelernt('lektionen')

@@ -360,6 +360,12 @@ export default function App() {
   useEffect(() => {
     if (!nutzer?.id) return
     pushEinrichten(nutzer.id, (link) => {
+      // Erinnerung Tag 1/Tag 3 (15.11.2026): direkt in die nächste offene Lektion
+      if (link === '/lektionen') {
+        setView('lektionen')
+        setErsteLektion(Date.now())
+        return
+      }
       window.history.pushState({}, '', link)
       window.dispatchEvent(new PopStateEvent('popstate'))
     })
@@ -1231,6 +1237,7 @@ export default function App() {
     try { return new URLSearchParams(window.location.search).has('einrichtung') } catch { return false }
   })
   const einrichtungRef = useRef(false)
+  const [ersteLektion, setErsteLektion] = useState(0) // > 0: Lektionen öffnen sofort die erste offene Lektion
   useEffect(() => {
     if (!nutzer) return
     try {
@@ -1251,7 +1258,12 @@ export default function App() {
       const u = new URL(window.location.href)
       if (u.searchParams.has('einrichtung')) { u.searchParams.delete('einrichtung'); window.history.replaceState(null, '', u) }
     } catch { /* egal */ }
+    // Ohne Trainer-Wahl geht es direkt in die erste Lektion (15.11.2026)
     if (trainer) setView('trainer')
+    else {
+      setView('lektionen')
+      setErsteLektion(Date.now())
+    }
   }
   useEffect(() => {
     const werte = {
@@ -1617,6 +1629,8 @@ export default function App() {
             addXp={addXp}
             onLessonComplete={lektionGeschafft}
             onKasse={() => setKasseOffen(true)}
+            sofortStart={ersteLektion}
+            onSofortGestartet={() => setErsteLektion(0)}
           />
         </main>
       )}
