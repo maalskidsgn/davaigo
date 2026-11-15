@@ -1649,7 +1649,7 @@ export default function App() {
       {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
       {view === 'leitfaden' && (
         <main>
-          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={starteRundgang} />
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={() => setEinfuehrungOffen(true)} />
         </main>
       )}
 
@@ -1685,7 +1685,7 @@ export default function App() {
             onNavigate={setView}
             onRecht={setRechtSeite}
             onLeitfaden={() => setView('leitfaden')}
-            onRundgang={starteRundgang}
+            onRundgang={() => setEinfuehrungOffen(true)}
             onKasse={() => setKasseOffen(true)}
             addXp={addXp}
             progress={progress}
@@ -2044,7 +2044,7 @@ export default function App() {
           }
           onWeiter={rundgangWeiter}
           onFertig={rundgangNr !== null ? rundgangEnde : () => setIntro(null)}
-          onRundgang={rundgangNr === null && intro === 'start' ? starteRundgang : undefined}
+          onRundgang={rundgangNr === null && intro === 'start' ? () => { setIntro(null); setEinfuehrungOffen(true) } : undefined}
         />
       )}
     </div>

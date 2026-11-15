@@ -819,7 +819,7 @@ app.post('/api/vokabelliste', async (req, res) => {
 
   try {
     const wortart = ['verben', 'adjektive', 'nomen'].includes(req.body.wortart) ? req.body.wortart : 'alle'
-    const ergebnis = await erzeugeVokabelliste(thema, bekannt, anzahl, wortart)
+    const ergebnis = await erzeugeVokabelliste(thema, bekannt, anzahl, wortart, req.body.sprache === 'en' ? 'en' : 'de')
     if (!einfuehrungFrei(req, tuer)) await zaehleNutzung(tuer.nutzer.id, 'ki')
     res.json(ergebnis)
   } catch (err) {
