@@ -47,6 +47,7 @@ import {
 } from './uebungen.js'
 import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
+import Grundlagen, { faelligeGrundlagen } from './Grundlagen.jsx'
 import { tr, sprache } from './sprache.js'
 import { useLautschrift, Laut, LautSchalter } from './lautAn.jsx'
 import { erfolgston, fehlerton } from './erfolgston.js'
@@ -195,6 +196,8 @@ export default function Trainer({
     () => { const p = pausierteSchluessel(saetze, MAX_SAETZE, allesFrei, 'erstelltAm'); return Object.entries(saetze).filter(([k, x]) => !p.has(k) && isDue(withSrsDefaults(x))).length },
     [saetze, allesFrei]
   )
+  // Grundlagen-Trainer (16.11.2026): fällige Regeln aus abgeschlossenen Lektionen
+  const faelligeRegeln = useMemo(() => faelligeGrundlagen(lessonProgress).length, [lessonProgress, deck])
   const faelligeTexte = useMemo(
     () => { const p = pausierteSchluessel(texte, MAX_TEXTE, allesFrei, 'erstelltAm'); return Object.entries(texte).filter(([k, x]) => !p.has(k) && isDue(withSrsDefaults(x))).length },
     [texte]
@@ -314,6 +317,8 @@ export default function Trainer({
               ? tr('Satz-Trainer')
               : deck === 'lesen'
                 ? tr('Lesestoff')
+                : deck === 'grundlagen'
+                ? tr('Grundlagen-Trainer')
                 : deck === 'ki'
                   ? tr('Gespräch')
                   : tr('Grammatik-Trainer')}
@@ -326,6 +331,8 @@ export default function Trainer({
             ? tr('Ganze Sätze üben – nach Thema, Aspekt und Fall.')
             : deck === 'lesen'
               ? tr('Kurze Wissenstexte lesen – und wiederlesen.')
+              : deck === 'grundlagen'
+              ? tr('Die Regeln aus deinen Lektionen – so lange, bis sie sitzen.')
               : deck === 'ki'
                 ? tr('Mit Dascha reden – sie antwortet einfach und übersetzt mit.')
                 : tr('Grammatik wiederholen, bis sie sitzt.')}
@@ -357,6 +364,15 @@ export default function Trainer({
         >
           {tr('Texte')}
           {faelligeTexte > 0 && <span className="deck-zahl">{faelligeTexte}</span>}
+        </button>
+        <button
+          role="tab"
+          aria-selected={deck === 'grundlagen'}
+          className={deck === 'grundlagen' ? 'deck-aktiv' : ''}
+          onClick={() => setDeck('grundlagen')}
+        >
+          {tr('Grundlagen')}
+          {faelligeRegeln > 0 && <span className="deck-zahl">{faelligeRegeln}</span>}
         </button>
         {GRAMMATIK_ZEIGEN && (
           <button
@@ -392,6 +408,15 @@ export default function Trainer({
     return (
       <div className="wechsel" key="saetze">
         <Satztrainer kopf={schalter} saetze={saetze} setSaetze={setSaetze} addXp={addXp} />
+      </div>
+    )
+  }
+
+  // ---------- Grundlagen: Regeln aus „Gut zu wissen“ wiederholen ----------
+  if (deck === 'grundlagen') {
+    return (
+      <div className="wechsel" key="grundlagen">
+        <Grundlagen kopf={schalter} lessonProgress={lessonProgress} addXp={addXp} />
       </div>
     )
   }
