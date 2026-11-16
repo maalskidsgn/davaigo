@@ -16836,3 +16836,27 @@ body.liest-video .video-kopf {
 .gl-optionen .quiz-option { min-height: 56px; }
 .gl-loesung { margin-top: 18px; padding-top: 18px; border-top: 2px dashed var(--line); text-align: left; animation: ef-rein .35s ease both; }
 .gl-loesung .bewertungen { margin-top: 16px; }
+.gl-chip-laut { display: inline-flex; flex-direction: column; align-items: center; gap: 1px; vertical-align: middle; }
+.gl-chip-laut small { font-size: .72rem; font-style: italic; font-weight: 800; color: var(--primary); line-height: 1.1; }
+.gl-frage .gl-chip-laut small { font-size: 1rem; margin-top: 4px; }
+.gl-liste-hinweis { margin: -4px 0 4px; padding: 0 2px; color: var(--muted); font-weight: 600; font-size: .9rem; line-height: 1.4; }
+.gl .bereich .gl-liste { margin-top: 14px; }
+.gl-detail .info-text { margin: 0 0 12px; }
+.gl-runde .bewertungen { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+@media (max-width: 480px) { .gl-runde .bewertungen { grid-template-columns: repeat(2, 1fr); } }
+
+/* Trainer-Reiter auf dem Handy (16.11.2026): Mit vier Reitern wurde es
+   gequetscht – ab vier Reitern ein 2×2-Raster, Zahl neben dem Namen. */
+@media (max-width: 560px) {
+  .deck[role="tablist"]:has(> button:nth-child(4)) { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .deck[role="tablist"]:has(> button:nth-child(4)) button {
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 11px 8px; font-size: .95rem; white-space: nowrap;
+  }
+  .deck[role="tablist"]:has(> button:nth-child(4)) .deck-zahl { margin-left: 0; }
+}
+/* Lautschrift auf grünen/roten Antworten lesbar */
+.gl-optionen .option-richtig .gl-chip-laut small,
+.gl-optionen .option-falsch .gl-chip-laut small,
+.gl-optionen .option-richtig .info-zelle small,
+.gl-optionen .option-falsch .info-zelle small { color: rgba(255, 255, 255, .92); }

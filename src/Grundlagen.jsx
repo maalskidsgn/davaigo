@@ -3,6 +3,9 @@ import { LEKTIONEN } from './lektionen.js'
 import WISSEN_TABELLEN from './wissenTabellen.js'
 import { tr, sprache } from './sprache.js'
 import { erfolgston, fehlerton } from './erfolgston.js'
+import { newEntry, review, vorschau, isDue, withSrsDefaults } from './srs.js'
+import { useLautschrift, LautSchalter } from './lautAn.jsx'
+import { lautschrift } from './lautschrift.js'
 
 /**
  * Grundlagen-Trainer (16.11.2026, Entwurf): Die „Gut zu wissen“-Karten aus
@@ -11,12 +14,14 @@ import { erfolgston, fehlerton } from './erfolgston.js'
  *
  * Abgefragt wird aus der Lerntabelle heraus (Zeile wählen, zweite Spalte
  * erraten), danach steht die ganze Karte samt Tabelle zum Nachlesen da.
- * Stand je Karte im Browser: localStorage „grundlagen-stand“.
+ * Stand je Karte im Browser: localStorage „grundlagen-stand“ – im selben
+ * Format wie eine Vokabel, damit dieselbe Wiederholungslogik (srs.js) gilt:
+ * Nochmal in 15 Min., Schwer/Gut/Einfach mit wachsendem Abstand.
  */
 
 const SPEICHER = 'grundlagen-stand'
-const TAGE = [0, 1, 3, 7, 16, 35, 80] // Abstand je Stufe
 const RUNDE = 8
+const KYRILLISCH = /[а-яё]/i
 
 function lies() {
   try { return JSON.parse(localStorage.getItem(SPEICHER)) ?? {} } catch { return {} }
@@ -25,13 +30,23 @@ function schreib(stand) {
   try { localStorage.setItem(SPEICHER, JSON.stringify(stand)) } catch { /* egal */ }
 }
 
-function chips(text = '') {
-  return String(text).split('*').map((t, i) => (i % 2 ? <span key={i} className="wort-chip">{t}</span> : t))
+/** *Wörter* als Chips – auf Wunsch mit Lautschrift darunter. */
+function chips(text = '', laut = false) {
+  return String(text).split('*').map((t, i) => {
+    if (!(i % 2)) return t
+    if (!laut || !KYRILLISCH.test(t)) return <span key={i} className="wort-chip">{t}</span>
+    return (
+      <span key={i} className="gl-chip-laut">
+        <span className="wort-chip">{t}</span>
+        <small>{lautschrift(t, sprache())}</small>
+      </span>
+    )
+  })
 }
-function zelle(text) {
+function zelle(text, laut) {
   const [wort, bedeutung] = String(text).split(' – ')
-  if (!bedeutung) return chips(text)
-  return <span className="info-zelle"><span>{chips(wort)}</span><small>{bedeutung}</small></span>
+  if (!bedeutung) return chips(text, laut)
+  return <span className="info-zelle"><span>{chips(wort, laut)}</span><small>{bedeutung}</small></span>
 }
 
 /** Alle Karten aus abgeschlossenen Lektionen, die eine Tabelle haben. */
@@ -48,10 +63,11 @@ export function grundlagenKarten(lessonProgress = {}) {
   return karten
 }
 
+const eintrag = (stand, id) => withSrsDefaults(stand[id] ?? newEntry('', 'Grundlagen'))
+
 export function faelligeGrundlagen(lessonProgress) {
   const stand = lies()
-  const jetzt = Date.now()
-  return grundlagenKarten(lessonProgress).filter((k) => !stand[k.id] || stand[k.id].faellig <= jetzt)
+  return grundlagenKarten(lessonProgress).filter((k) => isDue(eintrag(stand, k.id)))
 }
 
 /** Eine Frage aus der Tabelle: erste Spalte zeigen, zweite erraten. */
@@ -70,14 +86,14 @@ function frageAus(karte) {
   }
 }
 
-function Tabelle({ tabelle }) {
+function Tabelle({ tabelle, laut }) {
   return (
     <div className="info-tabelle-rahmen">
       <table className="info-tabelle">
         <thead><tr>{tabelle.kopf.map((k) => <th key={k}>{k}</th>)}</tr></thead>
         <tbody>
           {tabelle.zeilen.map((z, i) => (
-            <tr key={i}>{z.map((c, j) => <td key={j}>{zelle(c)}</td>)}</tr>
+            <tr key={i}>{z.map((c, j) => <td key={j}>{zelle(c, laut)}</td>)}</tr>
           ))}
         </tbody>
       </table>
@@ -93,9 +109,11 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
   const [frage, setFrage] = useState(null)
   const [antwort, setAntwort] = useState(null)
   const [offen, setOffen] = useState(null) // aufgeklappte Karte in der Liste
+  const [listeOffen, setListeOffen] = useState(false)
+  const [laut, lautUmschalten] = useLautschrift()
 
-  const jetzt = Date.now()
-  const faellig = alle.filter((k) => !stand[k.id] || stand[k.id].faellig <= jetzt)
+  const faellig = alle.filter((k) => isDue(eintrag(stand, k.id)))
+  const sitzen = alle.filter((k) => (eintrag(stand, k.id).intervall ?? 0) >= 21).length
 
   function starten() {
     const r = faellig.slice(0, RUNDE)
@@ -114,9 +132,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
 
   function bewerten(wert) {
     const karte = runde[nr]
-    const alt = stand[karte.id]?.stufe ?? 0
-    const stufe = wert === 'nochmal' ? 0 : Math.min(TAGE.length - 1, alt + (wert === 'einfach' ? 2 : 1))
-    const neu = { ...stand, [karte.id]: { stufe, faellig: Date.now() + (stufe === 0 ? 10 * 60000 : TAGE[stufe] * 86400000) } }
+    const neu = { ...stand, [karte.id]: review(eintrag(stand, karte.id), wert) }
     setStand(neu)
     schreib(neu)
     if (nr + 1 >= runde.length) { setRunde(null); return }
@@ -133,12 +149,13 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
       <div className="training-stage gl-runde">
         <div className="lern-balken"><div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} /></div>
         <p className="training-progress">{tr('Regel {0} von {1}', nr + 1, runde.length)}</p>
+        <div className="laut-zeile laut-oben"><LautSchalter an={laut} onClick={lautUmschalten} /></div>
 
         <div className="flashcard karte-toon gl-karte">
           <p className="gl-herkunft">{karte.emoji} {karte.lektion}</p>
           {frage ? (
             <>
-              <p className="gl-frage">{chips(frage.vorne)}</p>
+              <p className="gl-frage">{chips(frage.vorne, laut)}</p>
               <p className="lesson-hint">{frage.spalte}?</p>
               <div className="gl-optionen">
                 {frage.optionen.map((o) => (
@@ -147,7 +164,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
                     className={'quiz-option' + (antwort && o === frage.richtig ? ' option-richtig' : '') + (antwort?.o === o && !antwort.richtig ? ' option-falsch' : '')}
                     onClick={() => waehlen(o)}
                   >
-                    {zelle(o)}
+                    {zelle(o, laut)}
                   </button>
                 ))}
               </div>
@@ -159,12 +176,13 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
           {aufgedeckt && (
             <div className="gl-loesung">
               <h3 className="info-title">{karte.titel}</h3>
-              <p className="info-text">{chips(karte.text)}</p>
-              <Tabelle tabelle={karte.tabelle} />
+              <p className="info-text">{chips(karte.text, laut)}</p>
+              <Tabelle tabelle={karte.tabelle} laut={laut} />
               <div className="bewertungen">
-                {[['nochmal', tr('Nochmal')], ['gut', tr('Gut')], ['einfach', tr('Einfach')]].map(([w, t]) => (
+                {[['nochmal', tr('Nochmal')], ['schwer', tr('Schwer')], ['gut', tr('Gut')], ['einfach', tr('Einfach')]].map(([w, t]) => (
                   <button key={w} className={'bewertung bewertung-' + w} onClick={() => bewerten(w)}>
                     <span className="bewertung-text">{t}</span>
+                    <span className="bewertung-zeit">{vorschau(eintrag(stand, karte.id), w)}</span>
                   </button>
                 ))}
               </div>
@@ -197,26 +215,51 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
         </button>
       </div>
 
-      <h2 className="reise-abschnitt">{tr('Deine Regeln')} <span className="gl-anzahl">{alle.length}</span></h2>
-      {alle.length === 0 ? (
-        <p className="intro">{tr('Schließ deine erste Lektion ab – dann landen ihre Regeln hier.')}</p>
-      ) : (
-        <ul className="gl-liste">
-          {alle.map((k) => {
-            const s = stand[k.id]
-            return (
-              <li key={k.id} className={'gl-eintrag' + (offen === k.id ? ' gl-offen' : '')}>
-                <button className="gl-zeile" onClick={() => setOffen(offen === k.id ? null : k.id)}>
-                  <span className="gl-emoji" aria-hidden="true">{k.emoji}</span>
-                  <span className="gl-zeile-text"><b>{k.titel}</b><small>{k.lektion}</small></span>
-                  <span className={'gl-stufe gl-stufe-' + Math.min(4, s?.stufe ?? 0)}>{s ? (s.faellig <= jetzt ? tr('fällig') : tr('Stufe {0}', s.stufe)) : tr('neu')}</span>
-                </button>
-                {offen === k.id && <div className="gl-detail"><Tabelle tabelle={k.tabelle} /></div>}
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      {/* Alle Grundlagen – aufklappbar wie „Alle deine Wörter“ im Vokabeltrainer */}
+      <section className="bereich">
+        <button className="liste-kopf" onClick={() => setListeOffen((o) => !o)} aria-expanded={listeOffen}>
+          <span className="liste-kopf-text">
+            <span className="liste-titel">{tr('Alle deine Grundlagen')}</span>
+            <span className="liste-sub">{tr('{0} gesammelt · {1} sitzen schon fest', alle.length, sitzen)}</span>
+          </span>
+          <span className={'liste-pfeil' + (listeOffen ? ' liste-pfeil-auf' : '')}>▾</span>
+        </button>
+        <p className="gl-liste-hinweis">{tr('Alle Grundlagen aus den Lektionen landen hier, um sie nochmal zu wiederholen.')}</p>
+
+        {listeOffen && (
+          alle.length === 0 ? (
+            <p className="intro">{tr('Schließ deine erste Lektion ab – dann landen ihre Grundlagen hier.')}</p>
+          ) : (
+            <>
+              <div className="liste-werkzeuge"><LautSchalter an={laut} onClick={lautUmschalten} className="laut-liste" /></div>
+              <ul className="gl-liste">
+                {alle.map((k) => {
+                  const e = eintrag(stand, k.id)
+                  const neuKarte = !stand[k.id]
+                  const istFaellig = isDue(e)
+                  return (
+                    <li key={k.id} className={'gl-eintrag' + (offen === k.id ? ' gl-offen' : '')}>
+                      <button className="gl-zeile" onClick={() => setOffen(offen === k.id ? null : k.id)}>
+                        <span className="gl-emoji" aria-hidden="true">{k.emoji}</span>
+                        <span className="gl-zeile-text"><b>{k.titel}</b><small>{k.lektion}</small></span>
+                        <span className={'gl-stufe gl-stufe-' + Math.min(4, e.level ?? 0)}>
+                          {neuKarte ? tr('neu') : istFaellig ? tr('fällig') : tr('Stufe {0}', e.level ?? 0)}
+                        </span>
+                      </button>
+                      {offen === k.id && (
+                        <div className="gl-detail">
+                          <p className="info-text">{chips(k.text, laut)}</p>
+                          <Tabelle tabelle={k.tabelle} laut={laut} />
+                        </div>
+                      )}
+                    </li>
+                  )
+                })}
+              </ul>
+            </>
+          )
+        )}
+      </section>
     </div>
   )
 }
