@@ -1,7 +1,7 @@
 import { pausierteSchluessel, MAX_VOKABELN } from './limits.js'
 import { pushEinrichten } from './push.js'
 import { usePremium } from './premium.js'
-import { loginKopf } from './limits.js'
+import { loginKopf, kontingentLeer, holeKontingent } from './limits.js'
 import { API_URL, istApp, kiKopf } from './api.js'
 import { sichereMerker } from './kontoMerker.js'
 import { serieAusVerlauf } from './verlauf.js'
@@ -1060,8 +1060,10 @@ export default function App() {
           tr('Dieses Video ist noch nicht in der Davaigo-Mediathek und der Transkript-Dienst ist gerade nicht erreichbar.')
         )
       }
+      if (res.status === 402) kontingentLeer('video')
       if (!res.ok) throw new Error(data.error)
       setVideo(data)
+      holeKontingent() // 1 Gratis-Video/Monat: Anzeige angleichen
     } catch (err) {
       setError(err.message)
     } finally {

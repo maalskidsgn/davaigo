@@ -180,7 +180,7 @@ export default function Ebooks({ onAddVocab, vocab = {} }) {
             <p className="studio-leer-hinweis">
               {ohneKasse()
                 ? tr('Deine Gratis-Erstellungen für diesen Monat sind aufgebraucht – nächsten Monat kannst du wieder neue Bücher schreiben.')
-                : tr('Deine 10 Gratis-Erstellungen für diesen Monat sind aufgebraucht – mit Premium schreibst du unbegrenzt viele Bücher.')}
+                : tr('Dein Gratis-E-Book für diesen Monat ist verbraucht – mit Premium schreibst du bis zu 50 Bücher im Monat.')}
             </p>
           )}
         </form>
