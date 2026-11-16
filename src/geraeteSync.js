@@ -28,7 +28,44 @@ export const SCHLUESSEL = [
   'tonVonSelbst', // Schalter: Wörter von selbst vorlesen
   'gespraechNiveau', // Selbsteinschätzung im Tutor-Gespräch
   'gespraechDeutsch', // ob die deutsche Zeile mitläuft
+  'grundlagen-stand', // Grundlagen-Trainer: Wiederholstand je Regel (16.11.2026)
+  'grundlagen-eigene', // gespeicherte Konjugationen aus dem Verb-Generator
 ]
+
+// ---------------------------------------------------------------
+//  Grundlagen-Trainer: eigene Zusammenführung (16.11.2026)
+// ---------------------------------------------------------------
+// Der Drei-Wege-Vergleich unten kennt nur „diese Seite gewinnt“. Für den
+// Lernstand ist das zu grob: Wer am Handy Regel A und am Rechner Regel B
+// wiederholt, soll danach beides haben. Deshalb je Karte: der zuletzt
+// bewertete Eintrag gewinnt (Feld `am`). Bei Gleichstand bleibt der Stand
+// aus dem Konto – sonst würden zwei Geräte ihn sich ewig hin- und herschicken.
+const rang = (x) => [x?.am ?? 0, x?.intervall ?? 0, x?.due ?? 0]
+function neuerAls(a, b) {
+  const ra = rang(a)
+  const rb = rang(b)
+  for (let i = 0; i < ra.length; i++) if (ra[i] !== rb[i]) return ra[i] > rb[i]
+  return false
+}
+const istObjekt = (x) => x && typeof x === 'object' && !Array.isArray(x)
+const EIGENES_VEREINEN = {
+  'grundlagen-stand': (lokal, entfernt) => {
+    if (!istObjekt(lokal)) return entfernt
+    if (!istObjekt(entfernt)) return lokal
+    const zusammen = { ...entfernt }
+    for (const [id, eintrag] of Object.entries(lokal)) {
+      if (!zusammen[id] || neuerAls(eintrag, zusammen[id])) zusammen[id] = eintrag
+    }
+    return zusammen
+  },
+  // Gespeicherte Konjugationen: alle von beiden Seiten, je Karte (id) einmal
+  'grundlagen-eigene': (lokal, entfernt) => {
+    if (!Array.isArray(lokal)) return entfernt
+    if (!Array.isArray(entfernt)) return lokal
+    const da = new Set(entfernt.map((k) => k?.id))
+    return [...entfernt, ...lokal.filter((k) => k?.id && !da.has(k.id))]
+  },
+}
 
 // Diese Werte hält die App im React-Zustand – sie muss sie nach einem
 // Abgleich neu einlesen (Ereignis 'geraetedaten').
@@ -108,7 +145,11 @@ async function abgleich(nutzerId) {
     const e = entfernt[k]
     const b = basis[k]
     let ergebnis
+    const eigen = EIGENES_VEREINEN[k]
     if (gleich(l, e)) ergebnis = l
+    // Grundlagen: nie „eine Seite gewinnt“, immer zusammenlegen – und ein
+    // leeres Konto (ältere App-Version hat geschrieben) löscht nichts.
+    else if (eigen) ergebnis = l === undefined ? e : e === undefined ? l : eigen(l, e)
     else if (gleich(l, b)) ergebnis = e // nur das Konto hat sich geändert
     else if (gleich(e, b) || e === undefined) ergebnis = l // nur dieses Gerät
     // Erster Abgleich auf diesem Gerät: Das Konto gewinnt im Detail –
@@ -127,9 +168,10 @@ async function abgleich(nutzerId) {
   }
 
   if (hochladen) {
-    const { error: f } = await db
-      .from('statistik')
-      .rpc('ki_nutzung_setzen', { schluessel: 'geraete', wert: neu })
+    // db.rpc, nicht db.from(…).rpc: Letzteres gibt es nicht – vom 30.10. bis
+    // 16.11.2026 brach deshalb JEDES Hochladen hier ab („Abgleich
+    // fehlgeschlagen“), Einstellungen, Bücher & Co. kamen nie im Konto an.
+    const { error: f } = await db.rpc('ki_nutzung_setzen', { schluessel: 'geraete', wert: neu })
     if (f) throw new Error(f.message)
   }
   try {
