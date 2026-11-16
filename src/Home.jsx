@@ -667,7 +667,8 @@ function Kalender() {
                       aria-label={kalDatum(t.schluessel)}
                       className={
                         'kal-punkt' +
-                        (t.gesamt > 0 ? ' kal-aktiv' : '') +
+                        // Stufe nach Lernmenge (16.11.2026): je mehr gelernt, desto kräftiger
+                        (t.gesamt > 0 ? ' kal-aktiv kal-s' + (t.gesamt >= 25 ? 3 : t.gesamt >= 8 ? 2 : 1) : '') +
                         (t.istHeute ? ' kal-heute' : '') +
                         (t.zukunft ? ' kal-zukunft' : '') +
                         (gewaehlt?.schluessel === t.schluessel ? ' kal-gewaehlt' : '')
@@ -678,6 +679,15 @@ function Kalender() {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+        {ansicht === 'jahr' && (
+          <div className="kal-legende kal-mini" aria-hidden="true">
+            {tr('wenig')}
+            <span className="kal-punkt kal-aktiv kal-s1" />
+            <span className="kal-punkt kal-aktiv kal-s2" />
+            <span className="kal-punkt kal-aktiv kal-s3" />
+            {tr('viel')}
           </div>
         )}
       </div>
