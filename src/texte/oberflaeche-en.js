@@ -96,6 +96,7 @@ export default {
  "{0} Wörter hinzugefügt": "{0} words added",
  "{0} Wörter richtig zusammengesetzt": "{0} words correctly assembled",
  "{0} XP · 🔥 {1} Tage · {2} Wörter · {3} Videos": "{0} XP · 🔥 {1} days · {2} words · {3} videos",
+ "{0} einmalig bezahlen": "Pay {0} once",
  "{0} zahlungspflichtig abonnieren": "Subscribe to {0} with payment obligation",
  "{0} zum Lesen – tippe eins an.": "{0} to read – tap one.",
  "{0}-Meilenstein: {1} {2} mit {3}! {4}": "{0} Milestone: {1} {2} with {3}! {4}",
