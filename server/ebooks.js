@@ -246,7 +246,7 @@ const WORTART_REGEL = {
   nomen: 'Wähle AUSSCHLIESSLICH Nomen (Substantive) im Nominativ Singular.',
 }
 
-export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wortart = 'alle') {
+export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wortart = 'alle', sprache = 'de') {
   // Zwischen 5 und 50 Wörtern – das Onboarding bestellt z.B. 50.
   anzahl = Math.max(5, Math.min(50, Number(anzahl) || 10))
   const schluessel = process.env.ANTHROPIC_API_KEY
@@ -284,7 +284,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wort
         ].join(', ')}`
       : ''
 
-    const ergebnis = await frageListe(schluessel, auftragMitWortart + nachschlag, fehlen + 8)
+    const ergebnis = await frageListe(schluessel, auftragMitWortart + nachschlag, fehlen + 8, sprache)
     if (!begruendung) begruendung = ergebnis.begruendung ?? ''
     if (!gefundenesThema) gefundenesThema = ergebnis.thema ?? ''
 
@@ -302,7 +302,7 @@ export async function erzeugeVokabelliste(thema, bekannt = [], anzahl = 10, wort
 }
 
 /** Eine einzelne Anfrage an das Modell für eine Themenliste. */
-async function frageListe(schluessel, auftrag, anzahl) {
+async function frageListe(schluessel, auftrag, anzahl, sprache = 'de') {
   const antwort = await frageOpenAI(OPENAI_URL, {
     method: 'POST',
     headers: {
@@ -325,7 +325,11 @@ async function frageListe(schluessel, auftrag, anzahl) {
             'Keine Anglizismen, keine exotischen Fachbegriffe, keine Wortgruppen über 3 Wörter, ' +
             'keine Allerweltswörter wie "и", "в", "не". Jedes Wort genau einmal. ' +
             'Erkläre in der Begründung kurz und persönlich (2 Sätze), warum du ' +
-            'gerade diese Auswahl getroffen hast.',
+            'gerade diese Auswahl getroffen hast.' +
+            // Englische Oberfläche (davaigo.com, 15.11.2026): Bedeutungen auf Englisch
+            (sprache === 'en'
+              ? ' WICHTIG: Die Person lernt mit ENGLISCHER Oberfläche – schreibe jede Übersetzung (uebersetzung) und die Begründung auf Englisch, nicht auf Deutsch.'
+              : ''),
         },
         { role: 'user', content: auftrag },
       ],

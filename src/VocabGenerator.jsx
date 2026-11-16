@@ -1,6 +1,7 @@
+import { ohneKasse } from './kauf.js'
 import { XP } from './gamification.js'
 import GratisHinweis from './GratisHinweis.jsx'
-import { API_URL, kiKopf, istApp } from './api.js'
+import { API_URL, kiKopf } from './api.js'
 import PremiumWerbung from './PremiumWerbung.jsx'
 import { useState, useEffect } from 'react'
 import { newEntry } from './srs.js'
@@ -103,7 +104,7 @@ export default function VocabGenerator({ video, vocab, setVocab, addXp }) {
           <button onClick={generate} disabled={loading}>
             {loading ? tr('Analysiere Text…') : tr('Vokabeln generieren')}
           </button>
-{istApp && !premium && (
+{ohneKasse() && !premium && (
           <p className="free-hint">
             {tr('Noch {0} von {1} diesen Monat', uebrig, LISTEN_PRO_TAG)}
           </p>

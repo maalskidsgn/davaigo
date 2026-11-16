@@ -1,4 +1,4 @@
-import { istApp } from './api.js'
+import { ohneKasse } from './kauf.js'
 import BILDER from './kassenBilder.js'
 import { usePremium } from './premium.js'
 import { useKontingent, naechsteAuffuellung, KI_PRO_MONAT, MAX_VOKABELN, MAX_SAETZE, MAX_TEXTE } from './limits.js'
@@ -8,8 +8,8 @@ import { sprache } from './sprache.js'
 /**
  * Premium-Hinweise für Gratis-Nutzer (seit 09.11.2026).
  *
- * Nur in der Web-Version: In den Store-Apps darf kein Verweis auf
- * eine Kasse außerhalb des Stores stehen. Premium-Nutzer sehen nichts.
+ * Überall, wo es eine Kasse gibt: im Web Stripe, in der Store-App der
+ * Kauf über Apple/Google (ohneKasse in kauf.js, seit 15.11.2026). Premium-Nutzer sehen nichts.
  *
  *   <GratisHinweis art="ki" />         12 KI-Erstellungen / Monat
  *   <GratisHinweis art="video" />      1 eigenes YouTube-Video / Monat
@@ -32,7 +32,7 @@ const KRONE = (
 
 function useSichtbar() {
   const { premium, laedt } = usePremium()
-  if (istApp) return { zeigen: false, premium }
+  if (ohneKasse()) return { zeigen: false, premium }
   // Während der Premium-Stand lädt: lieber nichts als falsche Werbung
   // Gemerkter Stand „kein Premium“: sofort zeigen, nicht erst nach der Abfrage
   let gemerktGratis = false

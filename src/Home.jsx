@@ -43,6 +43,7 @@ export default function Home({
   nutzerId,
   vocab = {},
   onAddVocab,
+  onAddSatz,
 }) {
   // Kommt der Lernverlauf von einem anderen Gerät an, neu zeichnen
   const [, setVerlaufStand] = useState(0)
@@ -106,7 +107,7 @@ export default function Home({
       <RueckblickKarte />
 
       {/* Schnell-Übersetzer: Wort nachschlagen und direkt in den Trainer (09.11.) */}
-      <SchnellUebersetzer vocab={vocab} onAddVocab={onAddVocab} />
+      <SchnellUebersetzer vocab={vocab} onAddVocab={onAddVocab} onAddSatz={onAddSatz} />
 
       {/* Die Funktionen als Toon-Embleme zum Durchwischen */}
       <StartInseln

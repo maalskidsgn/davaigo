@@ -49,6 +49,7 @@ import { GRUNDPAKET_VERSION, STARTGESCHENK_WOERTER, GRUNDPAKET_SAETZE } from './
 import { geschenkWoerter, geschenkSaetze, geschenkText, woerterInSprache, saetzeInSprache, textInSprache } from './geschenkSprache.js'
 import StartGeschenk from './StartGeschenk.jsx'
 import Einrichtung from './Einrichtung.jsx'
+import Einfuehrung from './Einfuehrung.jsx'
 import Willkommen from './Willkommen.jsx'
 import Logo from './Logo.jsx'
 import { useState, useEffect, useRef } from 'react'
@@ -360,6 +361,12 @@ export default function App() {
   useEffect(() => {
     if (!nutzer?.id) return
     pushEinrichten(nutzer.id, (link) => {
+      // Erinnerung Tag 1/Tag 3 (15.11.2026): direkt in die nächste offene Lektion
+      if (link === '/lektionen') {
+        setView('lektionen')
+        setErsteLektion(Date.now())
+        return
+      }
       window.history.pushState({}, '', link)
       window.dispatchEvent(new PopStateEvent('popstate'))
     })
@@ -522,7 +529,7 @@ export default function App() {
       // Das Geschenk löst keine Meilensteine aus (Sera bekam 600 XP für geschenkte Wörter):
       // beim nächsten Prüfen alles Erreichte still eintragen, ohne XP.
       meilensteinAbgleichRef.current = null
-      if (nutzer && !einrichtungRef.current && Date.now() - new Date(nutzer.created_at).getTime() < 2 * 86400000) setStartGeschenk(true) // nur neue Konten – der Merker liegt nur im Browser, auf neuen Geräten kam es sonst wieder (16.11.) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
+      if (nutzer && !einrichtungRef.current && Date.now() - new Date(nutzer.created_at).getTime() < 2 * 86400000) setStartGeschenk(true) // nur mit Konto zeigen, nicht auf der Startseite für Gäste
     }, 2500)
     return () => clearTimeout(zeit)
   }, [nutzer, syncStatus])
@@ -1133,6 +1140,12 @@ export default function App() {
   }
 
   // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen
+  // Schnell-Übersetzer (16.11.2026): ein übersetzter Satz landet im Satztrainer
+  function addSatz({ satz, uebersetzung }) {
+    const key = satzSchluessel(satz)
+    setSaetze((alt) => (alt[key] ? alt : { ...alt, [key]: neuerSatz({ satz, uebersetzung }, { thema: sprache() === 'en' ? 'Looked up' : 'Nachgeschlagen' }) }))
+  }
+
   function addVocabWords(woerter) {
     // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
     const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
@@ -1248,6 +1261,28 @@ export default function App() {
     try { return new URLSearchParams(window.location.search).has('einrichtung') } catch { return false }
   })
   const einrichtungRef = useRef(false)
+  const [ersteLektion, setErsteLektion] = useState(0) // > 0: Lektionen öffnen sofort die erste offene Lektion
+  // Einführungs-Lektion (15.11.2026): Neue Konten gehen ZUERST einmal durch
+  // die ganze App, danach kommt die Einrichtungs-Animation mit dem
+  // Startgeschenk und dann Lektion 1 (Reihenfolge 16.11., Manuel).
+  // 'neu' = dieser Ablauf (auch ?einfuehrung zum Testen), 'rundgang' = aus
+  // dem Leitfaden erneut angesehen → danach zurück zum Start.
+  const [einfuehrungOffen, setEinfuehrungOffen] = useState(() => {
+    try { return new URLSearchParams(window.location.search).has('einfuehrung') ? 'neu' : false } catch { return false }
+  })
+  function einfuehrungZu() {
+    const warNeu = einfuehrungOffen === 'neu'
+    setEinfuehrungOffen(false)
+    try {
+      if (nutzer) localStorage.setItem('einfuehrung:' + nutzer.id, 'fertig')
+      const u = new URL(window.location.href)
+      if (u.searchParams.has('einfuehrung')) { u.searchParams.delete('einfuehrung'); window.history.replaceState(null, '', u) }
+    } catch { /* egal */ }
+    if (warNeu) {
+      einrichtungRef.current = true
+      setEinrichtung(true) // die Animation mit dem Startgeschenk
+    } else setView('start')
+  }
   useEffect(() => {
     if (!nutzer) return
     try {
@@ -1256,7 +1291,7 @@ export default function App() {
       localStorage.setItem(k, 'ja')
       if (Date.now() - new Date(nutzer.created_at).getTime() < 86400000) {
         einrichtungRef.current = true
-        setEinrichtung(true)
+        setEinfuehrungOffen('neu') // erst die Einführung, dann die Einrichtung
       }
     } catch { /* ohne Speicher keine Animation */ }
   }, [nutzer])
@@ -1268,7 +1303,12 @@ export default function App() {
       const u = new URL(window.location.href)
       if (u.searchParams.has('einrichtung')) { u.searchParams.delete('einrichtung'); window.history.replaceState(null, '', u) }
     } catch { /* egal */ }
+    // Nach der Einrichtung direkt in die erste Lektion (Einführung lief davor)
     if (trainer) setView('trainer')
+    else {
+      setView('lektionen')
+      setErsteLektion(Date.now())
+    }
   }
   useEffect(() => {
     const werte = {
@@ -1318,6 +1358,41 @@ export default function App() {
   const levelPercent = Math.round(
     ((progress.xp - levelStartXp) / (nextLevelXp - levelStartXp)) * 100
   )
+
+
+  // Test ohne Konto (?einfuehrung): Die Einrichtung danach auch vor dem
+  // Zugangs-Tor zeigen – mit Konto läuft sie normal über die App.
+  if (einrichtung && !nutzer && !nutzerLaedt) {
+    return (
+        <Einrichtung
+          app="Davaigo"
+          woerter={STARTGESCHENK_WOERTER}
+          saetze={GRUNDPAKET_SAETZE.length}
+          lektionen={LEKTIONEN.length}
+          onFertig={() => einrichtungZu(false)}
+          onTrainer={() => einrichtungZu(true)}
+        />
+    )
+  }
+
+  // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
+  // Steht VOR dem Zugangs-Tor: Mit ?einfuehrung lässt sie sich auch ohne
+  // Konto ansehen (zum Testen; die KI-Liste nimmt dann die Beispielliste).
+  if (einfuehrungOffen && !nutzerLaedt) {
+    return (
+      <>
+        <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
+        <Einfuehrung
+          onFertig={einfuehrungZu}
+          rundgang={einfuehrungOffen === 'rundgang'}
+          onAddVocab={addVocabWords}
+          addXp={addXp}
+          vocab={vocab}
+          navLabels={{ start: tr('Start'), lektionen: tr('Lektionen'), trainer: tr('Trainer'), mediathek: tr('Mediathek'), profil: tr('Mehr') }}
+        />
+      </>
+    )
+  }
 
   // ---------- Zugang: ohne Konto geht es nicht weiter ----------
   // ---------- Der Feed: Vollbild, ohne Tab-Leiste ----------
@@ -1583,6 +1658,7 @@ export default function App() {
             onNavigate={setView}
             nutzerId={nutzer?.id}
             onAddVocab={addVocabWords}
+            onAddSatz={addSatz}
             vocab={vocab}
           />
         </main>
@@ -1623,7 +1699,7 @@ export default function App() {
       {/* Der Leitfaden: eine eigene Seite, erreichbar vom Start */}
       {view === 'leitfaden' && (
         <main>
-          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={starteRundgang} />
+          <Leitfaden onNavigate={setView} onZurueck={() => setView('start')} onRundgang={() => setEinfuehrungOffen('rundgang')} />
         </main>
       )}
 
@@ -1634,6 +1710,8 @@ export default function App() {
             addXp={addXp}
             onLessonComplete={lektionGeschafft}
             onKasse={() => setKasseOffen(true)}
+            sofortStart={ersteLektion}
+            onSofortGestartet={() => setErsteLektion(0)}
           />
         </main>
       )}
@@ -1657,7 +1735,7 @@ export default function App() {
             onNavigate={setView}
             onRecht={setRechtSeite}
             onLeitfaden={() => setView('leitfaden')}
-            onRundgang={starteRundgang}
+            onRundgang={() => setEinfuehrungOffen('rundgang')}
             onKasse={() => setKasseOffen(true)}
             addXp={addXp}
             progress={progress}
@@ -2016,7 +2094,7 @@ export default function App() {
           }
           onWeiter={rundgangWeiter}
           onFertig={rundgangNr !== null ? rundgangEnde : () => setIntro(null)}
-          onRundgang={rundgangNr === null && intro === 'start' ? starteRundgang : undefined}
+          onRundgang={rundgangNr === null && intro === 'start' ? () => { setIntro(null); setEinfuehrungOffen('rundgang') } : undefined}
         />
       )}
     </div>

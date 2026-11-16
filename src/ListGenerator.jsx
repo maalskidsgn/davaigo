@@ -9,7 +9,7 @@ import { newEntry } from './srs.js'
 import { LISTEN_PRO_TAG, verbleibend, zaehleNutzung, naechsteAuffuellung, kontingentLeer } from './limits.js'
 import { usePremium } from './premium.js'
 import { IconFunken } from './icons.jsx'
-import { tr } from './sprache.js'
+import { tr, sprache } from './sprache.js'
 import KiMelden from './KiMelden.jsx'
 
 // Vokabellisten mit KI erstellen: Thema eingeben (z.B. "Restaurant" oder
@@ -61,6 +61,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
         // Die schon gesammelten Wörter mitschicken: so kommen keine
         // Dopplungen zurück und die Liste passt zum eigenen Stand.
         body: JSON.stringify({
+          sprache: sprache(), // Bedeutungen in der Oberflächensprache (15.11.2026)
           thema: automatisch ? '' : gefragt,
           bekannt: Object.keys(vocab),
           wortart,
