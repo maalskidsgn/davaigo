@@ -1197,6 +1197,7 @@ export default {
  "Erneut versuchen": "Try again",
  "⚠️ Nicht abgeglichen": "⚠️ Not synced",
  "{0} Wörter üben": "Practise {0} words",
+ "Für immer": "Forever",
  "Vokabel": "Word",
  "Videos für mich finden": "Find videos for me",
  "Deine Listen": "Your lists",
