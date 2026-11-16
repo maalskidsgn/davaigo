@@ -1,40 +1,80 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { LEKTIONEN } from './lektionen.js'
 import WISSEN_TABELLEN from './wissenTabellen.js'
-import { tr, sprache } from './sprache.js'
+import { sprache } from './sprache.js'
 import { erfolgston, fehlerton } from './erfolgston.js'
 import { newEntry, review, vorschau, isDue, withSrsDefaults } from './srs.js'
+import { API_URL } from './api.js'
+import { kiKopf } from './api.js'
 import { useLautschrift, LautSchalter } from './lautAn.jsx'
 import { lautschrift } from './lautschrift.js'
 
+const MIT_LAUT = true
+const hatLaut = (t) => /[а-яё]/i.test(t)
+
 /**
- * Grundlagen-Trainer (16.11.2026, Entwurf): Die „Gut zu wissen“-Karten aus
- * abgeschlossenen Lektionen kommen hierher und werden wiederholt wie
- * Vokabeln – mit Abständen, die mit jedem „Gut“ wachsen.
+ * Grundlagen-Trainer (16.11.2026): Die „Gut zu wissen“-Karten aus
+ * abgeschlossenen Lektionen – und eigene Konjugationstabellen – werden hier
+ * wiederholt wie Vokabeln (dieselbe Wiederholungslogik aus srs.js).
  *
  * Abgefragt wird aus der Lerntabelle heraus (Zeile wählen, zweite Spalte
  * erraten), danach steht die ganze Karte samt Tabelle zum Nachlesen da.
- * Stand je Karte im Browser: localStorage „grundlagen-stand“ – im selben
- * Format wie eine Vokabel, damit dieselbe Wiederholungslogik (srs.js) gilt:
- * Nochmal in 15 Min., Schwer/Gut/Einfach mit wachsendem Abstand.
+ *
+ * Konjugator: Verb eingeben → Tabelle je Zeit (Server /api/konjugation:
+ * häufige Verben vorab erzeugt, neue per KI). „In meine Grundlagen“ legt
+ * jede Zeit als eigene Karte an.
+ *
+ * Stand im Browser: localStorage „grundlagen-stand“ (Wiederholung) und
+ * „grundlagen-eigene“ (gespeicherte Konjugationen).
  */
 
 const SPEICHER = 'grundlagen-stand'
+const EIGENE = 'grundlagen-eigene'
 const RUNDE = 8
-const KYRILLISCH = /[а-яё]/i
+const ZIEL_ENDUNG = /^(?!.*ость$).*(ать|ять|еть|ить|уть|ыть|оть|ти|чь)(ся|сь)?$/ // woran man Verben im Vokabeltrainer erkennt
 
-function lies() {
-  try { return JSON.parse(localStorage.getItem(SPEICHER)) ?? {} } catch { return {} }
+const EN = {
+  'Regel {0} von {1}': 'Rule {0} of {1}',
+  'Erinnerst du dich?': 'Do you remember?',
+  'Nochmal': 'Again', 'Schwer': 'Hard', 'Gut': 'Good', 'Einfach': 'Easy',
+  'Runde abbrechen': 'Stop round',
+  'Regeln fällig': 'rules due',
+  'Grundlagen wiederholen': 'Review the basics',
+  'Alles aus „Gut zu wissen“ deiner Lektionen – genau dann wieder, wenn du es zu vergessen drohst.': 'Everything from “Good to know” in your lessons – right when you’re about to forget it.',
+  '{0} Regeln üben': 'Practise {0} rules',
+  'Alles wiederholt': 'All reviewed',
+  'Alle deine Grundlagen': 'All your basics',
+  '{0} gesammelt · {1} sitzen schon fest': '{0} collected · {1} already stick',
+  'Alle Grundlagen aus den Lektionen landen hier, um sie nochmal zu wiederholen.': 'All the basics from your lessons land here so you can review them again.',
+  'Schließ deine erste Lektion ab – dann landen ihre Grundlagen hier.': 'Finish your first lesson – its basics will land here.',
+  'neu': 'new', 'fällig': 'due', 'Stufe {0}': 'Level {0}',
+  'Verb konjugieren': 'Conjugate a verb',
+  'Tippe ein Verb ein – du bekommst alle wichtigen Zeiten als Tabelle.': 'Type a verb – you get all the important tenses as tables.',
+  'z. B. {0}': 'e.g. {0}',
+  'Zeigen': 'Show',
+  'Aus deinem Trainer': 'From your trainer',
+  'Häufige Verben': 'Common verbs',
+  'Person': 'Person', 'Form': 'Form',
+  'unregelmäßig': 'irregular',
+  'In meine Grundlagen': 'Add to my basics',
+  'In deinen Grundlagen ✓': 'In your basics ✓',
+  'Konjugation': 'Conjugation',
+  'Einen Moment …': 'One moment …',
 }
-function schreib(stand) {
-  try { localStorage.setItem(SPEICHER, JSON.stringify(stand)) } catch { /* egal */ }
+const tx = (de, ...w) => (sprache() === 'en' ? EN[de] ?? de : de).replace(/\{(\d+)\}/g, (_, n) => w[n] ?? '')
+
+function lies(k, leer) {
+  try { return JSON.parse(localStorage.getItem(k)) ?? leer } catch { return leer }
+}
+function schreib(k, wert) {
+  try { localStorage.setItem(k, JSON.stringify(wert)) } catch { /* egal */ }
 }
 
 /** *Wörter* als Chips – auf Wunsch mit Lautschrift darunter. */
 function chips(text = '', laut = false) {
   return String(text).split('*').map((t, i) => {
     if (!(i % 2)) return t
-    if (!laut || !KYRILLISCH.test(t)) return <span key={i} className="wort-chip">{t}</span>
+    if (!laut || !hatLaut(t)) return <span key={i} className="wort-chip">{t}</span>
     return (
       <span key={i} className="gl-chip-laut">
         <span className="wort-chip">{t}</span>
@@ -49,7 +89,7 @@ function zelle(text, laut) {
   return <span className="info-zelle"><span>{chips(wort, laut)}</span><small>{bedeutung}</small></span>
 }
 
-/** Alle Karten aus abgeschlossenen Lektionen, die eine Tabelle haben. */
+/** Alle Karten: „Gut zu wissen“ aus abgeschlossenen Lektionen + eigene Konjugationen. */
 export function grundlagenKarten(lessonProgress = {}) {
   const sp = sprache() === 'en' ? 'en' : 'de'
   const karten = []
@@ -60,13 +100,29 @@ export function grundlagenKarten(lessonProgress = {}) {
       if (tabelle) karten.push({ id: `${l.id}:${i}`, lektion: l.titel, emoji: k.emoji, titel: k.titel, text: k.text, tabelle })
     })
   }
+  for (const k of lies(EIGENE, [])) karten.push(eigeneKarte(k, sp))
   return karten
+}
+
+/** Gespeicherte Konjugation → Karte in der App-Sprache */
+function eigeneKarte(k, sp) {
+  return {
+    id: k.id,
+    lektion: tx('Konjugation'),
+    emoji: '🔁',
+    titel: `${k.verb} – ${k.zeit.name[sp] ?? k.zeit.name.de}`,
+    text: `*${k.verb}* – ${k.bedeutung[sp] ?? k.bedeutung.de}. ${k.hinweis[sp] ?? k.hinweis.de}`,
+    tabelle: {
+      kopf: [tx('Person'), tx('Form')],
+      zeilen: k.zeit.formen.map((f) => [f.person, `*${f.form}*`]),
+    },
+  }
 }
 
 const eintrag = (stand, id) => withSrsDefaults(stand[id] ?? newEntry('', 'Grundlagen'))
 
 export function faelligeGrundlagen(lessonProgress) {
-  const stand = lies()
+  const stand = lies(SPEICHER, {})
   return grundlagenKarten(lessonProgress).filter((k) => isDue(eintrag(stand, k.id)))
 }
 
@@ -78,12 +134,7 @@ function frageAus(karte) {
   if (brauchbar.length < 2 || werte.length < 2) return null
   const zeile = brauchbar[Math.floor(Math.random() * brauchbar.length)]
   const falsch = werte.filter((w) => w !== zeile[1]).sort(() => Math.random() - 0.5).slice(0, 3)
-  return {
-    vorne: zeile[0],
-    spalte: kopf[1],
-    richtig: zeile[1],
-    optionen: [zeile[1], ...falsch].sort(() => Math.random() - 0.5),
-  }
+  return { vorne: zeile[0], spalte: kopf[1], richtig: zeile[1], optionen: [zeile[1], ...falsch].sort(() => Math.random() - 0.5) }
 }
 
 function Tabelle({ tabelle, laut }) {
@@ -101,14 +152,142 @@ function Tabelle({ tabelle, laut }) {
   )
 }
 
-export default function Grundlagen({ kopf, lessonProgress, addXp }) {
-  const alle = useMemo(() => grundlagenKarten(lessonProgress), [lessonProgress])
-  const [stand, setStand] = useState(lies)
-  const [runde, setRunde] = useState(null) // Karten der laufenden Runde
+/* ------------------------------------------------------------------ *
+ *  Konjugator
+ * ------------------------------------------------------------------ */
+
+function Konjugator({ vocab = {}, laut, onGespeichert }) {
+  const sp = sprache() === 'en' ? 'en' : 'de'
+  const [eingabe, setEingabe] = useState('')
+  const [daten, setDaten] = useState(null)
+  const [zeitNr, setZeitNr] = useState(0)
+  const [laedt, setLaedt] = useState(false)
+  const [fehler, setFehler] = useState('')
+  const [haeufig, setHaeufig] = useState([])
+  const [gespeichert, setGespeichert] = useState(() => new Set(lies(EIGENE, []).map((k) => k.verb)))
+
+  useEffect(() => {
+    fetch(API_URL + '/api/konjugation/vorschlaege').then((r) => r.json()).then((d) => setHaeufig((d.verben ?? []).slice(0, 12))).catch(() => {})
+  }, [])
+
+  // Verben aus dem eigenen Vokabeltrainer (die neuesten zuerst)
+  const ausTrainer = useMemo(
+    () => Object.entries(vocab)
+      .filter(([w]) => ZIEL_ENDUNG.test(w.trim()) && !w.includes(' '))
+      .sort((a, b) => (b[1]?.addedAt ?? 0) - (a[1]?.addedAt ?? 0))
+      .slice(0, 8)
+      .map(([w]) => w),
+    [vocab],
+  )
+
+  async function holen(verb) {
+    const v = String(verb ?? eingabe).trim()
+    if (!v || laedt) return
+    setEingabe(v)
+    setLaedt(true)
+    setFehler('')
+    try {
+      const res = await fetch(`${API_URL}/api/konjugation?verb=${encodeURIComponent(v)}&sprache=${sp}`, { headers: await kiKopf() })
+      const d = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(d.error || 'Fehler')
+      setDaten(d)
+      setZeitNr(0)
+    } catch (f) {
+      setDaten(null)
+      setFehler(f.message)
+    } finally {
+      setLaedt(false)
+    }
+  }
+
+  function speichern() {
+    const alt = lies(EIGENE, []).filter((k) => k.verb !== daten.verb)
+    const neu = daten.zeiten.map((zeit) => ({ id: `konj:${daten.verb}:${zeit.id}`, verb: daten.verb, bedeutung: daten.bedeutung, hinweis: daten.hinweis, zeit }))
+    schreib(EIGENE, [...alt, ...neu])
+    setGespeichert((s) => new Set(s).add(daten.verb))
+    erfolgston()
+    onGespeichert?.()
+  }
+
+  const zeit = daten?.zeiten?.[zeitNr]
+  const vorschlaege = ausTrainer.length ? ausTrainer : haeufig
+
+  return (
+    <section className="bereich gl-konj">
+      <div className="gl-konj-kopf">
+        <span className="gl-konj-bild" aria-hidden="true">🔁</span>
+        <div>
+          <h2>{tx('Verb konjugieren')}</h2>
+          <p>{tx('Tippe ein Verb ein – du bekommst alle wichtigen Zeiten als Tabelle.')}</p>
+        </div>
+      </div>
+      <form className="schnell-form" onSubmit={(e) => { e.preventDefault(); holen() }}>
+        <input value={eingabe} onChange={(e) => setEingabe(e.target.value)} placeholder={tx('z. B. {0}', 'говорить')} maxLength={40} autoCapitalize="none" autoCorrect="off" spellCheck={false} />
+        <button type="submit" className="schnell-los" disabled={!eingabe.trim() || laedt}>{laedt ? <span className="schnell-punkte" aria-label="…" /> : tx('Zeigen')}</button>
+      </form>
+      {vorschlaege.length > 0 && !daten && (
+        <div className="gl-konj-vorschlaege">
+          <small>{ausTrainer.length ? tx('Aus deinem Trainer') : tx('Häufige Verben')}</small>
+          <div>{vorschlaege.map((v) => <button key={v} type="button" className="gl-konj-chip" onClick={() => holen(v)}>{v}</button>)}</div>
+        </div>
+      )}
+      {fehler && <p className="schnell-fehler">{fehler}</p>}
+
+      {daten && zeit && (
+        <div className="gl-konj-ergebnis">
+          <div className="gl-konj-verb">
+            {chips(`*${daten.verb}*`, laut)}
+            <span>{daten.bedeutung[sp] ?? daten.bedeutung.de}</span>
+          </div>
+          <p className="gl-konj-hinweis">{daten.hinweis[sp] ?? daten.hinweis.de}</p>
+          <div className="gl-konj-zeiten" role="tablist">
+            {daten.zeiten.map((z, i) => (
+              <button key={z.id} type="button" role="tab" aria-selected={i === zeitNr} className={i === zeitNr ? 'an' : ''} onClick={() => setZeitNr(i)}>
+                {z.name[sp] ?? z.name.de}
+              </button>
+            ))}
+          </div>
+          <div className="info-tabelle-rahmen">
+            <table className="info-tabelle gl-konj-tabelle">
+              <thead><tr><th>{tx('Person')}</th><th>{tx('Form')}</th></tr></thead>
+              <tbody>
+                {zeit.formen.map((f) => (
+                  <tr key={f.person} className={f.unregelmaessig ? 'gl-unregel' : ''}>
+                    <td>{f.person}</td>
+                    <td>{chips(`*${f.form}*`, laut)}{f.unregelmaessig && <em className="gl-unregel-marke">⚡ {tx('unregelmäßig')}</em>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="gl-konj-beispiel">
+            <b>{zeit.beispiel.ziel}</b>
+            {laut && hatLaut(zeit.beispiel.ziel) && <small className="gl-konj-laut">{lautschrift(zeit.beispiel.ziel, sprache())}</small>}
+            <span>{zeit.beispiel[sp] ?? zeit.beispiel.de}</span>
+          </p>
+          <button type="button" className={'btn gl-konj-speichern' + (gespeichert.has(daten.verb) ? ' ist-drin' : '')} disabled={gespeichert.has(daten.verb)} onClick={speichern}>
+            {gespeichert.has(daten.verb) ? tx('In deinen Grundlagen ✓') : tx('In meine Grundlagen')}
+          </button>
+        </div>
+      )}
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ *
+ *  Grundlagen-Trainer
+ * ------------------------------------------------------------------ */
+
+export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
+  const [version, setVersion] = useState(0) // neu zählen, wenn eine Konjugation gespeichert wurde
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const alle = useMemo(() => grundlagenKarten(lessonProgress), [lessonProgress, version])
+  const [stand, setStand] = useState(() => lies(SPEICHER, {}))
+  const [runde, setRunde] = useState(null)
   const [nr, setNr] = useState(0)
   const [frage, setFrage] = useState(null)
   const [antwort, setAntwort] = useState(null)
-  const [offen, setOffen] = useState(null) // aufgeklappte Karte in der Liste
+  const [offen, setOffen] = useState(null)
   const [listeOffen, setListeOffen] = useState(false)
   const [laut, lautUmschalten] = useLautschrift()
 
@@ -134,7 +313,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
     const karte = runde[nr]
     const neu = { ...stand, [karte.id]: review(eintrag(stand, karte.id), wert) }
     setStand(neu)
-    schreib(neu)
+    schreib(SPEICHER, neu)
     if (nr + 1 >= runde.length) { setRunde(null); return }
     setNr(nr + 1)
     setAntwort(null)
@@ -148,8 +327,8 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
     return (
       <div className="training-stage gl-runde">
         <div className="lern-balken"><div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} /></div>
-        <p className="training-progress">{tr('Regel {0} von {1}', nr + 1, runde.length)}</p>
-        <div className="laut-zeile laut-oben"><LautSchalter an={laut} onClick={lautUmschalten} /></div>
+        <p className="training-progress">{tx('Regel {0} von {1}', nr + 1, runde.length)}</p>
+        {MIT_LAUT && <div className="laut-zeile laut-oben"><LautSchalter an={laut} onClick={lautUmschalten} /></div>}
 
         <div className="flashcard karte-toon gl-karte">
           <p className="gl-herkunft">{karte.emoji} {karte.lektion}</p>
@@ -170,7 +349,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
               </div>
             </>
           ) : (
-            <p className="gl-frage gl-frage-klein">{tr('Erinnerst du dich?')} <b>{karte.titel}</b></p>
+            <p className="gl-frage gl-frage-klein">{tx('Erinnerst du dich?')} <b>{karte.titel}</b></p>
           )}
 
           {aufgedeckt && (
@@ -179,19 +358,18 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
               <p className="info-text">{chips(karte.text, laut)}</p>
               <Tabelle tabelle={karte.tabelle} laut={laut} />
               <div className="bewertungen">
-                {[['nochmal', tr('Nochmal')], ['schwer', tr('Schwer')], ['gut', tr('Gut')], ['einfach', tr('Einfach')]].map(([w, t]) => (
+                {['nochmal', 'schwer', 'gut', 'einfach'].map((w) => (
                   <button key={w} className={'bewertung bewertung-' + w} onClick={() => bewerten(w)}>
-                    <span className="bewertung-text">{t}</span>
+                    <span className="bewertung-text">{tx(w[0].toUpperCase() + w.slice(1))}</span>
                     <span className="bewertung-zeit">{vorschau(eintrag(stand, karte.id), w)}</span>
                   </button>
                 ))}
               </div>
             </div>
           )}
-          {!aufgedeckt && null}
         </div>
 
-        <button className="btn-plain" onClick={() => setRunde(null)}>{tr('Runde abbrechen')}</button>
+        <button className="btn-plain" onClick={() => setRunde(null)}>{tx('Runde abbrechen')}</button>
       </div>
     )
   }
@@ -204,34 +382,36 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
       <div className="gl-held">
         <div className="gl-held-zahl">
           <b>{faellig.length}</b>
-          <span>{tr('Regeln fällig')}</span>
+          <span>{tx('Regeln fällig')}</span>
         </div>
         <div className="gl-held-text">
-          <h2>{tr('Grundlagen wiederholen')}</h2>
-          <p>{tr('Alles aus „Gut zu wissen“ deiner Lektionen – genau dann wieder, wenn du es zu vergessen drohst.')}</p>
+          <h2>{tx('Grundlagen wiederholen')}</h2>
+          <p>{tx('Alles aus „Gut zu wissen“ deiner Lektionen – genau dann wieder, wenn du es zu vergessen drohst.')}</p>
         </div>
         <button className="btn gl-los" disabled={!faellig.length} onClick={starten}>
-          {faellig.length ? tr('{0} Regeln üben', Math.min(RUNDE, faellig.length)) : tr('Alles wiederholt')}
+          {faellig.length ? tx('{0} Regeln üben', Math.min(RUNDE, faellig.length)) : tx('Alles wiederholt')}
         </button>
       </div>
+
+      <Konjugator vocab={vocab} laut={laut} onGespeichert={() => setVersion((v) => v + 1)} />
 
       {/* Alle Grundlagen – aufklappbar wie „Alle deine Wörter“ im Vokabeltrainer */}
       <section className="bereich">
         <button className="liste-kopf" onClick={() => setListeOffen((o) => !o)} aria-expanded={listeOffen}>
           <span className="liste-kopf-text">
-            <span className="liste-titel">{tr('Alle deine Grundlagen')}</span>
-            <span className="liste-sub">{tr('{0} gesammelt · {1} sitzen schon fest', alle.length, sitzen)}</span>
+            <span className="liste-titel">{tx('Alle deine Grundlagen')}</span>
+            <span className="liste-sub">{tx('{0} gesammelt · {1} sitzen schon fest', alle.length, sitzen)}</span>
           </span>
           <span className={'liste-pfeil' + (listeOffen ? ' liste-pfeil-auf' : '')}>▾</span>
         </button>
-        <p className="gl-liste-hinweis">{tr('Alle Grundlagen aus den Lektionen landen hier, um sie nochmal zu wiederholen.')}</p>
+        <p className="gl-liste-hinweis">{tx('Alle Grundlagen aus den Lektionen landen hier, um sie nochmal zu wiederholen.')}</p>
 
         {listeOffen && (
           alle.length === 0 ? (
-            <p className="intro">{tr('Schließ deine erste Lektion ab – dann landen ihre Grundlagen hier.')}</p>
+            <p className="intro">{tx('Schließ deine erste Lektion ab – dann landen ihre Grundlagen hier.')}</p>
           ) : (
             <>
-              <div className="liste-werkzeuge"><LautSchalter an={laut} onClick={lautUmschalten} className="laut-liste" /></div>
+              {MIT_LAUT && <div className="liste-werkzeuge"><LautSchalter an={laut} onClick={lautUmschalten} className="laut-liste" /></div>}
               <ul className="gl-liste">
                 {alle.map((k) => {
                   const e = eintrag(stand, k.id)
@@ -243,7 +423,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp }) {
                         <span className="gl-emoji" aria-hidden="true">{k.emoji}</span>
                         <span className="gl-zeile-text"><b>{k.titel}</b><small>{k.lektion}</small></span>
                         <span className={'gl-stufe gl-stufe-' + Math.min(4, e.level ?? 0)}>
-                          {neuKarte ? tr('neu') : istFaellig ? tr('fällig') : tr('Stufe {0}', e.level ?? 0)}
+                          {neuKarte ? tx('neu') : istFaellig ? tx('fällig') : tx('Stufe {0}', e.level ?? 0)}
                         </span>
                       </button>
                       {offen === k.id && (

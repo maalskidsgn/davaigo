@@ -1198,6 +1198,8 @@ export default {
  "Erneut versuchen": "Try again",
  "⚠️ Nicht abgeglichen": "⚠️ Not synced",
  "{0} Wörter üben": "Practise {0} words",
+ "Grundlagen-Trainer": "basics trainer",
+ "Die Regeln aus deinen Lektionen – so lange, bis sie sitzen.": "The rules from your lessons – until they stick.",
  "Für immer": "Forever",
  "Vokabel": "Word",
  "Videos für mich finden": "Find videos for me",

@@ -416,7 +416,7 @@ export default function Trainer({
   if (deck === 'grundlagen') {
     return (
       <div className="wechsel" key="grundlagen">
-        <Grundlagen kopf={schalter} lessonProgress={lessonProgress} addXp={addXp} />
+        <Grundlagen kopf={schalter} lessonProgress={lessonProgress} addXp={addXp} vocab={vocab} />
       </div>
     )
   }

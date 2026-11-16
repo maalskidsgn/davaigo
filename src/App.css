@@ -16860,3 +16860,34 @@ body.liest-video .video-kopf {
 .gl-optionen .option-falsch .gl-chip-laut small,
 .gl-optionen .option-richtig .info-zelle small,
 .gl-optionen .option-falsch .info-zelle small { color: rgba(255, 255, 255, .92); }
+
+/* ===== Konjugator im Grundlagen-Trainer (16.11.2026) ===== */
+.gl-konj { margin-bottom: 22px; }
+.gl-konj-kopf { display: flex; gap: 12px; align-items: center; margin-bottom: 12px; }
+.gl-konj-bild { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; font-size: 1.5rem; background: color-mix(in srgb, var(--primary) 10%, var(--card)); box-shadow: 0 3px 0 color-mix(in srgb, var(--primary) 22%, var(--card)); flex: none; }
+.gl-konj-kopf h2 { margin: 0; font-size: 1.15rem; color: var(--navy); }
+.gl-konj-kopf p { margin: 2px 0 0; color: var(--muted); font-weight: 600; font-size: .9rem; }
+.gl-konj-vorschlaege { margin-top: 10px; }
+.gl-konj-vorschlaege small { display: block; color: var(--muted); font-weight: 800; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 6px; }
+.gl-konj-vorschlaege div { display: flex; flex-wrap: wrap; gap: 6px; }
+.gl-konj-chip { background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 6px 12px; font-weight: 800; color: var(--primary-dark); box-shadow: 0 3px 0 var(--line); cursor: pointer; }
+.gl-konj-chip:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--line); }
+.gl-konj-ergebnis { margin-top: 16px; animation: ef-rein .35s ease both; }
+.gl-konj-verb { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.gl-konj-verb .wort-chip { font-size: 1.35rem; padding: 4px 14px; }
+.gl-konj-verb > span:last-child { color: var(--navy); font-weight: 800; }
+.gl-konj-hinweis { margin: 8px 0 12px; color: var(--muted); font-weight: 700; font-size: .9rem; }
+.gl-konj-zeiten { display: flex; gap: 6px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: none; }
+.gl-konj-zeiten::-webkit-scrollbar { display: none; }
+.gl-konj-zeiten button { flex: none; background: var(--card); border: 2px solid var(--line); border-radius: 999px; padding: 7px 12px; font-weight: 800; font-size: .82rem; color: var(--navy); box-shadow: 0 3px 0 var(--line); cursor: pointer; white-space: nowrap; }
+.gl-konj-zeiten button.an { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 3px 0 var(--primary-dark); }
+.gl-konj-tabelle td:first-child { color: var(--muted); font-weight: 800; width: 42%; }
+.gl-konj-tabelle tr.gl-unregel td { background: #fff8e1 !important; }
+.gl-unregel-marke { display: inline-block; margin-left: 8px; font-style: normal; font-size: .68rem; font-weight: 900; color: #a06d00; }
+.gl-konj-beispiel { display: flex; flex-direction: column; gap: 4px; margin: 14px 0; padding: 12px 14px; border-radius: 16px; background: color-mix(in srgb, var(--primary) 6%, var(--card)); }
+.gl-konj-beispiel b .wort-chip { font-size: 1rem; }
+.gl-konj-beispiel span { color: var(--muted); font-weight: 700; font-size: .9rem; }
+.gl-konj-speichern { width: 100%; min-height: 52px; font-weight: 900; border-radius: 16px; box-shadow: 0 5px 0 var(--primary-dark); }
+.gl-konj-speichern.ist-drin { opacity: .7; }
+.gl-konj-beispiel b { color: var(--navy); font-size: 1rem; }
+.gl-konj-laut { font-style: italic; font-weight: 800; color: var(--primary); font-size: .82rem; }

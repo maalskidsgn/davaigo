@@ -1,0 +1,93 @@
+import fs from 'node:fs'
+import { claudeFetch } from './ki.js'
+
+/**
+ * KI-Konjugationstabellen (16.11.2026, Manuel).
+ *
+ * Reihenfolge beim Nachschlagen:
+ *   1. konjugationen.json – die 100 häufigsten Verben, vorab erzeugt und geprüft
+ *   2. Zwischenspeicher – einmal erzeugte Verben bis zum nächsten Neustart
+ *   3. KI (Claude über claudeFetch) mit festem JSON-Schema – zählt als KI-Erstellung
+ * Dieselbe Vorgabe wie scratchpad/konjugation_prompt.py (Vorab-Erzeugung).
+ */
+
+const SYSTEM = "Du erstellst Konjugationstabellen für eine Russisch-Lern-App (Lernende mit Deutsch oder Englisch als Muttersprache).\nEingabe: ein russisches Verb (Infinitiv, evtl. mit Tippfehler, ohne Betonung oder konjugiert). Ist es kein Verb: ist_verb = false und sonst leere Felder.\nLiefere den Infinitiv MIT Betonungszeichen (z. B. „говори́ть“), die Bedeutung (de/en) und einen kurzen Hinweis (de/en, max. 15 Wörter) mit Aspekt und Aspektpartner (z. B. „imperfektiv – perfektiv: сказа́ть“).\nZeiten in GENAU dieser Reihenfolge und mit diesen ids:\n- gegenwart (nur bei imperfektiven Verben; bei perfektiven weglassen) – Personen „я“, „ты“, „он/она́“, „мы“, „вы“, „они́“\n- vergangenheit – Personen „он (m)“, „она (f)“, „оно (n)“, „они (Pl.)“\n- zukunft – imperfektiv mit „бу́ду …“, perfektiv die einfache Zukunft – Personen wie gegenwart\n- imperativ – „ты“, „вы“\nAlle Formen MIT Betonungszeichen. name: deutscher und englischer Zeitname (z. B. „Gegenwart“ / „Present“).\nunregelmaessig = true bei Stammwechsel, Konsonantenwechsel oder sonst unregelmäßiger Form.\nbeispiel: ein kurzer Alltagssatz (mit Betonung) mit einer Form dieser Zeit + Übersetzung de/en.\nAlles muss zu 100 % korrekt sein."
+
+const ZWEI = { type: 'object', properties: { de: { type: 'string' }, en: { type: 'string' } }, required: ['de', 'en'], additionalProperties: false }
+const SCHEMA = {
+  type: 'object',
+  properties: {
+    ist_verb: { type: 'boolean' },
+    verb: { type: 'string' },
+    bedeutung: ZWEI,
+    hinweis: ZWEI,
+    zeiten: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          name: ZWEI,
+          formen: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: { person: { type: 'string' }, form: { type: 'string' }, unregelmaessig: { type: 'boolean' } },
+              required: ['person', 'form', 'unregelmaessig'],
+              additionalProperties: false,
+            },
+          },
+          beispiel: { type: 'object', properties: { ziel: { type: 'string' }, de: { type: 'string' }, en: { type: 'string' } }, required: ['ziel', 'de', 'en'], additionalProperties: false },
+        },
+        required: ['id', 'name', 'formen', 'beispiel'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['ist_verb', 'verb', 'bedeutung', 'hinweis', 'zeiten'],
+  additionalProperties: false,
+}
+
+/** Schlüssel ohne Betonungszeichen und Großschreibung */
+export const verbSchluessel = (v) => String(v || '').normalize('NFD').replace(/\u0301/g, '').normalize('NFC').trim().toLowerCase()
+
+let VORAB = {}
+try {
+  const roh = JSON.parse(fs.readFileSync(new URL('./konjugationen.json', import.meta.url), 'utf8'))
+  for (const e of Object.values(roh)) VORAB[verbSchluessel(e.verb)] = e
+} catch {
+  VORAB = {}
+}
+const GEMERKT = new Map()
+
+export function konjugationNachschlagen(verb) {
+  const k = verbSchluessel(verb)
+  return VORAB[k] ?? GEMERKT.get(k) ?? null
+}
+
+export function vorschlagsVerben() {
+  return Object.values(VORAB).map((e) => e.verb)
+}
+
+export async function konjugationErzeugen(verb) {
+  const eingabe = String(verb || '').trim().slice(0, 40)
+  const antwort = await claudeFetch('', {
+    method: 'POST',
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      temperature: 0,
+      messages: [
+        { role: 'system', content: SYSTEM },
+        { role: 'user', content: eingabe },
+      ],
+      response_format: { type: 'json_schema', json_schema: { name: 'konjugation', schema: SCHEMA, strict: true } },
+    }),
+  })
+  if (!antwort.ok) throw new Error('KI antwortet mit ' + antwort.status)
+  const daten = JSON.parse((await antwort.json()).choices[0].message.content)
+  if (!daten.ist_verb || !daten.zeiten?.length) return null
+  GEMERKT.set(verbSchluessel(daten.verb), daten)
+  GEMERKT.set(verbSchluessel(eingabe), daten)
+  if (GEMERKT.size > 3000) GEMERKT.clear()
+  return daten
+}
