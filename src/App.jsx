@@ -1123,6 +1123,12 @@ export default function App() {
   }
 
   // Vokabeln von außen (z.B. aus einer Buchzusammenfassung) in den Trainer legen
+  // Schnell-Übersetzer (16.11.2026): ein übersetzter Satz landet im Satztrainer
+  function addSatz({ satz, uebersetzung }) {
+    const key = satzSchluessel(satz)
+    setSaetze((alt) => (alt[key] ? alt : { ...alt, [key]: neuerSatz({ satz, uebersetzung }, { thema: sprache() === 'en' ? 'Looked up' : 'Nachgeschlagen' }) }))
+  }
+
   function addVocabWords(woerter) {
     // XP je wirklich neuem Wort (doppelte und schon bekannte zählen nicht)
     const neu = new Set(woerter.map((w) => w.wort.toLowerCase()).filter((k) => k && !vocab[k]))
@@ -1609,6 +1615,7 @@ export default function App() {
             onNavigate={setView}
             nutzerId={nutzer?.id}
             onAddVocab={addVocabWords}
+            onAddSatz={addSatz}
             vocab={vocab}
           />
         </main>

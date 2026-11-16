@@ -375,7 +375,6 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={tr('Satz')}>{tr('Weißt du, was das heißt?')}</p>
             <div className="flash-satz">{satz}</div>
             <Laut text={satz} an={laut} art="satz" />
             {revealed ? (
@@ -416,7 +415,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={tr('Satz')}>{tr('Was heißt …')}</p>
+            <p className="lesson-hint">{tr('Was heißt …')}</p>
             <div className="flash-satz">{satz}</div>
             <Laut text={satz} an={laut} art="satz" />
             <SatzAuswahl
@@ -439,7 +438,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={tr('Satz')}>{tr('Bau den Satz auf Russisch')}</p>
+            <p className="lesson-hint">{tr('Bau den Satz auf Russisch')}</p>
             <div className="flash-satz satz-vorgabe">{loesung}</div>
             <SatzBauen
               key={key + queue.length}
@@ -456,7 +455,7 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
             className={'flashcard satzkarte karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={key + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={tr('Satz')}>{tr('Welches Wort fehlt?')}</p>
+            <p className="lesson-hint">{tr('Welches Wort fehlt?')}</p>
             <Lueckensatz
               key={key + queue.length}
               satz={satz}

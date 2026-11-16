@@ -520,7 +520,6 @@ export default function Trainer({
             className={'flashcard karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={tr('Vokabel')}>{tr('Weißt du, was das heißt?')}</p>
             <div className="flash-word">{vorderseite}</div>
             <Laut text={vorderseite} an={laut} />
             {revealed ? (
@@ -559,7 +558,7 @@ export default function Trainer({
             className={'flashcard karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={tr('Vokabel')}>{tr('Was heißt …')}</p>
+            <p className="lesson-hint">{tr('Was heißt …')}</p>
             <div className="flash-word">{wort}</div>
             <Laut text={wort} an={laut} />
             <AuswahlKnoepfe
@@ -583,7 +582,7 @@ export default function Trainer({
             className={'flashcard karte-toon' + (exiting ? ' fliegt-' + exiting : '')}
             key={wort + queue.length}
           >
-            <p className="lesson-hint karten-kopf" data-art={tr('Vokabel')}>{tr('Wie sagt man …')}</p>
+            <p className="lesson-hint">{tr('Wie sagt man …')}</p>
             <div className="flash-word">{loesung}</div>
 
             {/* Der Tipp: erst die Buchstaben durcheinander, beim
