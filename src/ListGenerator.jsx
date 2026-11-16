@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { XP } from './gamification.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { API_URL, istApp, kiKopf } from './api.js'
@@ -188,7 +189,7 @@ export default function ListGenerator({ vocab, setVocab, addXp }) {
         <div className="gen-knoepfe">
           <button type="submit" className="btn gen-los" disabled={laden || !thema.trim()}>
             {laden ? (
-              <>{tr('Stellt zusammen')}<span className="studio-punkte" /></>
+              <>{tr('Stellt zusammen')}<LadeKreis art="liste" /></>
             ) : (
               tr('Liste erstellen')
             )}

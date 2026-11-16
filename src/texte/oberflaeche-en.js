@@ -1623,4 +1623,6 @@ export default {
  "Trainiert den Satzbau": "Builds your word order",
  "Grammatik im Zusammenhang": "Grammar in context",
  "Spielerisch zum Abschluss": "A playful finish",
+ "wenig": "less",
+ "viel": "more",
 }

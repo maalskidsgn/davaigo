@@ -1,3 +1,4 @@
+import LadeKreis from './LadeKreis.jsx'
 import { XP } from './gamification.js'
 import GratisHinweis from './GratisHinweis.jsx'
 import { useState, useEffect } from 'react'
@@ -286,7 +287,7 @@ export default function SatzGenerator({ saetze, setSaetze, addXp }) {
             disabled={laden || (!thema.trim() && !grammatik)}
           >
             {laden ? (
-              <>{tr('Schreibt Sätze')}<span className="studio-punkte" /></>
+              <>{tr('Schreibt Sätze')}<LadeKreis art="saetze" /></>
             ) : grammatik && !thema.trim() ? (
               tr('Sätze zum {0}', ALLE_FORMEN.find(([w]) => w === grammatik)?.[1])
             ) : (
