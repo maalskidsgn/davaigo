@@ -54,7 +54,7 @@ function tabellenZelle(text, laut = false) {
   )
 }
 
-// Mit Lautschrift (17.11.2026, Manuel): Jeder russische Chip zeigt klein
+// Mit Lautschrift (16.11.2026, Manuel): Jeder russische Chip zeigt klein
 // seine Aussprache in lateinischen Buchstaben – im Text dahinter, in der
 // Tabelle darunter.
 function mitChips(text, laut = false) {

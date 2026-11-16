@@ -17116,7 +17116,7 @@ body.liest-video .video-kopf {
 .dlg-buehne .dlg-wellen i:nth-child(2) { height: 13px; }
 .dlg-buehne .dlg-wellen i:nth-child(3) { height: 9px; }
 
-/* Lautschrift in den „Gut zu wissen“-Karten (17.11.2026, Manuel) */
+/* Lautschrift in den „Gut zu wissen“-Karten (16.11.2026, Manuel) */
 .info-laut { margin: -4px 0 10px; }
 .info-laut .laut-schalter { margin-top: 0; }
 .wort-chip .chip-laut { font-style: italic; font-weight: 700; font-size: .78em; opacity: .8; margin-left: .45em; }
@@ -17124,7 +17124,7 @@ body.liest-video .video-kopf {
 .info-tabelle td:first-child .wort-chip { text-align: left; }
 .info-tabelle .wort-chip { display: inline-block; padding: 4px 10px 5px; line-height: 1.2; }
 
-/* Verb-Vorschläge in der eigenen Sprache (17.11.2026): Bedeutung groß, Verb klein */
+/* Verb-Vorschläge in der eigenen Sprache (16.11.2026): Bedeutung groß, Verb klein */
 .gl-konj-chip { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 0; line-height: 1.15; text-align: left; }
 .gl-konj-chip b { font-weight: 900; }
 .gl-konj-chip i { font-style: normal; font-size: .72em; font-weight: 700; opacity: .65; }
