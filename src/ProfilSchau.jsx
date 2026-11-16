@@ -117,11 +117,11 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
                 <dt>{tr('Tage am Stück')}</dt>
               </div>
               <div>
-                <dd>{profil.xp_woche.toLocaleString(gebiet())}</dd>
+                <dd>{Math.min(profil.xp_woche, profil.xp).toLocaleString(gebiet())}</dd>
                 <dt>{tr('Diese Woche')}</dt>
               </div>
               <div>
-                <dd>{profil.xp_monat.toLocaleString(gebiet())}</dd>
+                <dd>{Math.min(profil.xp_monat, profil.xp).toLocaleString(gebiet())}</dd>
                 <dt>{tr('Dieser Monat')}</dt>
               </div>
             </dl>
@@ -132,7 +132,7 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
             </p>
 
             {/* Lern-Insights (12.11.2026) */}
-            <ProfilInsights benutzername={profil.benutzername} />
+            <ProfilInsights benutzername={profil.benutzername} gesamtXp={profil.xp} seit={profil.dabei_seit} />
 
             {/* Melden und Blockieren - von Apple und Google verlangt,
                 sobald Nutzer Inhalte anderer Nutzer sehen. */}
