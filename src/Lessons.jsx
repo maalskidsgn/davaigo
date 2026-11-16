@@ -35,7 +35,7 @@ import {
 } from './pruefstationen.js'
 import { tr, sprache } from './sprache.js'
 import { lautschrift } from './lautschrift.js'
-import { useLautschrift } from './lautAn.jsx'
+import { useLautschrift, LautSchalter } from './lautAn.jsx'
 import { GRATIS_LEKTIONEN, istPremiumModul } from './gratisModule.js'
 import { usePremium, LEKTIONEN_SPERRE } from './premium.js'
 import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
@@ -43,22 +43,26 @@ import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
 // "Sag *hola* zu Freunden" → Sag [hola] zu Freunden
 /** Tabellenzelle: „*брат* – Bruder“ → Wort-Chip und darunter klein die Bedeutung. */
-function tabellenZelle(text) {
+function tabellenZelle(text, laut = false) {
   const [wort, bedeutung] = text.split(' – ')
-  if (!bedeutung) return mitChips(text)
+  if (!bedeutung) return mitChips(text, laut)
   return (
     <span className="info-zelle">
-      <span>{mitChips(wort)}</span>
+      <span>{mitChips(wort, laut)}</span>
       <small>{bedeutung}</small>
     </span>
   )
 }
 
-function mitChips(text) {
+// Mit Lautschrift (17.11.2026, Manuel): Jeder russische Chip zeigt klein
+// seine Aussprache in lateinischen Buchstaben – im Text dahinter, in der
+// Tabelle darunter.
+function mitChips(text, laut = false) {
   return text.split('*').map((teil, i) =>
     i % 2 === 1 ? (
       <span key={i} className="wort-chip">
         {teil}
+        {laut && /[а-яё]/i.test(teil) && <i className="chip-laut">{lautschrift(teil, sprache())}</i>}
       </span>
     ) : (
       teil
@@ -1293,15 +1297,17 @@ function WissensKarte({ karten, nummer, istStation, onWeiter, lektionId }) {
   // Lerntabelle zur Karte (16.11.2026, erzeugt in wissenTabellen.js) – in der App-Sprache
   const tabelle = tipp.tabelle ?? WISSEN_TABELLEN[`${lektionId}:${nummer}`]?.[sprache() === 'en' ? 'en' : 'de']
   const letzte = nummer === karten.length - 1
+  const [laut, lautUmschalten] = useLautschrift()
 
   return (
     <div className="flashcard info-card">
       <span className="info-icon">{tipp.emoji}</span>
       <p className="lesson-hint">{istStation ? tr('Rückblick') : tr('Gut zu wissen')}</p>
+      <div className="laut-zeile info-laut"><LautSchalter an={laut} onClick={lautUmschalten} /></div>
 
       <div className="info-einzeln">
         <h3 className="info-title">{tipp.titel}</h3>
-        <p className="info-text">{mitChips(tipp.text)}</p>
+        <p className="info-text">{mitChips(tipp.text, laut)}</p>
         {/* Lerntabelle (16.11.2026): der Tipp auf einen Blick – für Anfänger viel leichter als Fließtext */}
         {tabelle && (
           <div className="info-tabelle-rahmen">
@@ -1311,7 +1317,7 @@ function WissensKarte({ karten, nummer, istStation, onWeiter, lektionId }) {
               </thead>
               <tbody>
                 {tabelle.zeilen.map((z, i) => (
-                  <tr key={i}>{z.map((zelle, j) => <td key={j}>{tabellenZelle(zelle)}</td>)}</tr>
+                  <tr key={i}>{z.map((zelle, j) => <td key={j}>{tabellenZelle(zelle, laut)}</td>)}</tr>
                 ))}
               </tbody>
             </table>
