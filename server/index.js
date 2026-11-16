@@ -21,7 +21,15 @@ import { status as sprechStatus, starte as sprechStarte, beende as sprechBeende,
 import { erzeugeLesetext, GEBIETE } from './lesetexte.js'
 import { loescheKonto } from './konto.js'
 import { schicke, freundschaftsanfrage, mailBereit } from './mail.js'
-import { KI_PRO_TAG, monatsStand, nutzungHeute, zaehleNutzung, naechsteAuffuellung } from './kontingent.js'
+import {
+  KI_PRO_TAG,
+  monatsStand,
+  nutzungHeute,
+  zaehleNutzung,
+  naechsteAuffuellung,
+  VIDEOS_FREI_MONAT,
+  BUECHER_FREI_MONAT,
+} from './kontingent.js'
 import {
   antworte,
   istPremium,
@@ -242,14 +250,23 @@ app.get('/api/transcript', async (req, res) => {
   const vNutzer = await nutzerAusToken((req.headers.authorization || '').replace('Bearer ', '')).catch(() => null)
   // Seit 09.11.2026 (Manuel): Eigene YouTube-Videos nur mit Premium.
   // Gratis gibt es die Mediathek – was dort liegt, bleibt frei.
+  // Seit 16.11.2026 (Manuel): 1 eigenes YouTube-Video pro Monat gratis. Ein
+  // schon geöffnetes eigenes Video (eigen:<id>) zählt im selben Monat nicht noch einmal.
   if (vNutzer && kategorie !== 'musik' && !(await ausBibliothek(videoId)) && !(await istPremium(vNutzer.id))) {
     const en = req.query.sprache === 'en'
-    return res.status(402).json({
-      error: en
-        ? 'Your own YouTube videos are part of Premium. Free: every video in the library.'
-        : 'Eigene YouTube-Videos gibt es mit Premium. Gratis: alle Videos aus der Mediathek.',
-      grund: 'premium',
-    })
+    const schonDa = (await nutzungHeute(vNutzer.id, 'eigen:' + videoId)) > 0
+    if (!schonDa && (await nutzungHeute(vNutzer.id, 'video')) >= VIDEOS_FREI_MONAT) {
+      return res.status(402).json({
+        error: en
+          ? `Your free video for this month is used up – new one ${naechsteAuffuellung(true)}. Premium: up to 100 of your own videos a month. The library is always free.`
+          : `Dein Gratis-Video für diesen Monat ist verbraucht – ein neues gibt es ${naechsteAuffuellung()}. Mit Premium bis zu 100 eigene Videos im Monat. Die Mediathek ist immer gratis.`,
+        grund: 'premium',
+      })
+    }
+    if (!schonDa) {
+      await zaehleNutzung(vNutzer.id, 'video')
+      await zaehleNutzung(vNutzer.id, 'eigen:' + videoId)
+    }
   }
 
   // Temporärer Ordner für die Untertitel-Datei
@@ -831,12 +848,22 @@ app.post('/api/buch', async (req, res) => {
   if (!titel && text.trim().length < 400) {
     return res.status(400).json({ error: en ? 'Enter a book title or paste some text from the book.' : 'Gib einen Buchtitel ein oder füge Text aus dem Buch ein.' })
   }
-  const tuerB = await kiTuersteher(req, res, 'ki')
-  if (!tuerB) return
-  // Seit 10.11.2026: eigene Bücher nur mit Premium – gratis gibt es die 6 der Bibliothek
-  if (!(await istPremium(tuerB.nutzer.id))) {
-    const nachricht = en ? 'Creating your own books is a Premium feature. The 6 library books are free.' : 'Eigene Bücher erstellst du mit Premium. Die 6 Bücher der Bibliothek sind gratis.'
-    return res.status(402).json({ error: nachricht, nachricht, grund: 'premium' })
+  // Seit 16.11.2026 (Manuel): 1 eigenes E-Book pro Monat gratis – eigener
+  // Zähler, der KI-Topf (Listen, Sätze …) bleibt davon unberührt.
+  const buchNutzer = await nutzerAusToken(req.headers.authorization?.replace('Bearer ', '')).catch(() => null)
+  if (!buchNutzer) return res.status(401).json({ error: en ? 'Please sign in first.' : 'Bitte zuerst anmelden.' })
+  let tuerB
+  if (await istPremium(buchNutzer.id)) {
+    tuerB = await kiTuersteher(req, res, 'ki')
+    if (!tuerB) return
+  } else {
+    if ((await nutzungHeute(buchNutzer.id, 'buch')) >= BUECHER_FREI_MONAT) {
+      const nachricht = en
+        ? `Your free e-book for this month is used up – a new one ${naechsteAuffuellung(true)}. Premium: up to 50 a month.`
+        : `Dein Gratis-E-Book für diesen Monat ist verbraucht – ein neues gibt es ${naechsteAuffuellung()}. Mit Premium bis zu 50 im Monat.`
+      return res.status(402).json({ error: nachricht, nachricht, grund: 'premium' })
+    }
+    tuerB = { nutzer: buchNutzer }
   }
   if ((await nutzungHeute(tuerB.nutzer.id, 'buch')) >= BUECHER_PREMIUM_PRO_MONAT) {
     return res.status(429).json({ error: en
