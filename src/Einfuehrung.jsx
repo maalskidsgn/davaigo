@@ -22,6 +22,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import NavBild from './NavBild.jsx'
+import Logo from './Logo.jsx'
 import { API_URL } from './api.js'
 import { kiKopf } from './api.js'
 import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
@@ -63,6 +64,47 @@ const SATZ = {
   de: 'Ich liebe Musik sehr.',
   en: 'I really love music.',
   teile: [W('Я', 'ich', 'I'), W('очень', 'sehr', 'really'), W('люблю', 'liebe', 'love'), W('музыку', 'die Musik', 'music')],
+}
+
+const ZIELSPRACHE = { de: 'Russisch', en: 'Russian' }
+
+const HINWEIS = {
+  de: {
+    start: 'Hey, schön, dass du da bist! In drei Minuten zeige ich dir die ganze App – und du probierst alles direkt selbst aus.',
+    woerter: 'Los geht’s mit deinen ersten Wörtern. Tipp jede Karte an, dann siehst du, was sie bedeutet. Genau so starten auch alle Lektionen.',
+    quiz: 'Kurzer Check: Was heißt das? Keine Sorge – hier kannst du nichts falsch machen.',
+    liste: 'Jetzt wird’s spannend: Such dir ein Thema aus, und die KI baut dir in Sekunden eine passende Wortliste. Mit einem Tipp landet sie in deinem Trainer.',
+    trainer: 'Das ist dein Trainer. Er fragt dich jedes Wort genau dann ab, wenn du es gerade vergessen würdest – so bleibt alles hängen.',
+    spiel: 'Lernen darf auch Spaß machen. Finde die passenden Paare! Weitere Spiele findest du später im Trainer.',
+    media: 'In der Mediathek lernst du {SPRACHE} mit echten Videos und Songs. Tipp ein Wort im Untertitel an – schon hast du die Übersetzung.',
+    ueberblick: 'Fast geschafft! Hier noch drei Dinge, die dir jeden Tag helfen.',
+    fertig: 'Geschafft! Du kennst jetzt die ganze App.',
+  },
+  en: {
+    start: 'Hey, great to have you here! In three minutes I’ll show you the whole app – and you’ll try everything yourself.',
+    woerter: 'Let’s start with your first words. Tap each card to see what it means. Every lesson starts exactly like this.',
+    quiz: 'Quick check: what does this mean? Don’t worry – you can’t get anything wrong here.',
+    liste: 'Now it gets exciting: pick a topic, and the AI builds you a matching word list in seconds. One tap, and it’s in your trainer.',
+    trainer: 'This is your trainer. It asks you every word right when you’re about to forget it – that’s how it sticks.',
+    spiel: 'Learning can be fun, too. Find the matching pairs! You’ll find more games in the trainer later.',
+    media: 'In the media library you learn {SPRACHE} with real videos and songs. Tap a word in the subtitles – and you instantly get the translation.',
+    ueberblick: 'Almost done! Three more things that help you every day.',
+    fertig: 'Done! You now know the whole app.',
+  },
+}
+
+// Welches Bild über der Station schwebt (dieselben Bilder wie in der Menüleiste)
+const HELD = { start: 'start', woerter: 'lektionen', quiz: 'lektionen', liste: 'trainer', trainer: 'trainer', spiel: 'trainer', media: 'youtube', ueberblick: 'profil', fertig: 'start' }
+
+/** Hinweistext Wort für Wort weich einblenden – wirkt lebendiger als ein Textblock. */
+function Hinweis({ text }) {
+  return (
+    <p className="ef-coach-blase">
+      {text.split(' ').map((w, i) => (
+        <span key={i} style={{ animationDelay: 120 + i * 28 + 'ms' }}>{w} </span>
+      ))}
+    </p>
+  )
 }
 
 const TEXT = {
@@ -362,11 +404,23 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
         </div>
       )}
 
+      <div className="ef-kopf" key={'kopf-' + schritt}>
+        <div className="ef-held" aria-hidden="true">
+          <span className="ef-held-glanz" />
+          <span className="ef-held-podest" />
+          <span className="ef-held-bild"><NavBild art={HELD[schritt]} /></span>
+          <i className="ef-funke-a">✦</i>
+          <i className="ef-funke-b">✦</i>
+        </div>
+        <div className="ef-coach">
+          <span className="ef-coach-bild" aria-hidden="true"><Logo /></span>
+          <Hinweis text={(schritt === 'fertig' && rundgang ? HINWEIS[sp].fertig : HINWEIS[sp][schritt]).replace('{SPRACHE}', ZIELSPRACHE[sp])} />
+        </div>
+      </div>
+
       {schritt === 'start' && (
-        <section key={schritt} className="ef-buehne ef-start">
-          <div className="ef-start-bild" aria-hidden="true">👋</div>
+        <section key={schritt} className="ef-buehne ef-mitte">
           <h1>{tx.titel}</h1>
-          <p className="ef-unter">{tx.unter}</p>
           <Knopf onClick={weiter}>{tx.los}</Knopf>
           <button className="ef-leise" onClick={() => onFertig()}>{tx.ganzUeberspringen}</button>
         </section>
@@ -375,7 +429,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
       {schritt === 'woerter' && (
         <section key={schritt} className="ef-buehne">
           <h2>{tx.woerterTitel}</h2>
-          <p className="ef-unter">{tx.woerterUnter}</p>
           <div className="ef-woerter">
             {WOERTER.map((w) => {
               const da = gesehen.includes(w.wort)
@@ -388,7 +441,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
               )
             })}
           </div>
-          <p className="ef-hinweis">{tx.woerterHinweis}</p>
           <Knopf an={gesehen.length >= WOERTER.length} onClick={weiter}>{tx.weiter}</Knopf>
           <Ueberspringen onClick={weiter}>{tx.ueberspringen}</Ueberspringen>
         </section>
@@ -432,7 +484,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
           <h2>{tx.listeTitel}</h2>
           {!liste && !laedt && (
             <>
-              <p className="ef-unter">{tx.listeUnter}</p>
               <div className="ef-themen">
                 {THEMEN.map((t) => (
                   <button key={t.id} className="ef-thema" onClick={() => listeHolen(t)}>
@@ -483,7 +534,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
           <h2>{tx.trainerTitel}</h2>
           {karteNr < karten.length ? (
             <>
-              <p className="ef-unter">{tx.trainerUnter}</p>
               <div className="ef-trainerkarte">
                 <small>{karteNr + 1} / {karten.length}</small>
                 <b>{karten[karteNr].wort}</b>
@@ -545,7 +595,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
       {schritt === 'media' && (
         <section key={schritt} className="ef-buehne">
           <h2>{tx.mediaTitel}</h2>
-          <p className="ef-unter">{tx.mediaUnter}</p>
           <div className="ef-video">
             <div className="ef-video-bild" aria-hidden="true">
               <span>▶</span>
@@ -565,7 +614,6 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
           </div>
           {satzWort && (
             <>
-              <p className="ef-hinweis">{tx.mediaHinweis}</p>
               <div className="ef-wo">
                 <p>{tx.mediaWo} <b>{navLabels.mediathek}</b>.</p>
                 <NavMini hell="mediathek" labels={navLabels} />
@@ -591,10 +639,8 @@ export default function Einfuehrung({ onFertig, onAddVocab, addXp, vocab = {}, n
       )}
 
       {schritt === 'fertig' && (
-        <section key={schritt} className="ef-buehne ef-start ef-fertig">
-          <div className="ef-start-bild" aria-hidden="true">🎉</div>
+        <section key={schritt} className="ef-buehne ef-mitte ef-fertig">
           <h1>{tx.fertigTitel}</h1>
-          <p className="ef-unter">{rundgang ? tx.fertigRundgang : tx.fertigUnter}</p>
           <div className="ef-xp">+{XP.LEKTION} XP</div>
           <Knopf onClick={() => onFertig()}>{tx.weiter}</Knopf>
         </section>
