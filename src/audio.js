@@ -236,7 +236,7 @@ export async function vorladen(quelle) {
   }
 }
 
-export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}) {
+export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1, nurDatei = false } = {}) {
   const name = await audioName(text, stimme)
   const url = puffer.get(name) || `${ABLAGE}/${name}`
 
@@ -306,6 +306,11 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
     }
   }
 
+  // Automatisch abgespielte Dialoge (16.11.2026): nie die Computerstimme –
+  // stattdessen nur so lange warten, wie man zum Lesen braucht.
+  if (nurDatei) {
+    return { art: 'still', fertig: new Promise((f) => setTimeout(() => f('ende'), 900 + String(text).length * 65)) }
+  }
   return { art: 'browser', fertig: sprich(sprechText(text)) }
 }
 
@@ -318,7 +323,7 @@ export async function spiele(text, { stimme = STIMMEN.standard, tempo = 1 } = {}
  *   sobald eine Zeile WIRKLICH erklingt. Damit läuft die Anzeige mit
  *   dem Ton statt nach eigenem Takt.
  */
-export function dialogAbspielen(dialog, { beiZeile } = {}) {
+export function dialogAbspielen(dialog, { beiZeile, nurDatei = false } = {}) {
   let gestoppt = false
 
   const lauf = (async () => {
@@ -327,6 +332,7 @@ export function dialogAbspielen(dialog, { beiZeile } = {}) {
 
       const wiedergabe = await spiele(zeile.es, {
         stimme: stimmeImDialog(dialog, zeile.sprecher),
+        nurDatei,
       })
       if (gestoppt) return
 

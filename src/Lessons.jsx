@@ -1,4 +1,5 @@
 import GratisHinweis from './GratisHinweis.jsx'
+import WISSEN_TABELLEN from './wissenTabellen.js'
 import Lesekurs, { LesekursKarte } from './Lesekurs.jsx'
 import { Fragment, useState, useEffect } from 'react'
 import {
@@ -522,6 +523,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
           <WissensKarte
             key={'s' + index}
             karten={lektion.wissen}
+            lektionId={lektion.id}
             nummer={schritt.karte ?? 0}
             istStation={lektion.istStation}
             onWeiter={weiter}
@@ -1003,6 +1005,20 @@ function DialogChat({ dialog, onWeiter }) {
     steuerung.fertig.then(() => setLaeuft(null))
   }
 
+  // Dialoge spielen von selbst ab (16.11.2026, Manuel): Man hört sie sofort,
+  // ohne den Knopf zu suchen. Nur echte Aufnahmen – fehlt eine oder blockt
+  // das Gerät den Ton, laufen die Blasen im Lesetakt weiter, ohne
+  // Computerstimme.
+  useEffect(() => {
+    const zeit = setTimeout(() => {
+      const steuerung = dialogAbspielen(dialog, { beiZeile: (i) => setAnzahl(i + 1), nurDatei: true })
+      setLaeuft(steuerung)
+      steuerung.fertig.then(() => setLaeuft(null))
+    }, 450)
+    return () => clearTimeout(zeit)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // Beim Verlassen der Lektion nicht weiterreden
   useEffect(() => () => laeuft?.stop(), [laeuft])
 
@@ -1271,8 +1287,10 @@ function Stationskarte({ station, offen, geschafft, fehlend, onStart }) {
  * Die Punkte unten sind nicht nur Zierde: Ohne sie wuesste niemand,
  * ob nach dieser Karte noch zwei kommen oder ob es weitergeht.
  */
-function WissensKarte({ karten, nummer, istStation, onWeiter }) {
+function WissensKarte({ karten, nummer, istStation, onWeiter, lektionId }) {
   const tipp = karten[nummer]
+  // Lerntabelle zur Karte (16.11.2026, erzeugt in wissenTabellen.js) – in der App-Sprache
+  const tabelle = tipp.tabelle ?? WISSEN_TABELLEN[`${lektionId}:${nummer}`]?.[sprache() === 'en' ? 'en' : 'de']
   const letzte = nummer === karten.length - 1
 
   return (
@@ -1284,14 +1302,14 @@ function WissensKarte({ karten, nummer, istStation, onWeiter }) {
         <h3 className="info-title">{tipp.titel}</h3>
         <p className="info-text">{mitChips(tipp.text)}</p>
         {/* Lerntabelle (16.11.2026): der Tipp auf einen Blick – für Anfänger viel leichter als Fließtext */}
-        {tipp.tabelle && (
+        {tabelle && (
           <div className="info-tabelle-rahmen">
             <table className="info-tabelle">
               <thead>
-                <tr>{tipp.tabelle.kopf.map((k) => <th key={k}>{k}</th>)}</tr>
+                <tr>{tabelle.kopf.map((k) => <th key={k}>{k}</th>)}</tr>
               </thead>
               <tbody>
-                {tipp.tabelle.zeilen.map((z, i) => (
+                {tabelle.zeilen.map((z, i) => (
                   <tr key={i}>{z.map((zelle, j) => <td key={j}>{tabellenZelle(zelle)}</td>)}</tr>
                 ))}
               </tbody>

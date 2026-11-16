@@ -112,19 +112,11 @@ export const LEKTIONEN = [
       {
         emoji: '🤝',
         titel: 'Sechs echte Freunde',
-        tabelle: {
-          kopf: ['Buchstabe', 'Laut', 'Beispiel', 'heißt'],
-          zeilen: [['*А*', 'a', '*атом*', 'Atom'], ['*Е*', 'je', '*тема*', 'Thema'], ['*К*', 'k', '*кот*', 'Kater'], ['*М*', 'm', '*мама*', 'Mama'], ['*О*', 'o', '*ток*', 'Strom'], ['*Т*', 't', '*там*', 'dort']],
-        },
         text: '*А, Е, К, М, О, Т* sehen aus wie bei uns und klingen auch so. Damit liest du sofort: *мама*, *кот*, *атом*. Du kannst also schon lesen – nur ein bisschen.',
       },
       {
         emoji: '🎭',
         titel: 'Sechs falsche Freunde',
-        tabelle: {
-          kopf: ['Buchstabe', 'sieht aus wie', 'klingt wie', 'Beispiel'],
-          zeilen: [['*В*', 'B', 'W', '*вот* – hier ist'], ['*Н*', 'H', 'N', '*нос* – Nase'], ['*Р*', 'P', 'R', '*рот* – Mund'], ['*С*', 'C', 'S', '*сок* – Saft'], ['*У*', 'y', 'U', '*ухо* – Ohr'], ['*Х*', 'X', 'ch', '*ухо* – Ohr']],
-        },
         text: 'Diese Buchstaben tragen Masken: *В* = W, *Н* = N, *Р* = R, *С* = S, *У* = U, *Х* = ch. *вот* liest sich „wot“, *нос* ist „nos“. Merk dir: Nicht dem Aussehen trauen, dem Klang!',
       },
       {
@@ -173,28 +165,16 @@ export const LEKTIONEN = [
       {
         emoji: '⚡',
         titel: 'Die Stolperfalle Б und В',
-        tabelle: {
-          kopf: ['Buchstabe', 'Laut', 'erkennst du an', 'Beispiel'],
-          zeilen: [['*Б*', 'B', 'Bauch mit Dach oben', '*брат* – Bruder'], ['*В*', 'W', 'zwei Bäuche wie unser B', '*вода* – Wasser']],
-        },
         text: '*Б* ist unser B (*брат* = Bruder), *В* bleibt W (*вода* = „wada“). Das ist DIE Verwechslung schlechthin – wer die zwei auseinanderhält, hat das Schwerste hinter sich.',
       },
       {
         emoji: '🧩',
         titel: 'Die übrigen Neuen',
-        tabelle: {
-          kopf: ['Buchstabe', 'Laut', 'Beispiel'],
-          zeilen: [['*Г*', 'g', '*где* – wo'], ['*Д*', 'd', '*да* – ja'], ['*З*', 's wie in „Rose“', '*зима* – Winter'], ['*И*', 'i', '*и* – und'], ['*Й*', 'kurzes j', '*мой* – mein'], ['*Л*', 'l', '*лимон* – Zitrone'], ['*П*', 'p', '*парк* – Park'], ['*Ф*', 'f', '*фото* – Foto'], ['*Э*', 'offenes e', '*это* – das ist']],
-        },
         text: '*Г* = G, *Д* = D, *З* = stimmhaftes S wie in „Rose“, *И* = i, *Й* = kurzes j, *Л* = L, *П* = P, *Ф* = F, *Э* = offenes E. Zusammen mit Lektion 2 liest du jetzt 22 von 33 Buchstaben!',
       },
       {
         emoji: '🏠',
         titel: 'Дом, вода, да',
-        tabelle: {
-          kopf: ['Russisch', 'sprich', 'Deutsch'],
-          zeilen: [['*да*', 'da', 'ja'], ['*дом*', 'dom', 'Haus'], ['*вода*', 'wadá', 'Wasser'], ['*где*', 'gdje', 'wo'], ['*Где дом?*', 'gdje dom?', 'Wo ist das Haus?']],
-        },
         text: 'Mit den Neuen liest du Kernwörter des Alltags: *да* (ja), *дом* (Haus), *вода* (Wasser), *где* (wo). Aus Buchstaben werden Sätze: *Где дом?* – Wo ist das Haus?',
       },
     ],
