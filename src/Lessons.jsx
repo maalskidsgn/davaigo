@@ -1,4 +1,5 @@
 import GratisHinweis from './GratisHinweis.jsx'
+import DialogSzene from './DialogSzene.jsx'
 import WISSEN_TABELLEN from './wissenTabellen.js'
 import Lesekurs, { LesekursKarte } from './Lesekurs.jsx'
 import { Fragment, useState, useEffect } from 'react'
@@ -532,7 +533,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
 
         {/* --- Dialog als animierter Chat --- */}
         {schritt.typ === 'dialog' && (
-          <DialogChat key={'s' + index} dialog={lektion.dialog} onWeiter={weiter} />
+          <DialogSzene key={'s' + index} dialog={lektion.dialog} onWeiter={weiter} />
         )}
 
         {/* --- Übung: richtige Übersetzung auswählen --- */}
