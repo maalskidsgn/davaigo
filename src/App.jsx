@@ -1335,8 +1335,11 @@ export default function App() {
     ((progress.xp - levelStartXp) / (nextLevelXp - levelStartXp)) * 100
   )
 
+
   // ---------- Einführungs-Lektion: Vollbild, ohne Tab-Leiste ----------
-  if (einfuehrungOffen) {
+  // Steht VOR dem Zugangs-Tor: Mit ?einfuehrung lässt sie sich auch ohne
+  // Konto ansehen (zum Testen; die KI-Liste nimmt dann die Beispielliste).
+  if (einfuehrungOffen && !nutzerLaedt) {
     return (
       <>
         <MeilensteinMeldung liste={neueAbzeichen} onFertig={() => setNeueAbzeichen([])} />
