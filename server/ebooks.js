@@ -598,7 +598,7 @@ export async function erzeugeBuchZusammenfassung({ titel, text = '', niveau = 'A
           'Du schreibst Buchzusammenfassungen im Stil von Blinkist für Russischlernende. ' +
           `Jeder Absatz steht auf Russisch (kyrillisch) und auf ${ziel}; die Fassung auf ${ziel} ist natürlich formuliert. ` +
           'Genau 10 Kapitel: eine Einführung, acht Kernideen des Buches, ein Fazit. ' +
-          `Je Kapitel ${KAPITEL_LAENGE[niveau] ?? KAPITEL_LAENGE.A2} auf Russisch. ` +
+          `Je Kapitel ${KAPITEL_LAENGE[niveau] ?? KAPITEL_LAENGE.A2} auf Russisch – das ist eine Mindestlänge, kürzere Kapitel sind zu dünn. Lieber ein Beispiel mehr erzählen. ` +
           'Jedes Kapitel liest sich wie ein Blink bei Blinkist: die Idee erklären, ein konkretes Beispiel aus dem Buch, was man daraus fürs eigene Leben mitnimmt. ' +
           'Fasse in eigenen Worten zusammen, zitiere keine längeren Passagen. ' +
           'Erfinde nichts: Kennst du das Buch nicht sicher und liegt kein Buchtext vor, setze bekannt=false ' +
