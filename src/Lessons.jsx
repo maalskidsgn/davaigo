@@ -402,45 +402,54 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
     const sitzt = quote >= 80
 
     return (
-      <div className="lessons">
-        <div className="flashcard done">
+      <div className="lessons abschluss-seite">
+        {/* Feier-Bildschirm (17.11.2026, Manuel: der alte sah „schrecklich“ aus):
+            oben die violette Bühne mit Ring und Konfetti, unten Zahlen und Knöpfe. */}
+        <div className={'abschluss-held' + (sitzt ? '' : ' held-uebung')}>
           {sitzt && (
-            <div className="confetti-burst" aria-hidden="true">
-              {Array.from({ length: 14 }, (_, i) => (
-                <span key={i} className="confetti" style={{ '--i': i }} />
+            <div className="konfetti-regen" aria-hidden="true">
+              {Array.from({ length: 22 }, (_, i) => (
+                <span key={i} className="konfetti" style={{ '--i': i }} />
               ))}
             </div>
           )}
-
-          {/* Die Quote als Ring – eine Zahl sagt mehr als ein Balken */}
-          <div className={'quote-ring' + (sitzt ? ' ring-gut' : ' ring-uebung')}>
+          <div className="abschluss-ring" style={{ '--ziel': (quote / 100) * 264 }}>
             <svg viewBox="0 0 100 100" aria-hidden="true">
               <circle className="ring-grund" cx="50" cy="50" r="42" />
-              <circle
-                className="ring-voll"
-                cx="50" cy="50" r="42"
-                strokeDasharray={`${(quote / 100) * 264} 264`}
-              />
+              <circle className="ring-voll" cx="50" cy="50" r="42" />
             </svg>
-            <span className="quote-zahl">{quote}<i>%</i></span>
+            <ZaehlZahl bis={quote} />
           </div>
-
-          <h2>
+          <h1 className="abschluss-titel">
             {sitzt
               ? lektion.istStation
                 ? tr('Prüfstation bestanden!')
                 : tr('Lektion geschafft!')
               : tr('Fast geschafft')}
-          </h2>
-          <p>
-            {tr('{0} von {1} Aufgaben richtig · +{2} Bonus-XP', richtige, uebungen, XP.LEKTION)}
-          </p>
+          </h1>
+          <p className="abschluss-lektion">{lektion.emoji} {lektion.titel}</p>
+        </div>
+
+        <div className="abschluss-blatt">
+          <div className="abschluss-chips">
+            <div className="abschluss-chip">
+              <b>{richtige}/{uebungen}</b>
+              <span>{tr('Aufgaben richtig')}</span>
+            </div>
+            <div className="abschluss-chip chip-xp">
+              <b>+{XP.LEKTION}</b>
+              <span>{tr('Bonus-XP')}</span>
+            </div>
+          </div>
+
           {lektion.kulturnotiz && (
-            <p className="kulturnotiz">
-              <b>{tr('Gut zu wissen:')}</b> {lektion.kulturnotiz}
-            </p>
+            <div className="abschluss-notiz">
+              <span className="abschluss-marke">{tr('Gut zu wissen')}</span>
+              <p>{lektion.kulturnotiz}</p>
+            </div>
           )}
-          <p className="bonus-note">
+
+          <p className="abschluss-text">
             {lektion.istStation
               ? sitzt
                 ? tr('Das Modul sitzt. Die Grammatik daraus kannst du im Trainer wachhalten.')
@@ -452,12 +461,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
 
           <div className="abschluss-knoepfe">
             {!sitzt && (
-              <button onClick={() => starten(lektion, laufendeStation)}>{tr('Noch einmal')}</button>
+              <button type="button" onClick={() => starten(lektion, laufendeStation)}>{tr('Noch einmal')}</button>
             )}
-            <button
-              className={sitzt ? '' : 'btn-outline'}
-              onClick={() => setLektion(null)}
-            >
+            <button type="button" className={sitzt ? '' : 'abschluss-zweit'} onClick={() => setLektion(null)}>
               {tr('Zurück zur Übersicht')}
             </button>
           </div>
@@ -1192,7 +1198,13 @@ function LektionsPaare({ paare, onWeiter, laut = false }) {
 
   function rechtsTipp(p) {
     if (!links || geloest.includes(p.es)) return
-    if (p.es === links.es) setGeloest((g) => [...g, p.es])
+    // Jedes Paar bekommt seinen Ton – wie jede andere Antwort (17.11.2026, Manuel)
+    if (p.es === links.es) {
+      erfolgston()
+      setGeloest((g) => [...g, p.es])
+    } else {
+      fehlerton()
+    }
     setLinks(null)
   }
 
@@ -1531,4 +1543,24 @@ function DiktatUebung({ wort, hinweis, onErgebnis }) {
       </div>
     </div>
   )
+}
+
+/** Zählt die Quote beim Erscheinen hoch – läuft mit dem Ring zusammen ein. */
+function ZaehlZahl({ bis }) {
+  const [wert, setWert] = useState(0)
+  useEffect(() => {
+    if (bis <= 0) return
+    const dauer = 900
+    const start = performance.now()
+    let laeuft = true
+    const tick = (t) => {
+      if (!laeuft) return
+      const anteil = Math.min(1, (t - start) / dauer)
+      setWert(Math.round(bis * (1 - Math.pow(1 - anteil, 2))))
+      if (anteil < 1) requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+    return () => { laeuft = false }
+  }, [bis])
+  return <span className="quote-zahl">{wert}<i>%</i></span>
 }

@@ -17482,3 +17482,141 @@ body.liest-video .video-kopf {
 .gl-woerter { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; margin-top: 10px; padding: 11px 14px; border-radius: 14px; text-align: left; font-weight: 900; color: var(--primary-dark); background: color-mix(in srgb, var(--primary) 7%, var(--card)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--primary) 22%, #fff); }
 .gl-woerter small { font-weight: 700; font-size: .8rem; color: var(--muted); }
 .gl-woerter-ok { margin: 10px 2px 0; font-weight: 800; color: var(--success-press, #1f9450); }
+
+/* ===== Generatoren als Reiter nebeneinander, ohne Bild (17.11.2026, Manuel) ===== */
+.gl-gen { margin-bottom: 22px; }
+.gl-gen .gl-gen-reiter { margin: 0 0 12px; }
+.gl-gen .gl-konj { margin-bottom: 0; }
+.gl-gen-unter { margin: 0 0 14px; color: var(--muted); font-weight: 700; font-size: .95rem; line-height: 1.45; }
+
+/* ===== Lautschrift gehört in die weiße Fragekarte, nicht darunter (17.11.2026, Manuel) ===== */
+.lk-toon .flashcard:has(> .quiz-options) > .word-row:has(+ .laut-wort) { padding-bottom: 0; border-radius: 0; box-shadow: none; }
+.lk-toon .flashcard:has(> .quiz-options) > .laut-wort {
+  margin: 0;
+  padding: 2px 20px 26px;
+  border-radius: 0 0 28px 28px;
+  background: var(--card);
+  box-shadow: 0 7px 0 var(--line);
+}
+
+/* ===== „Lektion geschafft“ – Feier-Bildschirm in Violett (17.11.2026, Manuel) =====
+   Oben die Bühne mit Ring, Titel und Konfetti, darunter Zahlen-Kacheln,
+   „Gut zu wissen“ und die Knöpfe – alles mit fester 3D-Kante. */
+.abschluss-seite { padding: 0 0 30px; }
+.abschluss-held {
+  position: relative;
+  overflow: hidden;
+  padding: 44px 20px 80px;
+  text-align: center;
+  color: #fff;
+  border-radius: 30px;
+  background: linear-gradient(170deg, #9b6bff 0%, #7c3aed 42%, #5b21b6 80%, #3b1687 100%);
+  box-shadow: 0 7px 0 #2e1065;
+}
+.abschluss-titel {
+  margin: 18px 0 4px;
+  font-size: 1.85rem;
+  font-weight: 900;
+  letter-spacing: -.02em;
+  color: #fff;
+  animation: abschluss-rein .5s cubic-bezier(.34, 1.4, .64, 1) .25s backwards;
+}
+.abschluss-lektion { margin: 0; opacity: .88; font-weight: 800; animation: abschluss-rein .5s ease .4s backwards; }
+@keyframes abschluss-rein {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.abschluss-ring {
+  position: relative;
+  width: 132px; height: 132px;
+  margin: 0 auto;
+  animation: abschluss-pop .45s cubic-bezier(.34, 1.5, .64, 1);
+}
+@keyframes abschluss-pop { from { transform: scale(.6); opacity: 0; } }
+.abschluss-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.abschluss-ring circle { fill: none; stroke-width: 9; stroke-linecap: round; }
+.abschluss-ring .ring-grund { stroke: rgba(255, 255, 255, .25); }
+.abschluss-ring .ring-voll { stroke: #fff; stroke-dasharray: 0 264; animation: ring-fuellen .9s ease-out .15s forwards; }
+@keyframes ring-fuellen { to { stroke-dasharray: var(--ziel) 264; } }
+.abschluss-ring .quote-zahl {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  align-content: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.abschluss-ring .quote-zahl i { display: inline; margin: 0; font-style: normal; font-size: 1rem; opacity: .85; }
+.konfetti-regen { position: absolute; inset: 0; pointer-events: none; }
+.konfetti {
+  position: absolute;
+  top: -12px;
+  left: calc(4% + (var(--i) * 4.2%));
+  width: 8px; height: 13px;
+  border-radius: 2px;
+  background: #fff;
+  opacity: 0;
+  animation: konfetti-fall 1.7s ease-in calc(var(--i) * .07s) forwards;
+}
+.konfetti:nth-child(3n) { background: #ffd76b; width: 7px; height: 7px; border-radius: 50%; }
+.konfetti:nth-child(4n) { background: #7be3c1; }
+.konfetti:nth-child(5n) { background: #ffb3d1; height: 10px; }
+@keyframes konfetti-fall {
+  0% { opacity: 0; transform: translateY(0) rotate(0); }
+  12% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(300px) rotate(300deg); }
+}
+.abschluss-blatt { position: relative; max-width: 480px; margin: -42px auto 0; padding: 0 16px; }
+.abschluss-chips { display: flex; gap: 12px; justify-content: center; }
+.abschluss-chip {
+  flex: 1;
+  max-width: 180px;
+  padding: 14px 10px;
+  text-align: center;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 6px 0 #d7cee7;
+  animation: abschluss-rein .5s ease .55s backwards;
+}
+.abschluss-chip b { display: block; font-size: 1.4rem; font-weight: 900; color: var(--navy); }
+.abschluss-chip span { font-size: .8rem; font-weight: 800; color: var(--muted); }
+.chip-xp b { color: var(--primary); }
+.abschluss-notiz {
+  margin-top: 18px;
+  padding: 14px 16px;
+  text-align: left;
+  border-radius: 20px;
+  background: var(--card);
+  box-shadow: 0 5px 0 var(--line);
+  animation: abschluss-rein .5s ease .65s backwards;
+}
+.abschluss-marke { display: block; font-size: 11.5px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color: var(--primary); }
+.abschluss-notiz p { margin: 6px 0 0; font-size: .95rem; font-weight: 600; line-height: 1.55; color: var(--navy); }
+.abschluss-text { margin: 16px 4px 0; text-align: center; color: var(--muted); font-size: .95rem; font-weight: 700; line-height: 1.55; animation: abschluss-rein .5s ease .75s backwards; }
+.abschluss-seite .abschluss-knoepfe { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; animation: abschluss-rein .5s ease .85s backwards; }
+.abschluss-seite .abschluss-knoepfe button {
+  width: 100%;
+  border: 0;
+  border-radius: 18px;
+  padding: 15px 16px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 900;
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 6px 0 var(--primary-press);
+  cursor: pointer;
+}
+.abschluss-seite .abschluss-knoepfe button:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-press); }
+.abschluss-seite .abschluss-knoepfe button.abschluss-zweit { background: var(--card); color: var(--navy); box-shadow: 0 5px 0 var(--line), inset 0 0 0 2px var(--line); }
+@media (prefers-reduced-motion: reduce) {
+  .abschluss-titel, .abschluss-lektion, .abschluss-ring, .abschluss-chip, .abschluss-notiz, .abschluss-text, .abschluss-seite .abschluss-knoepfe, .konfetti { animation: none; }
+  .abschluss-ring .ring-voll { stroke-dasharray: var(--ziel) 264; animation: none; }
+}
