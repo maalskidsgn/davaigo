@@ -53,7 +53,7 @@ import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
 import { Kopf } from './MediathekUI.jsx'
-import { BuchFormular, BuchZeilen, NiveauFilter, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
+import { BuchFormular, NiveauFilter, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch, WeiterlesenListe, BibliothekRegal } from './Buecher.jsx'
 import { tr, sprache } from './sprache.js'
 
 // Die Niveau-Stufen der kuratierten Mediathek
@@ -409,13 +409,13 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
           {buecher.length > 0 && (
             <section className="bereich">
               <Kopf symbol={<IconLesezeichen groesse={19} />} titel={tr('Deine Bücher')} text={tr('Selbst erstellt – dort weiterlesen, wo du aufgehört hast.')} zahl={buecher.length} />
-              <BuchZeilen buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
+              <WeiterlesenListe buecher={buecher} onOeffnen={setOffenesBuch} onLoeschen={loescheBuch} />
             </section>
           )}
           <section className="bereich">
             <Kopf symbol={<IconBuch groesse={19} />} titel={tr('Bibliothek')} text={tr('6 Bücher, gratis für alle – Kapitel für Kapitel auf Russisch und Deutsch.')} zahl={BIBLIOTHEK.length} />
             <NiveauFilter buecher={BIBLIOTHEK} wert={buchNiveau} onWert={setBuchNiveau} />
-            <BuchZeilen buecher={buchNiveau === 'alle' ? BIBLIOTHEK : BIBLIOTHEK.filter((b) => b.niveau === buchNiveau)} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
+            <BibliothekRegal buecher={buchNiveau === 'alle' ? BIBLIOTHEK : BIBLIOTHEK.filter((b) => b.niveau === buchNiveau)} onOeffnen={(b) => ladeBibliotheksbuch(b).then(setOffenesBuch).catch(() => {})} />
           </section>
 
         </>
