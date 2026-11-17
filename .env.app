@@ -10,3 +10,6 @@
 VITE_API_URL=https://api.davaigo.de
 VITE_REVENUECAT_APPLE_KEY=appl_qmIbZaAQEIJjjZHgNViEpvkzOSx
 VITE_REVENUECAT_GOOGLE_KEY=goog_OTsgmOffzIXGeHfpaPygOMwDnIq
+
+# Push in der Store-App an (17.11.2026): Schlüssel liegen auf dem Server, Firebase-Datei im Paket
+VITE_PUSH_AKTIV=1
