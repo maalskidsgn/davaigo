@@ -17203,3 +17203,17 @@ body.liest-video .video-kopf {
 /* ===== Lektionsbereich: Reiter „Lektionen | Wiederholen“ (17.11.2026, Manuel) ===== */
 .lessons .lek-reiter { margin: 4px 0 18px; }
 .lessons .trainer.gl { background: none; }
+
+/* ===== Grundlagen-Runde: Karte gerade, Lautschrift-Schalter in der Karte (17.11.2026, Manuel) ===== */
+.training-stage.gl-runde .flashcard.karte-toon { rotate: none; }
+.gl-karten-kopf { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+.gl-karten-kopf .gl-herkunft { margin: 0; }
+.laut-schalter.laut-kompakt { margin: 0; padding: 5px 11px; font-size: .8rem; flex: none; }
+
+/* ===== Lautschrift in allen Lektionsübungen (17.11.2026, Manuel) ===== */
+.player-top .laut-im-kopf { margin-left: 4px; }
+.quiz-option .laut-klein, .satz-baustein .laut-klein { display: block; margin-top: 2px; font-size: .76em; font-weight: 700; font-style: italic; color: var(--primary); opacity: .85; line-height: 1.2; }
+.quiz-option.option-richtig .laut-klein, .quiz-option.option-falsch .laut-klein, .satz-baustein.baustein-gesetzt .laut-klein { color: inherit; }
+.satzbau-loesung .laut-klein { font-style: italic; font-weight: 700; color: var(--primary); }
+.flashcard > .laut-wort, .flashcard > .laut-satz { text-align: center; }
+@media (max-width: 480px) { .player-top .laut-im-kopf { font-size: 0; gap: 0; padding: 6px 10px; } .player-top .laut-im-kopf b { font-size: .85rem; } }

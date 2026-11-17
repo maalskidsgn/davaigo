@@ -36,7 +36,7 @@ import {
 } from './pruefstationen.js'
 import { tr, sprache } from './sprache.js'
 import { lautschrift } from './lautschrift.js'
-import { useLautschrift, LautSchalter } from './lautAn.jsx'
+import { useLautschrift, LautSchalter, Laut } from './lautAn.jsx'
 import { GRATIS_LEKTIONEN, istPremiumModul } from './gratisModule.js'
 import { usePremium, LEKTIONEN_SPERRE } from './premium.js'
 import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
@@ -482,6 +482,11 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
               style={{ width: (index / schritte.length) * 100 + '%' }}
             />
           </div>
+          {/* Lautschrift ein/aus – immer erreichbar (17.11.2026, Manuel). Im Dialog
+              und auf den Wissenskarten sitzt der Schalter schon in der Karte. */}
+          {schritt.typ !== 'dialog' && schritt.typ !== 'info' && (
+            <LautSchalter an={laut} onClick={lautUmschalten} className="laut-kompakt laut-im-kopf" />
+          )}
         </div>
 
         {/* --- Einleitung: Was lernst du hier? --- */}
@@ -515,16 +520,6 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
             </div>
             {laut && <div className="laut-wort">{lautschrift(schritt.item.es, sprache())}</div>}
             <div className="flash-translation">{schritt.item.de}</div>
-            <div className="laut-zeile">
-              <button
-                type="button"
-                className={'laut-schalter' + (laut ? ' an' : '')}
-                onClick={lautUmschalten}
-                aria-pressed={laut}
-              >
-                <b>Aa</b> {tr('Lautschrift')}
-              </button>
-            </div>
             {schritt.item.beispielEs && (
               <div className="example-box">
                 <div className="example-es">
@@ -563,14 +558,18 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
               {schritt.richtung === 'es-de' ? tr('Was heißt…') : tr('Wie sagt man…')}
             </p>
             {schritt.richtung === 'es-de' ? (
-              <div className="word-row">
-                <div className="flash-word">{schritt.item.es}</div>
-                <HoerKnopf text={schritt.item.es} />
-              </div>
+              <>
+                <div className="word-row">
+                  <div className="flash-word">{schritt.item.es}</div>
+                  <HoerKnopf text={schritt.item.es} />
+                </div>
+                <Laut text={schritt.item.es} an={laut} />
+              </>
             ) : (
               <div className="flash-word">{schritt.item.de}</div>
             )}
             <QuizOptionen
+              laut={laut}
               runde={index}
               optionen={optionen}
               feedback={feedback}
@@ -590,7 +589,9 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
               <div className="flash-word">{schritt.item.es}</div>
               <HoerKnopf text={schritt.item.es} />
             </div>
+            <Laut text={schritt.item.es} an={laut} />
             <QuizOptionen
+              laut={laut}
               runde={index}
               optionen={optionen}
               feedback={feedback}
@@ -612,6 +613,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
               {tr('Anhören')}
             </button>
             <QuizOptionen
+              laut={laut}
               runde={index}
               optionen={optionen}
               feedback={feedback}
@@ -667,6 +669,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
         {/* --- Satzbau: Wörter in die richtige Reihenfolge --- */}
         {schritt.typ === 'satzbau' && (
           <SatzbauUebung
+            laut={laut}
             key={'s' + index}
             satzbau={schritt.satzbau}
             onErgebnis={(richtig) => antworten(richtig ? schritt.satzbau.loesung : '×', schritt.satzbau.loesung)}
@@ -675,7 +678,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
 
         {/* --- Übung: Wortpaare der Lektion verbinden --- */}
         {schritt.typ === 'paare' && (
-          <LektionsPaare key={'s' + index} paare={schritt.paare} onWeiter={weiter} />
+          <LektionsPaare key={'s' + index} paare={schritt.paare} onWeiter={weiter} laut={laut} />
         )}
 
         {/* --- Abschlussfrage: einen ganzen Satz verstehen --- */}
@@ -683,6 +686,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
           <div className="flashcard" key={'s' + index}>
             <p className="lesson-hint">{tr('🎓 Vertiefung: Was bedeutet dieser Satz?')}</p>
             <div className="gap-sentence">{schritt.zeile.es}</div>
+            <Laut text={schritt.zeile.es} an={laut} art="satz" />
             <QuizOptionen
               runde={index}
               optionen={optionen}
@@ -705,8 +709,10 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
                 </span>
               ))}
             </div>
+            <Laut text={schritt.luecke.satz.split(LUECKE_MARKE).join(' … ')} an={laut} art="satz" />
             <p className="gap-help">{schritt.item.beispielDe}</p>
             <QuizOptionen
+              laut={laut}
               runde={index}
               optionen={optionen}
               feedback={feedback}
@@ -1137,7 +1143,7 @@ function DialogChat({ dialog, onWeiter }) {
 }
 
 // Die vier Antwort-Knöpfe einer Übung, mit grün/rot-Feedback
-function QuizOptionen({ optionen, feedback, richtig, onAntwort, runde = 0 }) {
+function QuizOptionen({ optionen, feedback, richtig, onAntwort, runde = 0, laut = false }) {
   return (
     <div className="quiz-options">
       {optionen.map((o) => {
@@ -1161,6 +1167,7 @@ function QuizOptionen({ optionen, feedback, richtig, onAntwort, runde = 0 }) {
             }}
           >
             {o}
+            <Laut text={o} an={laut} art="klein" />
           </button>
         )
       })}
@@ -1173,7 +1180,7 @@ function QuizOptionen({ optionen, feedback, richtig, onAntwort, runde = 0 }) {
  * Paar antippen. Bewusst ohne Strafen – hier wird gefestigt, nicht
  * geprüft.
  */
-function LektionsPaare({ paare, onWeiter }) {
+function LektionsPaare({ paare, onWeiter, laut = false }) {
   const [links, setLinks] = useState(null)
   const [geloest, setGeloest] = useState([])
   // Rechte Spalte deterministisch sortiert – nicht zufällig, damit
@@ -1204,6 +1211,7 @@ function LektionsPaare({ paare, onWeiter }) {
               onClick={() => setLinks(p)}
             >
               {p.es}
+              <Laut text={p.es} an={laut} art="klein" />
             </button>
           ))}
         </div>
@@ -1234,7 +1242,7 @@ function LektionsPaare({ paare, onWeiter }) {
  * Antippen setzt sie zusammen. Ein falscher Baustein lässt sich
  * durch erneutes Antippen wieder zurücklegen.
  */
-function SatzbauUebung({ satzbau, onErgebnis }) {
+function SatzbauUebung({ satzbau, onErgebnis, laut = false }) {
   const [gewaehlt, setGewaehlt] = useState([]) // Indizes in Reihenfolge
   const [geprueft, setGeprueft] = useState(null) // true/false nach Pruefen
   const fertig = gewaehlt.length === satzbau.woerter.length
@@ -1262,11 +1270,12 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
         {gewaehlt.map((i) => (
           <button key={i} className="satz-baustein baustein-gesetzt" onClick={() => tippe(i)}>
             {satzbau.woerter[i]}
+            <Laut text={satzbau.woerter[i]} an={laut} art="klein" />
           </button>
         ))}
       </div>
       {geprueft === false && (
-        <p className="satzbau-loesung">{tr('Richtig wäre:')} <b>{satzbau.loesung}</b></p>
+        <p className="satzbau-loesung">{tr('Richtig wäre:')} <b>{satzbau.loesung}</b> <Laut text={satzbau.loesung} an={laut} art="klein" /></p>
       )}
 
       {/* Der Vorrat */}
@@ -1279,6 +1288,7 @@ function SatzbauUebung({ satzbau, onErgebnis }) {
             onClick={() => tippe(i)}
           >
             {w}
+            <Laut text={w} an={laut} art="klein" />
           </button>
         ))}
       </div>
