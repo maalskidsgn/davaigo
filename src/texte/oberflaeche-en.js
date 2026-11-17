@@ -1625,4 +1625,5 @@ export default {
  "Spielerisch zum Abschluss": "A playful finish",
  "wenig": "less",
  "viel": "more",
+ "Wiederholen": "Review",
 }
