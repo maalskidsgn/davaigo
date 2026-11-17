@@ -1,3 +1,4 @@
+import TabellenRahmen from './TabellenRahmen.jsx'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import ZauberBild from './ZauberBild.jsx'
 import LadeKreis from './LadeKreis.jsx'
@@ -37,6 +38,7 @@ const hatLaut = (t) => /[а-яё]/i.test(t)
 const SPEICHER = 'grundlagen-stand'
 const EIGENE = 'grundlagen-eigene'
 const RUNDE = 8
+const XP_JE_KARTE = 10
 const ZIEL_ENDUNG = /^(?!.*ость$).*(ать|ять|еть|ить|уть|ыть|оть|ти|чь)(ся|сь)?$/ // woran man Verben im Vokabeltrainer erkennt
 
 const EN = {
@@ -164,7 +166,7 @@ function frageAus(karte) {
 
 function Tabelle({ tabelle, laut }) {
   return (
-    <div className="info-tabelle-rahmen">
+    <TabellenRahmen>
       <table className="info-tabelle">
         <thead><tr>{tabelle.kopf.map((k) => <th key={k}>{k}</th>)}</tr></thead>
         <tbody>
@@ -173,7 +175,7 @@ function Tabelle({ tabelle, laut }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </TabellenRahmen>
   )
 }
 
@@ -327,7 +329,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
               </button>
             ))}
           </div>
-          <div className="info-tabelle-rahmen">
+          <TabellenRahmen>
             <table className="info-tabelle gl-konj-tabelle">
               <thead><tr><th>{tx('Person')}</th><th>{tx('Form')}</th></tr></thead>
               <tbody>
@@ -339,7 +341,7 @@ function Konjugator({ vocab = {}, laut, onGespeichert }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </TabellenRahmen>
           <p className="gl-konj-beispiel">
             <b>{zeit.beispiel.ziel}</b>
             {laut && hatLaut(zeit.beispiel.ziel) && <small className="gl-konj-laut">{lautschrift(zeit.beispiel.ziel, sprache())}</small>}
@@ -369,6 +371,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
   const [antwort, setAntwort] = useState(null)
   const [offen, setOffen] = useState(null)
   const [listeOffen, setListeOffen] = useState(false)
+  const [xpPopup, setXpPopup] = useState(null) // schwebende „+10 XP“-Anzeige
   const [laut, lautUmschalten] = useLautschrift()
 
   // Stand vom Konto (anderes Gerät) übernehmen, sobald der Abgleich ihn bringt
@@ -392,7 +395,8 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
     if (antwort) return
     const richtig = o === frage.richtig
     setAntwort({ o, richtig })
-    if (richtig) { erfolgston(); addXp?.(5) } else fehlerton()
+    if (richtig) erfolgston()
+    else fehlerton()
   }
 
   function bewerten(wert) {
@@ -401,6 +405,9 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
     const neu = { ...lies(SPEICHER, stand), [karte.id]: { ...review(eintrag(stand, karte.id), wert), am: Date.now() } }
     setStand(neu)
     schreib(SPEICHER, neu)
+    // 10 XP je gelernter Karte – wie eine gewusste Vokabel (17.11.2026, Manuel)
+    addXp?.(XP_JE_KARTE)
+    setXpPopup({ key: Date.now() })
     if (nr + 1 >= runde.length) {
       lektionTon() // Runde geschafft: Erfolgston wie nach einer Lektion (17.11.2026)
       setRunde(null)
@@ -417,6 +424,7 @@ export default function Grundlagen({ kopf, lessonProgress, addXp, vocab }) {
     const aufgedeckt = !frage || antwort
     return (
       <div className="training-stage gl-runde">
+        {xpPopup && <span key={xpPopup.key} className="xp-popup">+{XP_JE_KARTE} XP</span>}
         <div className="lern-balken"><div className="lern-balken-voll" style={{ width: (nr / runde.length) * 100 + '%' }} /></div>
         <p className="training-progress">{tx('Regel {0} von {1}', nr + 1, runde.length)}</p>
 
