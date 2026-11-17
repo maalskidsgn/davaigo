@@ -1,4 +1,5 @@
 import SpielBild from './SpielBild.jsx'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import UebTabs, { useUebTab } from './UebTabs.jsx'
 import { leiterName } from './srs.js'
 import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
@@ -327,24 +328,23 @@ export default function Satztrainer({ kopf, saetze, setSaetze, addXp }) {
   // ---------- Laufende Runde ----------
   if (queue !== null) {
     if (queue.length === 0) {
+      const gesamt = result.richtig + result.falsch
+      const weitere = faellig.length > 0
       return (
         <div className="trainer">
-          <div className="flashcard done sf-toon">
-            <div className="confetti-burst" aria-hidden="true">
-              {Array.from({ length: 14 }, (_, i) => (
-                <span key={i} className="confetti" style={{ '--i': i }} />
-              ))}
-            </div>
-            <span className="sf-bild" aria-hidden="true">
-              <Sockel />
-              <Pokal />
-            </span>
-            <h2>{tr('Runde geschafft! 🎉').replace(/\s*🎉/, '')}</h2>
-            <p>
-              {tr('{0}× gewusst · {1}× nicht gewusst', result.richtig, result.falsch)}
-            </p>
-            <div className="sf-knoepfe"><button className="sf-zurueck" onClick={() => setQueue(null)}>{tr('Fertig')}</button></div>
-          </div>
+          <RundenAbschluss
+            quote={gesamt ? Math.round((result.richtig / gesamt) * 100) : 100}
+            titel={tr('Runde geschafft! 🎉').replace(/\s*🎉/, '')}
+            unter={ra('saetze')}
+            chips={[
+              { wert: `${result.richtig}/${gesamt}`, text: ra('gewusst') },
+              { wert: String(result.falsch), text: ra('nichtGewusst') },
+            ]}
+            knoepfe={[
+              weitere && { text: ra('naechsteRunde'), onClick: () => starten(art) },
+              { text: ra('zurueckSaetze'), onClick: () => setQueue(null), zweit: weitere },
+            ]}
+          />
         </div>
       )
     }
@@ -672,28 +672,21 @@ function SatzPaare({ paare, onGeloest, onFertig, onClose, onNochmal }) {
   }
 
   if (fertig) {
-    // Abschluss im Spiel-Look (12.11.2026): Pokal auf der Trommel wie bei den Spielen
+    // Abschluss wie „Lektion geschafft“ (17.11.2026, Manuel)
     return (
-      <div className="flashcard done sf-toon">
-        <div className="confetti-burst" aria-hidden="true">
-          {Array.from({ length: 14 }, (_, i) => (
-            <span key={i} className="confetti" style={{ '--i': i }} />
-          ))}
-        </div>
-        <span className="sf-bild" aria-hidden="true">
-          <Sockel />
-          <Pokal />
-        </span>
-        <h2>{tr('Geschafft! 🎉').replace(/\s*🎉/, '')}</h2>
-        <p>{tr('Alle {0} Satzpaare verbunden! 🎉', paare.length).replace(/\s*🎉/, '')}</p>
-        <div className="sf-pillen">
-          <span className="sf-pille sf-stufe">{tr('{0}× auf Anhieb · {1}× mit zweitem Versuch', paare.length - daneben.length, daneben.length)}</span>
-        </div>
-        <div className="sf-knoepfe">
-          {onNochmal && <button className="sf-nochmal" onClick={onNochmal}>{tr('Nochmal')}</button>}
-          <button className="sf-zurueck" onClick={onClose}>{tr('Fertig')}</button>
-        </div>
-      </div>
+      <RundenAbschluss
+        quote={Math.round(((paare.length - daneben.length) / paare.length) * 100)}
+        titel={tr('Geschafft! 🎉').replace(/\s*🎉/, '')}
+        unter={tr('Alle {0} Satzpaare verbunden! 🎉', paare.length).replace(/\s*🎉/, '')}
+        chips={[
+          { wert: String(paare.length - daneben.length), text: ra('aufAnhieb') },
+          { wert: String(daneben.length), text: ra('zweiterVersuch') },
+        ]}
+        knoepfe={[
+          onNochmal && { text: ra('naechsteRunde'), onClick: onNochmal },
+          { text: ra('zurueckSaetze'), onClick: onClose, zweit: Boolean(onNochmal) },
+        ]}
+      />
     )
   }
 
