@@ -47,6 +47,8 @@ export const LEVEL_STUFEN = [
   { ab: 70, name: 'Titan', symbol: 'berg', verlauf: ['#ffdcb8', '#ffb2c6'], farbe: '#d2566f', funken: 3 },
   { ab: 85, name: 'Unsterblich', symbol: 'unendlich', verlauf: ['#c8f2ea', '#cfd8ff', '#f6caee'], farbe: '#6a5fc8', funken: 3 },
   { ab: 100, name: 'Вечное Солнце', sol: true },
+  // Geheim (17.11.2026): erst sichtbar, wenn man sie erreicht – Level 142 = erste Stufe über 1 Mio. XP
+  { ab: 142, name: 'Сверхновая', geheim: true },
 ]
 
 // Gesamt-XP, ab denen ein Level erreicht ist.
