@@ -2,9 +2,10 @@ import { GRENZEN, anfrager, imSpeicherErlaubt, GRENZE_TEXT } from './grenzen.js'
 import { anmelden as pushAnmelden, senden as pushSenden, adminErlaubt as pushAdminErlaubt } from './push.js'
 import { erinnerungenStarten, erinnerungenPruefen } from './erinnerungen.js'
 import { konjugationNachschlagen, konjugationErzeugen, vorschlagsVerben, verbMarke } from './konjugation.js'
+import { uebungenZurRegel, uebungenGemerkt, uebungenErzeugen } from './uebungen.js'
 import { appVersion } from './appVersion.js'
 import { createHash } from 'node:crypto'
-import { kiKontext } from './ki.js'
+import { kiKontext, budgetErschoepft } from './ki.js'
 // Kleiner Server, der das Transkript (Untertitel) eines YouTube-Videos holt.
 // Er benutzt dafür das Programm "yt-dlp" (per Homebrew installiert), weil das
 // zuverlässig an die YouTube-Untertitel kommt.
@@ -763,6 +764,12 @@ async function kiTuersteher(req, res, art) {
     res.status(401).json({ error: 'Bitte zuerst anmelden.' })
     return null
   }
+  // Kostenbremse je Konto (17.11.2026, siehe server/ki.js)
+  if (await budgetErschoepft(req.headers.authorization?.replace('Bearer ', ''))) {
+    const en = zielsprache() === 'en'
+    res.status(429).json({ error: GRENZE_TEXT[en ? 'en' : 'de'](en ? 'AI creations' : 'KI-Erstellungen', 'monat'), grund: 'obergrenze' })
+    return null
+  }
   // Premium: großzügige Obergrenze (10.11.2026, siehe server/grenzen.js)
   if (await istPremium(nutzer.id)) {
     if ((await nutzungHeute(nutzer.id, art)) >= GRENZEN.kiPremiumMonat) {
@@ -837,6 +844,37 @@ app.get('/api/konjugation', async (req, res) => {
     res.json(daten)
   } catch (err) {
     console.error('Konjugation:', err.message)
+    res.status(502).json({ error: en ? 'That did not work, please try again.' : 'Das hat nicht geklappt, bitte nochmal.' })
+  }
+})
+
+// Übungsgenerator (17.11.2026): fertige Sets zu den Regeln der Lektionen sind
+// frei, freie Themen erzeugt die KI (zählt als KI-Erstellung).
+app.get('/api/uebungen', (req, res) => {
+  const set = uebungenZurRegel(req.query.regel)
+  if (!set) return res.status(404).json({ error: 'Keine Übungen zu dieser Regel.' })
+  res.json({ aufgaben: set })
+})
+app.post('/api/uebungen', async (req, res) => {
+  const en = req.body?.sprache === 'en'
+  const thema = String(req.body?.thema || '').trim().slice(0, 120)
+  const niveau = /^(A1|A2|B1|B2|C1)$/.test(req.body?.niveau) ? req.body.niveau : 'A1'
+  if (thema.length < 2) return res.status(400).json({ error: en ? 'Please enter a topic.' : 'Bitte ein Thema eingeben.' })
+  const tuer = await kiTuersteher(req, res, 'ki')
+  if (!tuer) return
+  try {
+    const set = uebungenGemerkt(thema, niveau) ?? (await uebungenErzeugen(thema, niveau))
+    if (!set) {
+      return res.status(404).json({
+        error: en
+          ? "I can't build exercises for that. Try a grammar topic or a situation."
+          : 'Dazu kann ich keine Übungen bauen. Versuch ein Grammatikthema oder eine Situation.',
+      })
+    }
+    await zaehleNutzung(tuer.nutzer.id, 'ki')
+    res.json(set)
+  } catch (err) {
+    console.error('Übungen:', err.message)
     res.status(502).json({ error: en ? 'That did not work, please try again.' : 'Das hat nicht geklappt, bitte nochmal.' })
   }
 })
