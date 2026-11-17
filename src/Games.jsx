@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, createContext, useContext, Fragment } from 'react'
-import { Sockel } from './StartInseln.jsx'
 import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 import { tr } from './sprache.js'
 import SpielBild from './SpielBild.jsx'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { erfolgston, fehlerton } from './erfolgston.js'
 
 // Mini-Spiele mit den eigenen Vokabeln: Memory, Wortpaare,
@@ -155,32 +155,20 @@ function SpielFertig({ text, woerter = [], onGespielt, onClose }) {
     setGemeldet(true)
   }, [gemeldet, woerter, onGespielt])
 
-  // Toon-Abschluss (06.11., Entwurf A): Pokal auf der Trommel, Konfetti,
-  // XP und Aufstieg als Pillen, dazu „Nochmal“.
+  // Abschluss wie „Lektion geschafft“ (17.11.2026, Manuel: „moderner“)
   return (
-    <div className="flashcard done sf-toon">
-      <div className="confetti-burst" aria-hidden="true">
-        {Array.from({ length: 14 }, (_, i) => (
-          <span key={i} className="confetti" style={{ '--i': i }} />
-        ))}
-      </div>
-      <span className="sf-bild" aria-hidden="true">
-        <Sockel />
-        <Pokal />
-      </span>
-      <h2>{tr('Geschafft! 🎉').replace(/\s*🎉/, '')}</h2>
-      <p>{text}</p>
-      <div className="sf-pillen">
-        <span className="sf-pille sf-xp">+{XP.SPIEL} XP</span>
-        {woerter.length > 0 && <span className="sf-pille sf-stufe">↑ {tr(' · {0} Wörter eine Stufe weiter', woerter.length).replace(/^ · /, '')}</span>}
-      </div>
-      <div className="sf-knoepfe">
-        {nochmal && (
-          <button className="sf-nochmal" onClick={nochmal}>{tr('Nochmal')}</button>
-        )}
-        <button className="sf-zurueck" onClick={onClose}>{tr('Zurück zum Trainer')}</button>
-      </div>
-    </div>
+    <RundenAbschluss
+      titel={ra('geschafft')}
+      unter={text}
+      chips={[
+        { wert: '+' + XP.SPIEL, text: ra('xp'), xp: true },
+        ...(woerter.length > 0 ? [{ wert: '↑ ' + woerter.length, text: ra('stufeWeiter') }] : []),
+      ]}
+      knoepfe={[
+        nochmal && { text: ra('nochmalSpielen'), onClick: nochmal },
+        { text: ra('zurueckTrainer'), onClick: onClose, zweit: Boolean(nochmal) },
+      ]}
+    />
   )
 }
 
