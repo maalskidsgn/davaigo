@@ -49,7 +49,7 @@ import Satztrainer from './Satztrainer.jsx'
 import Lesetexte from './Lesetexte.jsx'
 import { tr, sprache } from './sprache.js'
 import { useLautschrift, Laut, LautSchalter } from './lautAn.jsx'
-import { erfolgston, fehlerton } from './erfolgston.js'
+import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 
 const SPIELE_ANZAHL = 6 // Karten im Tab „Spielen“ (12.11.2026)
 
@@ -124,6 +124,12 @@ export default function Trainer({
   const [sichtbar, setSichtbar] = useState(30)
   const [filter, setFilter] = useState('faellig') // 'alle' | 'faellig' | 'gewusst' | Stufen-Nummer
   const [queue, setQueue] = useState(null) // Wörter der laufenden Übungsrunde (null = keine Runde)
+
+  // Runde geschafft: derselbe Erfolgston wie nach einer Lektion (17.11.2026, Manuel)
+  const rundeGeschafft = queue !== null && queue.length === 0
+  useEffect(() => {
+    if (rundeGeschafft) lektionTon()
+  }, [rundeGeschafft])
   const [revealed, setRevealed] = useState(false) // Übersetzung schon aufgedeckt?
   const [result, setResult] = useState({ richtig: 0, falsch: 0 })
   const [xpPopup, setXpPopup] = useState(null) // schwebende "+10 XP"-Anzeige
