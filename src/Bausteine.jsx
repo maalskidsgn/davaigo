@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import {
   BAUSTEINE,
   FAMILIEN,
@@ -95,24 +96,17 @@ export default function Bausteine({ kopf, stand, setStand, lessonProgress, addXp
     const eintrag = withSrsDefaults(stand[runde.baustein.id] ?? {})
     return (
       <div className="trainer">
-        <div className="flashcard done">
-          <div className="confetti-burst" aria-hidden="true">
-            {Array.from({ length: 14 }, (_, i) => (
-              <span key={i} className="confetti" style={{ '--i': i }} />
-            ))}
-          </div>
-          <h2>{ergebnis.falsch === 0 ? tr('Alles richtig! 🎉') : tr('Runde geschafft!')}</h2>
-          <p>
-            {tr('{0} von {1} bei „{2}“', ergebnis.richtig, runde.aufgaben.length, runde.baustein.titel)}
-          </p>
-          <p className="gram-naechster">
-            {bewertung === 'nochmal'
-              ? tr('Der Baustein kommt gleich noch einmal.')
-              : tr('Nächste Wiederholung: {0}', formatDue(eintrag))}
-          </p>
-          <p className="bonus-note">{tr('+{0} Bonus-XP für die volle Runde!', XP.RUNDE)}</p>
-          <button onClick={() => setRunde(null)}>{tr('Zurück zur Übersicht')}</button>
-        </div>
+        <RundenAbschluss
+          quote={Math.round((ergebnis.richtig / runde.aufgaben.length) * 100)}
+          titel={ergebnis.falsch === 0 ? tr('Alles richtig! 🎉').replace(/\s*🎉/, '') : tr('Runde geschafft!')}
+          unter={runde.baustein.titel}
+          chips={[
+            { wert: `${ergebnis.richtig}/${runde.aufgaben.length}`, text: ra('richtig') },
+            { wert: '+' + XP.RUNDE, text: ra('bonusXp'), xp: true },
+          ]}
+          text={bewertung === 'nochmal' ? tr('Der Baustein kommt gleich noch einmal.') : tr('Nächste Wiederholung: {0}', formatDue(eintrag))}
+          knoepfe={[{ text: ra('zurueckGrammatik'), onClick: () => setRunde(null) }]}
+        />
       </div>
     )
   }

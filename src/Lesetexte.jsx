@@ -1,4 +1,5 @@
 import LadeKreis from './LadeKreis.jsx'
+import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { leiterName } from './srs.js'
 import GratisHinweis, { TrainerGrenze } from './GratisHinweis.jsx'
 import { useMemo, useState, useEffect } from 'react'
@@ -63,6 +64,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
   const pausiert = pausierteSchluessel(texte, MAX_TEXTE, ltPremium, 'erstelltAm')
   const [ansicht, setAnsicht] = useState('start') // 'start' | 'liste'
   const [offenerText, setOffenerText] = useState(null) // Kennung des Textes im Leser
+  const [abschluss, setAbschluss] = useState(null) // gerade gelesener Text { id, bewertung }
 
   const entries = useMemo(
     () =>
@@ -103,6 +105,7 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
     merkeEinheit('wiederholung')
     merkeGelernt('texte')
     setOffenerText(null)
+    setAbschluss({ id, bewertung })
   }
 
   function entfernen(id) {
@@ -112,6 +115,27 @@ export default function Lesetexte({ kopf, texte, setTexte, addXp, onAddVocab, vo
       return neu
     })
     if (offenerText === id) setOffenerText(null)
+  }
+
+  // ---------- Text gelesen: weiter zum nächsten oder zurück (17.11.2026, Manuel) ----------
+  if (abschluss && !offenerText) {
+    const offen = faellig.filter((e) => e.id !== abschluss.id)
+    const gelesen = texte[abschluss.id]
+    return (
+      <RundenAbschluss
+        titel={ra('textGelesen')}
+        unter={gelesen?.titelEs}
+        chips={[
+          { wert: ra('urteil_' + abschluss.bewertung), text: ra('deinUrteil') },
+          { wert: '+' + XP.TEXT_RICHTIG, text: 'XP', xp: true },
+        ]}
+        text={offen.length ? ra('nochTexte', offen.length) : ra('alleGelesen')}
+        knoepfe={[
+          offen.length > 0 && { text: ra('naechsterText'), onClick: () => { setAbschluss(null); setOffenerText(offen[0].id) } },
+          { text: ra('zurueckTexte'), onClick: () => setAbschluss(null), zweit: offen.length > 0 },
+        ]}
+      />
+    )
   }
 
   // ---------- Der Leser ----------
