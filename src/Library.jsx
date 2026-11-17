@@ -52,7 +52,6 @@ function gruppiere(bibliothek) {
 import { ladeVideoFortschritt, standVon } from './App.jsx'
 import { useState, useEffect } from 'react'
 import Inhalte from './Inhalte.jsx'
-import { holeVerzeichnis } from './inhalte.js'
 import { Kopf } from './MediathekUI.jsx'
 import { BuchFormular, BuchZeilen, NiveauFilter, BuchLeser, BIBLIOTHEK, ladeBibliotheksbuch } from './Buecher.jsx'
 import { tr, sprache } from './sprache.js'
@@ -182,7 +181,6 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
   // den Bereichen selbst: Ein Bereich, den man noch nicht geoeffnet
   // hat, koennte seine eigene Zahl gar nicht kennen.
   const [songAnzahl, setSongAnzahl] = useState(null)
-  const [ebookAnzahl, setEbookAnzahl] = useState(null)
 
   useEffect(() => {
     let abgebrochen = false
@@ -191,11 +189,6 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
         .then((n) => !abgebrochen && setSongAnzahl(n))
         .catch(() => {}) // eine fehlende Zahl ist kein Grund fuer eine Fehlermeldung
     }
-    // holeVerzeichnis merkt sich das Ergebnis – der Ebooks-Bereich
-    // holt es also nicht ein zweites Mal.
-    holeVerzeichnis('lesetexte')
-      .then((v) => !abgebrochen && setEbookAnzahl(v.length))
-      .catch(() => {})
     return () => { abgebrochen = true }
   }, [])
 
@@ -365,10 +358,12 @@ export default function Library({ savedVideos: alleGemerkten, setSavedVideos, on
       <div className="deck" role="tablist">
         {BEREICHE.map((b) => {
           const zahl = {
-            videos: bibliothek?.length ?? null,
+            // Was man wirklich sieht (17.11.2026): eigene Videos + die kuratierte Auswahl
+            videos: bibliothek ? savedVideos.length + gruppiere(bibliothek).reduce((n, g) => n + g.videos.length, 0) : null,
             songs: songAnzahl,
             // Die fertigen Zusammenfassungen plus die selbst erzeugten
-            ebooks: ebookAnzahl == null ? null : ebookAnzahl + buecher.length,
+            // Eigene Bücher + Bibliothek (+ die älteren E-Books, wo sie zu sehen sind)
+            ebooks: buecher.length + BIBLIOTHEK.length,
             hoertexte: null,
           }[b.wert]
           return (
