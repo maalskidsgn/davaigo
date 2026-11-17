@@ -542,12 +542,12 @@ const buchSchema = (ziel) => ({
     kurz: PAAR('Ein Satz: worum es im Buch geht', ziel),
     kapitel: {
       type: 'array',
-      description: 'Genau 8 Kapitel: 1 Einführung, 6 Kernideen, 1 Fazit',
+      description: 'Genau 10 Kapitel: 1 Einführung, 8 Kernideen, 1 Fazit',
       items: {
         type: 'object',
         properties: {
           titel: PAAR('Kapitelüberschrift als Aussage, kein Etikett', ziel),
-          absaetze: { type: 'array', description: '3 kurze Absätze', items: PAAR('Absatz', ziel) },
+          absaetze: { type: 'array', description: '4–6 Absätze; jeder ein eigener Gedanke (Idee, Beispiel, Anwendung)', items: PAAR('Absatz', ziel) },
           kern: PAAR('Die Kernaussage des Kapitels in einem Satz', ziel),
           vokabeln: {
             type: 'array',
@@ -568,6 +568,14 @@ const buchSchema = (ziel) => ({
   required: ['bekannt', 'titel', 'titel_de', 'autor', 'kurz', 'kapitel'],
   additionalProperties: false,
 })
+// Länge je Kapitel nach Niveau (17.11.2026, Manuel: „wie bei Blinkist, nicht nur ein Textabschnitt“)
+const KAPITEL_LAENGE = {
+  A1: '4 Absätze, zusammen 110–150 Wörter',
+  A2: '4–5 Absätze, zusammen 150–200 Wörter',
+  B1: '5 Absätze, zusammen 200–260 Wörter',
+  B2: '5–6 Absätze, zusammen 240–300 Wörter',
+  C1: '5–6 Absätze, zusammen 260–340 Wörter',
+}
 const NIVEAU_TEXT = {
   A1: 'sehr kurze Sätze (höchstens 10 Wörter), nur Präsens und einfache Vergangenheit, Grundwortschatz, keine Partizipien',
   A2: 'kurze Sätze, Alltagswortschatz, einfache Fälle',
@@ -589,7 +597,9 @@ export async function erzeugeBuchZusammenfassung({ titel, text = '', niveau = 'A
         content:
           'Du schreibst Buchzusammenfassungen im Stil von Blinkist für Russischlernende. ' +
           `Jeder Absatz steht auf Russisch (kyrillisch) und auf ${ziel}; die Fassung auf ${ziel} ist natürlich formuliert. ` +
-          'Genau 8 Kapitel: eine Einführung, sechs Kernideen des Buches, ein Fazit. Je Kapitel 3 kurze Absätze. ' +
+          'Genau 10 Kapitel: eine Einführung, acht Kernideen des Buches, ein Fazit. ' +
+          `Je Kapitel ${KAPITEL_LAENGE[niveau] ?? KAPITEL_LAENGE.A2} auf Russisch. ` +
+          'Jedes Kapitel liest sich wie ein Blink bei Blinkist: die Idee erklären, ein konkretes Beispiel aus dem Buch, was man daraus fürs eigene Leben mitnimmt. ' +
           'Fasse in eigenen Worten zusammen, zitiere keine längeren Passagen. ' +
           'Erfinde nichts: Kennst du das Buch nicht sicher und liegt kein Buchtext vor, setze bekannt=false ' +
           'und schreibe nur über das, was der Titel sicher erkennen lässt; sage das in der Einführung offen.',
@@ -602,7 +612,7 @@ export async function erzeugeBuchZusammenfassung({ titel, text = '', niveau = 'A
       },
     ],
     response_format: { type: 'json_schema', json_schema: { name: 'buch', schema: buchSchema(ziel), strict: true } },
-  }, HAIKU, { maxTokens: 16000 })
+  }, HAIKU, { maxTokens: 32000 })
   const buch = JSON.parse(daten.choices[0].message.content)
   return { ...buch, niveau, mitText: Boolean(auszug) }
 }
