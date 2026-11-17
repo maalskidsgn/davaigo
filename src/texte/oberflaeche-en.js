@@ -1627,4 +1627,6 @@ export default {
  "viel": "more",
  "Wiederholen": "Review",
  "Gut zu wissen: {0}": "Good to know: {0}",
+ "Aufgaben richtig": "tasks correct",
+ "Bonus-XP": "bonus XP",
 }
