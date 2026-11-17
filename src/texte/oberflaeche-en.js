@@ -1626,4 +1626,5 @@ export default {
  "wenig": "less",
  "viel": "more",
  "Wiederholen": "Review",
+ "Gut zu wissen: {0}": "Good to know: {0}",
 }

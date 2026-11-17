@@ -75,6 +75,7 @@ import { naechsteLektion, LEKTIONEN } from './lektionen.js'
 // Der Name der App – an dieser einen Stelle änderbar
 export const APP_NAME = 'Davaigo'
 import { newEntry, withSrsDefaults, isDue } from './srs.js'
+import { neueWoerterZurLektion } from './wissenVokabeln.js'
 import {
   XP,
   loadProgress,
@@ -821,6 +822,22 @@ export default function App() {
       }
       return copy
     })
+    // Dazu die Beispielwörter aus „Gut zu wissen“ (17.11.2026, Manuel): Wörter und kurze
+    // Wendungen der Lektion, die noch nicht im Trainer stehen. Lädt die Liste nach.
+    const mitLektion = { ...vocab, ...Object.fromEntries(lektion.items.map((i) => [i.es.toLowerCase(), true])) }
+    neueWoerterZurLektion(lektion, mitLektion)
+      .then((neu) => {
+        if (!neu.length) return
+        setVocab((v) => {
+          const copy = { ...v }
+          for (const w of neu) {
+            const key = w.wort.toLowerCase()
+            if (!copy[key]) copy[key] = { ...newEntry(w.uebersetzung, tr('Gut zu wissen: {0}', lektion.titel)), status: 'lernen' }
+          }
+          return copy
+        })
+      })
+      .catch(() => {})
   }
 
   // Fortschritt (XP & Streak) sichern und Level-Aufstieg erkennen
@@ -1724,6 +1741,7 @@ export default function App() {
             sofortStart={ersteLektion}
             onSofortGestartet={() => setErsteLektion(0)}
             vocab={vocab}
+            onAddVocab={addVocabWords}
           />
         </main>
       )}
