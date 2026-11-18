@@ -17840,3 +17840,7 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .sp-mkarte .laut-klein { font-size: .74em; line-height: 1.2; }
 .sp-mkarte.gefunden .laut-klein { color: #fff; opacity: .9; }
 .spielwort-kopf b .laut-klein { display: block; margin-top: 1px; }
+
+/* Wortpaare: Lautschrift unter den russischen Wörtern (18.11.2026, Manuel) */
+.sp-paar .laut-klein { font-size: .76em; line-height: 1.2; }
+.sp-paar.gewaehlt .laut-klein, .sp-paar.richtig .laut-klein { color: #fff; opacity: .9; }

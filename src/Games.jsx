@@ -349,6 +349,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
 // Links Russisch, rechts Deutsch (gemischt). Tippe die zusammen-
 // gehörenden Wörter an, bis alle Paare verbunden sind.
 function WortPaare({ paare, addXp, onClose, onGespielt }) {
+  const [laut, lautUmschalten] = useLautschrift() // Lautschrift unter den russischen Wörtern (18.11.2026, Manuel)
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Die rechte Spalte wird NICHT zufällig gemischt und eingefroren.
   // Grund: Wenn sich die Vokabeln während des Spiels ändern – etwa
@@ -402,6 +403,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
       {xpAnzeige}
       <div className="sp-buehne">
         <SpFortschritt anteil={geloest.length / paare.length} text={tr('{0}/{1} verbunden', geloest.length, paare.length)} />
+        <div className="laut-zeile sp-laut"><LautSchalter an={laut} onClick={lautUmschalten} className="laut-kompakt" /></div>
         <p className="sp-tipp">
           {wahlLinks ? tr('Jetzt rechts die Übersetzung antippen') : tr('Tippe links ein Wort an, dann rechts die Übersetzung')}
         </p>
@@ -418,7 +420,7 @@ function WortPaare({ paare, addXp, onClose, onGespielt }) {
                 disabled={geloest.includes(p.es)}
                 onClick={() => setWahlLinks(p)}
               >
-                {p.es}
+                <span className="sp-mtext">{p.es}<Laut text={p.es} an={laut} art="klein" /></span>
               </button>
             ))}
           </div>
