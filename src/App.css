@@ -17833,3 +17833,10 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 .level-plakette-geheim { background: linear-gradient(160deg, #140a3d, #2b1a7a 55%, #5c1a5e); }
 .level-plakette-geheim b { color: #ffe14d; }
 .level-plakette-geheim small { color: #e9e2ff; }
+
+/* Memory: Lautschrift unter den russischen Wörtern (18.11.2026, Manuel) */
+.sp-laut { justify-content: flex-end; margin: 4px 0 10px; }
+.sp-mtext { display: grid; gap: 2px; justify-items: center; }
+.sp-mkarte .laut-klein { font-size: .74em; line-height: 1.2; }
+.sp-mkarte.gefunden .laut-klein { color: #fff; opacity: .9; }
+.spielwort-kopf b .laut-klein { display: block; margin-top: 1px; }

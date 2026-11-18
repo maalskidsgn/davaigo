@@ -3,6 +3,7 @@ import { mischen } from './lektionen.js'
 import { XP } from './gamification.js'
 import { isDue, withSrsDefaults } from './srs.js'
 import { tr } from './sprache.js'
+import { useLautschrift, Laut, LautSchalter } from './lautAn.jsx'
 import SpielBild from './SpielBild.jsx'
 import RundenAbschluss, { ra } from './RundenAbschluss.jsx'
 import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
@@ -198,6 +199,7 @@ export function Pokal() {
  * kommen aus dem Listengenerator und den Lektionen mit.
  */
 function RundenWoerter({ woerter, gefunden }) {
+  const [laut] = useLautschrift()
   if (!woerter?.length) return null
   return (
     <div className="runden-woerter">
@@ -209,7 +211,7 @@ function RundenWoerter({ woerter, gefunden }) {
             className={'spielwort' + (gefunden?.includes(w.es) ? ' spielwort-gefunden' : '')}
           >
             <div className="spielwort-kopf">
-              <b>{w.es}</b>
+              <b>{w.es}<Laut text={w.es} an={laut} art="klein" /></b>
               <span>{w.de}</span>
               {gefunden?.includes(w.es) && <i className="spielwort-haken" aria-hidden="true">✓</i>}
             </div>
@@ -247,6 +249,7 @@ function SpHerz({ voll }) {
 // Karten liegen verdeckt. Decke zwei auf – gehören Wort und
 // Übersetzung zusammen, bleiben sie offen liegen.
 function Memory({ paare, addXp, onClose, onGespielt }) {
+  const [laut, lautUmschalten] = useLautschrift() // Lautschrift auf den Karten (18.11.2026, Manuel)
   const [xpAnzeige, belohne] = useXpMeldung(addXp)
   // Karten und Wortliste zusammen einfrieren: Beides muss vom selben
   // Stand stammen, sonst würden am Ende andere Wörter hochgestuft als
@@ -311,6 +314,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
       {xpAnzeige}
       <div className="sp-buehne">
         <SpFortschritt anteil={gefunden.length / anzahl} text={tr('{0}/{1} Paare · {2} Versuche', gefunden.length, anzahl, versuche)} />
+        <div className="laut-zeile sp-laut"><LautSchalter an={laut} onClick={lautUmschalten} className="laut-kompakt" /></div>
         <div className="sp-memory">
           {karten.map((k) => {
             const istGefunden = gefunden.includes(k.pairId)
@@ -325,7 +329,7 @@ function Memory({ paare, addXp, onClose, onGespielt }) {
                 }
                 onClick={() => klick(k)}
               >
-                {istOffen ? k.text : <span className="sp-frage">?</span>}
+                {istOffen ? <span className="sp-mtext">{k.text}<Laut text={k.text} an={laut} art="klein" /></span> : <span className="sp-frage">?</span>}
               </button>
             )
           })}
