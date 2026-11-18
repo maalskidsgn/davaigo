@@ -89,7 +89,7 @@ const AUSSEHEN = {
 
 // Was Premium kann – dieselbe Liste wie in den Einstellungen.
 // Seit 09.11.2026 (Entwurf A): Vorteile mit den echten Gratis-Grenzen
-const KASSEN_TEXTE = {
+export const KASSEN_TEXTE = {
   de: {
     marke: 'Davaigo Premium',
     titel1: 'Russisch lernen',

@@ -17844,3 +17844,13 @@ body.lese-modus, body.lese-modus main { background: var(--bg); }
 /* Wortpaare: Lautschrift unter den russischen Wörtern (18.11.2026, Manuel) */
 .sp-paar .laut-klein { font-size: .76em; line-height: 1.2; }
 .sp-paar.gewaehlt .laut-klein, .sp-paar.richtig .laut-klein { color: #fff; opacity: .9; }
+
+/* ===== App-Kasse im Design Entwurf A (18.11.2026, Manuel) ===== */
+.kn.kn-a { max-width: 560px; text-align: left; }
+.kn-a .ka-held { margin-bottom: 14px; }
+.kn-a .ka-karte { display: grid; gap: 16px; }
+.kn-a .kassen-tarife { margin: 0; }
+.kn-a .kn-kaufen { width: 100%; margin-top: 4px; border: 0; border-radius: 18px; padding: 16px; font: inherit; font-size: 1.05rem; font-weight: 900; color: #fff; background: var(--primary); box-shadow: 0 6px 0 var(--primary-press); cursor: pointer; }
+.kn-a .kn-kaufen:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--primary-press); }
+.kn-a .kn-wieder { display: block; margin: 4px auto 0; }
+.kn-a .kn-klein, .kn-a .kn-rechtliches { text-align: center; }
