@@ -40,6 +40,7 @@ import { lautschrift } from './lautschrift.js'
 import { useLautschrift, LautSchalter, Laut } from './lautAn.jsx'
 import { GRATIS_LEKTIONEN, istPremiumModul } from './gratisModule.js'
 import { usePremium, LEKTIONEN_SPERRE } from './premium.js'
+import { lektionGezaehlt, pauseFaellig } from './pause.js'
 import { erfolgston, fehlerton, lektionTon } from './erfolgston.js'
 
 // Macht aus einem Text mit *Sternchen* hübsche pinke Wort-Chips:
@@ -215,7 +216,7 @@ const KRONE = (
   </svg>
 )
 
-export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, sofortStart, onSofortGestartet, vocab = {}, onAddVocab }) {
+export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKasse, onPause, sofortStart, onSofortGestartet, vocab = {}, onAddVocab }) {
   const [modul, setModul] = useState(null) // das gerade geöffnete Modul
   // Reiter der Übersicht (17.11.2026, Manuel): „Lektionen“ und „Wiederholen“ –
   // der Grundlagen-Trainer wohnt jetzt hier statt im Vokabeltrainer.
@@ -338,6 +339,11 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       onKasse?.()
       return
     }
+    // Premium-Pause für Gratis-Nutzer (pause.js) – danach geht es hier weiter
+    if (onPause && pauseFaellig(premium)) {
+      onPause(() => starten(l, station))
+      return
+    }
     vorladen(l) // alle Aufnahmen der Lektion schon mal holen
     setLaufendeStation(station)
     const s = station ? baueSchritteStation(station) : baueSchritte(l)
@@ -364,6 +370,7 @@ export default function Lessons({ lessonProgress, addXp, onLessonComplete, onKas
       merkeEinheit('lektion') // zaehlt als Lektion
       merkeGelernt('lektionen')
       onLessonComplete(lektion)
+      lektionGezaehlt() // für die Premium-Pause (pause.js)
       setFertig(true)
       return
     }
