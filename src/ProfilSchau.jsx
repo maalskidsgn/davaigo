@@ -107,15 +107,17 @@ export default function ProfilSchau({ benutzername, onSchliessen }) {
 
             <div className="ps-platz">{tr('Platz {0}', profil.platz)}</div>
 
-            <dl className="ps-zahlen">
+            <dl className={'ps-zahlen' + (profil.serie > 0 ? '' : ' ohne-serie')}>
               <div>
                 <dd>{profil.xp.toLocaleString(gebiet())}</dd>
                 <dt>{tr('XP gesamt')}</dt>
               </div>
-              <div>
-                <dd className="zahl-flamme"><Flamme an={profil.serie > 0} groesse={20} />{profil.serie}</dd>
-                <dt>{tr('Tage am Stück')}</dt>
-              </div>
+              {profil.serie > 0 && (
+                <div>
+                  <dd className="zahl-flamme"><Flamme an groesse={20} />{profil.serie}</dd>
+                  <dt>{tr('Tage am Stück')}</dt>
+                </div>
+              )}
               <div>
                 <dd>{Math.min(profil.xp_woche, profil.xp).toLocaleString(gebiet())}</dd>
                 <dt>{tr('Diese Woche')}</dt>
